@@ -9,8 +9,9 @@
 <body>
 @include('layouts.header')
 @include('layouts.navbar')
-
-@include('layouts.footer')
+@include('login')
+@include('register')
+{{-- @include('layouts.footer') --}}
 
 
 </body>
