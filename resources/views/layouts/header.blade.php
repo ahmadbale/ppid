@@ -11,7 +11,7 @@
     <header class="py-4" style="background: linear-gradient(to right, #1C4F99, #0F2E5A);">
         <div class="container d-flex justify-content-between align-items-center px-4">
             <div class="d-flex align-items-center gap-3">
-                <img src="img/logo-polinema.png" alt="Logo Polinema" class="img-fluid" style="width: 80px;">
+                <img src="{{ asset('img/logo-polinema.svg') }}" alt="Logo Polinema" class="img-fluid" style="width: 80px;">
                 <div>
                     <h1 class="text-white fs-5 fw-bold mb-0">PEJABAT PENGELOLA INFORMASI DAN DOKUMENTASI</h1>
                     <span class="text-warning fs-4 fw-bold">POLINEMA</span>
