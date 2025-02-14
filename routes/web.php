@@ -19,7 +19,7 @@ Route::get('/', function () {
 
 Route::get('/landing_page', function () {
     return view('landing_page');
-
+});
 
 Route::get('/footer', function () {
     return view('layouts.footer');
