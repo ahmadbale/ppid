@@ -30,17 +30,21 @@
                     <input type="text" placeholder="email / no telpon / NIK" class="input-field">
                     <div class="password-container">
                         <input type="password" id="password" placeholder="Password">
-                        {{-- <span class="toggle-password"></span> --}}
+                        <span class="toggle-password"></span>
                     </div>
                     
-                    <button type="submit">LOGIN</button>
+                    <button type="submit">Sign In</button>
                 </form>
-
                 <div class="signup-container">
                     <div class="divider"></div>
-                    <a href="#">Sign Up</a>
+                    <span class="signup-link" onclick="window.location.href='{{ route('register') }}'">  Sign Up  </span>
                     <div class="divider"></div>
                 </div>
+                {{-- <div class="signup-container">
+                    <div class="divider"></div>
+                    <a onclick="window.location.href='{{ route('register') }}'">Sign Up</a>
+                    <div class="divider"></div>
+                </div> --}}
             </div>
         </div>
     </div>
