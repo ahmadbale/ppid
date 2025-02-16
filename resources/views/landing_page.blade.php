@@ -275,13 +275,11 @@
                     <p>Malang, 17 Oktober 2024 - Politeknik Negeri Malang (Polinema) hari ini menggelar kegiatan “Sosialisasi Layanan Informasi Publik Polinema Pejabat Pengelola Informasi dan Dokumentasi”. Acara yang berlangsung di Ruang Rapim Gedung AA lantai 2 ini diadakan secara hybrid ..</p>
                     <a href="#" class="read-more d-flex flex-wrap justify-content-end">selengkapnya →</a>
                 </div>
-
                 <div class="news-item">
                     <h5>Kegiatan Sosialisasi Pejabat Pengelola Informasi Dan Dokumentasi Oleh Pimpinan Dan Jajarannya</h5>
                     <p>Keterbukaan Informasi sangat diperlukan pada era digital saat ini. Oleh karena itu, melalui Pejabat Pengelola Informasi dan Dokumentasi (PPID) Politeknik Negeri Malang memberikan pelayanan informasi publik yang bersifat terbuka dan dapat diakses oleh masyarakat..</p>
                     <a href="#" class="read-more d-flex flex-wrap justify-content-end">selengkapnya →</a>
                 </div>
-
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     <a href="#" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
@@ -298,7 +296,6 @@
                     <iframe width="100%" height="200" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen></iframe>
                     <div class="text-white text-center p-2">Digitalisasi Ijazah</div>
                 </div>
-
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     <a href="#" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
@@ -320,7 +317,6 @@
             <a class="btn btn-menu " href="#" role="button">SIAKAD</a>
             <a class="btn btn-menu " href="#" role="button">SPMB</a>
         </div>
-
         <div class="d-flex flex-wrap justify-content-center gap-5">
             <a class="btn btn-menu " href="#" role="button">P2M</a>
             <a class="btn btn-menu " href="#" role="button">Jaminan Mutu</a>

@@ -277,7 +277,7 @@ button[type="submit"]:hover {
     margin: 0 auto;
     width: 100%;
     max-width: 600px;
-
+/* 
     label {
       float: left;
       clear: both;
@@ -364,7 +364,7 @@ button[type="submit"]:hover {
       border-radius: 4px;
       background-color: #eee;
       overflow: hidden;
-    }
+    } */
 
     /* .progress[value]::-webkit-progress-bar {
       border-radius: 4px;
