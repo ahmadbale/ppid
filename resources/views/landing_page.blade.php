@@ -72,7 +72,7 @@
                     <div class="menu-item" onclick="window.location.href='{{ route('informasi-publik.berkala') }}'">
                         <div class="icon-wrapper">
                             <img src="{{ asset('img/callendar.svg')}}" class="icon static" alt="Informasi Berkala">
-                            <img src="{{ asset('img/calendar.gif')}}" class="icon animated" alt="Informasi Berkala">
+                            <img src="{{ asset('img/calendar-ez.gif')}}" class="icon animated" alt="Informasi Berkala">
                         </div>
                         <p class="menu-label">Informasi</br>Berkala</p>
                     </div>
@@ -133,7 +133,7 @@
     {{-- Statistik section --}}
     <section class="statistik-section">
         <div class="container">
-            <h3 class="title-section">Statistik Pelayanan PPID Polinema</h3>
+            <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
             <p class="info-text">Dalam periode <strong>2023/2024</strong> telah melayani sebanyak:</p>
             <div class="statistik-row">
                 <div class="statistik-item">
@@ -156,23 +156,28 @@
                     <p>Permohonan Informasi</p>
                 </div>
                 <div class="statistik-item">
+                    <h3 class="counter" data-target="4">0</h3>
+                    <p>Aduan Masyarakat</p>
+                </div>
+                <div class="statistik-item">
+                    <h3 class="counter" data-target="7">0</h3>
+                    <p>Pernyataan Keberatan</p>
+                </div>
+                <div class="statistik-item">
+                    <h3 class="counter" data-target="1">0</h3>
+                    <p>Whistle Blwoing System (WBS)</p>
+                </div>
+                <div class="statistik-item">
                     <h3 class="counter" data-target="7">0</h3>
                     <p>Pemeliharaan Sarana Prasarana</p>
                 </div>
-                <div class="statistik-item">
-                    <h3 class="counter" data-target="6">0</h3>
-                    <p>Help Akademik</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" data-target="2">0</h3>
-                    <p>Pernyataan Keberatan</p>
-                </div>
+                
             </div>
         </div>
     </section>
 
     {{-- DOKUMENTASI --}}
-    <section class="bg-primary">
+    <section class="dokumentasi-section" style="background-color: #1B222E">
         <div class="container py-5">
             <h3 class="title-section" style="color: white;">Dokumentasi PPID</h3>
             <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
@@ -211,6 +216,7 @@
             </div>
         </div>
     </section>
+    
 
     {{-- pengumuman ppid --}}
     <section class="container mt-4 py-5">
