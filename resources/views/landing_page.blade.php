@@ -73,7 +73,7 @@
                     <div class="menu-item" onclick="window.location.href='{{ route('informasi-publik.berkala') }}'">
                         <div class="icon-wrapper">
                             <img src="{{ asset('img/callendar.svg')}}" class="icon static" alt="Informasi Berkala">
-                            <img src="{{ asset('img/calendar.gif')}}" class="icon animated" alt="Informasi Berkala">
+                            <img src="{{ asset('img/calendar-ez.gif')}}" class="icon animated" alt="Informasi Berkala">
                         </div>
                         <p class="menu-label">Informasi</br>Berkala</p>
                     </div>
@@ -134,7 +134,7 @@
     {{-- Statistik section --}}
     <section class="statistik-section py-5">
         <div class="container">
-            <h3 class="title-section">Statistik Pelayanan PPID Polinema</h3>
+            <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
             <p class="info-text">Dalam periode <strong>2023/2024</strong> telah melayani sebanyak:</p>
             <div class="statistik-row">
                 <div class="statistik-item">
@@ -157,28 +157,31 @@
                     <p>Permohonan Informasi</p>
                 </div>
                 <div class="statistik-item">
+                    <h3 class="counter" data-target="4">0</h3>
+                    <p>Aduan Masyarakat</p>
+                </div>
+                <div class="statistik-item">
+                    <h3 class="counter" data-target="7">0</h3>
+                    <p>Pernyataan Keberatan</p>
+                </div>
+                <div class="statistik-item">
+                    <h3 class="counter" data-target="1">0</h3>
+                    <p>Whistle Blwoing System (WBS)</p>
+                </div>
+                <div class="statistik-item">
                     <h3 class="counter" data-target="7">0</h3>
                     <p>Pemeliharaan Sarana Prasarana</p>
                 </div>
-                <div class="statistik-item">
-                    <h3 class="counter" data-target="6">0</h3>
-                    <p>Help Akademik</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" data-target="2">0</h3>
-                    <p>Pernyataan Keberatan</p>
-                </div>
+                
             </div>
         </div>
-    </section>
 
-    {{-- DOKUMENTASI --}}
-    <section class="bg-primary py-5">
-        <div class="container">
+        {{-- DOKUMENTASI --}}
+        <div class="container py-5">
             <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
             <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
             
-            
+
             <div id="carouselExample" class="carousel slide carousel-container" data-bs-ride="carousel">
                 <!-- Tombol Navigasi -->
                 <button class="carousel-control-prev " type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
@@ -212,8 +215,8 @@
                 </div>
             </div>
         </div>
+
     </section>
-    
     
 
     {{-- pengumuman ppid --}}
