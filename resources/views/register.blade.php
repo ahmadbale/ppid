@@ -12,7 +12,7 @@
         <div class="text-center mb-4">
             <img src="{{ asset('img/PPIDlogo.svg') }}" alt="PPID Logo" class="logo">
         </div>
-        <div class="card shadow">
+        <div class="card-register shadow">
             <h3 class="text-center mb-4">Daftar Akun Baru</h3>
             <form>
                 <div class="mb-3">

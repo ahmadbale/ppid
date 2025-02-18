@@ -28,6 +28,10 @@ Route::get('/footer', function () {
     return view('layouts.footer');
 });
 
+Route::get('/e-form', function () {
+    return view('e-form_informasi');
+});
+
 Route::get('/login', function () {
     return view('login');
 }) ->name('login');
@@ -35,6 +39,8 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return view('register');
 }) ->name('register');
+
+
 
 Route::prefix('informasi-publik')->group(function () {
     Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
