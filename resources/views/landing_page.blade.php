@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PPID Polinema</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 
 <body>
@@ -17,14 +18,14 @@
     <div id="nav-bar"></div>
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="slider">
-            <div class="slide active">
+        <div class="custom-slider">
+            <div class="custom-slide active">
                 <img src="{{ asset('img/hero-grapol.svg') }}" alt="Politeknik Negeri Malang 1">
                 <div class="hero-content">
                     <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
                 </div>
             </div>
-            <div class="slide">
+            <div class="custom-slide">
                 <img src="{{ asset('img/maklumat-bg 1.svg') }}" alt="Maklumat Pelayanan Publik">
                 <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.svg') }}" alt="Maklumat Pelayanan Publik">
             </div>
@@ -131,7 +132,7 @@
     </section>
     
     {{-- Statistik section --}}
-    <section class="statistik-section">
+    <section class="statistik-section py-5">
         <div class="container">
             <h3 class="title-section">Statistik Pelayanan PPID Polinema</h3>
             <p class="info-text">Dalam periode <strong>2023/2024</strong> telah melayani sebanyak:</p>
@@ -172,20 +173,21 @@
     </section>
 
     {{-- DOKUMENTASI --}}
-    <section class="bg-primary">
-        <div class="container py-5">
-            <h3 class="title-section" style="color: white;">Dokumentasi PPID</h3>
-            <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
-            <!-- Tombol Navigasi -->
-            <button class="carousel-control-prev " type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                <i class="bi bi-caret-left-fill icon-large"></i>
-            </button>
-            <button class="carousel-control-next " type="button" data-bs-target="#carouselExample"
-                data-bs-slide="next">
-                <i class="bi bi-caret-right-fill icon-large"></i>
-            </button>
-
+    <section class="bg-primary py-5">
+        <div class="container">
+            <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
+            <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
+            
+            
             <div id="carouselExample" class="carousel slide carousel-container" data-bs-ride="carousel">
+                <!-- Tombol Navigasi -->
+                <button class="carousel-control-prev " type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                    <i class="bi bi-caret-left-fill icon-large"></i>
+                </button>
+                <button class="carousel-control-next " type="button" data-bs-target="#carouselExample"
+                    data-bs-slide="next">
+                    <i class="bi bi-caret-right-fill icon-large"></i>
+                </button>
                 <div class="carousel-inner">
                     <div class="carousel-item active">
                         <div class="row d-flex justify-content-center">
@@ -211,57 +213,55 @@
             </div>
         </div>
     </section>
+    
+    
 
     {{-- pengumuman ppid --}}
-    <section class="container mt-4 py-5">
-        <h3 class="title-section">Pengumuman PPID</h3>
-        <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto">
-         </div>
-         <div class="row row-cols-1 row-cols-md-3 g-4">
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="{{ asset('dokumentasi-1.svg') }}" class="img-cover" alt="Gambar 1">
-                    </div>
-                    <div class="card-body">
-                        <p class="date">1 Februari 2025</p>
-                        <p class="card-text">Deskripsi/isi pengumuman</p>
-                        <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
-                    </div>
-                </div>
+<section class="container mt-4 py-5">
+    <h3 class="title-section">Pengumuman PPID</h3>
+    <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col">
+            <div class="ppid-card-header">
+                <img src="{{ asset('img/dokumentasi-1.svg') }}" class="ppid-img-cover" alt="Gambar 1">
             </div>
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-header">
-                         <img src="{{ asset('dokumentasi-2.svg') }}" class="img-cover" alt="Gambar 2">
-                    </div>
-                    <div class="card-body">
-                        <p class="date">30 Januari 2025</p>
-                        <p class="card-text">Deskripsi/isi pengumuman</p>
-                        <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-header">
-                        <img src="{{ asset('dokumentasi-3.svg') }}" class="img-cover" alt="Gambar 3">
-                    </div>
-                    <div class="card-body">
-                        <p class="date">25 Januari 2025</p>
-                        <p class="card-text">Deskripsi/isi pengumuman</p>
-                        <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
-                    </div>
-                </div>
+            <div class="ppid-card-body py-5">
+                <p class="ppid-date">1 Februari 2025</p>
+                <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
+                <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
             </div>
         </div>
-        <div class="d-flex flex-wrap justify-content-center mt-3">
-            <a href="#" class="btn-custom">
-                <i class="bi bi-arrow-right"></i>
-                <span class="ms-2">Pengumuman PPID Lainnya</span>
-            </a>
+        <div class="col">
+            <div class="ppid-card-header">
+                <img src="{{ asset('img/dokumentasi-2.svg') }}" class="ppid-img-cover" alt="Gambar 2">
+            </div>
+            <div class="ppid-card-body py-5">
+                <p class="ppid-date">30 Januari 2025</p>
+                <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
+                <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
+            </div>
         </div>
-    </section>
+        <div class="col">
+            <div class="ppid-card-header">
+                <img src="{{ asset('img/dokumentasi-3.svg') }}" class="ppid-img-cover" alt="Gambar 3">
+            </div>
+            <div class="ppid-card-body py-5">
+                <p class="ppid-date">25 Januari 2025</p>
+                <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
+                <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-center mt-3">
+        <a href="#" class="btn-custom">
+            <i class="bi bi-arrow-right"></i>
+            <span class="ms-2">Pengumuman PPID Lainnya</span>
+        </a>
+    </div>
+</section>
+
 
     <section class="container mt-4 py-5">
         <div class="row">
@@ -293,7 +293,7 @@
                 <h3 class="title-section">Media Informasi Publik</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
                 <div class="video-container">
-                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+                    <iframe width="100%" height="200" src="" frameborder="0" allowfullscreen></iframe>
                     <div class="text-white text-center p-2">Digitalisasi Ijazah</div>
                 </div>
                 <div class="d-flex flex-wrap justify-content-center mt-3">
@@ -312,16 +312,16 @@
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
 
         <div class="d-flex flex-wrap justify-content-center gap-5 mb-4">
-            <a class="btn btn-menu " href="#" role="button">POLINEMA</a>
-            <a class="btn btn-menu " href="#" role="button">PORTAL</a>
-            <a class="btn btn-menu " href="#" role="button">SIAKAD</a>
-            <a class="btn btn-menu " href="#" role="button">SPMB</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">POLINEMA</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">PORTAL</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">SIAKAD</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">SPMB</a>
         </div>
         <div class="d-flex flex-wrap justify-content-center gap-5">
-            <a class="btn btn-menu " href="#" role="button">P2M</a>
-            <a class="btn btn-menu " href="#" role="button">Jaminan Mutu</a>
-            <a class="btn btn-menu " href="#" role="button">LPSE KEMDIKBUD</a>
-            <a class="btn btn-menu " href="#" role="button">Alumni</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">P2M</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">Jaminan Mutu</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">LPSE KEMDIKBUD</a>
+            <a class="btn btn-menu-pintasan " href="#" role="button">Alumni</a>
         </div>
     </section>
 

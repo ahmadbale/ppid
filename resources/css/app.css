@@ -245,7 +245,7 @@ button[type="submit"]:hover {
 }
 
 /* --- REGISTER --- */
-.card {
+.card-register {
     border-radius: 10px;
     padding: 20px;
     max-width: 500px;
@@ -418,12 +418,13 @@ button[type="submit"]:hover {
     height: 80vh;
     overflow: hidden;
 }
-.slider {
+.custom-slider {
     position: relative;
     width: 100%;
     height: 100%;
 }
-.slide {
+
+.custom-slide {
     position: absolute;
     top: 0;
     left: 0;
@@ -434,16 +435,19 @@ button[type="submit"]:hover {
     transition: opacity 3s ease-in-out, visibility 3s ease-in-out;
     display: none;
 }
-.slide.active {
+
+.custom-slide.active {
     opacity: 1;
     display: block;
     visibility: visible;
 }
-.slide img {
+
+.custom-slide img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+
 .hero-content {
     position: absolute;
     top: 0;
@@ -618,42 +622,62 @@ button[type="submit"]:hover {
 
 
 /*Dokumentasi*/
-    .carousel-item img {
-        width: 500px;
-        height: 300px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-    .carousel-container {
-        max-width: auto;
-        margin: auto;
-        position: relative;
-    }
+.carousel-item img {
+    width: 500px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.carousel-container {
+    max-width: auto;
+    margin: auto;
+    position: relative;
+}
 
-     .icon-large {
-        font-size: 2rem !important;
-    }
+.carousel-control-prev, .carousel-control-next {
+    width: auto;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    z-index: 10;
+}
 
-    .divider {
-        width: 50px;
-        height: 3px;
-        background-color: white;
-        margin: 0 auto 15px;
+.carousel-control-prev {
+    left: -50px; /* Adjust this value as needed */
+}
+
+.carousel-control-next {
+    right: -50px; /* Adjust this value as needed */
+}
+
+ .icon-large {
+    font-size: 2rem !important; 
+}
+    .title-section-dokumentasi{
+        text-align: center;
+        font-weight: bold;
+        color:white;
     }
+   
 
 /* pengumuman ppid */
- .title-section{
-        text-align: center;
-        margin-bottom: 10px;
-        font-weight: bold;
-        color:black;
-    }
-.card {
+.title-section {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: black;
+}
+
+.ppid-card {
+    width: 800px;
+}
+
+.ppid-card-header {
     border-radius: 10px;
     border: none;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
-.card-header {
     height: 200px;
     width: 100%;
     overflow: hidden;
@@ -662,23 +686,28 @@ button[type="submit"]:hover {
     background-color: white;
 }
 
-.card-header img.img-cover {
+.ppid-card-header img.ppid-img-cover {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 5px;
 }
 
-
-.card-body {
+.ppid-card-body {
     text-align: center;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    height: auto;
+    z-index: 1;
 }
 
-.date {
+.ppid-date {
     color: gray;
     font-size: 14px;
 }
 
-.card-text {
+.ppid-card-text {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -692,10 +721,10 @@ button[type="submit"]:hover {
     border-radius: 5px;
 }
 
-
 .btn-primary:hover {
     background-color: #091E3C;
 }
+
 
 /* berita ppid */
 .section-title-berita {
@@ -762,17 +791,18 @@ button[type="submit"]:hover {
 }
 
 /* pintasan menu */
-.btn-menu{
+.btn-menu-pintasan{
     background-color: #0B254B; /* Warna biru gelap */
     border: none;
-    width:10rem;
+    width:12rem;
     height:auto;
     padding: 8px 20px;
     font-size: 14px;
     border-radius: 5px;
-    color: white;
+    color: white;   
 }
-.btn-menu:hover {
+.btn-menu-pintasan:hover {
     color: white;
     background-color: #091E3C;
 }
+
