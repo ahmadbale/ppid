@@ -24,7 +24,7 @@ document.addEventListener("alpine:init", () => {
 document.addEventListener('DOMContentLoaded', function() {
     const uploadZone = document.querySelector('.upload-zone');
     const fileInput = document.getElementById('ktp-upload');
-    const previewImage = document.getElementById('preview-image');
+    const previewImage = docuSment.getElementById('preview-image');
     const uploadPlaceholder = document.querySelector('.upload-placeholder');
     const uploadProgress = document.querySelector('.upload-progress');
     const progressBar = uploadProgress.querySelector('.bg-orange-500');
@@ -149,10 +149,11 @@ document.getElementById("upload-btn").addEventListener("click", function() {
     document.getElementById("ktp-upload").click();
 });
 
+
 document.getElementById("ktp-upload").addEventListener("change", function(event) {
     const fileName = event.target.files[0] ? event.target.files[0].name : "Tidak ada file yang dipilih";
     const fileNameElement = document.getElementById("file-name");
     
     fileNameElement.textContent = fileName;
     fileNameElement.classList.remove("d-none");
-});
+}); 
