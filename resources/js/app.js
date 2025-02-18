@@ -4,6 +4,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+window.Alpine = Alpine;
+Alpine.start();
+
+// show password
 document.addEventListener("alpine:init", () => {
     Alpine.data("passwordToggle", () => ({
         showPassword: false,
@@ -156,3 +160,28 @@ document.getElementById("ktp-upload").addEventListener("change", function(event)
     fileNameElement.textContent = fileName;
     fileNameElement.classList.remove("d-none");
 });
+
+
+// stats
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("statistikCounter", () => ({
+            duration: 4000, // Durasi animasi dalam milidetik (4 detik)
+            startCounters() {
+                document.querySelectorAll(".counter").forEach((el) => {
+                    const target = parseInt(el.dataset.target, 10) || 0;
+                    let startTime = null;
+                    
+                    const updateCounter = (timestamp) => {
+                        if (!startTime) startTime = timestamp;
+                        const progress = Math.min((timestamp - startTime) / this.duration, 1);
+                        el.textContent = Math.ceil(progress * target);
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        }
+                    };
+                    requestAnimationFrame(updateCounter);
+                });
+            }
+        }));
+    });
