@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InformasiPublikController;
+use App\Http\Controllers\PermohonanController;
+use App\Http\Controllers\EFormController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +46,10 @@ Route::prefix('informasi-publik')->group(function () {
     Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
     Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
     Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
+});
+
+Route::prefix('e-form')->group(function () {
+    Route::get('/form-pengaduan', [EFormController::class, 'form-pengaduan'])->name('e-form.form-pengaduan');
 });
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
