@@ -82,7 +82,7 @@
                     </div>
                 </div>
             </div>
-                <button type="submit" class="btn btn-warning w-100">DAFTAR</button>
+                <button type="submit" class="register-btn btn-warning w-100">DAFTAR</button>
             </form>
         </div>
     </div>
