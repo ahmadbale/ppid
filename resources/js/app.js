@@ -185,4 +185,3 @@ document.getElementById("ktp-upload").addEventListener("change", function(event)
             }
         }));
     });
-}); 

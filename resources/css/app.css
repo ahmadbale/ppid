@@ -947,6 +947,8 @@ form {
 
 .card-header{
     background-color:#3A83ED;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
 }
 
 .card{
@@ -985,4 +987,12 @@ color:white;
 }
 .link-text:hover {
     text-decoration: underline;
+}
+
+.date{
+    width:15rem;
+}
+
+.bi-cloud-arrow-up{
+   font-size:2rem;
 }
