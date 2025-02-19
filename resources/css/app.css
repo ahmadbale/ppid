@@ -784,7 +784,7 @@ form {
     text-align: left;
     padding-left: 80px;
 }
-}
+
 
 .timeline-content {
     position: relative;
@@ -816,6 +816,21 @@ form {
     right: -64px;
 }
 
+.timeline-item.right .timeline-number {
+    left: -64px;
+}
+.timeline-content p {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.link-text {
+    transition: text-decoration 0.3s ease;
+}
+.link-text:hover {
+    text-decoration: underline;
+}
+
 /* e-form */
 .e-form{
     max-width: 800px; 
@@ -836,6 +851,8 @@ form {
 
 .card-header{
     background-color:#3A83ED;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
 }
 
 .card{
@@ -861,17 +878,11 @@ color:white;
     color:black;
 }
 
-.timeline-item.right .timeline-number {
-    left: -64px;
+
+.date{
+    width:15rem;
 }
-.timeline-content p {
-    margin: 0;
-    font-size: 1.1rem;
-    line-height: 1;
-}
-.link-text {
-    transition: text-decoration 0.3s ease;
-}
-.link-text:hover {
-    text-decoration: underline;
+
+.bi-cloud-arrow-up{
+   font-size:2rem;
 }
