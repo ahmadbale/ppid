@@ -33,7 +33,7 @@
                             E-Form
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Permohonan Informasi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('eform') }}">Permohonan Informasi</a></li>
                             <li><a class="dropdown-item" href="#">Pernyataan Keberatan</a></li>
                             <li><a class="dropdown-item" href="#">Pengaduan Masyarakat</a></li>
                             <li><a class="dropdown-item" href="#">Whistle Blowing System (WBS)</a></li>
