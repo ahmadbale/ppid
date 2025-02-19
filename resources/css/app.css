@@ -198,7 +198,7 @@ form {
     color: #333;
 }
 
-button[type="submit"] {
+.register-btn {
     width: 100%;
     padding: 10px;
     background-color: #FFC030;
@@ -209,7 +209,7 @@ button[type="submit"] {
     transition: background-color 0.3s;
 }
 
-button[type="submit"]:hover {
+.register-btn:hover {
     background-color: #e6a82a;
 }
 
@@ -278,6 +278,7 @@ button[type="submit"]:hover {
     width: 100%;
     max-width: 600px;
 }
+
 .upload-preview {
     width: 100%;
     max-height: 200px;
@@ -580,11 +581,11 @@ button[type="submit"]:hover {
 }
 
 .carousel-control-prev {
-    left: -50px; /* Adjust this value as needed */
+    left: -50px; 
 }
 
 .carousel-control-next {
-    right: -50px; /* Adjust this value as needed */
+    right: -50px; 
 }
 
  .icon-large {
@@ -783,6 +784,7 @@ button[type="submit"]:hover {
     text-align: left;
     padding-left: 80px;
 }
+}
 
 .timeline-content {
     position: relative;
@@ -813,6 +815,52 @@ button[type="submit"]:hover {
 .timeline-item.left .timeline-number {
     right: -64px;
 }
+
+/* e-form */
+.e-form{
+    max-width: 800px; 
+    width: 100%;
+    margin: 0 auto; 
+}
+
+.title-form{
+    font-size: medium;
+    font-weight: bold;
+    color:white;
+}
+
+.label-form{
+    font-weight:bold;
+    margin-bottom: 4px;
+}
+
+.card-header{
+    background-color:#3A83ED;
+}
+
+.card{
+    border-radius: 20px;
+}
+.form-btn{
+width: 5rem;
+padding: 10px;
+background-color: #3A83ED;
+border: none;
+font-weight: bold;
+border-radius: 10px;
+font-size: 16px;
+color:white;
+}
+
+.text-muted{
+    font-size:small;
+}
+
+.title-page{
+    text-align: center;
+    color:black;
+}
+
 .timeline-item.right .timeline-number {
     left: -64px;
 }
