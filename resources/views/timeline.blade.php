@@ -10,7 +10,7 @@
 <body>
     @include('layouts.header')
     @include('layouts.navbar')
-    
+
 
     <section class="hero-section-ef" style="background: url('{{ asset('img/hero-grapol.svg') }}') no-repeat center center/cover; color: #fff; text-align: left; height: 40vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 20px;">
         <div class="container">
@@ -112,11 +112,19 @@
             <!-- Ajukan Pengaduan Section -->
             <div class="ajukan-pengaduan">
                 <h3 class="mb-0">Ajukan Pengaduan</h3>
-                <button class="masuk-button" onclick="window.location.href='{{ route('e-form.form-pengaduan') }}'">Klik form ini</button>
+                <button class="masuk-button" onclick="window.location.href='{{ route('e-form') }}'">Klik form ini</button>
             </div>
             </div>
         </div>
     </section>
+
+{{-- <lord-icon
+    src="https://cdn.lordicon.com/warimioc.json"
+    trigger="hover"
+    colors="primary:#3080e8,secondary:#f4c89c"
+    style="width:250px;height:250px">
+</lord-icon> --}}
 @include('layouts.footer')
 </body>
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
 </html>

@@ -12,8 +12,8 @@
 @include('login') --}}
 {{-- @include('register') --}}
 {{-- @include('layouts.footer') --}}
-{{-- @include('landing_page') --}}
-@include('timeline')
+@include('landing_page')
+{{-- @include('timeline') --}}
 
 </body>
 </html>
