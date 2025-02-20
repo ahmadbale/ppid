@@ -17,21 +17,6 @@
     <div id="header"></div>
     <div id="nav-bar"></div>
     <!-- Hero Section -->
-    {{-- <section class="hero-section">
-        <div class="custom-slider">
-            <div class="custom-slide active">
-                <img src="{{ asset('img/hero-grapol.svg') }}" alt="Politeknik Negeri Malang 1">
-                <div class="hero-content">
-                    <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
-                </div>
-            </div>
-            <div class="custom-slide">
-                <img src="{{ asset('img/maklumat-bg 1.svg') }}" alt="Maklumat Pelayanan Publik">
-                <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.svg') }}" alt="Maklumat Pelayanan Publik">
-            </div>
-        </div>
-    </section>   --}}
-
     <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">
             <div class="custom-slide active">
