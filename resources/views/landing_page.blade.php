@@ -17,7 +17,7 @@
     <div id="header"></div>
     <div id="nav-bar"></div>
     <!-- Hero Section -->
-    <section class="hero-section">
+    {{-- <section class="hero-section">
         <div class="custom-slider">
             <div class="custom-slide active">
                 <img src="{{ asset('img/hero-grapol.svg') }}" alt="Politeknik Negeri Malang 1">
@@ -28,6 +28,23 @@
             <div class="custom-slide">
                 <img src="{{ asset('img/maklumat-bg 1.svg') }}" alt="Maklumat Pelayanan Publik">
                 <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.svg') }}" alt="Maklumat Pelayanan Publik">
+            </div>
+        </div>
+    </section>   --}}
+
+    <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
+        <div class="custom-slider">
+            <div class="custom-slide active">
+                <img src="{{ asset('img/hero-grapol.svg') }}" alt="Politeknik Negeri Malang 1">
+                <div class="hero-content">
+                    <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
+                </div>
+            </div>
+            <div class="custom-slide">
+                <img src="{{ asset('img/maklumat-bg 1.svg') }}" alt="Maklumat Pelayanan Publik">
+            </div>
+            <div class="custom-slide">
+                <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.svg') }}" alt="Jadwal Pelayanan Informasi Publik">
             </div>
         </div>
     </section>
@@ -239,30 +256,30 @@
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <div class="col">
-                <div class="ppid-card-header">
-                    <img src="{{ asset('img/dokumentasi-1.svg') }}" class="ppid-img-cover" alt="Gambar 1">
-                </div>
-                <div class="ppid-card-body py-5">
+                <div class="ppid-card-body">
+                    <div class="ppid-card-header">
+                        <img src="{{ asset('img/dokumentasi-1.svg') }}" class="ppid-img-cover" alt="Gambar 1">
+                    </div>
                     <p class="ppid-date">1 Februari 2025</p>
                     <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
                     <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
                 </div>
             </div>
             <div class="col">
-                <div class="ppid-card-header">
-                    <img src="{{ asset('img/dokumentasi-2.svg') }}" class="ppid-img-cover" alt="Gambar 2">
-                </div>
-                <div class="ppid-card-body py-5">
+                <div class="ppid-card-body">
+                    <div class="ppid-card-header">
+                        <img src="{{ asset('img/dokumentasi-2.svg') }}" class="ppid-img-cover" alt="Gambar 2">
+                    </div>
                     <p class="ppid-date">30 Januari 2025</p>
                     <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
                     <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
                 </div>
             </div>
             <div class="col">
-                <div class="ppid-card-header">
-                    <img src="{{ asset('img/dokumentasi-3.svg') }}" class="ppid-img-cover" alt="Gambar 3">
-                </div>
-                <div class="ppid-card-body py-5">
+                <div class="ppid-card-body">
+                    <div class="ppid-card-header">
+                        <img src="{{ asset('img/dokumentasi-3.svg') }}" class="ppid-img-cover" alt="Gambar 3">
+                    </div>
                     <p class="ppid-date">25 Januari 2025</p>
                     <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
                     <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>

@@ -7,32 +7,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // hero section auto slide
+window.heroSlider = function () {
+    return {
+        currentSlide: 0,
+        slides: [],
+        startSlider() {
+            this.slides = Array.from(document.querySelectorAll('.custom-slide'));
 
+            if (this.slides.length > 0) {
+                setInterval(() => {
+                    this.slides[this.currentSlide].classList.remove('active');
+                    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                    this.slides[this.currentSlide].classList.add('active');
+                }, 3000);
+            }
+        }
+    };
+};
 
-// stats
-    // document.addEventListener("alpine:init", () => {
-    //     Alpine.data("statistikCounter", () => ({
-    //         duration: 4000, // Durasi animasi dalam milidetik (4 detik)
-    //         startCounters() {
-    //             document.querySelectorAll(".counter").forEach((el) => {
-    //                 const target = parseInt(el.dataset.target, 10) || 0;
-    //                 let startTime = null;
-
-    //                 const updateCounter = (timestamp) => {
-    //                     if (!startTime) startTime = timestamp;
-    //                     const progress = Math.min((timestamp - startTime) / this.duration, 1);
-    //                     el.textContent = Math.ceil(progress * target);
-
-    //                     if (progress < 1) {
-    //                         requestAnimationFrame(updateCounter);
-    //                     }
-    //                 };
-    //                 requestAnimationFrame(updateCounter);
-    //             });
-    //         }
-    //     }));
-    // });
-
+// statistic
     document.addEventListener("alpine:init", () => {
         Alpine.data("statistikCounter", () => ({
             targets: [25, 24, 1, 9, 4, 7, 1, 7],
