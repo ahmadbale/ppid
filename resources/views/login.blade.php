@@ -10,7 +10,8 @@
 <body>
     <div class="login-container">
         <div class="image-container">
-            <img src="{{ asset('img/loginpicc.svg') }}" alt="Background Image">
+            <div class="overlay"></div>
+            <img src="{{ asset('img/login-pic.webp') }}" alt="Background Image">
             <div class="overlay-text">
                 <h3>Satu Langkah dalam</h3>
                 <h1>Keterbukaan Informasi</h1>
@@ -31,19 +32,14 @@
                         <input type="password" id="password" placeholder="Password">
                         <span class="toggle-password"></span>
                     </div>
-                    
-                    <button type="submit">Sign In</button>
+
+                    <button type="submit" class="masuk-button">Sign In</button>
                 </form>
                 <div class="signup-container">
                     <div class="divider"></div>
                     <span class="signup-link" onclick="window.location.href='{{ route('register') }}'">  Sign Up  </span>
                     <div class="divider"></div>
                 </div>
-                {{-- <div class="signup-container">
-                    <div class="divider"></div>
-                    <a onclick="window.location.href='{{ route('register') }}'">Sign Up</a>
-                    <div class="divider"></div>
-                </div> --}}
             </div>
         </div>
     </div>
