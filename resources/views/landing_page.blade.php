@@ -20,16 +20,17 @@
     <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">
             <div class="custom-slide active">
-                <img src="{{ asset('img/hero-grapol.svg') }}" alt="Politeknik Negeri Malang 1">
+                <div class="overlay"></div>
+                <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1">
                 <div class="hero-content">
                     <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
                 </div>
             </div>
             <div class="custom-slide">
-                <img src="{{ asset('img/maklumat-bg 1.svg') }}" alt="Maklumat Pelayanan Publik">
+                <img src="{{ asset('img/maklumat-ppid.webp') }}" alt="Maklumat Pelayanan Publik">
             </div>
             <div class="custom-slide">
-                <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.svg') }}" alt="Jadwal Pelayanan Informasi Publik">
+                <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.webp') }}" alt="Jadwal Pelayanan Informasi Publik">
             </div>
         </div>
     </section>
@@ -51,7 +52,7 @@
                     </p>
                 </div>
                 <div class="col-md-6 text-center">
-                    <img src="{{ asset('img/direktur-polinema.svg') }}" alt="gambar-pengantar" class="pengantar-img">
+                    <img src="{{ asset('img/direktur-polinema-bendera.webp') }}" alt="gambar-pengantar" class="pengantar-img">
                 </div>
             </div>
         </div>
@@ -130,7 +131,8 @@
     </section>
 
     {{-- CTA Login/regist --}}
-    <section class="masuktamu-section" style="background: url('img/otwlogin.svg') center/cover no-repeat;">
+    <section class="masuktamu-section" style="background: url('img/gedung-sipil.webp') center/cover no-repeat;">
+        <div class="overlay"></div>
         <div class="masuktamu-container">
             <div class="masuktamu-text">
                 <h2>MASUK BUKU TAMU</h2>
