@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>E-Form</title>
-    @vite(['resources/css/e-form.css','resources/js/app.js'])
+    <title>E-Form Pernyataan Keberatan</title>
+    @vite(['resources/css/app.css','resources/js/upload-ktp.js'])
 </head>
 <body>
     @include('layouts.header')
@@ -66,25 +66,53 @@
                         <label class="label-form">Email Pemohon <span class="text-danger">*</span> </label>
                         <input type="email" class="form-control" name="pi_email_pengguna_informasi">
                     </div>
-                    <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label class="label-form">Upload Bukti Pendukung Laporan <span class="text-danger">*</span> </label>
+                        <label class="label-form">Upload Foto Kartu Identitas Pemohon  <span class="text-danger">*</span> </label>
                         <br>
-                        <label class="text-muted">Upload maksimum 5 file yang didukung. Maks 100 MB per file.</label>
-                        <div class="upload-box">
-                        <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center">
-                            <input type="file" id="ktp-upload" class="hidden" style="display: none;" accept="image/*">
-                            <div id="upload-content">
-                                <img src="" alt="" id="preview-image" class="max-h-32 mx-auto mb-4 hidden">
-                                <div class="upload-placeholder">
-                                    <i class="bi bi-cloud-arrow-up"></i>
-                                    <p class="text-muted small mb-1">
-                                        Drag and drop <span class="text-primary fw-semibold" role="button" id="upload-btn" >or browse</span> to upload
-                                    </p>
-                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                        <label class="text-muted">Silakan scan / Foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.</label>
+                    <div class="col-md-6">
+                    <div x-data="uploadHandler" class="upload-box">
+                        <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
+                            @dragover.prevent="dragging = true; console.log('Dragging over')"
+                            @dragleave="dragging = false; console.log('Dragging left')"
+                            @drop.prevent="handleDrop($event); console.log('File dropped')"
+                            :class="{ 'border-orange-500': dragging }">
+
+                            
+
+                            <template x-if="previewUrl">
+                                <img :src="previewUrl" class="upload-preview" alt="Preview">
+                            </template>
+
+                            <div x-show="!previewUrl" class="upload-placeholder">
+                                <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-sm text-gray-600">
+                                   <strong> Drag and drop <span class="text-orange-500 font-semibold">or choose file</span> to
+                                    upload </strong>
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                                <div x-data>
+                                    <button type="button" @click="$refs.fileInput.click()" class="btn upload-btn  px-4 py-2 shadow-sm">
+                                        Pilih File
+                                    </button>
+                                    <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
                                 </div>
+                                
+                                
+                                <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                             </div>
                         </div>
+
+                        <!-- Progress Bar -->
+                            <div x-show="uploading" class="upload-progress mt-3">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-orange-500 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`">
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2 text-center">
+                                Mengupload... <span x-text="uploadProgress + '%'"></span>
+                            </p>
+                            </div>
                         </div>
                     </div>
                     </div>

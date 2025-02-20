@@ -67,8 +67,7 @@
                             @drop.prevent="handleDrop($event); console.log('File dropped')"
                             :class="{ 'border-orange-500': dragging }">
 
-                            <input type="file" id="ktp-upload" class="hidden" accept="image/*"
-                                @change="handleFileSelect">
+                            
 
                             <template x-if="previewUrl">
                                 <img :src="previewUrl" class="upload-preview" alt="Preview">
@@ -77,21 +76,24 @@
                             <div x-show="!previewUrl" class="upload-placeholder">
                                 <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
                                 <p class="text-sm text-gray-600">
-                                    Drag and drop <span class="text-orange-500 font-semibold">or choose file</span> to
-                                    upload
+                                   <strong> Drag and drop <span class="text-orange-500 font-semibold">or choose file</span> to
+                                    upload </strong>
                                 </p>
                                 <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
-                                <button @click="$refs.fileInput.click()" class="btn btn-warning px-4 py-2 shadow-sm">
-                                    <i class="fas fa-upload"></i> Pilih File
-                                </button>
-                                <input type="file" x-ref="fileInput" class="hidden" accept="image/*"
-                                    @change="handleFileSelect">
+                                <div x-data>
+                                    <button type="button" @click="$refs.fileInput.click()" class="btn btn-warning px-4 py-2 shadow-sm">
+                                        Pilih File
+                                    </button>
+                                    <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
+                                </div>
+                                
+                                
                                 <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                             </div>
                         </div>
 
                         <!-- Progress Bar -->
-                        <div x-show="uploading" class="upload-progress mt-3">
+                            <div x-show="uploading" class="upload-progress mt-3">
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
                                 <div class="bg-orange-500 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`">
                                 </div>
@@ -99,8 +101,8 @@
                             <p class="text-sm text-gray-600 mt-2 text-center">
                                 Mengupload... <span x-text="uploadProgress + '%'"></span>
                             </p>
+                            </div>
                         </div>
-                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-warning w-100">DAFTAR</button>

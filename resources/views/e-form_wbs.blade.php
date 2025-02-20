@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>E-Form</title>
-    @vite(['resources/css/e-form.css','resources/js/app.js'])
+    <title>E-Form Whistle Blowing System</title>
+    @vite(['resources/css/app.css','resources/js/upload-bukti.js'])
 </head>
 <body>
     @include('layouts.header')
     @include('layouts.navbar')
     <div class="title-page mt-5">
-        <h2>Formulir Whistle Blwoing System</h2>   
+        <h2>Formulir Whistle Blowing System</h2>   
     </div>
     <section class="container e-form py-4 mb-5">
     <div class="card mb-4">
@@ -119,28 +119,83 @@
                     <label class="text-muted">Jelaskan kronologis kejadian secara lengkap dan runtut.</label>
                     <textarea class="form-control" name="pi_alasan_permohonan_informasi" required rows="4"></textarea>
                 </div>
-                <div class="col-md-6">
+                
                 <div class="form-group mb-3">
-                    <label class="label-form">Upload Bukti Pendukung Laporan <span class="text-danger">*</span> </label>
+                    <label class="label-form">Upload Bukti Pendukung Laporan <span class="text-danger">*</span></label>
                     <br>
                     <label class="text-muted">Upload maksimum 5 file yang didukung. Maks 100 MB per file.</label>
-                    <div class="upload-box">
-                    <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center">
-                        <input type="file" id="ktp-upload" class="hidden" style="display: none;" accept="image/*">
-                        <div id="upload-content">
-                            <img src="" alt="" id="preview-image" class="max-h-32 mx-auto mb-4 hidden">
-                            <div class="upload-placeholder">
-                                <i class="bi bi-cloud-arrow-up"></i>
-                                <p class="text-muted small mb-1">
-                                    Drag and drop <span class="text-primary fw-semibold" role="button" id="upload-btn" >or browse</span> to upload
+                    <div class="col-md-8">
+                        <div x-data="multiUploadHandler" class="upload-box">
+                            <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
+                                @dragover.prevent="dragging = true"
+                                @dragleave="dragging = false"
+                                @drop.prevent="handleDrop($event)"
+                                :class="{ 'border-orange-500': dragging }">
+                                
+                                <div x-show="fileList.length === 0" class="upload-placeholder">
+                                    <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
+                                    <p class="text-sm text-gray-600">
+                                        <strong>Drag and drop <span class="text-orange-500 font-semibold">or choose files</span> to upload</strong>
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF, PDF, DOCX, dll. (maks 5 file, total 100MB)</p>
+                                    <div x-data>
+                                        <button type="button" @click="$refs.fileInput.click()" class="btn upload-btn px-4 py-2 shadow-sm">
+                                            Pilih File
+                                        </button>
+                                        <input type="file" multiple x-ref="fileInput" class="absolute invisible w-0 h-0" @change="handleFileSelect">
+                                    </div>
+                                    <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
+                                </div>
+                            </div>
+                
+                            <!-- File List Display -->
+                            <div x-show="fileList.length > 0" class="mt-4">
+                                <h4 class="font-medium text-sm mb-2">File yang akan diupload (<span x-text="fileList.length"></span>/5):</h4>
+                                <div class="total-size-info flex justify-between text-sm mb-2">
+                                    <span>Total ukuran: <span x-text="formatSize(totalSize)"></span>/100MB</span>
+                                    <span x-show="totalSize > 0" class="text-xs cursor-pointer text-red-500" @click="clearAllFiles">Hapus Semua</span>
+                                </div>
+                                
+                                <template x-for="(file, index) in fileList" :key="index">
+                                    <div class="file-item flex items-center justify-between p-2 mb-2 bg-gray-100 rounded">
+                                        <div class="file-info flex items-center">
+                                            <i class="fas fa-file mr-2 text-orange-500"></i>
+                                            <div>
+                                                <p class="text-sm font-medium truncate max-w-xs" x-text="file.name"></p>
+                                                <p class="text-xs text-gray-500" x-text="formatSize(file.size)"></p>
+                                            </div>
+                                        </div>
+                                        <button @click="removeFile(index)" class="btn upload-btn px-4 py-2 shadow-sm">
+                                            Hapus
+                                        </button>
+                                    </div>
+                                </template>
+                                
+                                <div x-show="fileList.length < 5" class="mt-3">
+                                    <button type="button" @click="$refs.addMoreInput.click()" class="btn upload-btn px-4 py-2 shadow-sm">
+                                        Tambah file lagi
+                                    </button>
+                                    <input type="file" multiple x-ref="addMoreInput" class="absolute invisible w-0 h-0" @change="handleFileSelect">
+                                </div>
+                                
+                                <button x-show="fileList.length > 0" @click="uploadFiles" class="btn upload-btn px-4 py-2 shadow-sm mt-2">
+                                    Upload Semua File
+                                </button>
+                            </div>
+                
+                            <!-- Upload Progress -->
+                            <div x-show="uploading" class="mt-4">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-orange-500 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`"></div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 text-center">
+                                    Mengupload... <span x-text="uploadProgress + '%'"></span>
                                 </p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
                             </div>
                         </div>
                     </div>
-                    </div>
                 </div>
-                </div>
+
                 <div class="form-group ">
                     <label class="label-form">Catatan</label>
                     <br>

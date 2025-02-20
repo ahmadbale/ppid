@@ -72,7 +72,7 @@ body {
 }
 
 .footer {
-    background: url('bg-footer.svg') no-repeat center center/cover;
+    background: url('bg-footer.webp') no-repeat center center/cover;
     position: relative;
     color: white;
 }
@@ -877,6 +877,10 @@ font-size: 16px;
 color:white;
 }
 
+.upload-btn{
+    background-color: #3A83ED;
+    color:white;
+}
 .text-muted{
     font-size:small;
 }

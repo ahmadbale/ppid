@@ -211,20 +211,20 @@
                 <div class="carousel-item active">
                     <div class="row d-flex justify-content-center">
                         <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-1.svg') }}" class="img-fluid" alt="Gambar 1">
+                            <img src="{{ asset('img/dokumentasi-1.webp') }}" class="img-fluid" alt="Gambar 1">
                         </div>
                         <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-2.svg') }}" class="img-fluid" alt="Gambar 2">
+                            <img src="{{ asset('img/dokumentasi-2.webp') }}" class="img-fluid" alt="Gambar 2">
                         </div>
                     </div>
                 </div>
                 <div class="carousel-item">
                     <div class="row d-flex justify-content-center">
                         <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-3.svg') }}" class="img-fluid" alt="Gambar 3">
+                            <img src="{{ asset('img/dokumentasi-3.webp') }}" class="img-fluid" alt="Gambar 3">
                         </div>
                         <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-4.svg') }}" class="img-fluid" alt="Gambar 4">
+                            <img src="{{ asset('img/dokumentasi-1.svg') }}" class="img-fluid" alt="Gambar 4">
                         </div>
                     </div>
                 </div>
@@ -243,7 +243,7 @@
             <div class="col">
                 <div class="ppid-card-body">
                     <div class="ppid-card-header">
-                        <img src="{{ asset('img/dokumentasi-1.svg') }}" class="ppid-img-cover" alt="Gambar 1">
+                        <img src="{{ asset('img/dokumentasi-1.webp') }}" class="ppid-img-cover" alt="Gambar 1">
                     </div>
                     <p class="ppid-date">1 Februari 2025</p>
                     <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
@@ -253,7 +253,7 @@
             <div class="col">
                 <div class="ppid-card-body">
                     <div class="ppid-card-header">
-                        <img src="{{ asset('img/dokumentasi-2.svg') }}" class="ppid-img-cover" alt="Gambar 2">
+                        <img src="{{ asset('img/dokumentasi-2.webp') }}" class="ppid-img-cover" alt="Gambar 2">
                     </div>
                     <p class="ppid-date">30 Januari 2025</p>
                     <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
@@ -263,7 +263,7 @@
             <div class="col">
                 <div class="ppid-card-body">
                     <div class="ppid-card-header">
-                        <img src="{{ asset('img/dokumentasi-3.svg') }}" class="ppid-img-cover" alt="Gambar 3">
+                        <img src="{{ asset('img/dokumentasi-3.webp') }}" class="ppid-img-cover" alt="Gambar 3">
                     </div>
                     <p class="ppid-date">25 Januari 2025</p>
                     <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
@@ -317,8 +317,8 @@
                 <h3 class="title-section">Media Informasi Publik</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
                 <div class="video-container">
-                    <iframe width="100%" height="200" src="" frameborder="0" allowfullscreen></iframe>
-                    <div class="text-white text-center p-2">Digitalisasi Ijazah</div>
+                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/9vlRk9C37JE" frameborder="0" allowfullscreen></iframe>
+                    <div class="text-white text-center p-2">Keterbukaan Informasi Publik</div>
                 </div>
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     <a href="#" class="btn-custom">
