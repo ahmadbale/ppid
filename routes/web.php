@@ -28,9 +28,17 @@ Route::get('/footer', function () {
     return view('layouts.footer');
 });
 
-Route::get('/e-form', function () {
+Route::get('/e-form_informasi', function () {
     return view('e-form_informasi');
 })->name('e-form');
+
+Route::get('/e-form_keberatan', function () {
+    return view('e-form_keberatan');
+});
+
+Route::get('/e-form_wbs', function () {
+    return view('e-form_wbs');
+});
 
 Route::get('/login', function () {
     return view('login');
