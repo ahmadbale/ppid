@@ -8,7 +8,10 @@ export default defineConfig({
             ['resources/css/app.css',
                 'resources/css/e-form.css',
                 'resources/js/app.js',
-                'resources/js/register.js'],
+                'resources/js/register.js',
+                'resources/js/e-form.js',
+                'resources/js/upload-bukti.js'
+                ],
             refresh: true,
         }),
     ],
