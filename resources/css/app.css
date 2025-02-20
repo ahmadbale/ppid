@@ -72,7 +72,7 @@ body {
 }
 
 .footer {
-    background: url('bg-footer.svg') no-repeat center center/cover;
+    background: url('bg-footer.webp') no-repeat center center/cover;
     position: relative;
     color: white;
 }

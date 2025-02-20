@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/css/e-form.css',
                 'resources/js/app.js',
                 'resources/js/register.js',
-                'resources/js/e-form.js',
+                'resources/js/upload-ktp.js',
                 'resources/js/upload-bukti.js'
                 ],
             refresh: true,
