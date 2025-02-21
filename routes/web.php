@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InformasiPublikController;
 use App\Http\Controllers\PermohonanController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EFormController;
 
 /*
@@ -16,9 +17,10 @@ use App\Http\Controllers\EFormController;
 |
 */
 
-Route::get('/', function () {
-    return view('tryit');
-});
+// Route::get('/', function () {
+//     return view('tryit');
+// });
+Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/landing_page', function () {
     return view('landing_page');
