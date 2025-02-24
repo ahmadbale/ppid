@@ -850,16 +850,29 @@ form {
 }
 
 /* e-form */
+
 .e-form{
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.dev/svgjs' width='1440' height='560' preserveAspectRatio='none' viewBox='0 0 1440 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1002%26quot%3b)' fill='none'%3e%3crect width='1440' height='560' x='0' y='0' fill='url(%26quot%3b%23SvgjsLinearGradient1003%26quot%3b)'%3e%3c/rect%3e%3cpath d='M1440 0L1123.65 0L1440 61.66z' fill='rgba(255%2c 255%2c 255%2c .1)'%3e%3c/path%3e%3cpath d='M1123.65 0L1440 61.66L1440 215.13L796.6800000000001 0z' fill='rgba(255%2c 255%2c 255%2c .075)'%3e%3c/path%3e%3cpath d='M796.68 0L1440 215.13L1440 328.7L417.35999999999996 0z' fill='rgba(255%2c 255%2c 255%2c .05)'%3e%3c/path%3e%3cpath d='M417.3599999999999 0L1440 328.7L1440 456.89L241.3899999999999 0z' fill='rgba(255%2c 255%2c 255%2c .025)'%3e%3c/path%3e%3cpath d='M0 560L215.25 560L0 281.77z' fill='rgba(0%2c 0%2c 0%2c .1)'%3e%3c/path%3e%3cpath d='M0 281.77L215.25 560L823.52 560L0 176.13z' fill='rgba(0%2c 0%2c 0%2c .075)'%3e%3c/path%3e%3cpath d='M0 176.13L823.52 560L959.5 560L0 148.99z' fill='rgba(0%2c 0%2c 0%2c .05)'%3e%3c/path%3e%3cpath d='M0 148.99L959.5 560L1161.55 560L0 138.48000000000002z' fill='rgba(0%2c 0%2c 0%2c .025)'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1002'%3e%3crect width='1440' height='560' fill='white'%3e%3c/rect%3e%3c/mask%3e%3clinearGradient x1='15.28%25' y1='-39.29%25' x2='84.72%25' y2='139.29%25' gradientUnits='userSpaceOnUse' id='SvgjsLinearGradient1003'%3e%3cstop stop-color='%230e2a47' offset='0'%3e%3c/stop%3e%3cstop stop-color='%2300459e' offset='1'%3e%3c/stop%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e");
+   
+}
+
+.title-page{
+    background: linear-gradient(to bottom, #1C4F99, #0F2E5A);
+    color: white; /* Warna teks putih */
+    text-align: center; /* Teks di tengah */
+    padding: 50px 0; /* Ruang atas dan bawah */
+    font-size: 24px; /* Ukuran font */
+    font-weight:bolder; /* Teks tebal */
+    border-bottom-left-radius: 100px; /* Melengkung di kiri bawah */
+    border-bottom-right-radius: 100px; 
+    /* Melengkung di kiri bawah */
 }
 
 .title-form{
     font-size: medium;
     font-weight: bold;
     color:white;
+    padding: 5px 0;
 }
 
 .label-form{
@@ -868,9 +881,15 @@ form {
 }
 
 .card-header{
-    background-color:#3A83ED;
-    border-top-left-radius: 20px !important;
-    border-top-right-radius: 20px !important;
+    background: linear-gradient(to right, #1C4F99, #0F2E5A);
+    border-top-left-radius: 18px !important;
+    border-top-right-radius: 18px !important;
+}
+
+
+
+.form-check-label{
+    font-size: 15px !important;
 }
 
 .card{
@@ -879,7 +898,7 @@ form {
 .form-btn{
 width: 5rem;
 padding: 10px;
-background-color: #3A83ED;
+background: linear-gradient(to right, #1C4F99, #0F2E5A);
 border: none;
 font-weight: bold;
 border-radius: 10px;
@@ -887,9 +906,18 @@ font-size: 16px;
 color:white;
 }
 
+.e-form-card{
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
 .upload-btn{
     background-color: #3A83ED;
     color:white;
+    display: flex; /* Menggunakan flexbox */
+    align-items: center; /* Pusatkan secara vertikal */
+    justify-content: center; /* Pusatkan secara horizontal */
+    margin: 0 auto; /* Untuk memastikan tetap di tengah */
+    width: fit-content; /* Sesuaikan dengan ukuran konten */
 }
 .text-muted{
     font-size:small;

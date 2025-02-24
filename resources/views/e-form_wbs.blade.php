@@ -7,13 +7,13 @@
     <title>E-Form Whistle Blowing System</title>
     @vite(['resources/css/app.css','resources/js/upload-bukti.js'])
 </head>
-<body>
+<body class="e-form">
     @include('layouts.header')
     @include('layouts.navbar')
-    <div class="title-page mt-5">
-        <h2>Formulir Whistle Blowing System</h2>   
+    <div class="title-page text-white">
+        <h2> Formulir Whsitle Blowing System</h2>
     </div>
-    <section class="container e-form py-4 mb-5">
+    <section class="container py-4 mb-5">
     <div class="card mb-4">
         <div class="card-header">
             <h3 class="title-form "> Identitas Pemohon Permohonan Informasi</h3>
@@ -22,64 +22,27 @@
             <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <label class="label-form">Nama Pemohon (Nama Tanpa Gelar) <span class="text-danger">*</span> </label>
                     <br>
                     <label class="text-muted">Jangan Khawatitr Identitas Pelapor akan sangat dirahasikan, kami menghargai setiap informasi yang anda laporkan.</label>
                     <input type="text" class="form-control" name="pi_nama_pengguna_informasi">
                 </div>
-            </form>
-        </div>
-    </div>
-
-
-     <!-- Form umum untuk semua kategori -->
-    <div class="card ">
-        <div class="card-header">
-            <h3 class="title-form "> Pertanyaan dan Kebutuhan Informasi</h3>
-        </div>
-        <div class="card-body ">
-            <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}" method="POST"
-                enctype="multipart/form-data">
-                @csrf
-                <div class="form-group  mb-3">
-                    <label class="label-form mb-3">Jenis Laporan <span class="text-danger">*</span> </label>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Pertanyaan Langsung Pemohon">
-                        <label class="form-radio-label">Pelanggaran Disiplin Pegawai</label>
-                    </div>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Website / Media Sosial Milik Polinema">
-                        <label class="form-radio-label">Penyalahgunaan Wewenang / Mal Administrasi</label>
-                    </div>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Website / Media Sosial Bukan Milik Polinema">
-                        <label class="form-radio-label">Pungutan Liar, Percaloan, dan Pengurusan Dokumen</label>
-                    </div>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Website / Media Sosial Bukan Milik Polinema">
-                        <label class="form-radio-label">Perilaku Amoral (Kekerasan Rumah Tangga / KDRT / Perselingkuhan)</label>
-                    </div>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Website / Media Sosial Bukan Milik Polinema">
-                        <label class="form-radio-label">Pengadaan Barang dan Jasa</label>
-                    </div>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Website / Media Sosial Bukan Milik Polinema">
-                        <label class="form-radio-label">Narkoba</label>
-                    </div>
-                    <div class="form-radio mb-2">
-                        <input class="form-radio-input" type="radio" name="pi_alasan_pengajuan[]"
-                            value="Website / Media Sosial Bukan Milik Polinema">
-                        <label class="form-radio-label">Pelayanan Publik</label>
-                    </div>
-                </div>
+                <div class="form-group mb-3">
+                    <label class="label-form mb-3" for="jenis_laporan">
+                        Jenis Laporan <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="jenis_laporan" name="jenis_laporan" required>
+                        <option value="">- Pilih Jenis Laporan -</option>
+                        <option value="Pelanggaran Disiplin Pegawai">Pelanggaran Disiplin Pegawai</option>
+                        <option value="Penyalahgunaan Wewenang / Mal Administrasi">Penyalahgunaan Wewenang / Mal Administrasi</option>
+                        <option value="Pungutan Liar, Percaloan, dan Pengurusan Dokumen">Pungutan Liar, Percaloan, dan Pengurusan Dokumen</option>
+                        <option value="Perilaku Amoral (Kekerasan Rumah Tangga / KDRT / Perselingkuhan)">Perilaku Amoral (Kekerasan Rumah Tangga / KDRT / Perselingkuhan)</option>
+                        <option value="Pengadaan Barang dan Jasa">Pengadaan Barang dan Jasa</option>
+                        <option value="Narkoba">Narkoba</option>
+                        <option value="Pelayanan Publik">Pelayanan Publik</option>
+                    </select>
+                </div>                
                 <div class="form-group mb-3">
                     <label class="label-form">Nama Pegawai / Staff atau Bagian yang dilaporkan <span class="text-danger">*</span> </label>
                     <br>
@@ -204,7 +167,7 @@
                 </div>
             </form>
         </div>
-    </div>    
+    </div>
     <button type="submit" class="form-btn mt-3 ">Submit</button>
 </section>
  

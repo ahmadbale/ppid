@@ -7,15 +7,18 @@
     <title>E-Form Permohonan Informasi</title>
     @vite(['resources/css/app.css','resources/js/upload-ktp.js'])
 </head>
-<body>
+<body class="e-form">
     @include('layouts.header')
-    @include('layouts.navbar')
-    <div class="title-page mt-5">
+    <div class="title-page text-white">
         <h2> Formulir Permohonan Informasi</h2>
     </div>
     <section class="container e-form py-4 mb-5">
+
+           
+<div class="row row-cols-1 row-cols-md-2">
 <div x-data="{ kategori: '' }">
-    <div class="card mb-4">
+    <div class="col ">
+    <div class="card e-form-card mb-3">
         <div class="card-header">
             <h3 class="title-form "> Identitas Pemohon Permohonan Informasi</h3>
         </div>
@@ -23,7 +26,7 @@
             <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
-                <div class="form-group ">
+                <div class="form-group mb-3">
                     <label class="label-form" for="pi_kategori_pemohon">Permohonan Informasi Dilakukan Atas</label>
                     <select  x-model="kategori" class="form-select" id="pi_kategori_pemohon" name="pi_kategori_pemohon" required>
                         <option value="">- Pilih Kategori Pemohon -</option>
@@ -32,28 +35,20 @@
                         <option value="Organisasi">Organisasi / Lembaga Masyarakat atau Yayasan atau Perusahaan</option>
                     </select>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    
-   <!-- Form untuk Organisasi -->
-   <div id="formOrganisasi" x-show="kategori === 'Organisasi'" x-cloak>
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center justify-content-between ">
-            <h3 class="title-form ">Data Identitas Pemohon Organisasi</h3>
-        </div>
-        <div class="card-body ">
-            <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}" method="POST"
-                enctype="multipart/form-data">
-                @csrf
+                <div id="formOrganisasi" x-show="kategori === 'Organisasi'" x-cloak>
+                    <div class="row">
+                        <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label class="label-form">Nama Organisasi <span class="text-danger">*</span> </label>
                         <input type="text" class="form-control" name="pi_nama_organisasi" >
                     </div>
+                    </div>
+                    <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label class="label-form">No Telepon Organisasi <span class="text-danger">*</span> </label>
                         <input type="text" class="form-control" name="pi_no_telp_organisasi">
+                    </div>
+                    </div>
                     </div>
                     <div class="form-group mb-3">
                         <label class="label-form">Email dan Website / Media Sosial Organisasi <span class="text-danger">*</span> </label>
@@ -64,20 +59,25 @@
                         </p>
                         <input type="text" class="form-control" name="pi_email_atau_medsos_organisasi">
                     </div>
+                    <div class="row">
+                    <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label class="label-form">Nama Narahubung Organisasi <span class="text-danger">*</span> </label>
                         <input type="text" class="form-control" name="pi_nama_narahubung">
                     </div>
+                    </div>
+                    <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label class="label-form">No Telepon Narahubung Organisasi <span class="text-danger">*</span> </label>
+                        <label class="label-form">No Telepon Narahubung<span class="text-danger">*</span> </label>
                         <input type="text" class="form-control" name="pi_no_telp_narahubung">
                     </div>
-                    
+                    </div>
+                    </div>
                     <div class="form-group mb-3">
                         <label class="label-form">Upload Foto Kartu Identitas Pemohon  <span class="text-danger">*</span> </label>
                         <br>
                         <label class="text-muted">Silakan scan / Foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.</label>
-                    <div class="col-md-6">
+                    {{-- <div class="col-md-6"> --}}
                     <div x-data="uploadHandler" class="upload-box">
                         <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
                             @dragover.prevent="dragging = true; console.log('Dragging over')"
@@ -121,103 +121,97 @@
                             </p>
                             </div>
                         </div>
+                    {{-- </div> --}}
                     </div>
                     </div>
-                </form>
-        </div>
-    </div>
-   </div>
-
-      <!-- Form untuk Orang Lain -->
-    <div id="formOrangLain" x-show="kategori === 'Orang Lain'" x-cloak>
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center justify-content-between ">
-            <h3 class="title-form ">Data Identitas Pemohon Orang Lain</h3>
-        </div>
-        <div class="card-body ">
-            <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}" method="POST"
-                enctype="multipart/form-data">
-                @csrf
-               
-                    <div class="form-group mb-3">
-                        <label class="label-form">Nama Pemohon <span class="text-danger">*</span> </label>
-                        <br>
-                        <label class="text-muted">Nama lengkap sesuai KTP</label>
-                        <input type="text" class="form-control" name="pi_nama_pengguna_informasi">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label class="label-form">Alamat Pemohon <span class="text-danger">*</span> </label>
-                        <br>
-                        <label class="text-muted">Alamat lengkap sesuai KTP</label>
-                        <input type="text" class="form-control" name="pi_alamat_pengguna_informasi">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label class="label-form">No HP / Telepon Pemohon <span class="text-danger">*</span> </label>
-                        <input type="text" class="form-control" name="pi_no_hp_pengguna_informasi">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label class="label-form">Email Pemohon <span class="text-danger">*</span> </label>
-                        <input type="email" class="form-control" name="pi_email_pengguna_informasi">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label class="label-form">Upload Foto Kartu Identitas Pemohon  <span class="text-danger">*</span> </label>
-                        <br>
-                        <label class="text-muted">Silakan scan / Foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.</label>
-                    <div class="col-md-6">
-                    <div x-data="uploadHandler" class="upload-box">
-                        <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
-                            @dragover.prevent="dragging = true; console.log('Dragging over')"
-                            @dragleave="dragging = false; console.log('Dragging left')"
-                            @drop.prevent="handleDrop($event); console.log('File dropped')"
-                            :class="{ 'border-orange-500': dragging }">
-
-                            
-
-                            <template x-if="previewUrl">
-                                <img :src="previewUrl" class="upload-preview" alt="Preview">
-                            </template>
-
-                            <div x-show="!previewUrl" class="upload-placeholder">
-                                <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
-                                <p class="text-sm text-gray-600">
-                                   <strong> Drag and drop <span class="text-orange-500 font-semibold">or choose file</span> to
-                                    upload </strong>
+                    <div id="formOrangLain" x-show="kategori === 'Orang Lain'" x-cloak>
+                        <div class="form-group mb-3">
+                            <label class="label-form">Nama Pemohon <span class="text-danger">*</span> </label>
+                            <br>
+                            <label class="text-muted">Nama lengkap sesuai KTP</label>
+                            <input type="text" class="form-control" name="pi_nama_pengguna_informasi">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label-form">Alamat Pemohon <span class="text-danger">*</span> </label>
+                            <br>
+                            <label class="text-muted">Alamat lengkap sesuai KTP</label>
+                            <input type="text" class="form-control" name="pi_alamat_pengguna_informasi">
+                        </div>
+                        <div class="row">
+                        <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="label-form">No HP / Telepon Pemohon <span class="text-danger">*</span> </label>
+                            <input type="text" class="form-control" name="pi_no_hp_pengguna_informasi">
+                        </div>
+                        </div>
+                        <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="label-form">Email Pemohon <span class="text-danger">*</span> </label>
+                            <input type="email" class="form-control" name="pi_email_pengguna_informasi">
+                        </div>
+                        </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label-form">Upload Foto Kartu Identitas Pemohon  <span class="text-danger">*</span> </label>
+                            <br>
+                            <label class="text-muted">Silakan scan / Foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.</label>
+                        {{-- <div class="col-md-6"> --}}
+                        <div x-data="uploadHandler" class="upload-box">
+                            <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
+                                @dragover.prevent="dragging = true; console.log('Dragging over')"
+                                @dragleave="dragging = false; console.log('Dragging left')"
+                                @drop.prevent="handleDrop($event); console.log('File dropped')"
+                                :class="{ 'border-orange-500': dragging }">
+    
+                                
+    
+                                <template x-if="previewUrl">
+                                    <img :src="previewUrl" class="upload-preview" alt="Preview">
+                                </template>
+    
+                                <div x-show="!previewUrl" class="upload-placeholder">
+                                    <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
+                                    <p class="text-sm text-gray-600">
+                                       <strong> Drag and drop <span class="text-orange-500 font-semibold">or choose file</span> to
+                                        upload </strong>
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                                    <div x-data >
+                                        <button type="button" @click="$refs.fileInput.click()" class="btn upload-btn  px-4 py-2 shadow-sm">
+                                            Pilih File
+                                        </button>
+                                        <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
+                                    </div>
+                                    
+                                    
+                                    <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
+                                </div>
+                            </div>
+    
+                            <!-- Progress Bar -->
+                                <div x-show="uploading" class="upload-progress mt-3">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-orange-500 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`">
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 text-center">
+                                    Mengupload... <span x-text="uploadProgress + '%'"></span>
                                 </p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
-                                <div x-data>
-                                    <button type="button" @click="$refs.fileInput.click()" class="btn upload-btn  px-4 py-2 shadow-sm">
-                                        Pilih File
-                                    </button>
-                                    <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
-                                </div>
-                                
-                                
-                                <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                            <div x-show="uploading" class="upload-progress mt-3">
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-orange-500 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`">
                                 </div>
                             </div>
-                            <p class="text-sm text-gray-600 mt-2 text-center">
-                                Mengupload... <span x-text="uploadProgress + '%'"></span>
-                            </p>
-                            </div>
+                        {{-- </div> --}}
                         </div>
-                    </div>
                     </div>
             </form>
         </div>
     </div>
- </div>
+</div>
 
 </div>
 
      <!-- Form umum untuk semua kategori -->
-    <div class="card">
+    <div class="col ">
+    <div class="card e-form-card">
         <div class="card-header d-flex align-items-center justify-content-between ">
             <h3 class="title-form "> Pertanyaan dan Kebutuhan Informasi</h3>
         </div>
@@ -260,6 +254,10 @@
         </div>
     </div>
     <button type="submit" class="form-btn mt-3">Submit</button>
+    </div>
+    
+</div>
+    
 </section>
 </body>
 <footer>
