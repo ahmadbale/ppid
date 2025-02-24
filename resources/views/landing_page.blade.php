@@ -74,7 +74,7 @@
     </section>
 
     <!-- Akses Menu Cepat -->
-    <section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
+    {{-- <section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
         <div class="container text-center" style=" margin: 50px auto; ">
             <h3 class="title-section">Akses Menu Cepat</h3>
             <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
@@ -143,7 +143,33 @@
                         </div>
                     </div>
                 </div>
-    </section>
+    </section> --}}
+
+    <!-- Akses Menu Cepat -->
+<section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
+    <div class="container text-center" style="margin: 50px auto;">
+        <h3 class="title-section">Akses Menu Cepat</h3>
+        <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
+        <div class="row justify-content-center mt-4">
+            <div class="menu-container">
+                <div class="menu-row">
+                    @foreach($quickAccessMenus as $menu)
+                        <div class="menu-item"
+                            @if(isset($menu['route'])) onclick="window.location.href='{{ $menu['route'] }}'"
+                            @elseif(isset($menu['url'])) onclick="window.open('{{ $menu['url'] }}', '_blank')"
+                            @endif>
+                            <div class="icon-wrapper">
+                                <img src="{{ $menu['static_icon'] }}" class="icon static" alt="{{ $menu['name'] }}">
+                                <img src="{{ $menu['animated_icon'] }}" class="icon animated" alt="{{ $menu['name'] }}">
+                            </div>
+                            <p class="menu-label">{{ $menu['name'] }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
     {{-- CTA Login/regist --}}
     <section class="masuktamu-section" style="background: url('img/gedung-sipil.webp') center/cover no-repeat;">
