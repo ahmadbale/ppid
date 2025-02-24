@@ -19,19 +19,32 @@
     <!-- Hero Section -->
     <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">
-            <div class="custom-slide active">
-                <div class="overlay"></div>
+            @foreach($heroSlides as $index => $slide)
+            <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
+                @if($index == 0)
+                    <div class="overlay"></div>
+                @endif
+            {{-- <div class="custom-slide active"> --}}
+                {{-- <div class="overlay"></div> --}}
+                <img src="{{ $slide['image'] }}" alt="Hero Slide {{ $index + 1 }}">
                 <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1">
-                <div class="hero-content">
+                {{-- <div class="hero-content">
                     <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
-                </div>
-            </div>
-            <div class="custom-slide">
+                </div> --}}
+                @if($slide['title'])
+                    <div class="hero-content">
+                        <h1>{!! $slide['title'] !!}</h1>
+                    </div>
+                @endif
+            {{-- </div> --}}
+            {{-- <div class="custom-slide">
                 <img src="{{ asset('img/maklumat-ppid.webp') }}" alt="Maklumat Pelayanan Publik">
             </div>
             <div class="custom-slide">
                 <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.webp') }}" alt="Jadwal Pelayanan Informasi Publik">
+            </div> --}}
             </div>
+            @endforeach
         </div>
     </section>
 
@@ -43,16 +56,18 @@
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <p>
-                        Politeknik Negeri Malang (Polinema) berkomitmen untuk mewujudkan transparansi dan akuntabilitas
+                        {{-- Politeknik Negeri Malang (Polinema) berkomitmen untuk mewujudkan transparansi dan akuntabilitas
                         publik sesuai dengan amanat Undang-Undang Nomor 14 Tahun 2008. Melalui Pejabat Pengelola
                         Informasi dan Dokumentasi (PPID), Polinema menyediakan akses mudah bagi masyarakat terhadap
                         berbagai informasi terkait kegiatan akademik, penelitian, keuangan, dan pengelolaan kampus.
                         Selain itu, PPID Polinema siap membantu Anda dalam mengajukan permohonan informasi, menyampaikan
-                        pengaduan, atau sekadar mencari tahu lebih lanjut tentang Polinema.
+                        pengaduan, atau sekadar mencari tahu lebih lanjut tentang Polinema. --}}
+                        {{ $pengantar['content'] }}
                     </p>
                 </div>
                 <div class="col-md-6 text-center">
-                    <img src="{{ asset('img/direktur-polinema-bendera.webp') }}" alt="gambar-pengantar" class="pengantar-img">
+                    {{-- <img src="{{ asset('img/direktur-polinema-bendera.webp') }}" alt="gambar-pengantar" class="pengantar-img"> --}}
+                    <img src="{{ $pengantar['image'] }}" alt="gambar-pengantar" class="pengantar-img img-fluid" >
                 </div>
             </div>
         </div>
