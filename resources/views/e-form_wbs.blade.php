@@ -9,7 +9,7 @@
 </head>
 <body class="e-form">
     @include('layouts.header')
-    @include('layouts.navbar')
+    {{-- @include('layouts.navbar') --}}
     <div class="title-page text-white">
         <h2> Formulir Whsitle Blowing System</h2>
     </div>
