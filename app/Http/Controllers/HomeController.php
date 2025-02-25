@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    
     public function index()
     {
         $pengantar = [
@@ -75,7 +76,95 @@ class HomeController extends Controller
                 'animated_icon' => asset('img/laporKemdikbud.svg')
             ]
         ];
+        $pintasanMenus = [
+            [
+                'name' => 'POLINEMA',
+                'route' => '#'
+            ],
+            [
+                'name' => 'PORTAL',
+                'route' => '#'
+            ],
+            [
+                'name' => 'SIAKAD',
+                'route' => '#'
+            ],
+            [
+                'name' => 'SPMB',
+                'route' => '#'
+            ],
+            [
+                'name' => 'P2M',
+                'route' => '#'
+            ],
+            [
+                'name' => 'Jaminan Mutu',
+                'route' => '#'
+            ],
+            [
+                'name' => 'LPSE KEMDIKBUD',
+                'route' => '#'
+            ],  
+            [
+                'name' => 'Alumni',
+                'route' => '#'
+            ],
+            ];
+        $berita = [
+            [
+                'title' => 'Sosialisasi Layanan Informasi Publik Polinema, Meningkatkan Keterbukaan dan Aksesibilitas Informasi untuk Semua',
+                'deskripsi' => 'Malang, 17 Oktober 2024 - Politeknik Negeri Malang (Polinema) hari ini menggelar kegiatan
+                “Sosialisasi Layanan Informasi Publik Polinema Pejabat Pengelola Informasi dan Dokumentasi”.
+                Acara yang berlangsung di Ruang Rapim Gedung AA lantai 2 ini diadakan secara hybrid ..',
+                'route' => '#'
+            ],
+            [
+                'title' => 'Kegiatan Sosialisasi Pejabat Pengelola Informasi Dan Dokumentasi Oleh Pimpinan Dan Jajarannya',
+                'deskripsi' => 'Keterbukaan Informasi sangat diperlukan pada era digital saat ini. Oleh karena itu, melalui
+                Pejabat Pengelola Informasi dan Dokumentasi (PPID) Politeknik Negeri Malang memberikan pelayanan
+                informasi publik yang bersifat terbuka dan dapat diakses oleh masyarakat..',
+                'route' => '#'
+            ]
+            ];
+            $dokumentasi = [
+                [
+                    'dokumentasi' => asset('img/dokumentasi-1.webp')
+                ],
+                [
+                    'dokumentasi' => asset('img/dokumentasi-2.webp')
+                ],
+                [
+                    'dokumentasi' => asset('img/dokumentasi-3.webp')
+                ],
+                [
+                    'dokumentasi' => asset('img/dokumentasi-1.webp')
+                ]
+                ];
+            $pengumuman = [
+                [
+                    'tanggal' => '1 Februari 2025',
+                    'deskripsi' => 'Ini adalah Pengumuman 1',
+                    'route' => '#'
+                ],
+                [
+                    'tanggal' => '30 Januari 2025',
+                    'deskripsi' => 'Ini adalah Pengumuman 2',
+                    'route' => '#'
+                ],
+                [
+                    'tanggal' => '25 Januari 2025',
+                    'deskripsi' => 'Ini adalah Pengumuman 3',
+                    'route' => '#'
+                ]
+                ];
+            $media = [
+                [
+                    'title' => 'Keterbukaan Informasi Publik',
+                    'link' => 'https://www.youtube.com/embed/9vlRk9C37JE'
+                ]
+                ];
+        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus','pintasanMenus','berita','dokumentasi','pengumuman','media'));
 
-        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus'));
+        
     }
 }
