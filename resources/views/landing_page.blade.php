@@ -13,6 +13,8 @@
 <body>
     @include('layouts.header')
     @include('layouts.navbar')
+    {{-- @include('layouts.fsidebar') --}}
+    {{-- @include('layouts.right-sidebar') --}}
 
     <div id="header"></div>
     <div id="nav-bar"></div>

@@ -10,7 +10,8 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/register.js',
                 'resources/js/upload-ktp.js',
-                'resources/js/upload-bukti.js'
+                'resources/js/upload-bukti.js',
+                'resources/css/sidebar.css'
                 ],
             refresh: true,
         }),

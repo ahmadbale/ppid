@@ -14,6 +14,7 @@
 {{-- @include('layouts.footer') --}}
 @include('landing_page')
 {{-- @include('timeline') --}}
+{{-- @include('layouts.fsidebar') --}}
 
 </body>
 </html>

@@ -21,7 +21,9 @@ use App\Http\Controllers\EFormController;
 // Route::get('/', function () {
 //     return view('tryit');
 // });
-Route::get('/', [HomeController::class, 'index']);
+Route::get('/', [HomeController::class, 'index'])-> name('beranda');
+
+// Route::get('/landing_page', [HomeController::class, 'index']);
 
 Route::get('/landing_page', [HomeController::class, 'index']);
 
@@ -47,6 +49,10 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return view('register');
 }) ->name('register');
+
+// Route::get('/navbar', function () {
+//     return view('navbaar');
+// });
 
 Route::get('/eform', function () {
     return view('timeline');
