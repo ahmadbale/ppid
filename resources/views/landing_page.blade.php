@@ -19,31 +19,31 @@
     <!-- Hero Section -->
     <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">
-            @foreach($heroSlides as $index => $slide)
-            <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
-                @if($index == 0)
-                    <div class="overlay"></div>
-                @endif
-            {{-- <div class="custom-slide active"> --}}
-                {{-- <div class="overlay"></div> --}}
-                <img src="{{ $slide['image'] }}" alt="Hero Slide {{ $index + 1 }}">
-                <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1">
-                {{-- <div class="hero-content">
+            @foreach ($heroSlides as $index => $slide)
+                <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
+                    @if ($index == 0)
+                        <div class="overlay"></div>
+                    @endif
+                    {{-- <div class="custom-slide active"> --}}
+                    {{-- <div class="overlay"></div> --}}
+                    <img src="{{ $slide['image'] }}" alt="Hero Slide {{ $index + 1 }}">
+                    <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1">
+                    {{-- <div class="hero-content">
                     <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
                 </div> --}}
-                @if($slide['title'])
-                    <div class="hero-content">
-                        <h1>{!! $slide['title'] !!}</h1>
-                    </div>
-                @endif
-            {{-- </div> --}}
-            {{-- <div class="custom-slide">
+                    @if ($slide['title'])
+                        <div class="hero-content">
+                            <h1>{!! $slide['title'] !!}</h1>
+                        </div>
+                    @endif
+                    {{-- </div> --}}
+                    {{-- <div class="custom-slide">
                 <img src="{{ asset('img/maklumat-ppid.webp') }}" alt="Maklumat Pelayanan Publik">
             </div>
             <div class="custom-slide">
                 <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.webp') }}" alt="Jadwal Pelayanan Informasi Publik">
             </div> --}}
-            </div>
+                </div>
             @endforeach
         </div>
     </section>
@@ -67,7 +67,7 @@
                 </div>
                 <div class="col-md-6 text-center">
                     {{-- <img src="{{ asset('img/direktur-polinema-bendera.webp') }}" alt="gambar-pengantar" class="pengantar-img"> --}}
-                    <img src="{{ $pengantar['image'] }}" alt="gambar-pengantar" class="pengantar-img img-fluid" >
+                    <img src="{{ $pengantar['image'] }}" alt="gambar-pengantar" class="pengantar-img img-fluid">
                 </div>
             </div>
         </div>
@@ -146,30 +146,30 @@
     </section> --}}
 
     <!-- Akses Menu Cepat -->
-<section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
-    <div class="container text-center" style="margin: 50px auto;">
-        <h3 class="title-section">Akses Menu Cepat</h3>
-        <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
-        <div class="row justify-content-center mt-4">
-            <div class="menu-container">
-                <div class="menu-row">
-                    @foreach($quickAccessMenus as $menu)
-                        <div class="menu-item"
-                            @if(isset($menu['route'])) onclick="window.location.href='{{ $menu['route'] }}'"
-                            @elseif(isset($menu['url'])) onclick="window.open('{{ $menu['url'] }}', '_blank')"
-                            @endif>
-                            <div class="icon-wrapper">
-                                <img src="{{ $menu['static_icon'] }}" class="icon static" alt="{{ $menu['name'] }}">
-                                <img src="{{ $menu['animated_icon'] }}" class="icon animated" alt="{{ $menu['name'] }}">
+    <section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
+        <div class="container text-center" style="margin: 50px auto;">
+            <h3 class="title-section">Akses Menu Cepat</h3>
+            <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
+            <div class="row justify-content-center mt-4">
+                <div class="menu-container">
+                    <div class="menu-row">
+                        @foreach ($quickAccessMenus as $menu)
+                            <div class="menu-item"
+                                @if (isset($menu['route'])) onclick="window.location.href='{{ $menu['route'] }}'"
+                            @elseif(isset($menu['url'])) onclick="window.open('{{ $menu['url'] }}', '_blank')" @endif>
+                                <div class="icon-wrapper">
+                                    <img src="{{ $menu['static_icon'] }}" class="icon static" alt="{{ $menu['name'] }}">
+                                    <img src="{{ $menu['animated_icon'] }}" class="icon animated"
+                                        alt="{{ $menu['name'] }}">
+                                </div>
+                                <p class="menu-label">{{ $menu['name'] }}</p>
                             </div>
-                            <p class="menu-label">{{ $menu['name'] }}</p>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
     {{-- CTA Login/regist --}}
     <section class="masuktamu-section" style="background: url('img/gedung-sipil.webp') center/cover no-repeat;">
@@ -236,86 +236,59 @@
     {{-- DOKUMENTASI --}}
     <section class="dokumentasi-section py-5">
         <div class="container py-5">
-        <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
-        <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
-
-
-        <div id="carouselExample" class="carousel slide carousel-container" data-bs-ride="carousel">
-            <!-- Tombol Navigasi -->
-            <button class="carousel-control-prev " type="button" data-bs-target="#carouselExample"
-                data-bs-slide="prev">
-                <i class="bi bi-caret-left-fill icon-large"></i>
-            </button>
-            <button class="carousel-control-next " type="button" data-bs-target="#carouselExample"
-                data-bs-slide="next">
-                <i class="bi bi-caret-right-fill icon-large"></i>
-            </button>
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-1.webp') }}" class="img-fluid" alt="Gambar 1">
+            <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
+            <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
+    
+            <div id="carouselExample" class="carousel slide carousel-container" data-bs-ride="carousel">
+                <!-- Tombol Navigasi -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                    <i class="bi bi-caret-left-fill icon-large"></i>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                    <i class="bi bi-caret-right-fill icon-large"></i>
+                </button>
+    
+                <div class="carousel-inner">
+                    @foreach(array_chunk($dokumentasi, 2) as $index => $chunk)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <div class="row d-flex justify-content-center">
+                                @foreach($chunk as $item)
+                                    <div class="col-6 text-center">
+                                        <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                        <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-2.webp') }}" class="img-fluid" alt="Gambar 2">
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-3.webp') }}" class="img-fluid" alt="Gambar 3">
-                        </div>
-                        <div class="col-6 text-center">
-                            <img src="{{ asset('img/dokumentasi-1.svg') }}" class="img-fluid" alt="Gambar 4">
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
-        </div>
     </section>
+    
 
 
-    {{-- pengumuman ppid --}}
+    {{-- Pengumuman --}}
     <section class="container mt-4 py-5">
         <h3 class="title-section">Pengumuman PPID</h3>
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
-            <div class="col">
-                <div class="ppid-card-body">
-                    <div class="ppid-card-header">
-                        <img src="{{ asset('img/dokumentasi-1.webp') }}" class="ppid-img-cover" alt="Gambar 1">
+            @foreach($pengumuman as $index => $item)
+                <div class="col">
+                    <div class="ppid-card-body mb-5">
+                        <div class="ppid-card-header">
+                            <img src="{{ asset('img/dokumentasi-' . ($index + 1) . '.webp') }}" class="ppid-img-cover" alt="Gambar {{ $index + 1 }}">
+                        </div>
+                        <p class="ppid-date">{{ $item['tanggal'] }}</p>
+                        <p class="ppid-card-text">{{ $item['deskripsi'] }}</p>
+                        <a class="btn btn-primary" href="{{ $item['route'] }}" role="button">Baca Artikel</a>
                     </div>
-                    <p class="ppid-date">1 Februari 2025</p>
-                    <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
-                    <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
                 </div>
-            </div>
-            <div class="col">
-                <div class="ppid-card-body">
-                    <div class="ppid-card-header">
-                        <img src="{{ asset('img/dokumentasi-2.webp') }}" class="ppid-img-cover" alt="Gambar 2">
-                    </div>
-                    <p class="ppid-date">30 Januari 2025</p>
-                    <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
-                    <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
-                </div>
-            </div>
-            <div class="col">
-                <div class="ppid-card-body">
-                    <div class="ppid-card-header">
-                        <img src="{{ asset('img/dokumentasi-3.webp') }}" class="ppid-img-cover" alt="Gambar 3">
-                    </div>
-                    <p class="ppid-date">25 Januari 2025</p>
-                    <p class="ppid-card-text">Deskripsi/isi pengumuman</p>
-                    <a class="btn btn-primary" href="#" role="button">Baca Artikel</a>
-                </div>
-            </div>
+            @endforeach
         </div>
+        
 
-        <div class="d-flex flex-wrap justify-content-center mt-3">
+        <div class="d-flex flex-wrap justify-content-center">
             <a href="#" class="btn-custom">
                 <i class="bi bi-arrow-right"></i>
                 <span class="ms-2">Pengumuman PPID Lainnya</span>
@@ -325,44 +298,42 @@
 
 
     <section class="container mt-4 py-5">
-        <div class="row">
+        <div class="row gy-4">
             <!-- Bagian Berita PPID -->
             <div class="col-md-8">
                 <h3 class="title-section">Berita PPID</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
 
-                <div class="news-item">
-                    <h5>Sosialisasi Layanan Informasi Publik Polinema, Meningkatkan Keterbukaan dan Aksesibilitas
-                        Informasi untuk Semua</h5>
-                    <p>Malang, 17 Oktober 2024 - Politeknik Negeri Malang (Polinema) hari ini menggelar kegiatan
-                        “Sosialisasi Layanan Informasi Publik Polinema Pejabat Pengelola Informasi dan Dokumentasi”.
-                        Acara yang berlangsung di Ruang Rapim Gedung AA lantai 2 ini diadakan secara hybrid ..</p>
-                    <a href="#" class="read-more d-flex flex-wrap justify-content-end">selengkapnya →</a>
-                </div>
-                <div class="news-item">
-                    <h5>Kegiatan Sosialisasi Pejabat Pengelola Informasi Dan Dokumentasi Oleh Pimpinan Dan Jajarannya
-                    </h5>
-                    <p>Keterbukaan Informasi sangat diperlukan pada era digital saat ini. Oleh karena itu, melalui
-                        Pejabat Pengelola Informasi dan Dokumentasi (PPID) Politeknik Negeri Malang memberikan pelayanan
-                        informasi publik yang bersifat terbuka dan dapat diakses oleh masyarakat..</p>
-                    <a href="#" class="read-more d-flex flex-wrap justify-content-end">selengkapnya →</a>
-                </div>
-                <div class="d-flex flex-wrap justify-content-center mt-3">
+                @foreach ($berita as $item)
+                    <div class="news-item">
+                        <h5>{{ $item['title'] }}</h5>
+                        <p>{{ $item['deskripsi'] }}</p>
+                        <a href="{{ $item['route'] }}" 
+                            class="read-more d-flex flex-wrap justify-content-end">Berita selengkapnya →</a>
+                    </div>
+                @endforeach
+
+                <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
                     <a href="#" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
                         <span class="ms-2">Berita Lainnya</span>
                     </a>
                 </div>
+
             </div>
 
             <!-- Bagian Media I nformasi Publik -->
-            <div class="col-md-4">
+            <div class="col-md-4 ">
                 <h3 class="title-section">Media Informasi Publik</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
-                <div class="video-container">
-                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/9vlRk9C37JE" frameborder="0" allowfullscreen></iframe>
-                    <div class="text-white text-center p-2">Keterbukaan Informasi Publik</div>
-                </div>
+                
+                @foreach($media as $item)
+                    <div class="video-container">
+                        <iframe width="100%" height="200" src="{{ $item['link'] }}" frameborder="0" allowfullscreen></iframe>
+                        <div class="text-white text-center p-2">{{ $item['title'] }}</div>
+                    </div>
+                @endforeach
+            
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     <a href="#" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
@@ -370,27 +341,34 @@
                     </a>
                 </div>
             </div>
+            
         </div>
     </section>
 
-    {{-- pintasan menu --}}
-    <section class="container mt-4 mb-3 py-5 text-center">
-        <h3 class="title-section">Pintasan Lainnya</h3>
-        <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
-
-        <div class="d-flex flex-wrap justify-content-center gap-5 mb-4">
-            <a class="btn btn-menu-pintasan " href="#" role="button">POLINEMA</a>
-            <a class="btn btn-menu-pintasan " href="#" role="button">PORTAL</a>
-            <a class="btn btn-menu-pintasan " href="#" role="button">SIAKAD</a>
-            <a class="btn btn-menu-pintasan " href="#" role="button">SPMB</a>
+    {{-- Pintasan Lainnya --}}
+    <section class="pintasan py-5">
+        <h3 class="title-section fw-bold text-white text-center">
+            Pintasan Lainnya <i class="bi bi-link-45deg"></i>
+        </h3>
+        <div class="row mt-4 text-center justify-content-center">
+            @foreach (array_chunk($pintasanMenus, 4) as $column)
+                <div class="col-md-3 d-flex justify-content-center">
+                    <ul class="list-unstyled mb-3 text-center">
+                        @foreach ($column as $menu)
+                            <li>
+                                <a href="{{ $menu['route'] }}" 
+                                   class="text-white text-decoration-none d-block link-custom">
+                                    {{ $menu['name'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endforeach
         </div>
-        <div class="d-flex flex-wrap justify-content-center gap-5">
-            <a class="btn btn-menu-pintasan " href="#" role="button">P2M</a>
-            <a class="btn btn-menu-pintasan " href="#" role="button">Jaminan Mutu</a>
-            <a class="btn btn-menu-pintasan " href="#" role="button">LPSE KEMDIKBUD</a>
-            <a class="btn btn-menu-pintasan " href="#" role="button">Alumni</a>
-        </div>
+        
     </section>
+
 
     @extends('layouts.footer')
 

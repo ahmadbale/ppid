@@ -87,7 +87,7 @@
                     <label class="label-form">Upload Bukti Pendukung Laporan <span class="text-danger">*</span></label>
                     <br>
                     <label class="text-muted">Upload maksimum 5 file yang didukung. Maks 100 MB per file.</label>
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         <div x-data="multiUploadHandler" class="upload-box">
                             <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
                                 @dragover.prevent="dragging = true"
