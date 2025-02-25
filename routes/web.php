@@ -20,11 +20,10 @@ use App\Http\Controllers\EFormController;
 // Route::get('/', function () {
 //     return view('tryit');
 // });
-Route::get('/', [HomeController::class, 'index']);
+Route::get('/', [HomeController::class, 'index'])-> name('beranda');
 
-Route::get('/landing_page', function () {
-    return view('landing_page');
-});
+// Route::get('/landing_page', [HomeController::class, 'index']);
+
 
 Route::get('/footer', function () {
     return view('layouts.footer');
@@ -49,6 +48,10 @@ Route::get('/login', function () {
 Route::get('/register', function () {
     return view('register');
 }) ->name('register');
+
+// Route::get('/navbar', function () {
+//     return view('navbaar');
+// });
 
 Route::get('/eform', function () {
     return view('timeline');
