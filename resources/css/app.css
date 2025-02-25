@@ -749,8 +749,9 @@ form {
 
 /* pintasan menu */
 .pintasan  {
-    background-color: #183A63; /* Sesuai warna dari gambar */
+    background-color: #0d2345; /* Sesuai warna dari gambar */
     border-top-right-radius: 100px;
+    border-top-left-radius: 100px;
     color: white;
 }
 
