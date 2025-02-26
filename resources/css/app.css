@@ -117,7 +117,7 @@ body {
     background-color: #F9B234;
     color: white !important;
 }
-
+/* Footer */
 .footer {
     background: url('bg-footer.webp') no-repeat center center/cover;
     position: relative;
@@ -139,6 +139,22 @@ body {
     margin-right: 15px;
 }
 
+.text-footer{
+    color:white;
+}
+
+@media (max-width: 767px) {
+    .footer {
+        background:url('bg-footer-mobile.webp');
+        position: relative;
+        color: black;
+        
+    }
+
+    .text-footer {
+        color: black;
+    }
+}
 
 /*--- LOGIN ---*/
 .login-container {
@@ -887,11 +903,11 @@ form {
 }
 
 .carousel-control-prev {
-    left: -10px;
+    left: -50px;
 }
 
 .carousel-control-next {
-    right: -10px;
+    right: -50px;
 }
 
  .icon-large {
@@ -903,6 +919,36 @@ form {
         color:white;
     }
 
+    @media (max-width: 767px) {
+        .carousel-container {
+          padding: 0 25px;
+        }
+        
+        .icon-large {
+          font-size: 1.5rem;
+        }
+        
+        .carousel-control-prev {
+          left: -15px;
+        }
+        
+        .carousel-control-next {
+          right: -15px;
+        }
+
+        
+.carousel-item img {
+    width: 500px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+        
+        /* Mengubah tampilan carousel pada mobile */
+        #carouselExample .carousel-inner .carousel-item .row {
+          flex-direction: column;
+        }
+      }
 
 /* pengumuman ppid */
 .title-section {
@@ -1055,6 +1101,14 @@ form {
     display: inline-block; /* Supaya hanya selebar teks, tidak full-width */
 }
 
+@media (max-width: 767px) {
+    .pintasan  {
+        border-top-right-radius: 0px;
+        border-top-left-radius: 0px;
+    }
+}
+
+
  /* Responsif: Hilangkan border bawah & buat elemen center di mobile */
  /* @media (max-width: 557px) {
     .pintasan .row {
@@ -1169,7 +1223,7 @@ form {
 }
 
 .title-page{
-    background: linear-gradient(to bottom, #1C4F99, #0F2E5A);
+    background: linear-gradient(to top, #1C4F99, #0F2E5A);
     color: white; /* Warna teks putih */
     text-align: center; /* Teks di tengah */
     padding: 50px 0; /* Ruang atas dan bawah */
@@ -1180,11 +1234,13 @@ form {
     /* Melengkung di kiri bawah */
 }
 
+
 .title-form{
     font-size: medium;
     font-weight: bold;
     color:white;
     padding: 5px 0;
+    text-align: center !important;
 }
 
 .label-form{
@@ -1193,7 +1249,7 @@ form {
 }
 
 .card-header{
-    background: linear-gradient(to right, #1C4F95,  #FFC030);
+    background: linear-gradient(to bottom, #028daa, #13376b);
     border-top-left-radius: 18px !important;
     border-top-right-radius: 18px !important;
 }
@@ -1211,7 +1267,7 @@ form {
 .form-btn{
 width: 5rem;
 padding: 10px;
-background:#FFC030;
+background: linear-gradient(to top, #028daa, #13376b);
 border: none;
 font-weight: bold;
 border-radius: 10px;
@@ -1221,7 +1277,7 @@ color:white;
 
 
 .form-btn:hover {
-    background-color: #e6a82a;
+    background: linear-gradient(to bottom, #028daa, #13376b);
 }
 
 .e-form-card{
@@ -1229,7 +1285,7 @@ color:white;
 }
 
 .upload-btn{
-    background-color:  #FFC030;
+    background: linear-gradient(to top, #028daa, #13376b);
     color:white;
     display: flex;
     align-items: center;
@@ -1239,7 +1295,7 @@ color:white;
 }
 
 .upload-btn:hover {
-    background-color: #e6a82a;
+    background: linear-gradient(to bottom, #028daa, #13376b);
     color:white;
 }
 

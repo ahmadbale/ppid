@@ -236,36 +236,60 @@
     </section>
 
     {{-- DOKUMENTASI --}}
-    <section class="dokumentasi-section py-5">
-        <div class="container py-5">
-            <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
-            <div class="mt-4 border-top border-1 pt-3 mb-4 w-50 mx-auto"></div>
-    
-            <div id="carouselExample" class="carousel slide carousel-container" data-bs-ride="carousel">
-                <!-- Tombol Navigasi -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                    <i class="bi bi-caret-left-fill icon-large"></i>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                    <i class="bi bi-caret-right-fill icon-large"></i>
-                </button>
-    
-                <div class="carousel-inner">
-                    @foreach(array_chunk($dokumentasi, 2) as $index => $chunk)
-                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                            <div class="row d-flex justify-content-center">
-                                @foreach($chunk as $item)
-                                    <div class="col-6 text-center">
-                                        <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+    <section class="dokumentasi-section py-3 py-md-5">
+        <div class="container py-3 py-md-5">
+          <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
+          <div class="mt-4 border-top border-1 pt-3 mb-4 w-75 w-md-50 mx-auto"></div>
+          
+          <!-- Carousel untuk Desktop (2 gambar per slide) - Hanya tampil di layar medium ke atas -->
+          <div id="carouselDesktop" class="carousel slide carousel-container d-none d-md-block" data-bs-ride="carousel">
+            <!-- Tombol Navigasi Desktop -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop" data-bs-slide="prev">
+              <i class="bi bi-caret-left-fill icon-large"></i>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselDesktop" data-bs-slide="next">
+              <i class="bi bi-caret-right-fill icon-large"></i>
+            </button>
+            
+            <div class="carousel-inner">
+              @foreach(array_chunk($dokumentasi, 2) as $index => $chunk)
+                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                  <div class="row d-flex justify-content-center">
+                    @foreach($chunk as $item)
+                      <div class="col-6 text-center">
+                        <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
+                      </div>
                     @endforeach
+                  </div>
                 </div>
+              @endforeach
             </div>
+          </div>
+          
+          <!-- Carousel untuk Mobile (1 gambar per slide) - Hanya tampil di layar kecil -->
+          <div id="carouselMobile" class="carousel slide carousel-container d-block d-md-none" data-bs-ride="carousel">
+            <!-- Tombol Navigasi Mobile -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile" data-bs-slide="prev">
+              <i class="bi bi-caret-left-fill icon-large"></i>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselMobile" data-bs-slide="next">
+              <i class="bi bi-caret-right-fill icon-large"></i>
+            </button>
+            
+            <div class="carousel-inner">
+              @foreach($dokumentasi as $index => $item)
+                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                  <div class="row d-flex justify-content-center">
+                    <div class="col-10 text-center">
+                      <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
+                    </div>
+                  </div>
+                </div>
+              @endforeach
+            </div>
+          </div>
         </div>
-    </section>
+      </section>
     
 
 
