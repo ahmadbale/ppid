@@ -308,6 +308,82 @@ form {
     text-decoration: none;
 }
 
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .image-container {
+        width: 100%;
+        height: 250px;
+    }
+
+    .overlay-text {
+        bottom: 30%;
+        left: 5%;
+        text-align: left;
+    }
+
+    .overlay-text h3 { font-size: 1rem; }
+    .overlay-text h1 { font-size: 2rem; }
+    .overlay-text h5 { font-size: 1rem; }
+
+    .form-container {
+        width: 100%;
+        padding: 30px;
+    }
+
+    .form-content {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    .logo {
+        width: 120px;
+    }
+
+    .register-btn {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .signup-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .divider {
+        margin: 10px 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .overlay-text {
+        bottom: 25%;
+        left: 3%;
+    }
+
+    .overlay-text h1 { font-size: 1.8rem; }
+    .overlay-text h3, .overlay-text h5 { font-size: 0.9rem; }
+
+    .form-content {
+        width: 95%;
+    }
+
+    .input-field,
+    .password-container input {
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .register-btn {
+        font-size: 13px;
+        padding: 7px;
+    }
+}
+
+
 /* --- REGISTER --- */
 .card-register {
     border-radius: 10px;
@@ -530,7 +606,7 @@ form {
 
     .timeline-content {
         padding: 20px;
-        font-size: 0.9rem; 
+        font-size: 0.9rem;
     }
 
     .timeline-number {
@@ -627,61 +703,125 @@ form {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     min-height: 400px;
+    text-align: center;
 }
+
 .overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Overlay transparan */
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1;
 }
+
 .masuktamu-container {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
     z-index: 2;
 }
+
 .masuktamu-text {
-    max-width: 50%;
+    max-width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
 }
+
 .masuktamu-text h2 {
     color: #FDC849;
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 10px;
 }
+
 .masuktamu-text p {
-    font-size: 1.1rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.5;
 }
+
+.masuk-button {
+    background: linear-gradient(135deg, #FDC849, #F9A602);
+    border: 2px solid transparent;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 30px;
+    cursor: pointer;
+    color: #333;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease-in-out;
+    margin-top:10px;
+}
+
+.masuk-button:hover {
+    background: white;
+    color: #B8860B;
+    border: 2px solid #D4A017;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
 .masuktamu-tagline {
-    text-align: right;
-    max-width: 30%;
+    text-align: center;
+    max-width: 100%;
     word-wrap: break-word;
+    margin-top: 20px;
 }
+
 .masuktamu-tagline h2 {
     font-size: 2rem;
     font-weight: 900;
 }
+
 .masuktamu-tagline p {
     font-size: 1rem;
     font-weight: 600;
 }
-.masuk-button {
-    background: #FDC849;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 5px;
-    cursor: pointer;
-    color: black;
+
+/*(≤576px) */
+@media (max-width: 576px) {
+    .masuktamu-section {
+        padding: 30px;
+    }
+
+    .masuktamu-text h2 {
+        font-size: 1.5rem;
+    }
+
+    .masuktamu-text p {
+        font-size: 0.9rem;
+    }
+
+    .masuktamu-tagline h2 {
+        font-size: 1.6rem;
+    }
+}
+
+/* (≥768px) */
+@media (min-width: 768px) {
+    .masuktamu-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+    }
+
+    .masuktamu-text {
+        max-width: 50%;
+        text-align: left;
+    }
+
+    .masuktamu-tagline {
+        max-width: 30%;
+        text-align: right;
+    }
 }
 
 /* Stats */
@@ -944,7 +1084,7 @@ form {
 .pintasan  {
     background-color: #0d2345; /* Sesuai warna dari gambar */
     border-top-right-radius: 100px;
-    border-top-left-radius: 100px;
+    /* border-top-left-radius: 100px; */
     color: white;
 }
 
@@ -954,7 +1094,7 @@ form {
     padding-left: 3rem  !important;*/
 
     margin-bottom: 2rem;
-    
+
 }
 
 .link-custom {
@@ -974,7 +1114,7 @@ form {
     .pintasan .row {
         flex-direction: column;
         align-items: center;
-     
+
     }
 
     .pintasan .col-md-3 {

@@ -25,7 +25,16 @@ Route::get('/', [HomeController::class, 'index'])-> name('beranda');
 
 // Route::get('/landing_page', [HomeController::class, 'index']);
 
+
+Route::get('/Lsidebar', function () {
+    return view('layouts.left_sidebar');
+});
+Route::get('/Rsidebar', function () {
+    return view('layouts.right_sidebar');
+});
+
 Route::get('/landing_page', [HomeController::class, 'index']);
+
 
 Route::get('/footer', [FooterController::class, 'index']);
  
