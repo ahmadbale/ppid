@@ -747,11 +747,11 @@ form {
 }
 
 .carousel-control-prev {
-    left: -50px;
+    left: -10px;
 }
 
 .carousel-control-next {
-    right: -50px;
+    right: -10px;
 }
 
  .icon-large {
@@ -895,21 +895,43 @@ form {
 }
 
 /* pintasan menu */
-.btn-menu-pintasan{
-    background-color: #0B254B; /* Warna biru gelap */
-    border: none;
-    width:12rem;
-    height:auto;
-    padding: 8px 20px;
-    font-size: 14px;
-    border-radius: 5px;
+.pintasan  {
+    background-color: #0d2345; /* Sesuai warna dari gambar */
+    border-top-right-radius: 100px;
+    border-top-left-radius: 100px;
     color: white;
-}
-.btn-menu-pintasan:hover {
-    color: white;
-    background-color: #091E3C;
 }
 
+.link-custom {
+    border-bottom: 1px solid grey;
+    /* padding-bottom: 5px;
+    padding-left: 3rem  !important;*/
+
+    margin-bottom: 2rem;
+    
+}
+
+.link-custom {
+    display: inline-block; /* Supaya hanya selebar teks, tidak full-width */
+}
+
+ /* Responsif: Hilangkan border bawah & buat elemen center di mobile */
+ /* @media (max-width: 557px) {
+    .pintasan .row {
+        flex-direction: column;
+        align-items: center;
+     
+    }
+
+    .pintasan .col-md-3 {
+        width: 100%;
+        text-align: center;
+    }
+
+    .link-custom {
+        border-bottom: none;
+    }
+} */
 /* Timeline content*/
 .container-fluid {
     padding-left: 75px;
@@ -1031,7 +1053,7 @@ form {
 }
 
 .card-header{
-    background: linear-gradient(to right, #1C4F99, #0F2E5A);
+    background: linear-gradient(to right, #1C4F95,  #FFC030);
     border-top-left-radius: 18px !important;
     border-top-right-radius: 18px !important;
 }
@@ -1044,11 +1066,12 @@ form {
 
 .card{
     border-radius: 20px;
+    border-color: #1C4F99;
 }
 .form-btn{
 width: 5rem;
 padding: 10px;
-background: linear-gradient(to right, #1C4F99, #0F2E5A);
+background:#FFC030;
 border: none;
 font-weight: bold;
 border-radius: 10px;
@@ -1056,12 +1079,17 @@ font-size: 16px;
 color:white;
 }
 
+
+.form-btn:hover {
+    background-color: #e6a82a;
+}
+
 .e-form-card{
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .upload-btn{
-    background-color: #3A83ED;
+    background-color:  #FFC030;
     color:white;
     display: flex;
     align-items: center;
@@ -1069,6 +1097,18 @@ color:white;
     margin: 0 auto;
     width: fit-content;
 }
+
+.upload-btn:hover {
+    background-color: #e6a82a;
+    color:white;
+}
+
+.read-more{
+    font-weight: bold;
+    font-size:14px;
+}
+
+
 .text-muted{
     font-size:small;
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InformasiPublikController;
 use App\Http\Controllers\PermohonanController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\FooterController;
 use App\Http\Controllers\EFormController;
 
 /*
@@ -24,6 +25,7 @@ Route::get('/', [HomeController::class, 'index'])-> name('beranda');
 
 // Route::get('/landing_page', [HomeController::class, 'index']);
 
+
 Route::get('/Lsidebar', function () {
     return view('layouts.left_sidebar');
 });
@@ -31,9 +33,11 @@ Route::get('/Rsidebar', function () {
     return view('layouts.right_sidebar');
 });
 
-Route::get('/footer', function () {
-    return view('layouts.footer');
-});
+Route::get('/landing_page', [HomeController::class, 'index']);
+
+
+Route::get('/footer', [FooterController::class, 'index']);
+ 
 
 Route::get('/e-form_informasi', function () {
     return view('e-form_informasi');
