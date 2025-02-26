@@ -25,7 +25,7 @@
                     <h5 class="fw-bold">Kantor PPID <br>
                         Politeknik Negeri
                         Malang</h5>
-                    <p class="text-white small">
+                    <p class="text-footer text-footer small">
                         Jl. Soekarno Hatta No.9, Jatimulyo, <br>
                         Lowokwaru, Kota Malang, <br>Jawa Timur 65141
                     </p>
@@ -39,7 +39,7 @@
                     </div>
                     <h5 class="fw-bold">Kantor PPID <br>
                         Politeknik Negeri Malang</h5>
-                    <p class="text-white small">
+                    <p class="text-footer small">
                         Jl. Soekarno Hatta No.9, Jatimulyo, <br>
                         Lowokwaru, Kota Malang, <br>Jawa Timur 65141
                     </p>
@@ -52,10 +52,10 @@
                 <div class="col-md-3 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                 <h5 class="fw-bold mb-4">Pusat Unit Layanan</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-4"><a href="#" class="text-white text-decoration-none">Jaminan Mutu</a></li>
-                    <li class="mb-4"><a href="https://library.polinema.ac.id/" class="text-white text-decoration-none">Perpustakaan</a></li>
-                    <li class="mb-4"><a href="https://sipuskom.polinema.ac.id/" class="text-white text-decoration-none">UPA TIK</a></li>
-                    <li class="mb-4"><a href="#" class="text-white text-decoration-none">P2M</a></li>
+                    <li class="mb-4"><a href="#" class="text-footer text-decoration-none ">Jaminan Mutu</a></li>
+                    <li class="mb-4"><a href="https://library.polinema.ac.id/" class="text-footer text-decoration-none">Perpustakaan</a></li>
+                    <li class="mb-4"><a href="https://sipuskom.polinema.ac.id/" class="text-footer text-decoration-none">UPA TIK</a></li>
+                    <li class="mb-4"><a href="#" class="text-footer text-decoration-none">P2M</a></li>
                 </ul>
             </div>
 
@@ -66,7 +66,7 @@
                             @foreach ($link['menu'] as $menu)
                                 <li class="mb-4">
                                     <a href="{{ $menu['route'] }}"
-                                        class="text-white text-decoration-none">{{ $menu['name'] }}</a>
+                                        class="text-footer text-decoration-none">{{ $menu['name'] }}</a>
                                 </li>
                             @endforeach
                         </ul>
@@ -77,7 +77,7 @@
                 <!-- Layanan Informasi Offline -->
                 <div class="col-md-4 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                     <h5 class="fw-bold mb-4">Layanan Informasi Offline</h5>
-                    <p class="text-white small">Gedung Unit Layanan Terpadu <br>(Gedung AW) lantai 1,
+                    <p class="text-footer small">Gedung Unit Layanan Terpadu <br>(Gedung AW) lantai 1,
                         <br> Politeknik Negeri Malang
                     </p>
                     <div class="social-icons d-flex">
@@ -100,10 +100,10 @@
                 <div class="col mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                     <h5 class="fw-bold mb-4">Hubungi Kami</h5>
                     <ul class="list-unstyled">
-                        <p class="text-white small"> <i class="bi bi-envelope-fill"></i>
+                        <p class="text-footer small"> <i class="bi bi-envelope-fill"></i>
                             humas@polinema.ac.id
                         </p>
-                        <p class="text-white small"> <i class="bi bi-telephone-fill"></i>
+                        <p class="text-footer small"> <i class="bi bi-telephone-fill"></i>
                             0341 – 404424/404425
                         </p>
                     </ul>
@@ -119,7 +119,7 @@
             </div>
         </div>
         <!-- Copyright -->
-        <div class="mt-4 border-top border-1 pt-3 text-white small w-65 mx-auto">
+        <div class="mt-4 border-top border-1 pt-3 text-footer small w-65 mx-auto">
             <div class="text-center py-2"> 2025 | Politeknik Negeri Malang copyright all right reserved
             </div>
         </div>
