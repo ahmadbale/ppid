@@ -49,7 +49,7 @@
 
 
                 <!-- Pusat Unit Layanan -->
-                <div class="col-md-3 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
+                {{-- <div class="col-md-3 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                 <h5 class="fw-bold mb-4">Pusat Unit Layanan</h5>
                 <ul class="list-unstyled">
                     <li class="mb-4"><a href="#" class="text-footer text-decoration-none ">Jaminan Mutu</a></li>
@@ -57,9 +57,9 @@
                     <li class="mb-4"><a href="https://sipuskom.polinema.ac.id/" class="text-footer text-decoration-none">UPA TIK</a></li>
                     <li class="mb-4"><a href="#" class="text-footer text-decoration-none">P2M</a></li>
                 </ul>
-            </div>
+            </div> --}}
 
-                {{-- @foreach ($links as $link)
+                @foreach ($links as $link)
                     <div class="col-md-3 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                         <h5 class="fw-bold mb-4">{{ $link['title'] }}</h5>
                         <ul class="list-unstyled">
@@ -71,30 +71,24 @@
                             @endforeach
                         </ul>
                     </div>
-                @endforeach --}}
+                @endforeach
 
 
                 <!-- Layanan Informasi Offline -->
                 <div class="col-md-4 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                     <h5 class="fw-bold mb-4">Layanan Informasi Offline</h5>
-                    <p class="text-footer small">Gedung Unit Layanan Terpadu <br>(Gedung AW) lantai 1,
-                        <br> Politeknik Negeri Malang
+                    <p class="text-footer small">
+                        Gedung Unit Layanan Terpadu <br>(Gedung AW) lantai 1, <br> Politeknik Negeri Malang
                     </p>
                     <div class="social-icons d-flex">
-                        <a href="https://twitter.com">
-                            <img src="{{ asset('img/logo-twitter.svg') }}" alt="Twitter">
-                        </a>
-                        <a href="https://facebook.com">
-                            <img src="{{ asset('img/logo-facebook.svg') }}" alt="Facebook">
-                        </a>
-                        <a href="https://instagram.com">
-                            <img src="{{ asset('img/logo-instagram.svg') }}" alt="Instagram">
-                        </a>
-                        <a href="https://youtube.com">
-                            <img src="{{ asset('img/logo-youtube.svg') }}" alt="YouTube">
-                        </a>
+                        @foreach ($iconsosmed as $icon)
+                            <a href="{{ $icon['route'] }}">
+                                <img src="{{ $icon['logo'] }}" alt="Social Media">
+                            </a>
+                        @endforeach
                     </div>
                 </div>
+                
 
                 <!-- Hubungi Kami -->
                 <div class="col mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">

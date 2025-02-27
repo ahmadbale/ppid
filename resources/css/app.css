@@ -120,6 +120,7 @@ body {
 /* Footer */
 .footer {
     background: url('bg-footer.webp') no-repeat center center/cover;
+    
     position: relative;
     color: white;
 }
@@ -145,15 +146,29 @@ body {
 
 @media (max-width: 767px) {
     .footer {
-        background:url('bg-footer-mobile.webp');
+        background: url('bg-footer-mobile.webp') ;
         position: relative;
-        color: black;
-        
+      
+    }
+    
+    /* Transparent Overlay */
+    .footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); 
+        z-index: 0;
+    }
+    
+    /* Pastikan Konten Footer Tetap Terlihat */
+    .footer > * {
+        position: relative;
+        z-index: 1;
     }
 
-    .text-footer {
-        color: black;
-    }
 }
 
 /*--- LOGIN ---*/
@@ -1082,24 +1097,21 @@ form {
 
 /* pintasan menu */
 .pintasan  {
-    background-color: #0d2345; /* Sesuai warna dari gambar */
+    background-color: #0F2C56; 
     border-top-right-radius: 100px;
-    /* border-top-left-radius: 100px; */
     color: white;
+   
 }
 
-.link-custom {
-    border-bottom: 1px solid grey;
-    /* padding-bottom: 5px;
-    padding-left: 3rem  !important;*/
-
-    margin-bottom: 2rem;
-
+.text-pintasan {
+   font-weight:small;
+   color:#bbb;
 }
 
-.link-custom {
-    display: inline-block; /* Supaya hanya selebar teks, tidak full-width */
+.text-pintasan:hover{
+    color:white
 }
+
 
 @media (max-width: 767px) {
     .pintasan  {
@@ -1273,6 +1285,7 @@ font-weight: bold;
 border-radius: 10px;
 font-size: 16px;
 color:white;
+margin: 0px auto;
 }
 
 

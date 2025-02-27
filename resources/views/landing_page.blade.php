@@ -238,59 +238,65 @@
     {{-- DOKUMENTASI --}}
     <section class="dokumentasi-section py-3 py-md-5">
         <div class="container py-3 py-md-5">
-          <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
-          <div class="mt-4 border-top border-1 pt-3 mb-4 w-75 w-md-50 mx-auto"></div>
-          
-          <!-- Carousel untuk Desktop (2 gambar per slide) - Hanya tampil di layar medium ke atas -->
-          <div id="carouselDesktop" class="carousel slide carousel-container d-none d-md-block" data-bs-ride="carousel">
-            <!-- Tombol Navigasi Desktop -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop" data-bs-slide="prev">
-              <i class="bi bi-caret-left-fill icon-large"></i>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselDesktop" data-bs-slide="next">
-              <i class="bi bi-caret-right-fill icon-large"></i>
-            </button>
-            
-            <div class="carousel-inner">
-              @foreach(array_chunk($dokumentasi, 2) as $index => $chunk)
-                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                  <div class="row d-flex justify-content-center">
-                    @foreach($chunk as $item)
-                      <div class="col-6 text-center">
-                        <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
-                      </div>
+            <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
+            <div class="mt-4 border-top border-1 pt-3 mb-4 w-75 w-md-50 mx-auto"></div>
+
+            <!-- Carousel untuk Desktop (2 gambar per slide) - Hanya tampil di layar medium ke atas -->
+            <div id="carouselDesktop" class="carousel slide carousel-container d-none d-md-block"
+                data-bs-ride="carousel">
+                <!-- Tombol Navigasi Desktop -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop"
+                    data-bs-slide="prev">
+                    <i class="bi bi-caret-left-fill icon-large"></i>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselDesktop"
+                    data-bs-slide="next">
+                    <i class="bi bi-caret-right-fill icon-large"></i>
+                </button>
+
+                <div class="carousel-inner">
+                    @foreach (array_chunk($dokumentasi, 2) as $index => $chunk)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <div class="row d-flex justify-content-center">
+                                @foreach ($chunk as $item)
+                                    <div class="col-6 text-center">
+                                        <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     @endforeach
-                  </div>
                 </div>
-              @endforeach
             </div>
-          </div>
-          
-          <!-- Carousel untuk Mobile (1 gambar per slide) - Hanya tampil di layar kecil -->
-          <div id="carouselMobile" class="carousel slide carousel-container d-block d-md-none" data-bs-ride="carousel">
-            <!-- Tombol Navigasi Mobile -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile" data-bs-slide="prev">
-              <i class="bi bi-caret-left-fill icon-large"></i>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselMobile" data-bs-slide="next">
-              <i class="bi bi-caret-right-fill icon-large"></i>
-            </button>
-            
-            <div class="carousel-inner">
-              @foreach($dokumentasi as $index => $item)
-                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                  <div class="row d-flex justify-content-center">
-                    <div class="col-10 text-center">
-                      <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
-                    </div>
-                  </div>
+
+            <!-- Carousel untuk Mobile (1 gambar per slide) - Hanya tampil di layar kecil -->
+            <div id="carouselMobile" class="carousel slide carousel-container d-block d-md-none"
+                data-bs-ride="carousel">
+                <!-- Tombol Navigasi Mobile -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile"
+                    data-bs-slide="prev">
+                    <i class="bi bi-caret-left-fill icon-large"></i>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselMobile"
+                    data-bs-slide="next">
+                    <i class="bi bi-caret-right-fill icon-large"></i>
+                </button>
+
+                <div class="carousel-inner">
+                    @foreach ($dokumentasi as $index => $item)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <div class="row d-flex justify-content-center">
+                                <div class="col-10 text-center">
+                                    <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-              @endforeach
             </div>
-          </div>
         </div>
-      </section>
-    
+    </section>
+
 
 
     {{-- Pengumuman --}}
@@ -299,11 +305,12 @@
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
-            @foreach($pengumuman as $index => $item)
+            @foreach ($pengumuman as $index => $item)
                 <div class="col">
                     <div class="ppid-card-body mb-5">
                         <div class="ppid-card-header">
-                            <img src="{{ asset('img/dokumentasi-' . ($index + 1) . '.webp') }}" class="ppid-img-cover" alt="Gambar {{ $index + 1 }}">
+                            <img src="{{ asset('img/dokumentasi-' . ($index + 1) . '.webp') }}"
+                                class="ppid-img-cover" alt="Gambar {{ $index + 1 }}">
                         </div>
                         <p class="ppid-date">{{ $item['tanggal'] }}</p>
                         <p class="ppid-card-text">{{ $item['deskripsi'] }}</p>
@@ -312,7 +319,7 @@
                 </div>
             @endforeach
         </div>
-        
+
 
         <div class="d-flex flex-wrap justify-content-center">
             <a href="#" class="btn-custom">
@@ -334,8 +341,8 @@
                     <div class="news-item">
                         <h5>{{ $item['title'] }}</h5>
                         <p>{{ $item['deskripsi'] }}</p>
-                        <a href="{{ $item['route'] }}" 
-                            class="read-more d-flex flex-wrap justify-content-end">Berita selengkapnya →</a>
+                        <a href="{{ $item['route'] }}" class="read-more d-flex flex-wrap justify-content-end">Berita
+                            selengkapnya →</a>
                     </div>
                 @endforeach
 
@@ -352,14 +359,15 @@
             <div class="col-md-4 ">
                 <h3 class="title-section">Media Informasi Publik</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
-                
-                @foreach($media as $item)
+
+                @foreach ($media as $item)
                     <div class="video-container">
-                        <iframe width="100%" height="200" src="{{ $item['link'] }}" frameborder="0" allowfullscreen></iframe>
+                        <iframe width="100%" height="200" src="{{ $item['link'] }}" frameborder="0"
+                            allowfullscreen></iframe>
                         <div class="text-white text-center p-2">{{ $item['title'] }}</div>
                     </div>
                 @endforeach
-            
+
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     <a href="#" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
@@ -367,23 +375,24 @@
                     </a>
                 </div>
             </div>
-            
+
         </div>
     </section>
 
     {{-- Pintasan Lainnya --}}
-    <section class="pintasan py-5">
+    <section class="pintasan  py-5 ">
         <h3 class="title-section fw-bold text-white text-center">
             Pintasan Lainnya <i class="bi bi-link-45deg"></i>
         </h3>
-        <div class="row mt-4 text-center justify-content-center">
-            @foreach (array_chunk($pintasanMenus, 4) as $column)
-                <div class="col-md-3 d-flex justify-content-center">
-                    <ul class="list-unstyled mb-3 text-center">
-                        @foreach ($column as $menu)
-                            <li>
-                                <a href="{{ $menu['route'] }}" 
-                                   class="text-white text-decoration-none d-block link-custom">
+        <div class="row mt-4  px-5 text-center ">
+            @foreach ($pintasanMenus as $pintasan)
+                <div
+                    class="col-md-3 mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
+                    <h5 class="fw-bold mb-4">{{ $pintasan['title'] }}</h5>
+                    <ul class="list-unstyled">
+                        @foreach ($pintasan['menu'] as $menu)
+                            <li class="mb-2">
+                                <a href="{{ $menu['route'] }}" class="text-pintasan text-decoration-none">
                                     {{ $menu['name'] }}
                                 </a>
                             </li>
@@ -392,11 +401,12 @@
                 </div>
             @endforeach
         </div>
-        
     </section>
 
 
-    @extends('layouts.footer')
+
+    @include('layouts.footer', ['links' => $links, 'icons' => $icons, 'iconsosmed' => $iconsosmed])
+
 
 </body>
 

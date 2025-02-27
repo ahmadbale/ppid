@@ -253,7 +253,7 @@
             </form>
         </div>
     </div>
-    <button type="submit" class="form-btn mt-3">Submit</button>
+    <button type="submit" class="form-btn mt-3 d-flex flex-column align-items-center">Submit</button>
     </div>
     
 </div>
