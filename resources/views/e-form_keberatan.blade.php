@@ -72,7 +72,7 @@
                         @drop.prevent="handleDrop($event); console.log('File dropped')"
                         :class="{ 'border-orange-500': dragging }">
 
-                        
+
 
                         <template x-if="previewUrl">
                             <img :src="previewUrl" class="upload-preview" alt="Preview">
@@ -91,8 +91,8 @@
                                 </button>
                                 <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
                             </div>
-                            
-                            
+
+
                             <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                 </div>
             </form>
         </div>
-    </div> 
+    </div>
  </div>
 
 </div>
@@ -142,7 +142,7 @@
                         <option value="Informasi Yang Disampaikan Melebihi Jangka Waktu Yang Ditentukan">Informasi Yang Disampaikan Melebihi Jangka Waktu Yang Ditentukan</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group mb-3">
                     <label class="label-form">Kasus Posisi <span class="text-danger">*</span> </label>
                     <textarea class="form-control" name="pi_alasan_permohonan_informasi" required rows="4"></textarea>
@@ -161,7 +161,7 @@
 </footer>
 </html>
 {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> --}}
-{{-- 
+{{--
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {

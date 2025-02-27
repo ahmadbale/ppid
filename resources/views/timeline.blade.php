@@ -106,7 +106,7 @@
     colors="primary:#3080e8,secondary:#f4c89c"
     style="width:250px;height:250px">
 </lord-icon> --}}
-    @include('layouts.footer')
+    {{-- @include('layouts.footer') --}}
 </body>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 
