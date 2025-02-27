@@ -20,7 +20,7 @@
     <div class="col ">
     <div class="card e-form-card mb-3">
         <div class="card-header">
-            <h3 class="title-form "> Identitas Pemohon Permohonan Informasi</h3>
+            <h3 class="title-form"> Identitas Pemohon Permohonan Informasi</h3>
         </div>
         <div class="card-body ">
             <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}" method="POST"
@@ -212,7 +212,7 @@
      <!-- Form umum untuk semua kategori -->
     <div class="col ">
     <div class="card e-form-card">
-        <div class="card-header d-flex align-items-center justify-content-between ">
+        <div class="card-header">
             <h3 class="title-form "> Pertanyaan dan Kebutuhan Informasi</h3>
         </div>
         <div class="card-body ">
@@ -253,7 +253,7 @@
             </form>
         </div>
     </div>
-    <button type="submit" class="form-btn mt-3">Submit</button>
+    <button type="submit" class="form-btn mt-3 d-flex flex-column align-items-center">Submit</button>
     </div>
     
 </div>

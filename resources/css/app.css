@@ -117,9 +117,10 @@ body {
     background-color: #F9B234;
     color: white !important;
 }
-
+/* Footer */
 .footer {
     background: url('bg-footer.webp') no-repeat center center/cover;
+    
     position: relative;
     color: white;
 }
@@ -139,6 +140,36 @@ body {
     margin-right: 15px;
 }
 
+.text-footer{
+    color:white;
+}
+
+@media (max-width: 767px) {
+    .footer {
+        background: url('bg-footer-mobile.webp') ;
+        position: relative;
+      
+    }
+    
+    /* Transparent Overlay */
+    .footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); 
+        z-index: 0;
+    }
+    
+    /* Pastikan Konten Footer Tetap Terlihat */
+    .footer > * {
+        position: relative;
+        z-index: 1;
+    }
+
+}
 
 /*--- LOGIN ---*/
 .login-container {
@@ -832,11 +863,11 @@ form {
 }
 
 .carousel-control-prev {
-    left: -10px;
+    left: -50px;
 }
 
 .carousel-control-next {
-    right: -10px;
+    right: -50px;
 }
 
  .icon-large {
@@ -848,6 +879,36 @@ form {
         color:white;
     }
 
+    @media (max-width: 767px) {
+        .carousel-container {
+          padding: 0 25px;
+        }
+        
+        .icon-large {
+          font-size: 1.5rem;
+        }
+        
+        .carousel-control-prev {
+          left: -15px;
+        }
+        
+        .carousel-control-next {
+          right: -15px;
+        }
+
+        
+.carousel-item img {
+    width: 500px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+        
+        /* Mengubah tampilan carousel pada mobile */
+        #carouselExample .carousel-inner .carousel-item .row {
+          flex-direction: column;
+        }
+      }
 
 /* pengumuman ppid */
 .title-section {
@@ -981,22 +1042,50 @@ form {
 
 /* pintasan menu */
 .pintasan  {
-    background-color: #0F2C56; /* Sesuai warna dari gambar */
+    background-color: #0F2C56; 
     border-top-right-radius: 100px;
-    /* border-top-left-radius: 100px; */
     color: white;
-}
-.link-custom {
-    border-bottom: 1px solid grey;
-    /* padding-bottom: 5px;
-    padding-left: 3rem  !important;*/
-    margin-bottom: 2rem;
-}
-.link-custom {
-    display: inline-block;
 }
 
 /* Timeline */
+
+.text-pintasan {
+   font-weight:small;
+   color:#bbb;
+}
+
+.text-pintasan:hover{
+    color:white
+}
+
+
+@media (max-width: 767px) {
+    .pintasan  {
+        border-top-right-radius: 0px;
+        border-top-left-radius: 0px;
+    }
+}
+
+
+ /* Responsif: Hilangkan border bawah & buat elemen center di mobile */
+ /* @media (max-width: 557px) {
+    .pintasan .row {
+        flex-direction: column;
+        align-items: center;
+
+    }
+
+    .pintasan .col-md-3 {
+        width: 100%;
+        text-align: center;
+    }
+
+    .link-custom {
+        border-bottom: none;
+    }
+} */
+/* Timeline content*/
+
 .container-fluid {
     padding-left: 75px;
     padding-right: 75px;
@@ -1137,21 +1226,23 @@ form {
 }
 
 .title-page{
-    background: linear-gradient(to bottom, #1C4F99, #0F2E5A);
-    color: white;
-    text-align: center;
-    padding: 50px 0;
-    font-size: 24px;
-    font-weight:bolder;
+    background: linear-gradient(to top, #1C4F99, #0F2E5A);
+    color: white; 
+    text-align: center; 
+    padding: 50px 0; 
+    font-size: 24px; 
+    font-weight:bolder; 
     border-bottom-left-radius: 100px;
     border-bottom-right-radius: 100px;
 }
+
 
 .title-form{
     font-size: medium;
     font-weight: bold;
     color:white;
     padding: 5px 0;
+    text-align: center !important;
 }
 
 .label-form{
@@ -1160,7 +1251,7 @@ form {
 }
 
 .card-header{
-    background: linear-gradient(to right, #1C4F95,  #FFC030);
+    background: linear-gradient(to bottom, #028daa, #13376b);
     border-top-left-radius: 18px !important;
     border-top-right-radius: 18px !important;
 }
@@ -1178,17 +1269,18 @@ form {
 .form-btn{
 width: 5rem;
 padding: 10px;
-background:#FFC030;
+background: linear-gradient(to top, #028daa, #13376b);
 border: none;
 font-weight: bold;
 border-radius: 10px;
 font-size: 16px;
 color:white;
+margin: 0px auto;
 }
 
 
 .form-btn:hover {
-    background-color: #e6a82a;
+    background: linear-gradient(to bottom, #028daa, #13376b);
 }
 
 .e-form-card{
@@ -1196,7 +1288,7 @@ color:white;
 }
 
 .upload-btn{
-    background-color:  #FFC030;
+    background: linear-gradient(to top, #028daa, #13376b);
     color:white;
     display: flex;
     align-items: center;
@@ -1206,7 +1298,7 @@ color:white;
 }
 
 .upload-btn:hover {
-    background-color: #e6a82a;
+    background: linear-gradient(to bottom, #028daa, #13376b);
     color:white;
 }
 

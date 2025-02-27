@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    
+
     public function index()
     {
         $pengantar = [
@@ -78,38 +78,24 @@ class HomeController extends Controller
         ];
         $pintasanMenus = [
             [
-                'name' => 'POLINEMA',
-                'route' => '#'
+                'title' => 'Sistem Informasi',
+                'menu' => [
+                    ['name' => 'POLINEMA', 'route' => '#'],
+                    ['name' => 'PORTAL', 'route' => '#'],
+                    ['name' => 'SIAKAD', 'route' => '#'],
+                    ['name' => 'SPMB', 'route' => '#'],
+                    ['name' => 'P2M', 'route' => '#'],
+                    ['name' => 'Jaminan Mutu', 'route' => '#'],
+                    ['name' => 'Alumni', 'route' => '#'],
+                ]
             ],
             [
-                'name' => 'PORTAL',
-                'route' => '#'
-            ],
-            [
-                'name' => 'SIAKAD',
-                'route' => '#'
-            ],
-            [
-                'name' => 'SPMB',
-                'route' => '#'
-            ],
-            [
-                'name' => 'P2M',
-                'route' => '#'
-            ],
-            [
-                'name' => 'Jaminan Mutu',
-                'route' => '#'
-            ],
-            [
-                'name' => 'LPSE KEMDIKBUD',
-                'route' => '#'
-            ],  
-            [
-                'name' => 'Alumni',
-                'route' => '#'
-            ],
-            ];
+                'title' => 'Kembdikbud',
+                'menu' => [
+                    ['name' => 'LPSE KEMDIKBUD', 'route' => '#'],
+                ]
+            ]
+        ];
         $berita = [
             [
                 'title' => 'Sosialisasi Layanan Informasi Publik Polinema, Meningkatkan Keterbukaan dan Aksesibilitas Informasi untuk Semua',
@@ -125,46 +111,84 @@ class HomeController extends Controller
                 informasi publik yang bersifat terbuka dan dapat diakses oleh masyarakat..',
                 'route' => '#'
             ]
-            ];
-            $dokumentasi = [
-                [
-                    'dokumentasi' => asset('img/dokumentasi-1.webp')
-                ],
-                [
-                    'dokumentasi' => asset('img/dokumentasi-2.webp')
-                ],
-                [
-                    'dokumentasi' => asset('img/dokumentasi-3.webp')
-                ],
-                [
-                    'dokumentasi' => asset('img/dokumentasi-1.webp')
-                ]
-                ];
-            $pengumuman = [
-                [
-                    'tanggal' => '1 Februari 2025',
-                    'deskripsi' => 'Ini adalah Pengumuman 1',
-                    'route' => '#'
-                ],
-                [
-                    'tanggal' => '30 Januari 2025',
-                    'deskripsi' => 'Ini adalah Pengumuman 2',
-                    'route' => '#'
-                ],
-                [
-                    'tanggal' => '25 Januari 2025',
-                    'deskripsi' => 'Ini adalah Pengumuman 3',
-                    'route' => '#'
-                ]
-                ];
-            $media = [
-                [
-                    'title' => 'Keterbukaan Informasi Publik',
-                    'link' => 'https://www.youtube.com/embed/9vlRk9C37JE'
-                ]
-                ];
-        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus','pintasanMenus','berita','dokumentasi','pengumuman','media'));
+        ];
+        $dokumentasi = [
+            [
+                'dokumentasi' => asset('img/dokumentasi-1.webp')
+            ],
+            [
+                'dokumentasi' => asset('img/dokumentasi-2.webp')
+            ],
+            [
+                'dokumentasi' => asset('img/dokumentasi-3.webp')
+            ],
+            [
+                'dokumentasi' => asset('img/dokumentasi-1.webp')
+            ]
+        ];
+        $pengumuman = [
+            [
+                'tanggal' => '1 Februari 2025',
+                'deskripsi' => 'Ini adalah Pengumuman 1',
+                'route' => '#'
+            ],
+            [
+                'tanggal' => '30 Januari 2025',
+                'deskripsi' => 'Ini adalah Pengumuman 2',
+                'route' => '#'
+            ],
+            [
+                'tanggal' => '25 Januari 2025',
+                'deskripsi' => 'Ini adalah Pengumuman 3',
+                'route' => '#'
+            ]
+        ];
+        $media = [
+            [
+                'title' => 'Keterbukaan Informasi Publik',
+                'link' => 'https://www.youtube.com/embed/9vlRk9C37JE'
+            ]
+        ];
 
-        
+        $links = [
+            [
+                'title' => 'Pusat Unit Layanan',
+                'menu' => [
+                    ['name' => 'Jaminan Mutu', 'route' => '#'],
+                    ['name' => 'Perpustakaan', 'route' => 'https://library.polinema.ac.id/'],
+                    ['name' => 'UPA TIK', 'route' => 'https://sipuskom.polinema.ac.id/'],
+                    ['name' => 'P2M', 'route' => '#'],
+                ]
+            ]
+        ];
+
+        $icons = [
+            [
+                'logo-polinema' => asset('img/logo-polinema.svg'),
+                'logo-blu' => asset('img/logo-blu.svg')
+            ]
+        ];
+
+        $iconsosmed = [
+            [
+                'logo' => asset('img/logo-twitter.svg'),
+                'route' => '#'
+            ],
+            [
+                'logo' => asset('img/logo-facebook.svg'),
+                'route' => '#'
+            ],
+            [
+                'logo' => asset('img/logo-instagram.svg'),
+                'route' => '#'
+            ],
+            [
+                'logo' => asset('img/logo-youtube.svg'),
+                'route' => '#'
+            ]
+        ];
+        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media', 'links', 'icons', 'iconsosmed'));
     }
+
+
 }

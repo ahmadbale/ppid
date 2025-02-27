@@ -25,8 +25,26 @@ class FooterController extends Controller
                 'logo-blu' => asset('img/logo-blu.svg')
             ]
             ];
+            $iconsosmed = [
+                [
+                    'logo' => asset('img/logo-twitter.svg'),
+                    'route' => '#'
+                ],
+                [
+                    'logo' => asset('img/logo-facebook.svg'),
+                    'route' => '#'
+                ],
+                [
+                    'logo' => asset('img/logo-instagram.svg'),
+                    'route' => '#'
+                ],
+                [
+                    'logo' => asset('img/logo-youtube.svg'),
+                    'route' => '#'
+                ]
+                ];
         
-        return view('layouts.footer', compact('links','icons'));
+        return view('layouts.footer', compact('links','icons','iconsosmed'));
     }
     
 }
