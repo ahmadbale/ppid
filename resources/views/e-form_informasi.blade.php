@@ -14,7 +14,7 @@
     </div>
     <section class="container e-form py-4 mb-5">
 
-           
+
 <div class="row row-cols-1 row-cols-md-2">
 <div x-data="{ kategori: '' }">
     <div class="col ">
@@ -85,7 +85,7 @@
                             @drop.prevent="handleDrop($event); console.log('File dropped')"
                             :class="{ 'border-orange-500': dragging }">
 
-                            
+
 
                             <template x-if="previewUrl">
                                 <img :src="previewUrl" class="upload-preview" alt="Preview">
@@ -104,8 +104,8 @@
                                     </button>
                                     <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
                                 </div>
-                                
-                                
+
+
                                 <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                             </div>
                         </div>
@@ -162,13 +162,13 @@
                                 @dragleave="dragging = false; console.log('Dragging left')"
                                 @drop.prevent="handleDrop($event); console.log('File dropped')"
                                 :class="{ 'border-orange-500': dragging }">
-    
-                                
-    
+
+
+
                                 <template x-if="previewUrl">
                                     <img :src="previewUrl" class="upload-preview" alt="Preview">
                                 </template>
-    
+
                                 <div x-show="!previewUrl" class="upload-placeholder">
                                     <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
                                     <p class="text-sm text-gray-600">
@@ -182,12 +182,12 @@
                                         </button>
                                         <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
                                     </div>
-                                    
-                                    
+
+
                                     <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                                 </div>
                             </div>
-    
+
                             <!-- Progress Bar -->
                                 <div x-show="uploading" class="upload-progress mt-3">
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -255,17 +255,17 @@
     </div>
     <button type="submit" class="form-btn mt-3 d-flex flex-column align-items-center">Submit</button>
     </div>
-    
+
 </div>
-    
+
 </section>
 </body>
 <footer>
-    @include('layouts.footer')
+    {{-- @include('layouts.footer') --}}
 </footer>
 </html>
 {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> --}}
-{{-- 
+{{--
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
