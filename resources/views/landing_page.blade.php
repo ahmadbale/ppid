@@ -403,11 +403,9 @@
         </div>
     </section>
 
-
-
-    @include('layouts.footer', ['links' => $links, 'icons' => $icons, 'iconsosmed' => $iconsosmed])
-
-
 </body>
+<footer>
+    @include('layouts.footer')
+</footer>
 
 </html>

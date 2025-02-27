@@ -150,44 +150,7 @@ class HomeController extends Controller
             ]
         ];
 
-        $links = [
-            [
-                'title' => 'Pusat Unit Layanan',
-                'menu' => [
-                    ['name' => 'Jaminan Mutu', 'route' => '#'],
-                    ['name' => 'Perpustakaan', 'route' => 'https://library.polinema.ac.id/'],
-                    ['name' => 'UPA TIK', 'route' => 'https://sipuskom.polinema.ac.id/'],
-                    ['name' => 'P2M', 'route' => '#'],
-                ]
-            ]
-        ];
-
-        $icons = [
-            [
-                'logo-polinema' => asset('img/logo-polinema.svg'),
-                'logo-blu' => asset('img/logo-blu.svg')
-            ]
-        ];
-
-        $iconsosmed = [
-            [
-                'logo' => asset('img/logo-twitter.svg'),
-                'route' => '#'
-            ],
-            [
-                'logo' => asset('img/logo-facebook.svg'),
-                'route' => '#'
-            ],
-            [
-                'logo' => asset('img/logo-instagram.svg'),
-                'route' => '#'
-            ],
-            [
-                'logo' => asset('img/logo-youtube.svg'),
-                'route' => '#'
-            ]
-        ];
-        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media', 'links', 'icons', 'iconsosmed'));
+        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media'));
     }
 
 
