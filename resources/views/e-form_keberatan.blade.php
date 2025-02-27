@@ -7,7 +7,7 @@
     <title>E-Form Pernyataan Keberatan</title>
     @vite(['resources/css/app.css','resources/js/upload-ktp.js'])
 </head>
-<body class="e-form">
+<body style="background: url('img/bg-eform.svg') center/cover no-repeat;>
     @include('layouts.header')
     {{-- @include('layouts.navbar') --}}
     <div class="title-page text-white">
