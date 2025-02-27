@@ -59,3 +59,5 @@ window.heroSlider = function () {
             }
         }));
     });
+
+    

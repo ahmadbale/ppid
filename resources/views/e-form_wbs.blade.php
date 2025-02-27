@@ -42,7 +42,7 @@
                         <option value="Narkoba">Narkoba</option>
                         <option value="Pelayanan Publik">Pelayanan Publik</option>
                     </select>
-                </div>                
+                </div>
                 <div class="form-group mb-3">
                     <label class="label-form">Nama Pegawai / Staff atau Bagian yang dilaporkan <span class="text-danger">*</span> </label>
                     <br>
@@ -62,7 +62,7 @@
                             </select>
                         </div>
                     </div>
-                
+
                     <!-- Tanggal & Waktu Kejadian -->
                     <div class="col-md-6">
                         <div class="form-group mb-3">
@@ -71,7 +71,7 @@
                             <small id="error-tanggal_selesai" class="error-text form-text text-danger"></small>
                         </div>
                     </div>
-                </div>                
+                </div>
                 <div class="form-group mb-3">
                     <label class="label-form">Lokasi Kejadian <span class="text-danger">*</span> </label>
                     <input type="text" class="form-control" name="pi_alamat_pengguna_informasi">
@@ -82,7 +82,7 @@
                     <label class="text-muted">Jelaskan kronologis kejadian secara lengkap dan runtut.</label>
                     <textarea class="form-control" name="pi_alasan_permohonan_informasi" required rows="4"></textarea>
                 </div>
-                
+
                 <div class="form-group mb-3">
                     <label class="label-form">Upload Bukti Pendukung Laporan <span class="text-danger">*</span></label>
                     <br>
@@ -94,7 +94,7 @@
                                 @dragleave="dragging = false"
                                 @drop.prevent="handleDrop($event)"
                                 :class="{ 'border-orange-500': dragging }">
-                                
+
                                 <div x-show="fileList.length === 0" class="upload-placeholder">
                                     <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
                                     <p class="text-sm text-gray-600">
@@ -110,7 +110,7 @@
                                     <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                                 </div>
                             </div>
-                
+
                             <!-- File List Display -->
                             <div x-show="fileList.length > 0" class="mt-4">
                                 <h4 class="font-medium text-sm mb-2">File yang akan diupload (<span x-text="fileList.length"></span>/5):</h4>
@@ -118,7 +118,7 @@
                                     <span>Total ukuran: <span x-text="formatSize(totalSize)"></span>/100MB</span>
                                     <span x-show="totalSize > 0" class="text-xs cursor-pointer text-red-500" @click="clearAllFiles">Hapus Semua</span>
                                 </div>
-                                
+
                                 <template x-for="(file, index) in fileList" :key="index">
                                     <div class="file-item flex items-center justify-between p-2 mb-2 bg-gray-100 rounded">
                                         <div class="file-info flex items-center">
@@ -133,19 +133,19 @@
                                         </button>
                                     </div>
                                 </template>
-                                
+
                                 <div x-show="fileList.length < 5" class="mt-3">
                                     <button type="button" @click="$refs.addMoreInput.click()" class="btn upload-btn px-4 py-2 shadow-sm">
                                         Tambah file lagi
                                     </button>
                                     <input type="file" multiple x-ref="addMoreInput" class="absolute invisible w-0 h-0" @change="handleFileSelect">
                                 </div>
-                                
+
                                 <button x-show="fileList.length > 0" @click="uploadFiles" class="btn upload-btn px-4 py-2 shadow-sm mt-2">
                                     Upload Semua File
                                 </button>
                             </div>
-                
+
                             <!-- Upload Progress -->
                             <div x-show="uploading" class="mt-4">
                                 <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -170,14 +170,14 @@
     </div>
     <button type="submit" class="form-btn mt-3 ">Submit</button>
 </section>
- 
+
 </body>
 <footer>
     @include('layouts.footer')
 </footer>
 </html>
 {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> --}}
-{{-- 
+{{--
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
