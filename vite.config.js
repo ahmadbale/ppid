@@ -11,7 +11,9 @@ export default defineConfig({
                 'resources/js/register.js',
                 'resources/js/upload-ktp.js',
                 'resources/js/upload-bukti.js',
-                'resources/css/sidebar.css'
+                'resources/css/sidebar.css',
+                'resources/js/timeline.js',
+                'resources/css/timeline.css'
                 ],
             refresh: true,
         }),
