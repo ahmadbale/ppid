@@ -11,8 +11,8 @@
 </head>
 
 <body>
-    @include('layouts.header')
-    @include('layouts.navbar')
+    @include('user.layouts.header')
+    @include('user.layouts.navbar')
     {{-- @include('layouts.fsidebar') --}}
     {{-- @include('layouts.right-sidebar') --}}
 
@@ -405,7 +405,7 @@
 
 </body>
 <footer>
-    @include('layouts.footer')
+    @include('user.layouts.footer')
 </footer>
 
 </html>

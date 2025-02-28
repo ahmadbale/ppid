@@ -9,7 +9,7 @@ class ViewComposerServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        View::composer('layouts.footer', function ($view) {
+        View::composer('user.layouts.footer', function ($view) {
             $links = [
                 [
                     'title' => 'Pusat Unit Layanan',
@@ -28,7 +28,7 @@ class ViewComposerServiceProvider extends ServiceProvider
                     'logo-blu' => asset('img/logo-blu.svg')
                 ]
             ];
-            
+
             $iconsosmed = [
                 [
                     'logo' => asset('img/logo-twitter.svg'),
@@ -47,7 +47,7 @@ class ViewComposerServiceProvider extends ServiceProvider
                     'route' => '#'
                 ]
             ];
-            
+
             $view->with(compact('links', 'icons', 'iconsosmed'));
         });
     }
