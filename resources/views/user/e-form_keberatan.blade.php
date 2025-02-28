@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css','resources/js/upload-ktp.js'])
 </head>
 <body style="background: url('img/bg-eform.svg') center/cover no-repeat;>
-    @include('layouts.header')
+    @include('user.layouts.header')
     {{-- @include('layouts.navbar') --}}
     <div class="title-page text-white">
         <h2> Formulir Pernyataan Keberatan</h2>
@@ -157,7 +157,7 @@
 </section>
 </body>
 <footer>
-    @include('layouts.footer')
+    @include('user.layouts.footer')
 </footer>
 </html>
 {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> --}}

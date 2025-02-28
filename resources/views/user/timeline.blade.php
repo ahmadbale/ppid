@@ -10,8 +10,8 @@
 </head>
 
 <body>
-    @include('layouts.header')
-    @include('layouts.navbar')
+    @include('user.layouts.header')
+    @include('user.layouts.navbar')
 
 
     <section class="hero-section-ef"
@@ -96,7 +96,7 @@
     </section>
 
 
-    @include('layouts.footer')
+    @include('user.layouts.footer')
 </body>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 

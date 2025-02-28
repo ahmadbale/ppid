@@ -18,6 +18,6 @@ class TimelineController extends Controller
             ["number" => "6", "text" => "Keputusan akhir mengenai keberatan disampaikan secara tertulis kepada pemohon", "position" => "left"],
         ];
 
-        return view('timeline', compact('steps'));
+        return view('user.timeline', compact('steps'));
     }
 }
