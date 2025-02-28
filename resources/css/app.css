@@ -1062,15 +1062,20 @@ form {
     }
 }
 
-
 /* Timeline content*/
 .container-fluid {
     padding-left: 75px;
     padding-right: 75px;
 }
+
+h2.text-center {
+    width: auto;
+    margin-bottom: 10px;
+    display: block;
+}
 .timeline {
     max-width: 800px;
-    margin: 100px auto;
+    margin: 50px auto;
     padding: 20px;
 }
 .timeline-line {

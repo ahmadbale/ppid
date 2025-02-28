@@ -150,7 +150,7 @@ class HomeController extends Controller
             ]
         ];
 
-        return view('landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media'));
+        return view('user.landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media'));
     }
 
 

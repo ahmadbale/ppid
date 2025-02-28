@@ -25,25 +25,21 @@
         </div>
     </section>
     <section class="content-section my-5 px-4">
-        <div class="container-fluid">
-            <h2 class="text-center mb-5 fw-bold" data-aos="fade-up">Mekanisme Pengajuan Keberatan Informasi</h2>
-
-            <div class="timeline position-relative mb-5" x-data="timeline">
-                <template x-for="(step, index) in steps" :key="index">
-                    <div
-                        class="timeline-item"
-                        :class="[step.position, show ? 'show' : '']"
-                        x-data="{ show: false }"
-                        x-intersect.once="setTimeout(() => show = true, index * 200)"
-                    >
-                        <div class="timeline-content">
-                            <div class="timeline-number" x-text="step.number"></div>
-                            <p x-text="step.text"></p>
+        <div class="container">
+            <h2 class="text-center mb-2 fw-bold">Mekanisme Pengajuan Keberatan Informasi</h2>
+            <section class="container-fluid">
+                <div class="timeline position-relative mb-5" x-data="timeline">
+                    <template x-for="(step, index) in steps" :key="index">
+                        <div class="timeline-item" :class="[step.position, show ? 'show' : '']" x-data="{ show: false }"
+                            x-intersect.once="setTimeout(() => show = true, index * 200)">
+                            <div class="timeline-content">
+                                <div class="timeline-number" x-text="step.number"></div>
+                                <p x-text="step.text"></p>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </div>
-
+                    </template>
+                </div>
+            </section>
 
             <section class="document-section my-4">
                 <a href="{{ asset('files/SOP_Pengajuan_Informasi.pdf') }}" target="_blank"
@@ -53,8 +49,7 @@
                 </a>
             </section>
 
-            <h2 class="text-center mb-5 fw-bold" data-aos="fade-up">Ketentuan Pengajuan Pertanyaan Keberatan Informasi
-            </h2>
+            <h2 class="text-center mb-2 fw-bold">Ketentuan Pengajuan Pertanyaan Keberatan Informasi</h2>
 
             <div class="row align-items-center mb-5">
                 <div class="col-md-8">
@@ -100,13 +95,8 @@
         </div>
     </section>
 
-    {{-- <lord-icon
-    src="https://cdn.lordicon.com/warimioc.json"
-    trigger="hover"
-    colors="primary:#3080e8,secondary:#f4c89c"
-    style="width:250px;height:250px">
-</lord-icon> --}}
-    {{-- @include('layouts.footer') --}}
+
+    @include('layouts.footer')
 </body>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 
