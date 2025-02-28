@@ -28,10 +28,10 @@ Route::get('/', [HomeController::class, 'index'])-> name('beranda');
 
 
 Route::get('/Lsidebar', function () {
-    return view('layouts.left_sidebar');
+    return view('user.layouts.left_sidebar');
 });
 Route::get('/Rsidebar', function () {
-    return view('layouts.right_sidebar');
+    return view('user.layouts.right_sidebar');
 });
 
 Route::get('/landing_page', [HomeController::class, 'index']);
@@ -41,23 +41,23 @@ Route::get('/footer', [FooterController::class, 'index']);
 
 
 Route::get('/e-form_informasi', function () {
-    return view('e-form_informasi');
+    return view('user.e-form_informasi');
 })->name('e-form');
 
 Route::get('/e-form_keberatan', function () {
-    return view('e-form_keberatan');
+    return view('user.e-form_keberatan');
 });
 
 Route::get('/e-form_wbs', function () {
-    return view('e-form_wbs');
+    return view('user.e-form_wbs');
 });
 
 Route::get('/login', function () {
-    return view('login');
+    return view('user.login');
 }) ->name('login');
 
 Route::get('/register', function () {
-    return view('register');
+    return view('user.register');
 }) ->name('register');
 
 // Route::get('/navbar', function () {
@@ -65,7 +65,7 @@ Route::get('/register', function () {
 // });
 
 Route::get('/eform', function () {
-    return view('timeline');
+    return view('user.timeline');
 })->name('eform');
 
 Route::prefix('informasi-publik')->group(function () {

@@ -27,7 +27,7 @@
                 <p class="input-label">Masukan akun Anda</p>
 
                 <form>
-                    <input type="text" placeholder="email / no telpon / NIK" class="input-field">
+                    <input type="text" placeholder="Email / No HP / NIK" class="input-field">
                     <div class="password-container">
                         <input type="password" id="password" placeholder="Password">
                         <span class="toggle-password"></span>

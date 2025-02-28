@@ -1248,7 +1248,7 @@ h2.text-center {
 }
 
 .card-header{
-    background: linear-gradient(to bottom, #028daa, #13376b);
+    background: #F1B434;
     border-top-left-radius: 18px !important;
     border-top-right-radius: 18px !important;
 }
@@ -1266,7 +1266,7 @@ h2.text-center {
 .form-btn{
 width: 5rem;
 padding: 10px;
-background: linear-gradient(to top, #028daa, #13376b);
+background: #F1B434;
 border: none;
 font-weight: bold;
 border-radius: 10px;
@@ -1277,7 +1277,7 @@ margin: 0px auto;
 
 
 .form-btn:hover {
-    background: linear-gradient(to bottom, #028daa, #13376b);
+    background: #F1B434;
 }
 
 .e-form-card{
@@ -1285,7 +1285,7 @@ margin: 0px auto;
 }
 
 .upload-btn{
-    background: linear-gradient(to top, #028daa, #13376b);
+    background: #F1B434;
     color:white;
     display: flex;
     align-items: center;
@@ -1295,7 +1295,7 @@ margin: 0px auto;
 }
 
 .upload-btn:hover {
-    background: linear-gradient(to bottom, #028daa, #13376b);
+    background: #F1B434;
     color:white;
 }
 
