@@ -6,12 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>eform ppid</title>
-    @vite(['resources/css/app.css', 'resources/js/timeline.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
+<<<<<<< HEAD:Modules/User/resources/views/timeline.blade.php
+    @include('user::layouts.header')
+    @include('user::layouts.navbar')
+=======
     @include('user.layouts.header')
     @include('user.layouts.navbar')
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/timeline.blade.php
 
 
     <section class="hero-section-ef"
@@ -27,7 +32,7 @@
     <section class="content-section my-5 px-4">
         <div class="container">
             <h2 class="text-center mb-2 fw-bold">Mekanisme Pengajuan Keberatan Informasi</h2>
-            <section class="container-fluid">
+            {{-- <section class="container-fluid">
                 <div class="timeline position-relative mb-5" x-data="timeline">
                     <template x-for="(step, index) in steps" :key="index">
                         <div class="timeline-item" :class="[step.position, show ? 'show' : '']" x-data="{ show: false }"
@@ -38,6 +43,22 @@
                             </div>
                         </div>
                     </template>
+                </div>
+            </section> --}}
+
+            <section class="container-fluid">
+                <div class="timeline position-relative mb-5" x-data="{ showItems: [] }">
+                    @foreach ($steps as $index => $step)
+                        <div class="timeline-item {{ $step['position'] }}" x-data="{ show: false }"
+                            x-init="setTimeout(() => show = true, {{ $index }} * 200)"
+                            x-intersect.once="show = true"
+                            :class="{ 'show': show }">
+                            <div class="timeline-content">
+                                <div class="timeline-number">{{ $step['number'] }}</div>
+                                <p>{{ $step['text'] }}</p>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </section>
 
@@ -80,7 +101,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="illustration-placeholder">
-                        <img src="img/ilustrasi.png" alt="Ilustrasi Pengajuan Keberatan" class="img-fluid">
+                        <img src="img/ilustrasi.svg" alt="Ilustrasi Pengajuan Keberatan" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -96,7 +117,11 @@
     </section>
 
 
+<<<<<<< HEAD:Modules/User/resources/views/timeline.blade.php
+    @include('user::layouts.footer')
+=======
     @include('user.layouts.footer')
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/timeline.blade.php
 </body>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 

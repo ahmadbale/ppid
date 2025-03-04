@@ -779,7 +779,7 @@ form {
 
 /* Stats */
 .statistik-section {
-    background: linear-gradient(to bottom, #4B4E56 8%, #1B222E 51%);
+    background: linear-gradient(to bottom, #64686E 15%, #172B53 65%);
     color: white;
     text-align: center;
     padding: 80px 20px;
@@ -803,9 +803,9 @@ form {
 }
 
 .statistik-item h3 {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: bold;
-    color: #FFFB00;
+    color: #FFC030;
     margin-bottom: 10px;
     transition: transform 0.3s ease;
 }
@@ -828,7 +828,7 @@ form {
 
 /*Dokumentasi*/
 .dokumentasi-section {
-    background-color: #1B222E;
+    background-color: #172B53;
     color: white;
     text-align: center;
     padding: 80px 20px;
@@ -1216,19 +1216,17 @@ h2.text-center {
 }
 
 /* e-form */
-
+.bg-eform{
+    background: linear-gradient(to bottom right, #F2F2F2 80%, #4993EB 70%);
+    z-index: -1;
+}
 .title-page{
-    background: linear-gradient(to top, #1C4F99, #0F2E5A);
     color: white;
     text-align: center;
     padding: 50px 0;
     font-size: 24px;
     font-weight:bolder;
-    border-bottom-left-radius: 100px;
-    border-bottom-right-radius: 100px;
 }
-
-
 .title-form{
     font-size: medium;
     font-weight: bold;
@@ -1247,9 +1245,6 @@ h2.text-center {
     border-top-left-radius: 18px !important;
     border-top-right-radius: 18px !important;
 }
-
-
-
 .form-check-label{
     font-size: 15px !important;
 }
@@ -1270,7 +1265,6 @@ color:white;
 margin: 0px auto;
 }
 
-
 .form-btn:hover {
     background: #F1B434;
 }
@@ -1278,7 +1272,6 @@ margin: 0px auto;
 .e-form-card{
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
-
 .upload-btn{
     background: #F1B434;
     color:white;

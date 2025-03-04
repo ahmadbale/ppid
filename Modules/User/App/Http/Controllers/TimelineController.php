@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\User\App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
@@ -18,6 +18,10 @@ class TimelineController extends Controller
             ["number" => "6", "text" => "Keputusan akhir mengenai keberatan disampaikan secara tertulis kepada pemohon", "position" => "left"],
         ];
 
+<<<<<<< HEAD:Modules/User/App/Http/Controllers/TimelineController.php
+        return view('user::timeline', compact('steps'));
+=======
         return view('user.timeline', compact('steps'));
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:app/Http/Controllers/TimelineController.php
     }
 }

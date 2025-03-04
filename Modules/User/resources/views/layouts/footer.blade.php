@@ -45,7 +45,7 @@
                     </p>
                 </div>
                 @endforeach --}}
-            
+
 
 
                 <!-- Pusat Unit Layanan -->
@@ -88,7 +88,7 @@
                         @endforeach
                     </div>
                 </div>
-                
+
 
                 <!-- Hubungi Kami -->
                 <div class="col mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
@@ -118,7 +118,7 @@
             </div>
         </div>
     </footer>
-    
+
 </body>
 
 </html>

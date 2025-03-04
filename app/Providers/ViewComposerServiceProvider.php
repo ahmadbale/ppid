@@ -9,7 +9,7 @@ class ViewComposerServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        View::composer('user.layouts.footer', function ($view) {
+        View::composer('user::layouts.footer', function ($view) {
             $links = [
                 [
                     'title' => 'Pusat Unit Layanan',

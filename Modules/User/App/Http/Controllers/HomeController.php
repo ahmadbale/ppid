@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\User\App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
@@ -150,7 +150,7 @@ class HomeController extends Controller
             ]
         ];
 
-        return view('user.landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media'));
+        return view('user::landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media'));
     }
 
 
