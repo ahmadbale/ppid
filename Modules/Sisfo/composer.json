@@ -1,0 +1,31 @@
+{
+    "name": "nwidart/sisfo",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Sisfo\\": "",
+            "Modules\\Sisfo\\App\\": "app/",
+            "Modules\\Sisfo\\Database\\Factories\\": "database/factories/",
+            "Modules\\Sisfo\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Sisfo\\Tests\\": "tests/"
+        }
+    }
+}
