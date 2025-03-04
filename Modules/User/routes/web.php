@@ -65,7 +65,7 @@ Route::get('/e-form_wbs', function () {
     return view('user::e-form_wbs');
 });
 
-Route::get('/login', function () {
+Route::get('/login-ppid', function () {
     return view('user::login');
 }) ->name('login');
 
