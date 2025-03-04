@@ -8,7 +8,11 @@
     @vite(['resources/css/app.css','resources/js/upload-bukti.js'])
 </head>
 <body style="background: url('img/bg-eform.svg') center/cover no-repeat;>
+<<<<<<< HEAD:Modules/User/resources/views/e-form_wbs.blade.php
     @include('user::layouts.header')
+=======
+    @include('user.layouts.header')
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/e-form_wbs.blade.php
     {{-- @include('layouts.navbar') --}}
     <div class="title-page text-white">
         <h2> Formulir Whsitle Blowing System</h2>
@@ -173,7 +177,11 @@
 
 </body>
 <footer>
+<<<<<<< HEAD:Modules/User/resources/views/e-form_wbs.blade.php
     @include('user::layouts.footer')
+=======
+    @include('user.layouts.footer')
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/e-form_wbs.blade.php
 </footer>
 </html>
 {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> --}}

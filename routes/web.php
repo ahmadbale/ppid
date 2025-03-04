@@ -23,7 +23,6 @@ use App\Http\Controllers\TimelineController;
 
 // Route::get('/landing_page', [HomeController::class, 'index']);
 
-
 // Route::get('/Lsidebar', function () {
 //     return view('layouts.left_sidebar');
 // });
@@ -31,11 +30,11 @@ use App\Http\Controllers\TimelineController;
 //     return view('user.layouts.right_sidebar');
 // });
 
+
 // Route::get('/landing_page', [HomeController::class, 'index']);
 
 
 // Route::get('/footer', [FooterController::class, 'index']);
-
 
 // Route::get('/e-form_informasi', function () {
 //     return view('user.e-form_informasi');
@@ -57,6 +56,7 @@ use App\Http\Controllers\TimelineController;
 //     return view('user.register');
 // }) ->name('register');
 
+
 // Route::get('/navbar', function () {
 //     return view('navbaar');
 // });
@@ -64,6 +64,7 @@ use App\Http\Controllers\TimelineController;
 // Route::get('/eform', function () {
 //     return view('user.timeline');
 // })->name('eform');
+
 
 // Route::prefix('informasi-publik')->group(function () {
 //     Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');

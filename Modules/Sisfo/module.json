@@ -1,0 +1,11 @@
+{
+    "name": "Sisfo",
+    "alias": "sisfo",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Sisfo\\App\\Providers\\SisfoServiceProvider"
+    ],
+    "files": []
+}

@@ -44,7 +44,7 @@ class FooterController extends Controller
                 ]
                 ];
         
-        return view('layouts.footer', compact('links','icons','iconsosmed'));
+        return view('user.layouts.footer', compact('links','icons','iconsosmed'));
     }
     
 }

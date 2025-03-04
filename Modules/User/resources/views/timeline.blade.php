@@ -10,8 +10,13 @@
 </head>
 
 <body>
+<<<<<<< HEAD:Modules/User/resources/views/timeline.blade.php
     @include('user::layouts.header')
     @include('user::layouts.navbar')
+=======
+    @include('user.layouts.header')
+    @include('user.layouts.navbar')
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/timeline.blade.php
 
 
     <section class="hero-section-ef"
@@ -112,7 +117,11 @@
     </section>
 
 
+<<<<<<< HEAD:Modules/User/resources/views/timeline.blade.php
     @include('user::layouts.footer')
+=======
+    @include('user.layouts.footer')
+>>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/timeline.blade.php
 </body>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 
