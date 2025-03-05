@@ -1,4 +1,11 @@
 {
+<<<<<<< HEAD
+    "Admin": true,
+    "User": true,
+    "Sisfo": true
+}
+=======
     "Sisfo": true,
     "User": true
 }
+>>>>>>> dce502f885d891a4e0657b87af8b4c3618ba8ca1

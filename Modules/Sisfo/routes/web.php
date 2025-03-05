@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/list', [MenuManagementController::class, 'list']);
         Route::post('/store', [MenuManagementController::class, 'store'])->middleware('permission:create');;
         Route::get('/{id}/edit', [MenuManagementController::class, 'edit']);
+
         Route::put('/{id}/update', [MenuManagementController::class, 'update'])->middleware('permission:update');;
         Route::delete('/{id}/delete', [MenuManagementController::class, 'delete'])->middleware('permission:delete');;
         Route::get('/{id}/detail_menu', [MenuManagementController::class, 'detail_menu']);
@@ -86,6 +87,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}/delete', [FooterController::class, 'delete']);
         Route::get('/{id}/detail_footer', [FooterController::class, 'detail_footer']);
     });
+
 
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PermohonanInformasi', 'middleware' => ['authorize:RPN']], function () {
