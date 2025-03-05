@@ -94,10 +94,10 @@
                 <div class="col mb-4 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
                     <h5 class="fw-bold mb-4">Hubungi Kami</h5>
                     <ul class="list-unstyled">
-                        <p class="text-footer small"> <i class="bi bi-envelope-fill"></i>
+                        <p class="text-footer contact-text"> <i class="bi bi-envelope-fill"></i>
                             humas@polinema.ac.id
                         </p>
-                        <p class="text-footer small"> <i class="bi bi-telephone-fill"></i>
+                        <p class="text-footer contact-text"> <i class="bi bi-telephone-fill"></i>
                             0341 – 404424/404425
                         </p>
                     </ul>

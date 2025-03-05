@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Models\Website\LandingPage;
+namespace Modules\Sisfo\App\Models\Website\LandingPage;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-
-class MenuAksesCepatModel extends BaseModel
+class MenuAksesCepatModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 't_menu_akses_cepat';
     protected $primaryKey = 'menu_akses_id';

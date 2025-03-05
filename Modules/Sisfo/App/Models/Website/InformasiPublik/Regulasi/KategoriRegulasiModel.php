@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\Regulasi;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\Regulasi;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-
-class KategoriRegulasiModel extends BaseModel
+class KategoriRegulasiModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = ' t_kategori_regulasi';
     protected $primaryKey = 'kategori_reg_id';

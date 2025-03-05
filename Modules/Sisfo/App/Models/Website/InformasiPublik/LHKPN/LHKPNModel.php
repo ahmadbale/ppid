@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\LHKPN;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\LHKPN;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class LHKPNModel extends BaseModel
+class LHKPNModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 't_lhkpn';
     protected $primaryKey = 'lhkpn_id';

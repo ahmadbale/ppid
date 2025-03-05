@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Models\SistemInformasi\EForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class FormPiOrganisasiModel extends BaseModel
+class FormPiOrganisasiModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 't_form_pi_organisasi';
     protected $primaryKey = 'form_pi_organisasi_id';

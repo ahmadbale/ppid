@@ -1,15 +1,5 @@
 <?php
 
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Route;
-
-
-// Route::middleware(['auth:sanctum'])->prefix('v1')->name('api.')->group(function () {
-//     Route::get('sisfo', fn (Request $request) => $request->user())->name('sisfo');
-// });
-
-
-
 use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
 use Illuminate\Support\Facades\Route;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
@@ -31,7 +21,7 @@ use Spatie\FlareClient\Api;
 Route::prefix('auth')->group(function () {
     // Public routes (tidak perlu autentikasi)
     Route::post('login', [ApiAuthController::class, 'login']);
-    Route::post('register', [ApiAuthController::class, 'register']);
+    // Route::post('register', [ApiAuthController::class, 'register']);
     
     // Protected routes (perlu autentikasi)
     Route::middleware('auth:api')->group(function () {

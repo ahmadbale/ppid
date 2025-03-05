@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\SistemInformasi\Timeline;
+namespace Modules\Sisfo\App\Models\SistemInformasi\Timeline;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class TimelineModel extends BaseModel
+class TimelineModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 'm_timeline';
     protected $primaryKey = 'timeline_id';

@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\SistemInformasi\EForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class PengaduanMasyarakatModel extends BaseModel
+class PengaduanMasyarakatModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 't_pengaduan_masyarakat';
     protected $primaryKey = 'pengaduan_masyarakat_id';

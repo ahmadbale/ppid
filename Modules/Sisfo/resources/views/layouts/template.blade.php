@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ config('app.name', 'PWL Laravel Starter Code')}}</title>
-  <link rel="icon" href="{{ asset('modules/sisfo/logo.png') }}" type="image/png">
+  <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
 
   <meta name="csrf-token" content="{{ csrf_token() }}"> <!-- Untuk mengirimkan token laravel CSRF pada setiap request ajax -->
-
+   <!--tambahan-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome -->
@@ -64,9 +65,9 @@
 <!-- ./wrapper -->
 
 <!-- jQuery -->
-<script src="{{ asset('modules/sisfo/adminlte/plugins/jquery/jquery.min.js')}}"></script>
+<script src="{{ asset('/modules/sisfo/adminlte/plugins/jquery/jquery.min.js')}}"></script>
 <!-- Bootstrap 4 -->
-<script src="{{ asset('modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+<script src="{{ asset('/modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 <!-- DataTables  & Plugins -->
 <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -85,11 +86,26 @@
 <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
 <!-- SweetAlert2 -->
 <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-<!-- AdminLTE App -->
-<script src="{{ asset('modules/sisfo/adminlte/dist/js/adminlte.min.js')}}"></script>
+<!-- modules/sisfo/AdminLTE App -->
+<script src="{{ asset('/modules/sisfo/adminlte/dist/js/adminlte.min.js')}}"></script>
 <script> 
     //Untuk Mengirimkan token laravel CSRF pada setiap request ajax
     $.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    // Konfigurasi toastr global
+    toastr.options = {
+    "closeButton": true,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "showDuration": "100",
+    "hideDuration": "300",
+    "timeOut": "3000",
+    "extendedTimeOut": "500"
+}
 </script>
 @stack('js') 
 </body>

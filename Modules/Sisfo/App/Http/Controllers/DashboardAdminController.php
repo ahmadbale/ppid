@@ -2,12 +2,12 @@
 
 namespace Modules\Sisfo\App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class DashboardAdminController extends Controller
 {
+    use TraitsController;
+    
     public function index() {
         $breadcrumb = (object) [
             'title' => 'Selamat Datang Pengguna',
@@ -16,6 +16,6 @@ class DashboardAdminController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('sisfo::dashboardAdmin', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('sisfo::dashboardADM', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }
