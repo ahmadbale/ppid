@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Helpers\MenuHelper;
 
 // Hitung total notifikasi belum dibaca
 $totalNotifikasiVFR = NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
@@ -26,7 +27,7 @@ $totalNotifikasiADM = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
             <!-- Menu untuk setiap level_kode -->
             @if (Auth::user()->level->level_kode == 'ADM')
                 <li class="nav-item">
-                    <a href="{{ url('/dashboardAdmin') }}"
+                    <a href="{{ url('/dashboardADM') }}"
                         class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
@@ -71,6 +72,7 @@ $totalNotifikasiADM = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                 </li>
                 <li class="nav-header">Website / Portal</li>
                 <!-- Menu Utama -->
+                @if(MenuHelper::shouldShowInSidebar('adminweb/menu-management'))
                 <li class="nav-item {{ request()->is('adminweb/menu-utama*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('adminweb/menu-utama*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-cog"></i>
@@ -81,13 +83,29 @@ $totalNotifikasiADM = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ url('/adminweb/menu-management') }}" class="nav-link {{ $activeMenu == 'menumanagement' ? 'active' : '' }}">
+                            <a href="{{ url('/adminweb/menu-management') }}"
+                                class="nav-link {{ $activeMenu == 'menumanagement' ? 'active' : '' }}">
                                 <i class="fas fa-tasks nav-icon"></i>
                                 <p>Menu Management</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ url('/adminweb/kategori-footer') }}"
+                                class="nav-link {{ $activeMenu == 'kategori-footer' ? 'active' : '' }}">
+                                <i class="fas fa-tasks nav-icon"></i>
+                                <p>Kategori-Footer</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('/adminweb/footer') }}"
+                                class="nav-link {{ $activeMenu == 'footer' ? 'active' : '' }}">
+                                <i class="fas fa-tasks nav-icon"></i>
+                                <p>Footer</p>
+                            </a>
+                        </li>
                     </ul>
-                </li>                
+                </li>
+                @endif
 
                 <li class="nav-header">Sistem Informasi</li>
                 <li class="nav-item">
@@ -120,6 +138,26 @@ $totalNotifikasiADM = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                             </a>
                         </li>
                     </ul>
+                </li>
+            @elseif (Auth::user()->level->level_kode == 'SAR')
+                <li class="nav-item">
+                    <a href="{{ url('/dashboardSAR') }}"
+                        class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p>Profile</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/HakAkses') }}" class="nav-link {{ $activeMenu == 'HakAkses' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-key"></i>
+                        <p>Hak Akses</p>
+                    </a>
                 </li>
             @elseif (Auth::user()->level->level_kode == 'MPU')
                 <li class="nav-item">
@@ -192,7 +230,7 @@ $totalNotifikasiADM = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                 </li>
             @elseif (Auth::user()->level->level_kode == 'RPN')
                 <li class="nav-item">
-                    <a href="{{ url('/dashboardResponden') }}"
+                    <a href="{{ url('/dashboardRPN') }}"
                         class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>

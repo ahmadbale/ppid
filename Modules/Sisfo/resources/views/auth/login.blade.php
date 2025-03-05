@@ -94,7 +94,7 @@
   <!-- SweetAlert2 -->
   <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
-  <!-- AdminLTE App -->
+  <!-- modules/sisfo/AdminLTE App -->
   <script src="{{ asset('modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
 
   <script>

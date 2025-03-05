@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\Publikasi\Pengumuman;
+namespace Modules\Sisfo\App\Models\Website\Publikasi\Pengumuman;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class PengumumanDinamisModel extends BaseModel
+class PengumumanDinamisModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 'm_pengumuman_dinamis';
     protected $primaryKey = 'pengumuman_dinamis_id';

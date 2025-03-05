@@ -7,12 +7,8 @@
     <title>E-Form Whistle Blowing System</title>
     @vite(['resources/css/app.css','resources/js/upload-bukti.js'])
 </head>
-<body style="background: url('img/bg-eform.svg') center/cover no-repeat;>
-<<<<<<< HEAD:Modules/User/resources/views/e-form_wbs.blade.php
+<body style="background: url('img/bg-eform.svg') center/cover no-repeat;">
     @include('user::layouts.header')
-=======
-    @include('user.layouts.header')
->>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/e-form_wbs.blade.php
     {{-- @include('layouts.navbar') --}}
     <div class="title-page text-white">
         <h2> Formulir Whsitle Blowing System</h2>
