@@ -1216,9 +1216,28 @@ h2.text-center {
 }
 
 /* e-form */
-.bg-eform{
-    background: linear-gradient(to bottom right, #F2F2F2 80%, #4993EB 70%);
-    z-index: -1;
+.step-indicator {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+.step-indicator.active {
+    background-color: #0F2E5A;
+    color: #FFC030;
+}
+.step-line {
+    width: 50px;
+    height: 4px;
+    background-color: #ddd;
+    margin: 0 10px;
+}
+.step-line.active-line {
+    background-color: #0F2E5A;
 }
 .title-page{
     color: white;
@@ -1227,23 +1246,20 @@ h2.text-center {
     font-size: 24px;
     font-weight:bolder;
 }
-.title-form{
-    font-size: medium;
-    font-weight: bold;
-    color:white;
-    padding: 5px 0;
-    text-align: center !important;
+.form-wrap{
+    margin-bottom:30vh;
+}
+.e-form{
 }
 
 .label-form{
     font-weight:bold;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .card-header{
-    background: #F1B434;
-    border-top-left-radius: 18px !important;
-    border-top-right-radius: 18px !important;
+    background: #3A83ED;
+    border-radius: 18px 18px 0 0 !important;
 }
 .form-check-label{
     font-size: 15px !important;
@@ -1251,7 +1267,6 @@ h2.text-center {
 
 .card{
     border-radius: 20px;
-    border-color: #1C4F99;
 }
 .form-btn{
 width: 5rem;
@@ -1269,9 +1284,6 @@ margin: 0px auto;
     background: #F1B434;
 }
 
-.e-form-card{
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
 .upload-btn{
     background: #F1B434;
     color:white;
@@ -1292,6 +1304,18 @@ margin: 0px auto;
     font-size:14px;
 }
 
+
+.lanjut-btn{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: white;
+}
 
 .text-muted{
     font-size:small;

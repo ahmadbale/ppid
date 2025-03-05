@@ -177,11 +177,7 @@
 
 </body>
 <footer>
-<<<<<<< HEAD:Modules/User/resources/views/e-form_wbs.blade.php
     @include('user::layouts.footer')
-=======
-    @include('user.layouts.footer')
->>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/e-form_wbs.blade.php
 </footer>
 </html>
 {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script> --}}
