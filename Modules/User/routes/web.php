@@ -28,8 +28,6 @@ use Modules\User\App\Http\Controllers\UserController;
 
 Route::get('/', [HomeController::class, 'index'])-> name('beranda');
 
-Route::get('/eform', [TimelineController::class, 'index'])-> name('eform');
-
 Route::get('/Lsidebar', function () {
     return view('user::layouts.left_sidebar');
 });
@@ -42,15 +40,17 @@ Route::get('/landing_page', [HomeController::class, 'index']);
 
 Route::get('/footer', [FooterController::class, 'index']);
 
-Route::prefix('e-form')->group(function () {
+Route::prefix('form')->group(function () {
     Route::get('/informasi-publik', function () {
-        return view('user::e-form.informasi-publik');})->name('e-form.informasi-publik');
+        return view('user::e-form.informasi-publik');})->name('form-informasi-publik');
     Route::get('/keberatan', function () {
         return view('user::e-form.keberatan');})->name('e-form.keberatan');
-
     Route::get('/wbs', function () {
         return view('user::e-form.wbs');})->name('e-form.wbs');
 });
+
+Route::get('/e-form', [TimelineController::class, 'permohonan_informasi'])-> name('permohonan_informasi');
+
 
 
 Route::get('/e-form_informasi', function () {

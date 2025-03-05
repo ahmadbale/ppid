@@ -7,7 +7,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Register PPID</title>
     @vite(['resources/css/app.css', 'resources/js/register.js'])
-    {{-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js" defer></script> --}}
 </head>
 
 <body>
@@ -67,7 +66,7 @@
                             @drop.prevent="handleDrop($event); console.log('File dropped')"
                             :class="{ 'border-orange-500': dragging }">
 
-                            
+
 
                             <template x-if="previewUrl">
                                 <img :src="previewUrl" class="upload-preview" alt="Preview">
@@ -86,8 +85,8 @@
                                     </button>
                                     <input type="file" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
                                 </div>
-                                
-                                
+
+
                                 <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
                             </div>
                         </div>

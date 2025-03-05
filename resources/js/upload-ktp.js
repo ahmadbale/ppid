@@ -66,7 +66,6 @@ document.addEventListener('alpine:init', () => {
             this.uploading = true;
             this.uploadProgress = 0;
 
-            // Simulasi upload dengan setInterval (bisa diganti dengan AJAX ke backend)
             let interval = setInterval(() => {
                 this.uploadProgress += 10;
                 if (this.uploadProgress >= 100) {
@@ -79,3 +78,24 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
+
+// document.addEventListener('alpine:init', () => {
+//     Alpine.data('formHandler', () => ({
+//         step: 1,
+//         kategori: '',
+//         nama: '',
+//         alamat: '',
+//         ktp: '',
+
+//         nextStep() {
+//             if (this.nama && this.alamat && this.ktp && this.kategori) {
+//                 this.step = 2;
+//             }
+//         },
+
+//         isNextDisabled() {
+//             return !(this.nama && this.alamat && this.ktp && this.kategori);
+//         }
+//     }));
+// });
+

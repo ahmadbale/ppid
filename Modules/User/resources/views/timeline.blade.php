@@ -10,9 +10,9 @@
 </head>
 
 <body>
-    @include('user.layouts.header')
-    @include('user.layouts.navbar')
 
+    @include('user::layouts.header')
+    @include('user::layouts.navbar')
 
     <section class="hero-section-ef"
         style="background: url('{{ asset('img/hero-grapol.svg') }}') no-repeat center center/cover; color: #fff; text-align: left; height: 40vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 20px;">
@@ -104,20 +104,13 @@
             <!-- Ajukan Pengaduan Section -->
             <div class="ajukan-pengaduan">
                 <h3 class="mb-0">Ajukan Pengaduan</h3>
-                <button class="masuk-button" onclick="window.location.href='{{ route('e-form') }}'">Klik form
+                <button class="masuk-button" onclick="window.location.href='{{ route('form-informasi-publik') }}'">Klik form
                     ini</button>
             </div>
         </div>
         </div>
     </section>
-
-
-<<<<<<< HEAD:Modules/User/resources/views/timeline.blade.php
     @include('user::layouts.footer')
-=======
-    @include('user.layouts.footer')
->>>>>>> f14d5f87d157edb50a9314077627df9ab150c8e9:resources/views/user/timeline.blade.php
 </body>
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
 
 </html>

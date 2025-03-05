@@ -1,154 +1,333 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Permohonan Informasi Publik</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>E-Form Permohonan Informasi</title>
+    @vite(['resources/css/app.css', 'resources/js/upload-ktp.js'])
 </head>
+@include('user::layouts.header')
 <body>
-    <div class="background">
-        <div class="circle large"></div>
-        <div class="circle medium"></div>
-        <div class="circle small"></div>
-        <div class="dashed-circle"></div>
-    </div>
+    <section>
+        <div class="title-page text-black text-center">
+            <h2> Formulir Permohonan Informasi</h2>
+        </div>
+        <div class="form-wrap">
+        <div class="container d-flex justify-content-center align-items-center ">
+            <div class="e-form p-4 rounded bg-white shadow-lg" style="max-width: 600px; width: 100%;">
+                <div x-data="{ step: 1, kategori: '' }" x-cloak>
+                    <!-- Stepper Indicator -->
+                    <div class="d-flex align-items-center justify-content-center mb-4">
+                        <div class="step-indicator" :class="step === 1 || step === 2 ? 'active' : ''">1</div>
+                        <div class="step-line" :class="step === 2 ? 'active-line' : ''"></div>
+                        <div class="step-indicator" :class="step === 2 ? 'active' : ''">2</div>
+                    </div>
 
-    <div class="form-container">
-        <h2>Form Permohonan Informasi</h2>
-        <form action="submit.php" method="POST" enctype="multipart/form-data">
-            <label for="nama">Nama Pemohon:</label>
-            <input type="text" id="nama" name="nama" required>
+                    <form action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}"
+                        method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div x-show="step === 1">
+                            <form
+                                action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}"
+                                method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group mb-3">
+                                    <label class="label-form" for="pi_kategori_pemohon">Permohonan Informasi Dilakukan
+                                        Atas</label>
+                                    <select x-model="kategori" class="form-select" id="pi_kategori_pemohon"
+                                        name="pi_kategori_pemohon" required>
+                                        <option value="">- Pilih Kategori Pemohon -</option>
+                                        <option value="Diri Sendiri">Diri Sendiri</option>
+                                        <option value="Orang Lain">Orang Lain</option>
+                                        <option value="Organisasi">Organisasi / Lembaga Masyarakat atau Yayasan atau
+                                            Perusahaan</option>
+                                    </select>
+                                </div>
+                                <div id="formOrganisasi" x-show="kategori === 'Organisasi'" x-cloak>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="label-form">Nama Organisasi <span
+                                                        class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="form-control" name="pi_nama_organisasi"
+                                                    required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="label-form">No Telepon Organisasi <span
+                                                        class="text-danger">*</span> </label>
+                                                <input type="text" class="form-control" name="pi_no_telp_organisasi"
+                                                    required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="label-form">Email dan Website / Media Sosial Organisasi <span
+                                                class="text-danger">*</span> </label>
+                                        <p class="text-muted">
+                                            Contoh : <br>
+                                            * Email: organisasi@google.com, website: organisasi.co <br>
+                                            * Email: organisasi@google.com, IG: organisasi_sosial_masyarakat
+                                        </p>
+                                        <input type="text" class="form-control"
+                                            name="pi_email_atau_medsos_organisasi" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="label-form">Nama Narahubung Organisasi <span
+                                                        class="text-danger">*</span> </label>
+                                                <input type="text" class="form-control" name="pi_nama_narahubung"
+                                                    required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="label-form">No Telepon Narahubung<span
+                                                        class="text-danger">*</span> </label>
+                                                <input type="text" class="form-control" name="pi_no_telp_narahubung"
+                                                    required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="label-form">Upload Foto Kartu Identitas Pemohon <span
+                                                class="text-danger">*</span> </label>
+                                        <br>
+                                        <label class="text-muted">Silakan scan / Foto kartu identitas (KTP/SIM/Paspor)
+                                            pemohon. Semua data pada kartu identitas harus tampak jelas dan
+                                            terang.</label>
 
-            <label for="alamat">Alamat Pemohon:</label>
-            <input type="text" id="alamat" name="alamat" required>
+                                        <div x-data="uploadHandler" class="upload-box">
+                                            <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
+                                                @dragover.prevent="dragging = true; console.log('Dragging over')"
+                                                @dragleave="dragging = false; console.log('Dragging left')"
+                                                @drop.prevent="handleDrop($event); console.log('File dropped')"
+                                                :class="{ 'border-orange-500': dragging }">
 
-            <label for="pekerjaan">Pekerjaan Pemohon:</label>
-            <input type="text" id="pekerjaan" name="pekerjaan" required>
 
-            <label for="telepon">Nomor Telepon/HP:</label>
-            <input type="tel" id="telepon" name="telepon" required>
 
-            <label for="ktp">Upload Identitas (KTP/SIM/Paspor):</label>
-            <input type="file" id="ktp" name="ktp" accept="image/*" required>
+                                                <template x-if="previewUrl">
+                                                    <img :src="previewUrl" class="upload-preview" alt="Preview">
+                                                </template>
 
-            <label for="keberatan">Pengajuan Keberatan Dilakukan Atas:</label>
-            <select id="keberatan" name="keberatan">
-                <option value="diri_sendiri">Diri Sendiri</option>
-                <option value="orang_lain">Orang Lain</option>
-            </select>
+                                                <div x-show="!previewUrl" class="upload-placeholder">
+                                                    <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
+                                                    <p class="text-sm text-gray-600">
+                                                        <strong> Drag and drop <span
+                                                                class="text-orange-500 font-semibold">or choose
+                                                                file</span> to
+                                                            upload </strong>
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                                                    <div x-data>
+                                                        <button type="button" @click="$refs.fileInput.click()"
+                                                            class="btn upload-btn  px-4 py-2 shadow-sm">
+                                                            Pilih File
+                                                        </button>
+                                                        <input type="file" x-ref="fileInput"
+                                                            class="absolute invisible w-0 h-0" accept="image/*"
+                                                            @change="handleFileSelect">
+                                                    </div>
 
-            <button type="submit">Kirim Permohonan</button>
-        </form>
-    </div>
+
+                                                    <div id="file-error" class="text-red-500 text-sm mt-2"
+                                                        x-text="errorMessage"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Progress Bar -->
+                                            <div x-show="uploading" class="upload-progress mt-3">
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                    <div class="bg-orange-500 h-2.5 rounded-full"
+                                                        :style="`width: ${uploadProgress}%`">
+                                                    </div>
+                                                </div>
+                                                <p class="text-sm text-gray-600 mt-2 text-center">
+                                                    Mengupload... <span x-text="uploadProgress + '%'"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div id="formOrangLain" x-show="kategori === 'Orang Lain'" x-cloak>
+                                    <div class="form-group mb-3">
+                                        <label class="label-form">Nama Pemohon <span class="text-danger">*</span>
+                                        </label>
+                                        <br>
+                                        <label class="text-muted">Nama lengkap sesuai KTP</label>
+                                        <input type="text" class="form-control" name="pi_nama_pengguna_informasi">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="label-form">Alamat Pemohon <span class="text-danger">*</span>
+                                        </label>
+                                        <br>
+                                        <label class="text-muted">Alamat lengkap sesuai KTP</label>
+                                        <input type="text" class="form-control"
+                                            name="pi_alamat_pengguna_informasi" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="label-form">No HP / Telepon Pemohon <span
+                                                        class="text-danger">*</span> </label>
+                                                <input type="text" class="form-control"
+                                                    name="pi_no_hp_pengguna_informasi" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label class="label-form">Email Pemohon <span
+                                                        class="text-danger">*</span>
+                                                </label>
+                                                <input type="email" class="form-control"
+                                                    name="pi_email_pengguna_informasi" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label class="label-form">Upload Foto Kartu Identitas Pemohon <span
+                                                class="text-danger">*</span> </label>
+                                        <br>
+                                        <label class="text-muted">Silakan scan / Foto kartu identitas (KTP/SIM/Paspor)
+                                            pemohon. Semua data pada kartu identitas harus tampak jelas dan
+                                            terang.</label>
+
+                                        <div x-data="uploadHandler" class="upload-box">
+                                            <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
+                                                @dragover.prevent="dragging = true; console.log('Dragging over')"
+                                                @dragleave="dragging = false; console.log('Dragging left')"
+                                                @drop.prevent="handleDrop($event); console.log('File dropped')"
+                                                :class="{ 'border-orange-500': dragging }">
+
+
+
+                                                <template x-if="previewUrl">
+                                                    <img :src="previewUrl" class="upload-preview" alt="Preview">
+                                                </template>
+
+                                                <div x-show="!previewUrl" class="upload-placeholder">
+                                                    <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
+                                                    <p class="text-sm text-gray-600">
+                                                        <strong> Drag and drop <span
+                                                                class="text-orange-500 font-semibold">or choose
+                                                                file</span> to
+                                                            upload </strong>
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                                                    <div x-data>
+                                                        <button type="button" @click="$refs.fileInput.click()"
+                                                            class="btn upload-btn  px-4 py-2 shadow-sm">
+                                                            Pilih File
+                                                        </button>
+                                                        <input type="file" x-ref="fileInput"
+                                                            class="absolute invisible w-0 h-0" accept="image/*"
+                                                            @change="handleFileSelect" required>
+                                                    </div>
+
+
+                                                    <div id="file-error" class="text-red-500 text-sm mt-2"
+                                                        x-text="errorMessage"></div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Progress Bar -->
+                                            <div x-show="uploading" class="upload-progress mt-3">
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                    <div class="bg-orange-500 h-2.5 rounded-full"
+                                                        :style="`width: ${uploadProgress}%`">
+                                                    </div>
+                                                </div>
+                                                <p class="text-sm text-gray-600 mt-2 text-center">
+                                                    Mengupload... <span x-text="uploadProgress + '%'"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div id="formDiriSendiri" x-show="kategori === 'Diri Sendiri'" x-cloak>
+                                    {{-- <p><strong>Nama:</strong> {{ auth()->user()->name }}</p>
+                                    <p><strong>Email:</strong> {{ auth()->user()->email }}</p>
+                                    <p><strong>Nomor HP:</strong> {{ auth()->user()->phone ?? 'Belum diisi' }}</p> --}}
+                                </div>
+                                <div>
+                                    <button type="button" class="lanjut-btn btn-primary w-100 mt-3" :disabled="!kategori"
+                                        @click="step = 2">
+                                        Lanjut
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+
+                        <!-- STEP 2: Pertanyaan & Informasi -->
+                        <div x-show="step === 2" x-cloak>
+                            <form
+                                action="{{ url('SistemInformasi/EForm/PermohonanInformasi/storePermohonanInformasi') }}"
+                                method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group mb-3">
+                                    <label class="label-form">Informasi yang Dibutuhkan <span
+                                            class="text-danger">*</span>
+                                    </label>
+                                    <textarea class="form-control" name="pi_informasi_yang_dibutuhkan" required rows="4"></textarea>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="label-form">Alasan Permohonan Informasi <span
+                                            class="text-danger">*</span> </label>
+                                    <textarea class="form-control" name="pi_alasan_permohonan_informasi" required rows="4"></textarea>
+                                </div>
+                                <div class="form-group  mb-3">
+                                    <label class="label-form">Sumber Informasi <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pi_sumber_informasi[]"
+                                            value="Pertanyaan Langsung Pemohon">
+                                        <label class="form-check-label">Pertanyaan Langsung Pemohon</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pi_sumber_informasi[]"
+                                            value="Website / Media Sosial Milik Polinema">
+                                        <label class="form-check-label">Website / Media Sosial Milik Polinema</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pi_sumber_informasi[]"
+                                            value="Website / Media Sosial Bukan Milik Polinema">
+                                        <label class="form-check-label">Website / Media Sosial Bukan Milik
+                                            Polinema</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="label-form">Alamat Sumber Informasi <span
+                                            class="text-danger">*</span>
+                                    </label>
+                                    <label class="text-muted">Isikan tautan / alamat website jika pertanyaan bukan
+                                        merupakan pertanyaan langsung pemohon</label>
+                                    <input type="text" class="form-control" name="pi_alamat_sumber_informasi"
+                                        required>
+                                </div>
+                            </form>
+
+                            <!-- Tombol Back & Submit -->
+                            <div class="mt-4 d-flex justify-content-between gap-2">
+                                <button type="button" class="btn btn-secondary w-auto px-4"
+                                    @click="step = 1">Kembali</button>
+                                <button type="submit" class="btn btn-success w-auto px-4"
+                                    :disabled="!informasi || !alasan">Kirim Permohonan</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
+    </section>
+    @include('user::layouts.footer')
 </body>
 </html>
-
-<style>
-/* body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-     
-} */
-
-.background {
-    background-color: #1e1e5c;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -1;
-}
-
-.circle {
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.large {
-    width: 300px;
-    height: 300px;
-    left: 10%;
-    top: 30%;
-}
-
-.medium {
-    width: 200px;
-    height: 200px;
-    left: 40%;
-    top: 20%;
-}
-
-.small {
-    width: 100px;
-    height: 100px;
-    left: 70%;
-    top: 60%;
-}
-
-.dashed-circle {
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    border: 2px dashed white;
-    border-radius: 50%;
-    top: 0%;
-    left: 0%;
-    animation: rotate 10s infinite linear;
-}
-
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.form-container {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-}
-
-h2 {
-    color: #1e1e5c;
-}
-
-label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-input, select {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-button {
-    background-color: #1e1e5c;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    margin-top: 15px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0f1b3c;
-}
-</style>
