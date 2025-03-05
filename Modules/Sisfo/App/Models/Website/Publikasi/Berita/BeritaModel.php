@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\Publikasi\Berita;
+namespace Modules\Sisfo\App\Models\Website\Publikasi\Berita;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class BeritaModel extends BaseModel
+class BeritaModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 't_berita';
     protected $primaryKey = 'berita_id';

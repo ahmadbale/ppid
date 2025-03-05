@@ -2,20 +2,19 @@
 
 namespace Modules\Sisfo\App\Models\Website;
 
-use Modules\Sisfo\App\Models\BaseModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Sisfo\App\Models\Website\WebKontenModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class WebMenuModel extends BaseModel
+class WebMenuModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 'web_menu';
     protected $primaryKey = 'web_menu_id';

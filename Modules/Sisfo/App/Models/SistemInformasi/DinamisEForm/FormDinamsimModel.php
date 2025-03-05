@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\SistemInformasi\DinamisEForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\DinamisEForm;
 
-use App\Models\BaseModel;
+use Modules\Sisfo\App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

@@ -1,16 +1,17 @@
 <?php
 namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\Kontenweb;
 
-
-use App\Http\Controllers\Controller;
-
-use Modules\Sisfo\App\Models\Website\WebKontenImagesModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Modules\Sisfo\App\Models\Website\WebKontenModel;
+use Modules\Sisfo\App\Models\Website\WebKontenImagesModel;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class WebKontenController extends Controller
 {
+    use TraitsController;
+
     public function store(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {

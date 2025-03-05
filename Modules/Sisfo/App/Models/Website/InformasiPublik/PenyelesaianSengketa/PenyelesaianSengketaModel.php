@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\PenyelesaianSengketa;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\PenyelesaianSengketa;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class PenyelesaianSengketaModel extends BaseModel
+class PenyelesaianSengketaModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 'm_penyelesaian_sengketa';
     protected $primaryKey = 'penyelesaian_sengketa_id';

@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\PenyelesaianSengketa;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\PenyelesaianSengketa;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class UploadPSModel extends BaseModel
+class UploadPSModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 't_upload_ps';
     protected $primaryKey = 'upload_ps_id';

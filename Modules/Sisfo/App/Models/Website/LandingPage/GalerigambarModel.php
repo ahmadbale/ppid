@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\LandingPage;
+namespace Modules\Sisfo\App\Models\Website\LandingPage;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class GalerigambarModel extends BaseModel
+class GalerigambarModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = ' t_galeri_gambar';
     protected $primaryKey = 'galeri_gambar_id';

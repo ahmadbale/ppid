@@ -1,5 +1,6 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;700&display=swap');
 
 body {
     font-family: 'Schibsted Grotesk', sans-serif;
@@ -141,6 +142,10 @@ body {
 
 .text-footer{
     color:white;
+}
+
+.contact-text{
+    font-size:13px;
 }
 
 @media (max-width: 767px) {

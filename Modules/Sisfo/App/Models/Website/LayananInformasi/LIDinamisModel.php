@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Website\LayananInformasi;
+namespace Modules\Sisfo\App\Models\Website\LayananInformasi;
 
-use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
-class LIDinamisModel extends BaseModel
+class LIDinamisModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use TraitsModel;
 
     protected $table = 'm_li_dinamis';
     protected $primaryKey = 'li_dinamis_id';

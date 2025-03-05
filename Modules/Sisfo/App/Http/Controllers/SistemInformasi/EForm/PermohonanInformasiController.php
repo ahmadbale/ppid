@@ -2,14 +2,17 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm;
 
-use Modules\Sisfo\App\Http\Controllers\BaseController;
-use App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class PermohonanInformasiController extends BaseController
+class PermohonanInformasiController extends Controller
 {
+    use TraitsController;
+    
     public $breadcrumb = 'Permohonan Informasi';
     public $pagename = 'SistemInformasi/EForm/PermohonanInformasi';
 
@@ -50,7 +53,7 @@ class PermohonanInformasiController extends BaseController
 
         $activeMenu = 'PermohonanInformasi';
 
-        return view("sisfo::SistemInformasi/EForm/$folder/PermohonanInformasi.pengisianForm", [
+        return view("SistemInformasi/EForm/$folder/PermohonanInformasi.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
