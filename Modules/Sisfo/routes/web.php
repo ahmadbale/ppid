@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/simpanHakAkses', [HakAksesController::class, 'simpan'])->middleware('authorize:SAR');
     Route::get('/getHakAkses/{user_id}/{menu}', [HakAksesController::class, 'getHakAkses'])->middleware('authorize:SAR');
 
-    Route::get('/session', [AuthController::class, 'getSessionData']);
+    Route::get('/session', [AuthController::class, 'getData']);
 
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);
@@ -87,8 +87,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}/delete', [FooterController::class, 'delete']);
         Route::get('/{id}/detail_footer', [FooterController::class, 'detail_footer']);
     });
-
-
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PermohonanInformasi', 'middleware' => ['authorize:RPN']], function () {
         Route::get('/', [PermohonanInformasiController::class, 'index']);
