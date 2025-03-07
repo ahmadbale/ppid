@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -14,17 +15,6 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
 use Modules\Sisfo\App\Models\Website\Footer\KategoriFooterModel;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::pattern('id', '[0-9]+'); // Artinya: Ketika ada parameter {id}, maka harus berupa angka
 
