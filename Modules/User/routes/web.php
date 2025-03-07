@@ -8,40 +8,54 @@ use Modules\User\App\Http\Controllers\HomeController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\TimelineController;
+use Modules\User\App\Http\Controllers\Form\InformasiController;
+use Modules\User\App\Http\Controllers\Form\KeberatanController;
+use Modules\User\App\Http\Controllers\Form\WBSController;
+use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
+
 
 use Modules\User\App\Http\Controllers\UserController;
 
 
 Route::get('/', [HomeController::class, 'index'])-> name('beranda');
 
-Route::get('/eform', [TimelineController::class, 'index'])-> name('eform');
-
-Route::get('/Lsidebar', function () {
-    return view('user::layouts.left_sidebar');
-});
-Route::get('/Rsidebar', function () {
-    return view('user::layouts.right_sidebar');
-});
-
 Route::get('/landing_page', [HomeController::class, 'index']);
 
 
 Route::get('/footer', [FooterController::class, 'index']);
 
-Route::prefix('e-form')->group(function () {
-    Route::get('/informasi-publik', function () {
-        return view('user::e-form.informasi-publik');})->name('e-form.informasi-publik');
-    Route::get('/keberatan', function () {
-        return view('user::e-form.keberatan');})->name('e-form.keberatan');
 
-    Route::get('/wbs', function () {
-        return view('user::e-form.wbs');})->name('e-form.wbs');
+// Form Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::prefix('form-permohonan-informasi')->group(function () {
+    Route::get('/', [InformasiController::class, 'index'])->name('form-informasi-publik');
 });
+Route::prefix('form-pernyataan-keberatan')->group(function () {
+    Route::get('/', [KeberatanController::class, 'index'])->name('form-keberatan');
+});
+Route::prefix('form-whistle-blowing')->group(function () {
+    Route::get('/', [WBSController::class, 'index'])->name('form-wbs');
+});
+Route::prefix('form-pengaduan-masyarakat')->group(function () {
+    Route::get('/', [PengaduanMasyarakatController::class, 'index'])->name('form-aduanmasyarakat');
+});
+// ---- form dinamis untuk self made new form -----
 
 
-Route::get('/e-form_informasi', function () {
-    return view('user::e-form_informasi');
-})->name('e-form');
+// Timeline Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/permohonan-informasi', [TimelineController::class, 'permohonan_informasi'])-> name('permohonan_informasi');
+Route::get('/pernyataan-keberatan', [TimelineController::class, 'pernyataan_keberatan'])-> name('pernyataan_keberatan');
+Route::get('/whistle-blowing-system', [TimelineController::class, 'wbs'])-> name('wbs');
+Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masyarakat'])-> name('pengaduan_masyarakat');
+
+// SOP Controller
+// ~~~ soon ~~~
+
+// Page Dinamis with
+Route::get('/dashboard', function () {
+    return view('user::dashboard');})->name('dashboard');
+Route::get('/content-dinamis', function () {
+    return view('user::content');})->name('content');
+
 
 Route::get('/e-form_keberatan', function () {
     return view('user::e-form_keberatan');
