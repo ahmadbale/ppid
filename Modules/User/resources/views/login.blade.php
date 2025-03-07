@@ -26,11 +26,14 @@
                 <h3>PPID Polinema</h3>
                 <p class="input-label">Masukan akun Anda</p>
 
-                <form>
-                    <input type="text" placeholder="Email / No HP / NIK" class="input-field">
-                    <div class="password-container">
-                        <input type="password" id="password" placeholder="Password">
-                        <span class="toggle-password"></span>
+                <form id="login-form">
+                    <input type="text"  id="username" placeholder="Email / No HP / NIK" class="input-field">
+                    <div class="password-container position-relative" x-data="{ show: false }">
+                        <input :type="show ? 'text' : 'password'"  id="password" placeholder="Password" class="form-control" id="password">
+                        <button type="button" class="btn  position-absolute end-0  translate-middle-y me-2 " style="position: absolute; right: 10px; top: 35%; transform: translateY(-35%);"
+                                @click="show = !show">
+                            <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                        </button>
                     </div>
 
                     <button type="submit" class="masuk-button">Sign In</button>
