@@ -67,8 +67,9 @@
                                         <select x-model="kategori" class="form-select" id="pi_kategori_pemohon"
                                             name="pi_kategori_pemohon" required>
                                             <option value="">- Pilih Kategori Pemohon -</option>
-                                            <option value="Diri Sendiri">Diri Sendiri</option>
-                                            <option value="Orang Lain">Orang Lain</option>
+                                            @foreach ($kategori as $item)
+                                                <option value="{{ $item['nama'] }}">{{ $item['nama'] }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div id="formOrangLain" x-show="kategori === 'Orang Lain'" x-cloak>
