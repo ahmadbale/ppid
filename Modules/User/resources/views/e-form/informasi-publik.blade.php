@@ -8,11 +8,11 @@
     <title>E-Form Permohonan Informasi</title>
     @vite(['resources/css/app.css', 'resources/js/upload-ktp.js'])
 </head>
-@include('user::layouts.header')
 <body>
+    @include('user::layouts.header')
     <section>
         <div class="title-page text-black text-center">
-            <h2> Formulir Permohonan Informasi</h2>
+            <h2 class="fw-bold"> Formulir Permohonan Informasi Publik</h2>
         </div>
         <div class="form-wrap">
         <div class="container d-flex justify-content-center align-items-center ">
@@ -319,7 +319,7 @@
                                 <button type="button" class="btn btn-secondary w-auto px-4"
                                     @click="step = 1">Kembali</button>
                                 <button type="submit" class="btn btn-success w-auto px-4"
-                                    :disabled="!informasi || !alasan">Kirim Permohonan</button>
+                                    >Kirim Permohonan</button>
                             </div>
                         </div>
                     </div>
@@ -328,6 +328,6 @@
         </div>
         </div>
     </section>
-    @include('user::layouts.footer')
+@include('user::layouts.footer')
 </body>
 </html>

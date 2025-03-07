@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>eform ppid</title>
+    <title>Permohonan Informasi</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -17,30 +17,13 @@
     <section class="hero-section-ef"
         style="background: url('{{ asset('img/hero-grapol.svg') }}') no-repeat center center/cover; color: #fff; text-align: left; height: 40vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 20px;">
         <div class="container">
-            <h1 class="display-4">Formulir Pernyataan Keberatan</h1>
-            <p class="lead">E-Form Pengajuan Keberatan atas Permohonan Informasi di Lingkungan Politeknik Negeri
-                Malang
-                <br>Pengajuan Keberatan Dapat Dilakukan oleh Diri Sendiri atau Atas Permohonan Orang Lain
-            </p>
+            <h1 class="display-4 fw-bold">{{ $title }}</h1>
+            <p class="lead">{!! $description !!}</p>
         </div>
     </section>
     <section class="content-section my-5 px-4">
         <div class="container">
-            <h2 class="text-center mb-2 fw-bold">Mekanisme Pengajuan Keberatan Informasi</h2>
-            {{-- <section class="container-fluid">
-                <div class="timeline position-relative mb-5" x-data="timeline">
-                    <template x-for="(step, index) in steps" :key="index">
-                        <div class="timeline-item" :class="[step.position, show ? 'show' : '']" x-data="{ show: false }"
-                            x-intersect.once="setTimeout(() => show = true, index * 200)">
-                            <div class="timeline-content">
-                                <div class="timeline-number" x-text="step.number"></div>
-                                <p x-text="step.text"></p>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </section> --}}
-
+            <h2 class="text-center mb-2 fw-bold">{{ $titlemekanisme }}</h2>
             <section class="container-fluid">
                 <div class="timeline position-relative mb-5" x-data="{ showItems: [] }">
                     @foreach ($steps as $index => $step)
