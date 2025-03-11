@@ -10,7 +10,6 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Log;
-
 class BaseApiController extends Controller
 {
     use TraitsController;
@@ -33,6 +32,7 @@ class BaseApiController extends Controller
     protected const AUTH_REGISTER_SUCCESS = 'Registrasi berhasil';
     protected const AUTH_LOGOUT_SUCCESS = 'Logout berhasil, token telah dihapus';
     protected const AUTH_LOGOUT_FAILED = 'Gagal melakukan logout';
+    protected const AUTH_REGISTRATION_FAILED = 'Registrasi gagal';
     protected const VALIDATION_FAILED = 'Validasi gagal';
     protected const SERVER_ERROR = 'Terjadi kesalahan pada server';
    

@@ -1,14 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\InformasiPublikController;
-use App\Http\Controllers\PermohonanController;
-use Modules\User\App\Http\Controllers\HomeController;
-use App\Http\Controllers\FooterController;
 use App\Http\Controllers\EFormController;
-use Modules\User\App\Http\Controllers\TimelineController;
-
+use App\Http\Controllers\PermohonanController;
+use App\Http\Controllers\InformasiPublikController;
+use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
+use Modules\User\App\Http\Controllers\FooterController;
+
+use Modules\User\App\Http\Controllers\TimelineController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,9 +21,9 @@ use Modules\User\App\Http\Controllers\UserController;
 |
 */
 
-// Route::group([], function () {
-//     Route::resource('user', UserController::class)->names('user');
-// });
+Route::group([], function () {
+    Route::resource('user', UserController::class)->names('user');
+});
 
 
 Route::get('/', [HomeController::class, 'index'])-> name('beranda');
@@ -40,7 +40,7 @@ Route::get('/Rsidebar', function () {
 Route::get('/landing_page', [HomeController::class, 'index']);
 
 
-Route::get('/footer', [FooterController::class, 'index']);
+// Route::get('/footer', [FooterController::class, 'index']);
 
 Route::prefix('e-form')->group(function () {
     Route::get('/informasi-publik', function () {
@@ -65,9 +65,9 @@ Route::get('/e-form_wbs', function () {
     return view('user::e-form_wbs');
 });
 
-Route::get('/login-ppid', function () {
-    return view('user::login');
-}) ->name('login');
+// Route::get('/login-ppid', function () {
+//     return view('user::login');
+// }) ->name('login');
 
 Route::get('/register', function () {
     return view('user::register');
@@ -81,3 +81,55 @@ Route::prefix('informasi-publik')->group(function () {
 });
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
+
+// tambahan 
+Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+Route::get('/footer-data', [FooterController::class, 'getFooterData']);
+
+// Route untuk dashboard berdasarkan level
+Route::get('/dashboardSAR', function () {
+    $activeMenu = 'dashboard'; // Sesuaikan dengan kebutuhan Anda
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Administrator',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardSAR', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.sar');
+
+Route::get('/dashboardADM', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Administrator',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardADM', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.adm');
+
+Route::get('/dashboardMPU', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Manajemen dan Pimpinan Unit',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardMPU', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.mpu');
+
+Route::get('/dashboardVFR', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Verifikator',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardVFR', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.vfr');
+
+Route::get('/dashboardRPN', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Responden',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardRPN', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.rpn');

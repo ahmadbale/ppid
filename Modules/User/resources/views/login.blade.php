@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Login PPID</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
@@ -26,10 +27,24 @@
                 <h3>PPID Polinema</h3>
                 <p class="input-label">Masukan akun Anda</p>
 
-                <form>
-                    <input type="text" placeholder="Email / No HP / NIK" class="input-field">
+                <!-- Login Form -->
+                <form method="POST" action="{{ route('login') }}" id="login-form">
+                    @csrf
+                    
+                    <!-- Error Alert if any -->
+                    @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
+                    <input type="text" name='username' id='username' placeholder="Email / No HP / NIK" class="input-field">
                     <div class="password-container">
-                        <input type="password" id="password" placeholder="Password">
+                        <input type="password" name='password' id="password" placeholder="Password">
                         <span class="toggle-password"></span>
                     </div>
 

@@ -29,20 +29,8 @@ class KategoriFooterModel extends Model
     }
 
     // Metode untuk select data dengan pagination dan filter
-    public static function selectData($request = null)
+    public static function selectData()
     {
-        $query = self::where('isDeleted', 0);
-
-        // Filter berdasarkan pencarian
-        if ($request && $request->has('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('kt_footer_kode', 'like', '%' . $request->search . '%')
-                    ->orWhere('kt_footer_nama', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        // Sorting dan pagination
-        return $query->paginate($request->perPage ?? 10);
     }
 
     // Metode create data
