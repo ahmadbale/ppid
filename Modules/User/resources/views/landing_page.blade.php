@@ -180,7 +180,7 @@
             <div class="masuktamu-text">
                 <h2>MASUK BUKU TAMU</h2>
                 <p>Akses lebih mudah dan menyeluruh dalam permohonan serta pelaporan pada PPID Polinema</p>
-                <button class="masuk-button" onclick="window.location.href='{{ route('login') }}'">Ajukan
+                <button class="masuk-button" onclick="window.location.href='{{ route('login-ppid') }}'">Ajukan
                     Permohonan</button>
             </div>
             <div class="masuktamu-tagline">

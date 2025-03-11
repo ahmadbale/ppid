@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -14,17 +15,6 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
 use Modules\Sisfo\App\Models\Website\Footer\KategoriFooterModel;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::pattern('id', '[0-9]+'); // Artinya: Ketika ada parameter {id}, maka harus berupa angka
 
@@ -47,7 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/simpanHakAkses', [HakAksesController::class, 'simpan'])->middleware('authorize:SAR');
     Route::get('/getHakAkses/{user_id}/{menu}', [HakAksesController::class, 'getHakAkses'])->middleware('authorize:SAR');
 
-    Route::get('/session', [AuthController::class, 'getSessionData']);
+    Route::get('/session', [AuthController::class, 'getData']);
 
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);
@@ -87,8 +77,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}/delete', [FooterController::class, 'delete']);
         Route::get('/{id}/detail_footer', [FooterController::class, 'detail_footer']);
     });
-
-
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PermohonanInformasi', 'middleware' => ['authorize:RPN']], function () {
         Route::get('/', [PermohonanInformasiController::class, 'index']);

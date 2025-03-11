@@ -1,3 +1,4 @@
+<!-- Modules/Sisfo/App/Resources/views/auth/login.blade.php (halaman login punya backend)-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -116,10 +117,10 @@
             type: form.method,
             data: $(form).serialize(),
             success: function (response) {
-              if (response.status) {
+              if (response.success) {
                 Swal.fire({
                   icon: 'success',
-                  title: 'Berhasil',
+                  title: 'Berhasil',  
                   text: response.message
                 }).then(function () {
                   window.location = response.redirect;

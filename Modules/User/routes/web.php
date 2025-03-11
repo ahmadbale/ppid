@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -9,21 +10,6 @@ use App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\TimelineController;
 
 use Modules\User\App\Http\Controllers\UserController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-// Route::group([], function () {
-//     Route::resource('user', UserController::class)->names('user');
-// });
 
 
 Route::get('/', [HomeController::class, 'index'])-> name('beranda');
@@ -65,9 +51,54 @@ Route::get('/e-form_wbs', function () {
     return view('user::e-form_wbs');
 });
 
-Route::get('/login-ppid', function () {
-    return view('user::login');
-}) ->name('login');
+Route::get('/login-ppid', [UserController::class, 'showLoginForm'])->name('login-ppid');
+Route::post('/login', [UserController::class, 'login']);
+
+// Route untuk dashboard berdasarkan level
+Route::get('/dashboardSAR', function () {
+    $activeMenu = 'dashboard'; // Sesuaikan dengan kebutuhan Anda
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Administrator',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardSAR', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.sar');
+
+Route::get('/dashboardADM', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Administrator',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardADM', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.adm');
+
+Route::get('/dashboardMPU', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Manajemen dan Pimpinan Unit',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardMPU', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.mpu');
+
+Route::get('/dashboardVFR', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Verifikator',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardVFR', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.vfr');
+
+Route::get('/dashboardRPN', function () {
+    $activeMenu = 'dashboard';
+    $breadcrumb = (object) [
+        'title' => 'Selamat Datang Super Responden',
+        'list' => ['Home', 'welcome']
+    ];
+    return view('sisfo::dashboardRPN', compact('activeMenu', 'breadcrumb'));
+})->name('dashboard.rpn');
 
 Route::get('/register', function () {
     return view('user::register');

@@ -3,65 +3,104 @@
 namespace Modules\User\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Modules\Sisfo\App\Models\UserModel;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function showLoginForm()
     {
-        return view('user::index');
+        return view(view: 'user::login');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function login(Request $request)
     {
-        return view('user::create');
+        try {
+            // Kirim request login ke API backend
+            $response = Http::post('http://ppid-polinema.test/api/auth/masuk', [
+                'username' => $request->username,
+                'password' => $request->password
+            ]);
+
+            $data = $response->json();
+            
+            // Log full response for debugging
+            Log::info('Login API Response', ['response' => $data]);
+
+            // Cek apakah login berhasil dengan berbagai struktur response
+            $success = $data['success'] ?? false;
+            $message = $data['message'] ?? 'Login gagal';
+            
+            // Ambil token dari berbagai kemungkinan lokasi
+            $token = $data['token'] ?? 
+                     ($data['data']['token'] ?? 
+                     ($data['data']['original']['token'] ?? null));
+
+            // Ambil user data
+            $user = $data['user'] ?? 
+                    ($data['data']['user'] ?? 
+                    ($data['data']['original']['user'] ?? null));
+
+            if ($success && $user) {
+                // Cari atau buat user di frontend
+                $authUser = UserModel::firstOrCreate(
+                    ['email_pengguna' => $user['email_pengguna']],
+                    [
+                        'nama_pengguna' => $user['nama_pengguna'] ?? 'Unknown',
+                        'password' => bcrypt($request->password),
+                        'fk_m_level' => $user['fk_m_level'] ?? null,
+                        // Tambahkan field lain sesuai kebutuhan
+                    ]
+                );
+
+                // Login user di frontend
+                Auth::login($authUser);
+
+                // Simpan token ke session jika ada
+                if ($token) {
+                    session(['api_token' => $token]);
+                }
+
+                // Tentukan redirect URL
+                $redirectUrl = $data['redirect'] ?? 
+                               ($data['data']['redirect'] ?? 
+                               ($data['data']['original']['redirect'] ?? route('beranda')));
+
+                // Redirect ke dashboard sesuai level
+                return redirect($redirectUrl);
+            }
+
+            // Jika login gagal
+            return back()->withErrors([
+                'username' => $message
+            ]);
+
+        } catch (\Exception $e) {
+            // Log error lengkap
+            Log::error('Login Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Tangani error koneksi atau parsing
+            return back()->withErrors([
+                'username' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
+    public function logout()
     {
-        //
-    }
+        // Hapus token dari session
+        session()->forget('api_token');
 
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('user::show');
-    }
+        // Logout dari frontend
+        Auth::logout();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('user::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        //
+        // Redirect ke halaman login
+        return redirect()->route('login-ppid');
     }
 }

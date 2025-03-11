@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Login PPID</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
@@ -26,14 +27,25 @@
                 <h3>PPID Polinema</h3>
                 <p class="input-label">Masukan akun Anda</p>
 
-                <form id="login-form">
-                    <input type="text"  id="username" placeholder="Email / No HP / NIK" class="input-field">
-                    <div class="password-container position-relative" x-data="{ show: false }">
-                        <input :type="show ? 'text' : 'password'"  id="password" placeholder="Password" class="form-control" id="password">
-                        <button type="button" class="btn  position-absolute end-0  translate-middle-y me-2 " style="position: absolute; right: 10px; top: 35%; transform: translateY(-35%);"
-                                @click="show = !show">
-                            <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-                        </button>
+                <!-- Login Form -->
+                <form method="POST" action="{{ route('login') }}" id="login-form">
+                    @csrf
+                    
+                    <!-- Error Alert if any -->
+                    @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
+                    <input type="text" name='username' id='username' placeholder="Email / No HP / NIK" class="input-field">
+                    <div class="password-container">
+                        <input type="password" name='password' id="password" placeholder="Password">
+                        <span class="toggle-password"></span>
                     </div>
 
                     <button type="submit" class="masuk-button">Sign In</button>
