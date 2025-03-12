@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>E-Form Permohonan Informasi</title>
-    @vite(['resources/css/app.css', 'resources/js/upload-ktp.js', 'resources/js/upload-bukti.js'])
+    <title>Form | Permohonan Informasi</title>
+    @vite(['resources/css/app.css', 'resources/js/upload-ktp.js'])
 </head>
 
-<body>
+<body class="eform-bg" style="background: url('{{ asset('img/bgwavy.webp') }}') repeat; background-size: contain;">
     @include('user::layouts.header')
     <section>
         <div class="title-page text-black text-center mx-auto px-3 px-md-5">
@@ -17,7 +17,7 @@
         </div>
         <div class="form-wrap">
             <div class="container d-flex justify-content-center align-items-center ">
-                <div class="e-form p-4 rounded bg-white shadow-lg" style="max-width: 600px; width: 100%;">
+                <div class="p-4 rounded bg-white shadow-lg" style="max-width: 600px; width: 100%;">
                     <div x-data="{ step: 1, kategori: '' }" x-cloak>
                         <!-- Stepper Indicator -->
                         <div class="d-flex align-items-center justify-content-center mb-4">

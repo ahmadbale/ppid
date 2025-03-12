@@ -9,12 +9,14 @@
 
 </head>
 @include('user::layouts.header')
-<body class="bg-light">
-    <div class="container mx-auto p-6">
+@include('user::layouts.navbar')
+<body class="d-flex flex-column min-vh-100">
+    <div class="container-fluid px-6 flex-grow-1">
         @yield('content')
     </div>
-    <footer>
-        {{-- @include('user::layouts.footer') --}}
-    </footer>
+    {{-- <footer class="mt-auto">
+        @include('user::layouts.footer')
+    </footer> --}}
 </body>
+
 </html>

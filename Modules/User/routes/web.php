@@ -50,8 +50,8 @@ Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masya
 // ~~~ soon ~~~
 
 // Page Dinamis with
-Route::get('/dashboard', function () {
-    return view('user::dashboard');})->name('dashboard');
+Route::get('/profil', function () {
+    return view('user::profil');})->name('profil');
 Route::get('/content-dinamis', function () {
     return view('user::content');})->name('content');
 
