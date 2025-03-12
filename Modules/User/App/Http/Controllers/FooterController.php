@@ -1,50 +1,100 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\User\App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Modules\User\Services\ApiService;
+use Illuminate\Support\Facades\Log;
 
 class FooterController extends Controller
 {
-    public function index(){
-        $links = [
-            [
-                'title' => 'Pusat Unit Layanan',
-                'menu' => [
-                    ['name' => 'Jaminan Mutu', 'route' => '#'],
-                    ['name' => 'Perpustakaan', 'route' => 'https://library.polinema.ac.id/'],
-                    ['name' => 'UPA TIK', 'route' => 'https://sipuskom.polinema.ac.id/'],
-                    ['name' => 'P2M', 'route' => '#'],
-                ]
-            ]
-        ];
-
-        $icons = [
-            [
-                'logo-polinema' => asset('img/logo-polinema.svg'),
-                'logo-blu' => asset('img/logo-blu.svg')
-            ]
-            ];
-            $iconsosmed = [
-                [
-                    'logo' => asset('img/logo-twitter.svg'),
-                    'route' => '#'
-                ],
-                [
-                    'logo' => asset('img/logo-facebook.svg'),
-                    'route' => '#'
-                ],
-                [
-                    'logo' => asset('img/logo-instagram.svg'),
-                    'route' => '#'
-                ],
-                [
-                    'logo' => asset('img/logo-youtube.svg'),
-                    'route' => '#'
-                ]
+    public function getData()
+    {
+        try {
+            $footerResponse = ApiService::get('/auth/footerData');
+            if (!$footerResponse || !isset($footerResponse['data']) || !$footerResponse['success']) {
+                Log::warning('Footer API gagal diambil atau data tidak lengkap');
+                return [
+                    'headerData' => null,
+                    'links' => null,
+                    'offlineInfo' => null,
+                    'contactInfo' => [],
+                    'socialIcons' => []
                 ];
-        
-        return view('user.layouts.footer', compact('links','icons','iconsosmed'));
+            }
+
+            $data = $footerResponse['data'];
+            $result = [
+                'headerData' => null,
+                'links' => null,
+                'offlineInfo' => null,
+                'contactInfo' => [],
+                'socialIcons' => []
+            ];
+          
+
+            // Memproses data dari API sesuai dengan kategori yang ada
+            foreach ($data as $item) {
+                switch ($item['kategori_kode']) {
+                    case 'KPP': // Kantor PPID
+                        $result['headerData'] = [
+                            'kategori_nama' => $item['kategori_nama'],
+                            'items' => $item['items']
+                        ];
+                        break;
+                    
+                    case 'PUL': // Pusat Unit Layanan
+                        $result['links'] = [
+                            'title' => $item['kategori_nama'],
+                            'menu' => array_map(function($menuItem) {
+                                return [
+                                    'name' => $menuItem['judul'],
+                                    'route' => $menuItem['url'] ?? '#'
+                                ];
+                            }, $item['items'])
+                        ];
+                        break;
+                    
+                    case 'LIO': // Layanan Informasi Offline
+                        $result['offlineInfo'] = $item['items'][0] ?? null;
+                        break;
+                    
+                    case 'HKI': // Hubungi Kami
+                        $result['contactInfo'] = $item['items'];
+                        break;
+                    
+                    case 'KIG': // Khusus Icon atau Gambar (Social Media)
+                        $result['socialIcons'] = array_map(function($icon) {
+                            return [
+                                'logo' => $icon['icon'],
+                                'title' => $icon['judul'],
+                                'route' => $icon['url'] ?? '#'
+                            ];
+                        }, $item['items']);
+                        break;
+                }
+            }
+
+            Log::info('Data footer berhasil diproses dari API', [
+                'kategori_count' => count($data)
+            ]);
+
+            return $result;
+
+        } catch (\Exception $e) {
+            Log::error('Footer Data Fetch Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Mengembalikan data kosong, bukan default
+            return [
+                'headerData' => null,
+                'links' => null,
+                'offlineInfo' => null,
+                'contactInfo' => [],
+                'socialIcons' => []
+            ];
+        }
     }
-    
 }

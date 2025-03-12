@@ -1,9 +1,9 @@
 <?php
 
 namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer;
-
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Modules\Sisfo\App\Models\Website\Footer\FooterModel;
 use Modules\Sisfo\App\Models\Website\Footer\KategoriFooterModel;
@@ -29,7 +29,7 @@ class FooterController extends Controller
         $activeMenu = 'footer';
         $kategoriFooters = KategoriFooterModel::all();
 
-        return view('sisfo::AdminWeb.Footer.index', [
+        return view('AdminWeb.Footer.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -40,14 +40,14 @@ class FooterController extends Controller
     // Endpoint untuk DataTables
     public function list(Request $request)
     {
-        return FooterModel::getDataTableList();
+        return FooterModel::getDataTableList($request);
     }
-
+    
     // Modal tambah footer
     public function create()
     {
         $kategoriFooters = KategoriFooterModel::all();
-        return view('sisfo::AdminWeb.Footer.create', compact('kategoriFooters'));
+        return view('AdminWeb.Footer.create', compact('kategoriFooters'));
     }
 
     // Proses simpan footer
@@ -65,7 +65,7 @@ class FooterController extends Controller
         // Pastikan view bisa mengakses data 'footer'
         if ($result['success']) {
             $kategoriFooters = KategoriFooterModel::all();
-            return view('sisfo::AdminWeb.Footer.edit', [
+            return view('AdminWeb.Footer.edit', [
                 'footer' => $result['footer'],
                 'kategoriFooters' => $kategoriFooters
             ]);
@@ -94,4 +94,5 @@ class FooterController extends Controller
         $result = FooterModel::deleteData($id);
         return response()->json($result);
     }
+    
 }

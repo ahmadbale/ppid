@@ -20,7 +20,7 @@ class UserController extends Controller
     {
         try {
             // Kirim request login ke API backend
-            $response = Http::post('http://ppid-polinema.test/api/auth/masuk', [
+            $response = Http::post('http://ppid-polinema.test/api/auth/login', [
                 'username' => $request->username,
                 'password' => $request->password
             ]);
@@ -92,15 +92,27 @@ class UserController extends Controller
         }
     }
 
-    public function logout()
+   public function logout()
     {
-        // Hapus token dari session
-        session()->forget('api_token');
+        try {
+            // Kirim request logout ke backend API
+            $token = session('api_token');
+            
+            $response = Http::withToken($token)->post('http://ppid-polinema.test/api/auth/logout');
+            
+            // Hapus token dari session
+            session()->forget('api_token');
 
-        // Logout dari frontend
-        Auth::logout();
+            // Logout dari frontend
+            Auth::logout();
 
-        // Redirect ke halaman login
-        return redirect()->route('login-ppid');
+            // Redirect ke halaman login
+            return redirect()->route('login-ppid');
+        } catch (\Exception $e) {
+            // Tetap logout meskipun ada kesalahan
+            Auth::logout();
+            session()->forget('api_token');
+            return redirect()->route('login-ppid');
+        }
     }
 }
