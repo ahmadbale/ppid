@@ -7,7 +7,7 @@ use App\Http\Controllers\InformasiPublikController;
 use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
-
+use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\TimelineController;
 
 /*
@@ -82,11 +82,22 @@ Route::prefix('informasi-publik')->group(function () {
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
 
-// tambahan 
-Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
-Route::post('/login', [UserController::class, 'login']);
-Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-Route::get('/footer-data', [FooterController::class, 'getFooterData']);
+// route kemarin tanggal 11 maret
+// Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
+// Route::post('/login', [UserController::class, 'login']);
+// Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+// Route::get('/footer-data', [FooterController::class, 'getFooterData']);
+// Route::get('/', [TestController::class, 'getData']);
+
+// tanggal 12 maret
+Route::get('/login-ppid', [UserController::class, 'showLoginForm'])->name('login-ppid');
+Route::post('/login', [UserController::class, 'login'])->name('login');
+// Routes yang memerlukan autentikasi 12 maret
+Route::middleware(['token'])->group(function () {
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/', [TestController::class, 'getData']);
+    // Rute lain yang memerlukan autentikasi
+});
 
 // Route untuk dashboard berdasarkan level
 Route::get('/dashboardSAR', function () {

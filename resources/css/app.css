@@ -147,7 +147,46 @@ body {
 .contact-text{
     font-size:13px;
 }
+.footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    border-top: 5px solid #ffc107;
+}
 
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer h5 {
+    color: white;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #007bff;
+}
+
+.social-icons a {
+    margin-right: 10px;
+    color: #007bff;
+}
+
+.footer-logos img {
+    max-width: 50px;
+    margin-right: 10px;
+}
+
+.footer p{
+    color:white;
+}
 @media (max-width: 767px) {
     .footer {
         background: url('bg-footer-mobile.webp') ;

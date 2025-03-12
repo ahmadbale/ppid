@@ -5,32 +5,52 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Modules\User\App\Http\Controllers\FooterController;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class FooterServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        
+        // Pastikan path view sesuai dengan yang ada di master.blade.php
         View::composer('user::layout.footer', function ($view) {
-            $footerController = new FooterController();
-            $footerData = $footerController->getFooterData();
-            
-            $viewData = [
-                'headerData' => $footerData['headerData'] ?? null,
-                'links' => $footerData['links'] ?? [],
-                'offlineInfo' => $footerData['offlineInfo'] ?? null,
-                'contactInfo' => $footerData['contactInfo'] ?? [],
-                'socialIcons' => $footerData['socialIcons'] ?? []
-            ];
+            try {
+                // Log token status untuk debugging
+                $hasToken = !empty(Session::get('api_token'));
+                Log::info('Footer View Composer', [
+                    'has_token' => $hasToken
+                ]);
 
-            Log::info('Footer Data Sent to View', [
-                'headerData' => $viewData['headerData'],
-                'links_count' => count($viewData['links']),
-                'offlineInfo' => $viewData['offlineInfo'],
-                'contactInfo_count' => count($viewData['contactInfo']),
-                'socialIcons_count' => count($viewData['socialIcons'])
-            ]);
+                // Ambil data footer
+                $footerController = new FooterController();
+                $footerData = $footerController->getFooterData();
+                
+                // Log data yang akan dikirim ke view
+                Log::info('Footer Data Sent to View', [
+                    'headerData' => !empty($footerData['headerData']),
+                    'links' => !empty($footerData['links']),
+                    'offlineInfo' => !empty($footerData['offlineInfo']),
+                    'contactInfo' => count($footerData['contactInfo'] ?? []),
+                    'socialIcons' => count($footerData['socialIcons'] ?? [])
+                ]);
 
-            $view->with($viewData);
+                // Kirim data ke view
+                $view->with($footerData);
+            } catch (\Exception $e) {
+                Log::error('Error in FooterServiceProvider', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                // Mengirim data kosong jika ada error
+                $view->with([
+                    'headerData' => null,
+                    'links' => null,
+                    'offlineInfo' => null,
+                    'contactInfo' => [],
+                    'socialIcons' => []
+                ]);
+            }
         });
     }
 }

@@ -2,17 +2,14 @@
 
 namespace Modules\User\App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Modules\User\App\Services\ApiService;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
+use Modules\User\App\Services\ApiService;
 
-class FooterController extends Controller
+class TestController extends Controller
 {
-    /**
-     * Mengambil data footer dari API
-     */
-    public function getFooterData()
+     public function getData()
     {
         try {
             // Cek apakah token tersedia
@@ -29,6 +26,7 @@ class FooterController extends Controller
 
             // Buat request ke API dengan token
             $footerResponse = ApiService::get('/auth/footerData');
+            dd($footerResponse);
             
             if (!$footerResponse || !isset($footerResponse['data']) || !$footerResponse['success']) {
                 Log::warning('Footer API gagal diambil atau data tidak lengkap', [
