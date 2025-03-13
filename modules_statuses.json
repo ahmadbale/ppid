@@ -1,5 +1,4 @@
 {
-    "Admin": true,
-    "User": true,
-    "Sisfo": true
+    "Sisfo": true,
+    "User": true
 }
