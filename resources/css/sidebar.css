@@ -1,15 +1,43 @@
-
 .sidebar {
     position: fixed;
     left: 0;
     top: 0%;
     width: 250px;
-    background-color: #0F2C56;
-    padding: 20px;
-    /* transform: translateY(-50%); */
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-    border-radius: 0;
     position: relative;
+    margin-top: calc(5rem + 10px);
+
+}
+
+.title-sidebar-section{
+    text-align: left;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: black;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 15px;
+}
+
+.title-sidebar-section::after {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 4px;
+    background-color: #FFC030;
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+}
+
+.title-sidebar-section::before {
+    content: "";
+    display: block;
+    width: 250px;
+    height: 1px;
+    background-color: #ddd;
+    position: absolute;
+    bottom: -4px;
+    left: 0;
 }
 
 /* Sidebar Kiri */
@@ -20,17 +48,17 @@
 /* Sidebar Kanan */
 .sidebar.right {
     right: auto;
+    /* margin-left: 20px; */
 }
 
 .sidebar ul {
     list-style: none;
-    padding: 0;
+    padding: 0px;
     margin: 0;
 }
 
 .sidebar ul li {
-    margin-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 5px;
     padding-bottom: 5px;
 }
 
@@ -40,7 +68,7 @@
 
 .sidebar ul li a {
     display: block;
-    color: white;
+    color: #0F2C56;
     text-decoration: none;
     padding: 10px;
     border-radius: 5px;
@@ -63,13 +91,11 @@
 
 .layout-container {
     display: flex;
-    height: 100vh;
-    /* align-items: ; */
+    flex-grow: 1;
 }
 
 .content-side {
     padding-top: 21px;
-    /* padding-left: 20px */
     width: calc(100% - 270px);
 }
 

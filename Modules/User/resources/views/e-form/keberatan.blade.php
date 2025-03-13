@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>E-Form Pernyataan Keberatan</title>
+    <title>Form | Pernyataan Keberatan</title>
     @vite(['resources/css/app.css', 'resources/js/upload-ktp.js'])
 </head>
 
-<body>
+<body class="eform-bg" style="background: url('{{ asset('img/bgwavy.webp') }}') repeat; background-size: contain;">
     @include('user::layouts.header')
     <section>
         <div class="title-page text-black text-center">

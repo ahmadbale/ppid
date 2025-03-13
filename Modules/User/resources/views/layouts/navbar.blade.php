@@ -24,8 +24,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Profil Polinema</a></li>
-                            <li><a class="dropdown-item" href="#">Profil PPID</a></li>
-                            <li><a class="dropdown-item" href="#">Struktur Organisasi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profil')}}">Profil PPID</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
