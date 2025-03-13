@@ -1,13 +1,16 @@
-@extends('user::layouts.right-sidebar')
+@extends('user::layouts.profil-sidebar')
 
 @section('title', 'Profil')
 
 @section('content-side')
-    <div class="main-content bg-white p-5">
-        <h2 style="font-weight: 700; padding-bottom:15px;">Profil PPID</h2>
-        <div class="flex items-center text-gray-500 text-sm mt-2">
-            <i class="bi bi-clock-fill text-warning"></i>Diperbarui pada 12 Maret 2025, 16.10
+<div class="profile-card bg-white p-8 shadow-sm rounded-lg">
+    <div class="m-4">
+        <h2 class="fw-bold padding-bottom:15px;">Profil PPID</h2>
+        <div class="flex items-center text-gray-500 text-sm mt-2 mb-4">
+            <i class="bi bi-clock-fill text-warning me-2"></i>
+            <span class="ml-1">Diperbarui pada 12 Maret 2025, 16.10 </span>
         </div>
+
         <p class="mt-4 text-gray-700 leading-relaxed">
             Dalam memberikan pelayanan Informasi publik sebagaimana diamanatkan dalam Undang-Undang Nomor 14 Tahun 2008 Tentang Keterbukaan Informasi Publik, Politeknik Negeri Malang berkomitmen untuk mendukung dan melaksanakan pelayanan Informasi Publik tersebut.
         <br><br>
@@ -17,8 +20,8 @@
         </p>
     </div>
 
-    <div class="main-content bg-white p-5">
-        <h4 class="fw-bold text-start">Atasan Pejabat Pengelola Informasi dan Dokumentasi (PPID)</h4>
+    <div class="m-4" >
+        <h5 class="fw-bold text-start">Atasan Pejabat Pengelola Informasi dan Dokumentasi (PPID)</h5>
         <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
         <div class="row">
             <!-- Kolom Foto -->
@@ -52,4 +55,5 @@
             </div>
         </div>
     </div>
+</div>
 @endsection

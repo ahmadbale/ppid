@@ -16,7 +16,7 @@ use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
 use Modules\User\App\Http\Controllers\UserController;
 
 
-Route::get('/', [HomeController::class, 'index'])-> name('beranda');
+Route::get('/', [HomeController::class, 'index'])->name('beranda');
 
 Route::get('/landing_page', [HomeController::class, 'index']);
 
@@ -41,19 +41,31 @@ Route::prefix('form-pengaduan-masyarakat')->group(function () {
 
 
 // Timeline Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/permohonan-informasi', [TimelineController::class, 'permohonan_informasi'])-> name('permohonan_informasi');
-Route::get('/pernyataan-keberatan', [TimelineController::class, 'pernyataan_keberatan'])-> name('pernyataan_keberatan');
-Route::get('/whistle-blowing-system', [TimelineController::class, 'wbs'])-> name('wbs');
-Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masyarakat'])-> name('pengaduan_masyarakat');
+Route::get('/permohonan-informasi', [TimelineController::class, 'permohonan_informasi'])->name('permohonan_informasi');
+Route::get('/pernyataan-keberatan', [TimelineController::class, 'pernyataan_keberatan'])->name('pernyataan_keberatan');
+Route::get('/whistle-blowing-system', [TimelineController::class, 'wbs'])->name('wbs');
+Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masyarakat'])->name('pengaduan_masyarakat');
+
+// Profil Page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/profil', function () {
+    return view('user::profil.profil');})->name('profil');
+Route::get('/profil/dasar-hukum', function () {
+    return view('user::profil.dasarhukum');})->name('dasar_hukum');
+Route::get('/profil/maklumat-ppid', function () {
+    return view('user::profil.Maklumatppid');})->name('maklumat_ppid');
+Route::get('/profil/struktur-organisasi', function () {
+    return view('user::profil.SO');})->name('struktur_organisasi');
+Route::get('/profil/tugas-fungsi', function () {
+    return view('user::profil.tugasfungsi');})->name('tugas_fungsi');
+
 
 // SOP Controller
 // ~~~ soon ~~~
 
 // Page Dinamis with
-Route::get('/profil', function () {
-    return view('user::profil');})->name('profil');
 Route::get('/content-dinamis', function () {
-    return view('user::content');})->name('content');
+    return view('user::content');
+})->name('content');
 
 
 Route::get('/e-form_keberatan', function () {
@@ -66,11 +78,11 @@ Route::get('/e-form_wbs', function () {
 
 Route::get('/login-ppid', function () {
     return view('user::login');
-}) ->name('login');
+})->name('login');
 
 Route::get('/register', function () {
     return view('user::register');
-}) ->name('register');
+})->name('register');
 
 
 Route::prefix('informasi-publik')->group(function () {
