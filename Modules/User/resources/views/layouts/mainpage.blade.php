@@ -11,12 +11,9 @@
 @include('user::layouts.header')
 @include('user::layouts.navbar')
 <body class="d-flex flex-column min-vh-100">
-    <div class="container-fluid px-6 flex-grow-1">
+    <div class="container-fluid px-5 flex-grow-1">
         @yield('content')
     </div>
-    {{-- <footer class="mt-auto">
-        @include('user::layouts.footer')
-    </footer> --}}
 </body>
-
+@include('user::layouts.footer')
 </html>

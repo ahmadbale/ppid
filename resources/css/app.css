@@ -1324,17 +1324,35 @@ margin: 0px auto;
 .text-muted{
     font-size:small;
 }
-
 .title-page{
     text-align: center;
     color:black;
 }
-
-
 .date{
     width:15rem;
 }
 
 .bi-cloud-arrow-up{
    font-size:2rem;
+}
+
+.profile-card {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.profile-photo {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #6c757d;
 }
