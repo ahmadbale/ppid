@@ -10,7 +10,7 @@ use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
 use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\TimelineController;
-use Modules\User\App\Http\Controllers\LHKPNController;
+// use Modules\User\App\Http\Controllers\LHKPNController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
@@ -83,7 +83,7 @@ Route::get('/profil/tugas-fungsi', function () {
 // ~~~ soon ~~~
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LhkpnController::class, 'getLHKPNData'])->name('LHKPN');
+Route::get('/LHKPN', [LhkpnController::class, 'index'])->name('LHKPN');
 
 
 
@@ -127,7 +127,7 @@ Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('p
 // Route::get('/footer', function () {
 //     $footerController = new FooterController();
 //     $footerData = $footerController->getFooterData();
-    
+
 //     return view('user::layouts.footer', $footerData);
 // });
 
