@@ -24,8 +24,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Profil Polinema</a></li>
-                            <li><a class="dropdown-item" href="#">Profil PPID</a></li>
-                            <li><a class="dropdown-item" href="#">Struktur Organisasi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profil')}}">Profil PPID</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -33,10 +32,10 @@
                             E-Form
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('permohonan_informasi') }}">Permohonan Informasi</a></li>
-                            <li><a class="dropdown-item" href="#">Pernyataan Keberatan</a></li>
-                            <li><a class="dropdown-item" href="#">Pengaduan Masyarakat</a></li>
-                            <li><a class="dropdown-item" href="#">Whistle Blowing System (WBS)</a></li>
+                            <li><a class="dropdown-item" href="{{ route('permohonan_informasi')}}">Permohonan Informasi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pernyataan_keberatan')}}">Pernyataan Keberatan</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pengaduan_masyarakat')}}">Pengaduan Masyarakat</a></li>
+                            <li><a class="dropdown-item" href="{{ route('wbs')}}">Whistle Blowing System (WBS)</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
