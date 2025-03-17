@@ -1,56 +1,55 @@
 <?php
 
-namespace Modules\User\Providers;
+namespace Modules\User\App\Http\Controllers;
 
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
+use Modules\User\App\Services\ApiService;
 
-class FooterServiceProvider extends ServiceProvider
+class TestController extends Controller
 {
-    public function boot()
-    {
-        Log::info('FooterServiceProvider: Boot method dipanggil');
-        View::composer('user::layouts.footer', function ($view) {
-            try {
-                Log::info('Memulai proses pengambilan data footer');
-
-                $footerData = $this->getFooterData();
-                Log::info('Data Footer berhasil diperoleh', ['footerData' => $footerData]);
-
-                $view->with($footerData);
-            } catch (\Exception $e) {
-                Log::error('Error in FooterServiceProvider', ['message' => $e->getMessage()]);
-                $view->with($this->getDefaultFooterData());
-            }
-        });
-    }
-
-    /**
-     * Mengambil data footer dari API publik tanpa autentikasi
-     */
-    private function getFooterData()
+     public function getData()
     {
         try {
-            // Panggil API langsung tanpa autentikasi
-            Log::info('Mengambil data footer dari API publik');
-            $response = Http::get('http://ppid-polinema.test/api/public/getDataFooter');
+            // Cek apakah token tersedia
+            $token = Session::get('api_token');
+            if (empty($token)) {
+                Log::warning('Token tidak tersedia untuk request footer data');
+                
+                // Coba dapatkan token jika belum ada (opsional, tergantung kebutuhan)
+                // Misalnya, bisa dibuat sistem "guest token" jika API mendukung
+                
+                // Gunakan data default jika tidak ada token
+                return $this->getDefaultFooterData();
+            }
 
-            if ($response->failed() || !$response->json('success')) {
+            // Buat request ke API dengan token
+            $footerResponse = ApiService::get('/auth/footerData');
+            dd($footerResponse);
+            
+            if (!$footerResponse || !isset($footerResponse['data']) || !$footerResponse['success']) {
                 Log::warning('Footer API gagal diambil atau data tidak lengkap', [
-                    'response' => $response->json() ?? 'Tidak ada response'
+                    'response' => $footerResponse ?? 'Tidak ada response'
                 ]);
                 return $this->getDefaultFooterData();
             }
-            
-            Log::info('FooterServiceProvider: Response API', ['response' => $response->json()]);
-            return $this->processFooterData($response->json('data'));
+
+            $data = $footerResponse['data'];
+            $result = $this->processFooterData($data);
+
+            Log::info('Data footer berhasil diproses dari API', [
+                'kategori_count' => count($data)
+            ]);
+
+            return $result;
+
         } catch (\Exception $e) {
             Log::error('Footer Data Fetch Error', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+            
             return $this->getDefaultFooterData();
         }
     }
@@ -62,12 +61,13 @@ class FooterServiceProvider extends ServiceProvider
     {
         $result = [
             'headerData' => null,
-            'links' => [],
-            'offlineInfo' => [],
+            'links' => null,
+            'offlineInfo' => null,
             'contactInfo' => [],
             'socialIcons' => []
         ];
-    
+
+        // Memproses data dari API sesuai dengan kategori yang ada
         foreach ($data as $item) {
             switch ($item['kategori_kode']) {
                 case 'KPP': // Kantor PPID
@@ -90,25 +90,17 @@ class FooterServiceProvider extends ServiceProvider
                     break;
                 
                 case 'LIO': // Layanan Informasi Offline
-                    $result['offlineInfo'] = array_map(function ($offlineItem) {
-                        return [
-                            'title' => $offlineItem['judul'],
-                        ];
-                    }, $item['items']);
+                    $result['offlineInfo'] = $item['items'][0] ?? null;
                     break;
                 
                 case 'HKI': // Hubungi Kami
-                    $result['contactInfo'] = array_map(function ($contactItem) {
-                        return [
-                            'info' => $contactItem['judul']
-                        ];
-                    }, $item['items']);
+                    $result['contactInfo'] = $item['items'];
                     break;
                 
-                case 'KIG': // Ikon Media Sosial
+                case 'KIG': // Khusus Icon atau Gambar (Social Media)
                     $result['socialIcons'] = array_map(function($icon) {
                         return [
-                            'logo' => $icon['icon'] ?? null,
+                            'logo' => $icon['icon'],
                             'title' => $icon['judul'],
                             'route' => $icon['url'] ?? '#'
                         ];
@@ -116,10 +108,10 @@ class FooterServiceProvider extends ServiceProvider
                     break;
             }
         }
-    
+
         return $result;
     }
-    
+
     /**
      * Data default jika API gagal
      */
@@ -127,7 +119,7 @@ class FooterServiceProvider extends ServiceProvider
     {
         return [
             'headerData' => null,
-            'links' => [],
+            'links' => null,
             'offlineInfo' => null,
             'contactInfo' => [],
             'socialIcons' => []

@@ -147,8 +147,7 @@ body {
 .contact-text{
     font-size:13px;
 }
-
-.footer {
+/* .footer {
     background-color: #f8f9fa;
     padding: 2rem 0;
     border-top: 5px solid #ffc107;
@@ -157,7 +156,7 @@ body {
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
-}
+} */
 
 .footer h5 {
     color: white;

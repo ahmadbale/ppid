@@ -29,7 +29,7 @@ class FooterController extends Controller
         $activeMenu = 'footer';
         $kategoriFooters = KategoriFooterModel::all();
 
-        return view('AdminWeb.Footer.index', [
+        return view('sisfo::AdminWeb.Footer.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -47,7 +47,7 @@ class FooterController extends Controller
     public function create()
     {
         $kategoriFooters = KategoriFooterModel::all();
-        return view('AdminWeb.Footer.create', compact('kategoriFooters'));
+        return view('sisfo::AdminWeb.Footer.create', compact('kategoriFooters'));
     }
 
     // Proses simpan footer
@@ -65,7 +65,7 @@ class FooterController extends Controller
         // Pastikan view bisa mengakses data 'footer'
         if ($result['success']) {
             $kategoriFooters = KategoriFooterModel::all();
-            return view('AdminWeb.Footer.edit', [
+            return view('sisfo::AdminWeb.Footer.edit', [
                 'footer' => $result['footer'],
                 'kategoriFooters' => $kategoriFooters
             ]);
