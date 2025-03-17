@@ -8,6 +8,7 @@ use Modules\User\App\Http\Controllers\HomeController;
 use App\Http\Controllers\FooterController;
 use App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\TimelineController;
+use Modules\User\App\Http\Controllers\LHKPNController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
@@ -66,8 +67,7 @@ Route::get('/profil/tugas-fungsi', function () {
 // ~~~ soon ~~~
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', function () {
-    return view('user::LHKPN');})->name('LHKPN');
+Route::get('/LHKPN', [LHKPNController::class, 'index'])->name('LHKPN');
 
 
 // Page Dinamis with
