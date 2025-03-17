@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class FooterServiceProvider extends ServiceProvider
 {
+
+  
     public function boot()
     {
         Log::info('FooterServiceProvider: Boot method dipanggil');
