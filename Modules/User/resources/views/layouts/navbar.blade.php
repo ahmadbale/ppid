@@ -23,7 +23,7 @@
                             Profil
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Profil Polinema</a></li>
+                            <li><a class="dropdown-item" href="{{ route('ppolinema')}}">Profil Polinema</a></li>
                             <li><a class="dropdown-item" href="{{ route('profil')}}">Profil PPID</a></li>
                         </ul>
                     </li>
@@ -49,7 +49,7 @@
                             <li><a class="dropdown-item" href="#">Informasi Berkala</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Setiap Saat</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Serta-merta</a></li>
-                            <li><a class="dropdown-item" href="#">LHKPN</a></li>
+                            <li><a class="dropdown-item" href="{{ route('LHKPN')}}">LHKPN</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

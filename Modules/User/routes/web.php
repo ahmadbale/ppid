@@ -65,6 +65,8 @@ Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masya
 // Profil Page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/profil', function () {
     return view('user::profil.profil');})->name('profil');
+Route::get('/profil-polinema', function () {
+    return view('user::profil.ppolinema');})->name('ppolinema');
 Route::get('/profil/dasar-hukum', function () {
     return view('user::profil.dasarhukum');})->name('dasar_hukum');
 Route::get('/profil/maklumat-ppid', function () {
@@ -77,6 +79,11 @@ Route::get('/profil/tugas-fungsi', function () {
 
 // SOP Controller
 // ~~~ soon ~~~
+
+// Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/LHKPN', function () {
+    return view('user::LHKPN');})->name('LHKPN');
+
 
 // Page Dinamis with
 Route::get('/content-dinamis', function () {

@@ -7,14 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PPID Polinema</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;700&display=swap" rel="stylesheet"> --}}
 </head>
 
 <body>
     @include('user::layouts.header')
     @include('user::layouts.navbar')
-    {{-- @include('layouts.fsidebar') --}}
-    {{-- @include('layouts.right-sidebar') --}}
 
     <div id="header"></div>
     <div id="nav-bar"></div>

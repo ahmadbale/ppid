@@ -1,11 +1,11 @@
-@extends('user::layouts.profil-sidebar')
+{{-- @extends('user::layouts.profil-sidebar') --}}
 
 @section('title', 'Profil')
 
 @section('content-side')
 <div class="profile-card bg-white p-8 shadow-sm rounded-lg">
-    <div class="m-4">
-        <h2 class="fw-bold padding-bottom:15px;">Profil PPID</h2>
+    <div class="m-1 m-md-4">
+        <h2 class="fw-bold pb-2 text-center text-md-start">Profil PPID</h2>
         <div class="flex items-center text-gray-500 text-sm mt-2 mb-4">
             <i class="bi bi-clock-fill text-warning me-2"></i>
             <span class="ml-1">Diperbarui pada 12 Maret 2025, 16.10 </span>
@@ -21,7 +21,7 @@
     </div>
 
     <div class="m-4" >
-        <h5 class="fw-bold text-start">Atasan Pejabat Pengelola Informasi dan Dokumentasi (PPID)</h5>
+        <h5 class="fw-bold text-center text-md-start">Atasan Pejabat Pengelola Informasi dan Dokumentasi (PPID)</h5>
         <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
         <div class="row">
             <!-- Kolom Foto -->
@@ -57,3 +57,4 @@
     </div>
 </div>
 @endsection
+@extends('user::layouts.profil-sidebar')
