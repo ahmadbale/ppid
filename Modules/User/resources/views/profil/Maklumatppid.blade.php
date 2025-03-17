@@ -5,7 +5,7 @@
 @section('content-side')
 <div class="profile-card bg-white p-8 shadow-sm rounded-lg">
     <div class="m-4">
-        <h2 class="fw-bold padding-bottom:15px;">Maklumat PPID</h2>
+        <h2 class="fw-bold pb-2 text-center text-md-start">Maklumat PPID</h2>
         <div class="flex items-center text-gray-500 text-sm mt-2 mb-4">
             <i class="bi bi-clock-fill text-warning me-2"></i>
             <span class="ml-1">Diperbarui pada 12 Maret 2025, 16.10 </span>

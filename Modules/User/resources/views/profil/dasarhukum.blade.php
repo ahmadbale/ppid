@@ -5,7 +5,7 @@
 @section('content-side')
 <div class="profile-card bg-white p-8 shadow-sm rounded-lg">
     <div class="m-4">
-        <h2 class="fw-bold padding-bottom:15px;">Dasar Hukum</h2>
+        <h2 class="fw-bold pb-2 text-center text-md-start">Dasar Hukum</h2>
         <div class="flex items-center text-gray-500 text-sm mt-2 mb-4">
             <i class="bi bi-clock-fill text-warning me-2"></i>
             <span class="ml-1">Diperbarui pada 12 Maret 2025, 16.10 </span>
@@ -14,7 +14,7 @@
         <h6 class="fw-bold">
             Layanan Informasi Publik di Politeknik Negeri Malang dilaksanakan berdasarkan peraturan sebagai berikut:
         </h6>
-        
+
         <ol class="list-decimal ml-5 mt-2 text-gray-700 leading-relaxed">
             <li>Undang-Undang Republik Indonesia Nomor 14 Tahun 2008 tentang Keterbukaan Informasi Publik;
                 Peraturan Pemerintah Republik Indonesia Nomor 61 Tahun 2010 tentang Pelaksanaan Undang-Undang Nomor 14 tahun 2008 tentang Keterbukaan Informasi Publik;</li>

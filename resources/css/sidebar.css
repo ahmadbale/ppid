@@ -1,14 +1,38 @@
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0%;
-    width: 250px;
-    position: relative;
-    margin-top: calc(5rem + 10px);
-
+.layout-container {
+    display: flex;
+    flex-grow: 1;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 30px;
 }
 
-.title-sidebar-section{
+.content-side {
+    flex: 1;
+    padding-top: 15px;
+    min-width: 280px;
+    max-width: 1000px;
+    text-align: left;
+}
+.sidebar {
+    width: 250px;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: calc(4rem );
+}
+.sidebar.right {
+    margin-left: auto;
+    margin-right: 20px;
+    max-width: 250px;
+    align-self: flex-start;
+}
+.sidebar.left {
+    margin-right: auto;
+    margin-left: 20px;
+    max-width: 250px;
+    align-self: flex-start;
+}
+
+.title-sidebar-section {
     text-align: left;
     margin-bottom: 10px;
     font-weight: bold;
@@ -32,7 +56,7 @@
 .title-sidebar-section::before {
     content: "";
     display: block;
-    width: 250px;
+    width: 120%;
     height: 1px;
     background-color: #ddd;
     position: absolute;
@@ -40,30 +64,15 @@
     left: 0;
 }
 
-/* Sidebar Kiri */
-.sidebar.left {
-    left: auto;
-}
-
-/* Sidebar Kanan */
-.sidebar.right {
-    right: auto;
-    /* margin-left: 20px; */
-}
-
 .sidebar ul {
     list-style: none;
-    padding: 0px;
+    padding: 0;
     margin: 0;
 }
 
 .sidebar ul li {
     margin-bottom: 5px;
     padding-bottom: 5px;
-}
-
-.sidebar ul li:last-child {
-    border-bottom: none;
 }
 
 .sidebar ul li a {
@@ -79,23 +88,31 @@
     color: #FFC030;
 }
 
-.content {
-    margin-left: 280px;
-    padding: 20px;
-}
+@media screen and (max-width: 1024px) {
+    .layout-container {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    .sidebar{
+        margin-top: calc(4rem );
+    }
+    .sk{
+        order: 2;
+    }
+    .sidebar.right {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+    }
 
-.content-right {
-    margin-right: 280px;
-    padding: 20px;
+    .content-side {
+        width: 100%;
+        order: 1;
+        margin: auto;
+    }
+    .title-sidebar-section::after,
+    .title-sidebar-section::before {
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
-
-.layout-container {
-    display: flex;
-    flex-grow: 1;
-}
-
-.content-side {
-    padding-top: 21px;
-    width: calc(100% - 270px);
-}
-

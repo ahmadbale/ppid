@@ -8,7 +8,7 @@
     </main>
 
     <!-- Sidebar kanan -->
-    <aside class="w-1/4 p-4 ">
+    <aside class="sk col-lg-3 col-md-5 col-12 p-4 ">
         <nav class="sidebar right">
             <h4 class="title-sidebar-section">Tentang PPID</h4>
             <ul>
