@@ -33,6 +33,46 @@ class KategoriFooterModel extends Model
     {
     }
 
+    // Metode untuk select 
+    public static function getDataFooter()
+    {
+        // Get all categories
+        $categories = self::where('isDeleted', 0)
+            ->select('kategori_footer_id', 'kt_footer_kode', 'kt_footer_nama')
+            ->orderBy('kategori_footer_id')
+            ->get();
+    
+        // Initialize result array
+        $result = [];
+    
+        // For each category, get its footer items
+        foreach ($categories as $category) {
+            $footerItems = FooterModel::where('fk_m_kategori_footer', $category->kategori_footer_id)
+                ->where('isDeleted', 0)
+                ->select('footer_id', 'f_judul_footer', 'f_icon_footer', 'f_url_footer')
+                ->orderBy('footer_id')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->footer_id,
+                        'judul' => $item->f_judul_footer,
+                        'icon' => $item->f_icon_footer ? asset('storage/footer_icons/' . $item->f_icon_footer) : null,
+                        'url' => $item->f_url_footer
+                    ];
+                })->toArray();
+    
+            // Add category with its footer items to result
+            $result[] = [
+                'kategori_id' => $category->kategori_footer_id,
+                'kategori_kode' => $category->kt_footer_kode,
+                'kategori_nama' => $category->kt_footer_nama,
+                'items' => $footerItems
+            ];
+        }
+    
+        return $result;
+    }
+
     // Metode create data
     public static function createData($request)
     {

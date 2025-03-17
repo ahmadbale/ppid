@@ -7,7 +7,6 @@ use illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Models\UserModel;
 use Modules\Sisfo\App\Models\LevelModel;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 

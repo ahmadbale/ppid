@@ -18,7 +18,7 @@ class ApiAuthController extends BaseApiController
                 $loginResult = UserModel::prosesLogin($request);
 
                 // Checking if login was successful
-                if (!$loginResult['success']) {
+                if (!$loginResult['success']){
                     return $this->responKesalahan(self::AUTH_INVALID_CREDENTIALS, $loginResult['message'], 401);
                 }
 
@@ -44,6 +44,7 @@ class ApiAuthController extends BaseApiController
             self::ACTION_LOGIN
         );
     }
+
 
     /**
      * Logout user dan invalidate token

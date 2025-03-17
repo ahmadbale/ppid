@@ -2,14 +2,15 @@
 
 namespace Modules\Sisfo\App\Models\Website\Footer;
 
+use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Model;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Model;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Modules\Sisfo\App\Models\Log\TransactionModel;
-use Modules\Sisfo\App\Models\TraitsModel;use Illuminate\Support\Facades\DB;
 
 class FooterModel extends Model
 {
@@ -38,44 +39,44 @@ class FooterModel extends Model
     {
         // Implementasi nanti
     }
-    public static function getDataFooter()
-    {
-        // Get all categories
-        $categories = KategoriFooterModel::where('isDeleted', 0)
-            ->select('kategori_footer_id', 'kt_footer_kode', 'kt_footer_nama')
-            ->orderBy('kategori_footer_id')
-            ->get();
+    // public static function getDataFooter()
+    // {
+    //     // Get all categories
+    //     $categories = KategoriFooterModel::where('isDeleted', 0)
+    //         ->select('kategori_footer_id', 'kt_footer_kode', 'kt_footer_nama')
+    //         ->orderBy('kategori_footer_id')
+    //         ->get();
 
-        // Initialize result array
-        $result = [];
+    //     // Initialize result array
+    //     $result = [];
 
-        // For each category, get its footer items
-        foreach ($categories as $category) {
-            $footerItems = self::where('fk_m_kategori_footer', $category->kategori_footer_id)
-                ->where('isDeleted', 0)
-                ->select('footer_id', 'f_judul_footer', 'f_icon_footer', 'f_url_footer')
-                ->orderBy('footer_id')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->footer_id,
-                        'judul' => $item->f_judul_footer,
-                        'icon' => $item->f_icon_footer ? asset('storage/footer_icons/' . $item->f_icon_footer) : null,
-                        'url' => $item->f_url_footer
-                    ];
-                })->toArray();
+    //     // For each category, get its footer items
+    //     foreach ($categories as $category) {
+    //         $footerItems = self::where('fk_m_kategori_footer', $category->kategori_footer_id)
+    //             ->where('isDeleted', 0)
+    //             ->select('footer_id', 'f_judul_footer', 'f_icon_footer', 'f_url_footer')
+    //             ->orderBy('footer_id')
+    //             ->get()
+    //             ->map(function ($item) {
+    //                 return [
+    //                     'id' => $item->footer_id,
+    //                     'judul' => $item->f_judul_footer,
+    //                     'icon' => $item->f_icon_footer ? asset('storage/footer_icons/' . $item->f_icon_footer) : null,
+    //                     'url' => $item->f_url_footer
+    //                 ];
+    //             })->toArray();
 
-            // Add category with its footer items to result
-            $result[] = [
-                'kategori_id' => $category->kategori_footer_id,
-                'kategori_kode' => $category->kt_footer_kode,
-                'kategori_nama' => $category->kt_footer_nama,
-                'items' => $footerItems
-            ];
-        }
+    //         // Add category with its footer items to result
+    //         $result[] = [
+    //             'kategori_id' => $category->kategori_footer_id,
+    //             'kategori_kode' => $category->kt_footer_kode,
+    //             'kategori_nama' => $category->kt_footer_nama,
+    //             'items' => $footerItems
+    //         ];
+    //     }
 
-        return $result;
-    }
+    //     return $result;
+    // }
     // Metode create data
     public static function createData($request)
     {

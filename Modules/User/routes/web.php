@@ -1,14 +1,22 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EFormController;
-use App\Http\Controllers\PermohonanController;
-use App\Http\Controllers\InformasiPublikController;
+use Modules\User\App\Http\Controllers\EFormController;
+use Modules\User\App\Http\Controllers\PermohonanController;
+use Modules\User\App\Http\Controllers\InformasiPublikController;
 use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
 use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\TimelineController;
+use Modules\User\App\Http\Controllers\LHKPNController;
+use Modules\User\App\Http\Controllers\Form\InformasiController;
+use Modules\User\App\Http\Controllers\Form\KeberatanController;
+use Modules\User\App\Http\Controllers\Form\WBSController;
+use Modules\User\App\Http\Controllers\LhkpnController;
+use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,36 +34,64 @@ Route::group([], function () {
 });
 
 
-Route::get('/', [HomeController::class, 'index'])-> name('beranda');
-
-Route::get('/eform', [TimelineController::class, 'index'])-> name('eform');
-
-Route::get('/Lsidebar', function () {
-    return view('user::layouts.left_sidebar');
-});
-Route::get('/Rsidebar', function () {
-    return view('user::layouts.right_sidebar');
-});
+Route::get('/', [HomeController::class, 'index'])->name('beranda');
 
 Route::get('/landing_page', [HomeController::class, 'index']);
 
 
 // Route::get('/footer', [FooterController::class, 'index']);
 
-Route::prefix('e-form')->group(function () {
-    Route::get('/informasi-publik', function () {
-        return view('user::e-form.informasi-publik');})->name('e-form.informasi-publik');
-    Route::get('/keberatan', function () {
-        return view('user::e-form.keberatan');})->name('e-form.keberatan');
 
-    Route::get('/wbs', function () {
-        return view('user::e-form.wbs');})->name('e-form.wbs');
+// Form Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::prefix('form-permohonan-informasi')->group(function () {
+    Route::get('/', [InformasiController::class, 'index'])->name('form-informasi-publik');
 });
+Route::prefix('form-pernyataan-keberatan')->group(function () {
+    Route::get('/', [KeberatanController::class, 'index'])->name('form-keberatan');
+});
+Route::prefix('form-whistle-blowing')->group(function () {
+    Route::get('/', [WBSController::class, 'index'])->name('form-wbs');
+});
+Route::prefix('form-pengaduan-masyarakat')->group(function () {
+    Route::get('/', [PengaduanMasyarakatController::class, 'index'])->name('form-aduanmasyarakat');
+});
+// ---- form dinamis untuk self made new form -----
 
 
-Route::get('/e-form_informasi', function () {
-    return view('user::e-form_informasi');
-})->name('e-form');
+// Timeline Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/permohonan-informasi', [TimelineController::class, 'permohonan_informasi'])->name('permohonan_informasi');
+Route::get('/pernyataan-keberatan', [TimelineController::class, 'pernyataan_keberatan'])->name('pernyataan_keberatan');
+Route::get('/whistle-blowing-system', [TimelineController::class, 'wbs'])->name('wbs');
+Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masyarakat'])->name('pengaduan_masyarakat');
+
+// Profil Page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/profil', function () {
+    return view('user::profil.profil');})->name('profil');
+Route::get('/profil-polinema', function () {
+    return view('user::profil.ppolinema');})->name('ppolinema');
+Route::get('/profil/dasar-hukum', function () {
+    return view('user::profil.dasarhukum');})->name('dasar_hukum');
+Route::get('/profil/maklumat-ppid', function () {
+    return view('user::profil.Maklumatppid');})->name('maklumat_ppid');
+Route::get('/profil/struktur-organisasi', function () {
+    return view('user::profil.SO');})->name('struktur_organisasi');
+Route::get('/profil/tugas-fungsi', function () {
+    return view('user::profil.tugasfungsi');})->name('tugas_fungsi');
+
+
+// SOP Controller
+// ~~~ soon ~~~
+
+// Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/LHKPN', [LhkpnController::class, 'getLHKPNData'])->name('LHKPN');
+
+
+
+// Page Dinamis with
+Route::get('/content-dinamis', function () {
+    return view('user::content');
+})->name('content');
+
 
 Route::get('/e-form_keberatan', function () {
     return view('user::e-form_keberatan');
@@ -86,8 +122,14 @@ Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('p
 // Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
 // Route::post('/login', [UserController::class, 'login']);
 // Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-// Route::get('/footer-data', [FooterController::class, 'getFooterData']);
+// Route::get('/footer-data', [FooterController::class, 'index']);
 // Route::get('/', [TestController::class, 'getData']);
+// Route::get('/footer', function () {
+//     $footerController = new FooterController();
+//     $footerData = $footerController->getFooterData();
+    
+//     return view('user::layouts.footer', $footerData);
+// });
 
 // tanggal 12 maret
 Route::get('/login-ppid', [UserController::class, 'showLoginForm'])->name('login-ppid');
@@ -95,7 +137,7 @@ Route::post('/login', [UserController::class, 'login'])->name('login');
 // Routes yang memerlukan autentikasi 12 maret
 Route::middleware(['token'])->group(function () {
     Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-    Route::get('/', [TestController::class, 'getData']);
+    // Route::get('/', [TestController::class, 'getData']);
     // Rute lain yang memerlukan autentikasi
 });
 

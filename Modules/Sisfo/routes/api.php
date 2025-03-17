@@ -1,7 +1,9 @@
+
 <?php
 
 use Spatie\FlareClient\Api;
 use Illuminate\Support\Facades\Route;
+
 use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\GetMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;

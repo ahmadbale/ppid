@@ -1,57 +1,56 @@
 <?php
 
-namespace Modules\User\App\Http\Middleware;
-namespace Modules\User\App\Http\Middleware;
+// namespace Modules\User\App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Modules\User\App\Services\ApiService;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
+// use Closure;
+// use Illuminate\Http\Request;
+// use Modules\User\App\Services\ApiService;
+// use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Session;
 
-class TokenMiddleware
-{
-    public function handle(Request $request, Closure $next)
-{
-    // Jangan periksa token untuk halaman login
-    if ($request->is('login-ppid') || $request->is('login')) {
-        return $next($request);
-    }
+// class TokenMiddleware
+// {
+//     public function handle(Request $request, Closure $next)
+// {
+//     // Jangan periksa token untuk halaman login
+//     if ($request->is('login-ppid') || $request->is('login')) {
+//         return $next($request);
+//     }
     
-    // Cek token dari session
-    $token = session('api_token');
+//     // Cek token dari session
+//     $token = session('api_token');
     
-    if (empty($token)) {
-        // Redirect ke login jika tidak ada token
-        if ($request->expectsJson()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+//     if (empty($token)) {
+//         // Redirect ke login jika tidak ada token
+//         if ($request->expectsJson()) {
+//             return response()->json(['error' => 'Unauthorized'], 401);
+//         }
         
-        return redirect('/login-ppid');
-    }
-        // Token ada, kita coba validasi dengan ping ke API
-        $isValid = ApiService::validateToken($token);
+//         return redirect('/login-ppid');
+//     }
+//         // Token ada, kita coba validasi dengan ping ke API
+//         $isValid = ApiService::validateToken($token);
         
-        if (!$isValid) {
-            // Coba refresh token
-            $refreshed = ApiService::refreshToken();
+//         if (!$isValid) {
+//             // Coba refresh token
+//             $refreshed = ApiService::refreshToken();
             
-            if (!$refreshed) {
-                // Hapus token dari session karena tidak valid
-                Session::forget('api_token');
+//             if (!$refreshed) {
+//                 // Hapus token dari session karena tidak valid
+//                 Session::forget('api_token');
                 
-                // Redirect ke login
-                if ($request->expectsJson()) {
-                    return response()->json(['error' => 'Token expired'], 401);
-                }
+//                 // Redirect ke login
+//                 if ($request->expectsJson()) {
+//                     return response()->json(['error' => 'Token expired'], 401);
+//                 }
                 
-                return redirect()->route('/login-ppid');
-            }
-        }
+//                 return redirect()->route('/login-ppid');
+//             }
+//         }
         
-        return $next($request);
-    }
-}
+//         return $next($request);
+//     }
+// }
 // use Closure;
 // use Illuminate\Http\Request;
 // use Modules\User\App\Services\ApiService;

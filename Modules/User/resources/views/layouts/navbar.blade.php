@@ -16,16 +16,15 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('beranda') }}">Beranda</a>
+                        <a class="nav-link text-white">Beranda</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Profil
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Profil Polinema</a></li>
-                            <li><a class="dropdown-item" href="#">Profil PPID</a></li>
-                            <li><a class="dropdown-item" href="#">Struktur Organisasi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('ppolinema')}}">Profil Polinema</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profil')}}">Profil PPID</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -33,10 +32,10 @@
                             E-Form
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('e-form.informasi-publik') }}">Permohonan Informasi</a></li>
-                            <li><a class="dropdown-item" href="#">Pernyataan Keberatan</a></li>
-                            <li><a class="dropdown-item" href="#">Pengaduan Masyarakat</a></li>
-                            <li><a class="dropdown-item" href="#">Whistle Blowing System (WBS)</a></li>
+                            <li><a class="dropdown-item" href="{{ route('permohonan_informasi')}}">Permohonan Informasi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pernyataan_keberatan')}}">Pernyataan Keberatan</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pengaduan_masyarakat')}}">Pengaduan Masyarakat</a></li>
+                            <li><a class="dropdown-item" href="{{ route('wbs')}}">Whistle Blowing System (WBS)</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -50,7 +49,7 @@
                             <li><a class="dropdown-item" href="#">Informasi Berkala</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Setiap Saat</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Serta-merta</a></li>
-                            <li><a class="dropdown-item" href="#">LHKPN</a></li>
+                            <li><a class="dropdown-item" href="{{ route('LHKPN')}}">LHKPN</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

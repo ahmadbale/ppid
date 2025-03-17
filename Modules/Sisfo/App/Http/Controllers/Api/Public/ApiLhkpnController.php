@@ -19,4 +19,5 @@ class ApiLhkpnController extends BaseApiController
             'Data LHKPN'
         );
     }
+
 }

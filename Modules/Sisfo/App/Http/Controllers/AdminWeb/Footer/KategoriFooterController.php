@@ -27,7 +27,7 @@ class KategoriFooterController extends Controller
 
         $activeMenu = 'kategori-footer';
 
-        return view('AdminWeb.KategoriFooter.index', [
+        return view('sisfo::AdminWeb.KategoriFooter.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -44,7 +44,7 @@ class KategoriFooterController extends Controller
     // Modal tambah kategori footer
     public function create()
     {
-        return view('AdminWeb.KategoriFooter.create');
+        return view('sisfo::AdminWeb.KategoriFooter.create');
     }
 
 
@@ -71,7 +71,7 @@ class KategoriFooterController extends Controller
 
         // Pastikan view bisa mengakses data 'kategori_footer'
         if ($result['success']) {
-            return view('AdminWeb.KategoriFooter.edit', [
+            return view('sisfo::AdminWeb.KategoriFooter.edit', [
                 'kategoriFooter' => $result['kategori_footer']
             ]);
         }

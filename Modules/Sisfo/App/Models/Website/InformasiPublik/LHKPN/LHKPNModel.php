@@ -23,9 +23,9 @@ class LHKPNModel extends Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
+
     public static function selectData()
     {
-      //
     }
 
     public static function getDataLhkpn($request = null)

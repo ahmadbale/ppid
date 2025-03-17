@@ -147,7 +147,7 @@ body {
 .contact-text{
     font-size:13px;
 }
-.footer {
+/* .footer {
     background-color: #f8f9fa;
     padding: 2rem 0;
     border-top: 5px solid #ffc107;
@@ -156,7 +156,7 @@ body {
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
-}
+} */
 
 .footer h5 {
     color: white;
@@ -187,6 +187,8 @@ body {
 .footer p{
     color:white;
 }
+
+
 @media (max-width: 767px) {
     .footer {
         background: url('bg-footer-mobile.webp') ;
@@ -1260,9 +1262,28 @@ h2.text-center {
 }
 
 /* e-form */
-.bg-eform{
-    background: linear-gradient(to bottom right, #F2F2F2 80%, #4993EB 70%);
-    z-index: -1;
+.step-indicator {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+.step-indicator.active {
+    background-color: #0F2E5A;
+    color: #FFC030;
+}
+.step-line {
+    width: 50px;
+    height: 4px;
+    background-color: #ddd;
+    margin: 0 10px;
+}
+.step-line.active-line {
+    background-color: #0F2E5A;
 }
 .title-page{
     color: white;
@@ -1271,23 +1292,19 @@ h2.text-center {
     font-size: 24px;
     font-weight:bolder;
 }
-.title-form{
-    font-size: medium;
-    font-weight: bold;
-    color:white;
-    padding: 5px 0;
-    text-align: center !important;
+.form-wrap{
+    margin-bottom:30vh;
 }
+
 
 .label-form{
     font-weight:bold;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .card-header{
-    background: #F1B434;
-    border-top-left-radius: 18px !important;
-    border-top-right-radius: 18px !important;
+    background: #3A83ED;
+    border-radius: 18px 18px 0 0 !important;
 }
 .form-check-label{
     font-size: 15px !important;
@@ -1295,7 +1312,6 @@ h2.text-center {
 
 .card{
     border-radius: 20px;
-    border-color: #1C4F99;
 }
 .form-btn{
 width: 5rem;
@@ -1313,9 +1329,6 @@ margin: 0px auto;
     background: #F1B434;
 }
 
-.e-form-card{
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-}
 .upload-btn{
     background: #F1B434;
     color:white;
@@ -1337,20 +1350,130 @@ margin: 0px auto;
 }
 
 
+.lanjut-btn{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: white;
+}
+
 .text-muted{
     font-size:small;
 }
-
 .title-page{
     text-align: center;
     color:black;
 }
-
-
 .date{
     width:15rem;
 }
 
 .bi-cloud-arrow-up{
    font-size:2rem;
+}
+
+.profile-card {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.profile-photo {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.sambutan-section {
+    background-color: #E7EFFF;
+    border-radius: 120px 120px 0 0;
+    padding: 60px;
+}
+
+.sambutan-section .img {
+    max-width: 350px;
+    border-radius: 10px;
+    margin: 20px;
+    height: auto;
+}
+
+.sambutan-section .container {
+    max-width: 1100px;
+}
+
+.sambutan-content {
+    display: flex;
+    align-items: flex-start;;
+    /* gap: 30px;  */
+}
+
+.sambutan-text {
+    flex: 1;
+    text-align: left;
+}
+
+.visi-misi {
+    display: flex;
+    border-radius: 120px 120px 0 0;
+    overflow: hidden;
+    position:relative;
+}
+.visi-misi::before {
+    content: "";
+    position: absolute;
+    top: -120px; /* Menyesuaikan border-radius */
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background-color: #E7EFFF; /* Sesuaikan dengan bagian atas */
+}
+.visi {
+    background-color: #FFD504;
+    padding: 50px;
+    flex: 1;
+    text-align: center;
+}
+.misi {
+    background-color: #193B61;
+    color: white;
+    padding: 50px;
+    flex: 2;
+}
+
+.lhkpn-section {
+    background: #FFFFFF;
+    padding: 40px;
+    border-radius: 8px;
+    margin-top: 30px;
+}
+.tahun-btn {
+    margin-bottom: 20px;
+}
+.lhkpn-list {
+    list-style: none;
+    padding: 0;
+}
+.lhkpn-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+.lhkpn-list a {
+    color: #0F2E5A;
+    text-decoration: none;
+    font-weight: bold;
 }
