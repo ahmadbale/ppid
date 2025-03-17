@@ -16,7 +16,6 @@
             </ul>
         </nav>
     </aside>
-    </aside>
 
     <!-- Konten Utama -->
     <main class="content-side">
