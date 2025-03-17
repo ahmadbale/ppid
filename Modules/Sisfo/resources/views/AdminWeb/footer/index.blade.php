@@ -1,4 +1,4 @@
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-header">
@@ -14,7 +14,7 @@
                 <div class="col-md-4">
                     <select id="kategori-filter" class="form-control">
                         <option value="">Semua Kategori</option>
-                        @foreach($kategoriFooters as $kategori)
+                        @foreach ($kategoriFooters as $kategori)
                             <option value="{{ $kategori->kategori_footer_id }}">
                                 {{ $kategori->kt_footer_nama }}
                             </option>
@@ -27,7 +27,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Kategori</th>
+                        <th>Nama Kategori</th>
                         <th>Judul</th>
                         <th>URL</th>
                         <th>Ikon</th>
@@ -55,11 +55,11 @@
                 toastr.error('Gagal memuat konten modal');
             });
         }
-        
+
         // Lihat detail footer
         function showDetailFooter(id) {
             $.ajax({
-                url: `{{ url('/adminweb/footer') }}/${id}/detail_footer`,
+                url: "{{ url('/adminweb/footer') }}/" + id + "/detail_footer",
                 method: 'GET',
                 success: function(response) {
                     if (response.success) {
@@ -86,7 +86,9 @@
                                             </tr>
                                             <tr>
                                                 <th>Ikon</th>
-                                                <td>${response.footer.f_icon_footer ? `<img src="{{ asset('storage/') }}/${response.footer.f_icon_footer}" class="img-fluid" style="max-height: 100px;" alt="Icon">` : '-'}</td>
+                                                <td>${response.footer.f_icon_footer ? 
+                                                    `<img src="{{ asset('storage/footer_icons') }}/${response.footer.f_icon_footer}" class="img-fluid" style="max-height: 80px;" alt="Icon">` : 
+                                                    '-'}</td>
                                             </tr>
                                             <tr>
                                                 <th>Dibuat Oleh</th>
@@ -126,12 +128,12 @@
         // Fungsi untuk menghapus footer
         function deleteFooter(id) {
             $.ajax({
-                url: `{{ url('/adminweb/footer') }}/${id}/detail_footer`,
+                url: "{{ url('/adminweb/footer') }}/" + id + "/detail_footer",
                 method: 'GET',
                 success: function(response) {
                     if (response.success) {
                         const judulFooter = response.footer.f_judul_footer;
-                        
+
                         // Tampilkan konfirmasi dengan judul footer bold
                         Swal.fire({
                             title: 'Konfirmasi Hapus',
@@ -145,7 +147,7 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $.ajax({
-                                    url: `{{ url('adminweb/footer') }}/${id}/delete`,
+                                    url: "{{ url('adminweb/footer') }}/" + id + "/delete",
                                     type: 'DELETE',
                                     data: {
                                         _token: '{{ csrf_token() }}'
@@ -188,64 +190,88 @@
 
         // Inisialisasi DataTable
         $(document).ready(function() {
+            // Setup AJAX headers
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             footerTable = $('#table_footer').DataTable({
+                processing: true,
                 serverSide: true,
+                responsive: true,
                 ajax: {
-                    "url": "{{ url('adminweb/footer/list') }}",
-                    "dataType": "json",
-                    "type": "POST",
-                    "data": function(d) {
-                        d.kategori = $('#kategori-filter').val();
+                    url: "{{ url('adminweb/footer/list') }}",
+                    type: "POST",
+                    data: function(d) {
+                        // Tambahkan token CSRF
+                        d._token = '{{ csrf_token() }}';
+                        // Tambahkan parameter filter
+                        d.fk_m_kategori_footer = $('#kategori-filter').val();
+                    },
+                    error: function(xhr, error, thrown) {
+                        console.error('DataTables Ajax Error:', xhr, error, thrown);
+                        alert('Terjadi kesalahan: ' + xhr.responseText);
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: "DT_RowIndex",
+                        name: "DT_RowIndex",
                         className: "text-center",
                         orderable: false,
                         searchable: false
                     },
                     {
                         data: "kategori_footer",
+                        name: "kategoriFooter.kt_footer_nama",
                         className: "",
                         orderable: true,
                         searchable: true
                     },
                     {
                         data: "f_judul_footer",
+                        name: "f_judul_footer",
                         className: "",
                         orderable: true,
                         searchable: true
                     },
                     {
                         data: "f_url_footer",
+                        name: "f_url_footer",
                         className: "",
                         orderable: true,
                         searchable: true,
                         render: function(data) {
-                            return data ? 
-                                `<a href="${data}" target="_blank">${data}</a>` : 
+                            return data ?
+                                `<a href="${data}" target="_blank">${data}</a>` :
                                 '-';
                         }
                     },
                     {
                         data: "f_icon_footer",
+                        name: "f_icon_footer",
                         className: "text-center",
                         orderable: false,
                         searchable: false,
                         render: function(data) {
-                            return data ? 
-                                `<img src="{{ asset('storage/') }}/${data}" class="img-thumbnail" style="max-height: 50px;" alt="Icon">` : 
+                            return data ?
+                                `<img src="{{ asset('storage/footer_icons/') }}/${data}" class="img-thumbnail" style="max-height: 50px;" alt="Icon">` :
                                 '-';
                         }
                     },
                     {
                         data: "aksi",
+                        name: "aksi",
                         className: "text-center",
                         orderable: false,
                         searchable: false
                     }
-                ]
+                ],
+                search: {
+                    smart: true,
+                    caseInsensitive: true
+                }
             });
 
             // Kategori filter change event

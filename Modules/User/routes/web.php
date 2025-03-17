@@ -2,20 +2,36 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\InformasiPublikController;
-use App\Http\Controllers\PermohonanController;
+use Modules\User\App\Http\Controllers\EFormController;
+use Modules\User\App\Http\Controllers\PermohonanController;
+use Modules\User\App\Http\Controllers\InformasiPublikController;
 use Modules\User\App\Http\Controllers\HomeController;
-use App\Http\Controllers\FooterController;
-use App\Http\Controllers\EFormController;
+use Modules\User\App\Http\Controllers\UserController;
+use Modules\User\App\Http\Controllers\FooterController;
+use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\TimelineController;
 use Modules\User\App\Http\Controllers\LHKPNController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
+use Modules\User\App\Http\Controllers\LhkpnController;
 use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
 
 
-use Modules\User\App\Http\Controllers\UserController;
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::group([], function () {
+    Route::resource('user', UserController::class)->names('user');
+});
 
 
 Route::get('/', [HomeController::class, 'index'])->name('beranda');
@@ -23,7 +39,7 @@ Route::get('/', [HomeController::class, 'index'])->name('beranda');
 Route::get('/landing_page', [HomeController::class, 'index']);
 
 
-Route::get('/footer', [FooterController::class, 'index']);
+// Route::get('/footer', [FooterController::class, 'index']);
 
 
 // Form Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,8 +82,9 @@ Route::get('/profil/tugas-fungsi', function () {
 // SOP Controller
 // ~~~ soon ~~~
 
-// Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LHKPNController::class, 'index'])->name('LHKPN');
+// Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/LHKPN', [LhkpnController::class, 'getLHKPNData'])->name('LHKPN');
+
 
 
 // Page Dinamis with
@@ -84,9 +101,45 @@ Route::get('/e-form_wbs', function () {
     return view('user::e-form_wbs');
 });
 
+// Route::get('/login-ppid', function () {
+//     return view('user::login');
+// }) ->name('login');
 
-Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
-Route::post('/login', [UserController::class, 'login']);
+Route::get('/register', function () {
+    return view('user::register');
+}) ->name('register');
+
+
+Route::prefix('informasi-publik')->group(function () {
+    Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
+    Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
+    Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
+});
+
+Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
+
+// route kemarin tanggal 11 maret
+// Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
+// Route::post('/login', [UserController::class, 'login']);
+// Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+// Route::get('/footer-data', [FooterController::class, 'index']);
+// Route::get('/', [TestController::class, 'getData']);
+// Route::get('/footer', function () {
+//     $footerController = new FooterController();
+//     $footerData = $footerController->getFooterData();
+    
+//     return view('user::layouts.footer', $footerData);
+// });
+
+// tanggal 12 maret
+Route::get('/login-ppid', [UserController::class, 'showLoginForm'])->name('login-ppid');
+Route::post('/login', [UserController::class, 'login'])->name('login');
+// Routes yang memerlukan autentikasi 12 maret
+Route::middleware(['token'])->group(function () {
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+    // Route::get('/', [TestController::class, 'getData']);
+    // Rute lain yang memerlukan autentikasi
+});
 
 // Route untuk dashboard berdasarkan level
 Route::get('/dashboardSAR', function () {
@@ -133,21 +186,3 @@ Route::get('/dashboardRPN', function () {
     ];
     return view('sisfo::dashboardRPN', compact('activeMenu', 'breadcrumb'));
 })->name('dashboard.rpn');
-
-Route::get('/login-ppid', function () {
-    return view('user::login');
-})->name('login');
-
-
-Route::get('/register', function () {
-    return view('user::register');
-})->name('register');
-
-
-Route::prefix('informasi-publik')->group(function () {
-    Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
-    Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
-    Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
-});
-
-Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');

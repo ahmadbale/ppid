@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,13 +16,23 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    {{-- Vite CSS --}}
-    {{-- {{ module_vite('build-user', 'resources/assets/sass/app.scss') }} --}}
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Vite Assets -->
+    @vite([
+        'resources/css/app.css', 
+        'resources/js/app.js',
+        'Modules/User/resources/assets/css/footer.css' // Tambahkan jika ada CSS spesifik
+    ])
 </head>
 
 <body>
     @yield('content')
 
-    {{-- Vite JS --}}
-    {{-- {{ module_vite('build-user', 'resources/assets/js/app.js') }} --}}
+    <!-- Include Footer -->
+    @include('user::layout.footer')
+
+    @stack('scripts')
 </body>
+</html>

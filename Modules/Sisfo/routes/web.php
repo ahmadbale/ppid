@@ -14,7 +14,7 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
-use Modules\Sisfo\App\Models\Website\Footer\KategoriFooterModel;
+
 
 Route::pattern('id', '[0-9]+'); // Artinya: Ketika ada parameter {id}, maka harus berupa angka
 
@@ -27,7 +27,8 @@ Route::post('register', [AuthController::class, 'postRegister']);
 
 // Group route yang memerlukan autentikasi
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboardSAR', [DashboardSARController::class, 'index'])->middleware('authorize:SAR');
+    // Route::get('/dashboardSAR', [DashboardSARController::class, 'index'])->name('dashboard-sar')->middleware('authorize:SAR');
+     Route::get('/dashboardSAR', [DashboardSARController::class, 'index'])->middleware('authorize:SAR');
     Route::get('/dashboardADM', [DashboardAdminController::class, 'index'])->middleware('authorize:ADM');
     Route::get('/dashboardRPN', [DashboardRespondenController::class, 'index'])->middleware('authorize:RPN');
     Route::get('/dashboardMPU', [DashboardMPUController::class, 'index'])->middleware('authorize:MPU');

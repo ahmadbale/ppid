@@ -9,6 +9,7 @@ use Modules\Sisfo\App\Models\LevelModel;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 
+
 class AuthController extends Controller
 {
     use TraitsController;
