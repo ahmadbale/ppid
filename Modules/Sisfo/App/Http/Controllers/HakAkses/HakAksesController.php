@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\HakAkses;
+namespace Modules\Sisfo\App\Http\Controllers\HakAkses;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\HakAkses\HakAksesModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\HakAkses\HakAksesModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -31,7 +31,7 @@ class HakAksesController extends Controller
         $result = HakAksesModel::selectData();
         $levelUsers = $result['data'];
 
-        return view("HakAkses.index", [
+        return view("Sisfo::HakAkses.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

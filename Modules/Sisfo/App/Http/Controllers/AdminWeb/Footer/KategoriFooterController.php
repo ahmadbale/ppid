@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\AdminWeb\Footer;
+namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Http\Controllers\TraitsController;
-use App\Models\Website\Footer\KategoriFooterModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\Website\Footer\KategoriFooterModel;
 use Illuminate\Validation\ValidationException;
 
 class KategoriFooterController extends Controller
@@ -26,7 +26,7 @@ class KategoriFooterController extends Controller
 
         $activeMenu = 'kategori-footer';
 
-        return view('AdminWeb.KategoriFooter.index', [
+        return view('Sisfo::AdminWeb.KategoriFooter.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -66,7 +66,7 @@ class KategoriFooterController extends Controller
     // Modal tambah kategori footer
     public function addData()
     {
-        return view('AdminWeb.KategoriFooter.create');
+        return view('Sisfo::AdminWeb.KategoriFooter.create');
     }
 
     // Proses simpan kategori footer
@@ -89,7 +89,7 @@ class KategoriFooterController extends Controller
     {
         try {
             $kategoriFooter = KategoriFooterModel::findOrFail($id);
-            return view('AdminWeb.KategoriFooter.update', [
+            return view('Sisfo::AdminWeb.KategoriFooter.update', [
                 'kategoriFooter' => $kategoriFooter
             ]);
         } catch (\Exception $e) {
@@ -118,7 +118,7 @@ class KategoriFooterController extends Controller
         try {
             $kategoriFooter = KategoriFooterModel::detailData($id);
             
-            return view('AdminWeb.KategoriFooter.detail', [
+            return view('Sisfo::AdminWeb.KategoriFooter.detail', [
                 'kategoriFooter' => $kategoriFooter,
                 'title' => 'Detail Kategori Footer'
             ]);
@@ -134,7 +134,7 @@ class KategoriFooterController extends Controller
             try {
                 $kategoriFooter = KategoriFooterModel::detailData($id);
                 
-                return view('AdminWeb.KategoriFooter.delete', [
+                return view('Sisfo::AdminWeb.KategoriFooter.delete', [
                     'kategoriFooter' => $kategoriFooter
                 ]);
             } catch (\Exception $e) {

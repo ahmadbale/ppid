@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\AdminWeb\MenuManagement;
+namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\Website\WebMenuModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -49,7 +49,7 @@ class MenuManagementController extends Controller
             // Untuk dropdown di form
             $menus = WebMenuModel::getMenusWithChildren();
 
-            return view('adminweb.MenuManagement.index', compact('breadcrumb', 'page', 'menus', 'activeMenu', 'menusByJenis', 'jenisMenuList'));
+            return view('Sisfo::adminweb.MenuManagement.index', compact('breadcrumb', 'page', 'menus', 'activeMenu', 'menusByJenis', 'jenisMenuList'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error loading menu management page: ' . $e->getMessage());
         }
