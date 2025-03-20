@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\SistemInformasi\KategoriForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\KategoriForm;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class KategoriFormModel extends Model

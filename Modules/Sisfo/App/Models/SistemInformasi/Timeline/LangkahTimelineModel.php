@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\SistemInformasi\Timeline;
+namespace Modules\Sisfo\App\Models\SistemInformasi\Timeline;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;

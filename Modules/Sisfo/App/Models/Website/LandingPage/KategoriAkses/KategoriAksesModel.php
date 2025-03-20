@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\LandingPage\KategoriAkses;
+namespace Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Log\TransactionModel;

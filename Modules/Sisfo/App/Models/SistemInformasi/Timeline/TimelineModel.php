@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models\SistemInformasi\Timeline;
+namespace Modules\Sisfo\App\Models\SistemInformasi\Timeline;
 
-use App\Models\Log\TransactionModel;
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;

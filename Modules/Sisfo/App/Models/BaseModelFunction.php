@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace Modules\Sisfo\App\Models;
 
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\SistemInformasi\Timeline\TimelineModel;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;

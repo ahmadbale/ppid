@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\LandingPage;
+namespace Modules\Sisfo\App\Models\Website\LandingPage;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class GaleriDinamisModel extends Model

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\LayananInformasi;
+namespace Modules\Sisfo\App\Models\Website\LayananInformasi;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class LIDinamisModel extends Model

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Models\Website;
+namespace Modules\Sisfo\App\Models\Website;
 
-use App\Models\Log\TransactionModel;
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\Website\WebKontenModel;
+use Modules\Sisfo\App\Models\Website\WebKontenModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;

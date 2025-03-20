@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Models\Log;
+namespace Modules\Sisfo\App\Models\Log;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
 
 class NotifAdminModel extends Model
 {

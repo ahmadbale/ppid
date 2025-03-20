@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\SistemInformasi\DinamisEForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\DinamisEForm;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class FormDinamisModel extends Model

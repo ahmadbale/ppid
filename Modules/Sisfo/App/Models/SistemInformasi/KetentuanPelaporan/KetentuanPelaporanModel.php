@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models\SistemInformasi\KetentuanPelaporan;
+namespace Modules\Sisfo\App\Models\SistemInformasi\KetentuanPelaporan;
 
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
