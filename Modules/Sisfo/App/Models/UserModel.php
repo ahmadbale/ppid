@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Sisfo\App\Models;
+namespace App\Models;
 
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class UserModel extends Authenticatable implements JWTSubject
@@ -92,8 +91,6 @@ class UserModel extends Authenticatable implements JWTSubject
             // Perbaikan routing - sesuaikan dengan definisi route yang ada
             $levelCode = $user->level->level_kode;
             $redirectUrl = url('/dashboard' . $levelCode);
-            
-            Log::info('User Redirect URL', ['redirectUrl' => $redirectUrl]);
 
             return [
                 'success' => true,

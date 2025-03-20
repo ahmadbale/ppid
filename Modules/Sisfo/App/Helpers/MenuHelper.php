@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sisfo\App\Helpers;
+namespace App\Helpers;
 
-use Modules\Sisfo\App\Models\HakAkses\HakAksesModel;
+use App\Models\HakAkses\HakAksesModel;
 use Illuminate\Support\Facades\Auth;
 
 class MenuHelper

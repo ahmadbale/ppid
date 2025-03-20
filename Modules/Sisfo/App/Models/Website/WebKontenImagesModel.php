@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Website;
+namespace App\Models\Website;
 
-use Modules\Sisfo\App\Models\TraitsModel;
+use App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class WebKontenImagesModel extends Model

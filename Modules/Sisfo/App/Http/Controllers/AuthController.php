@@ -1,14 +1,13 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use illuminate\Support\Facades\Auth;
-use Modules\Sisfo\App\Models\UserModel;
-use Modules\Sisfo\App\Models\LevelModel;
+use App\Models\UserModel;
+use App\Models\LevelModel;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
-
 
 class AuthController extends Controller
 {
@@ -21,7 +20,7 @@ class AuthController extends Controller
             $levelCode = Auth::user()->level->level_kode;
             return redirect('/dashboard' . $levelCode);
         }
-        return view('sisfo::auth.login');
+        return view('auth.login');
     }
 
     public function postlogin(Request $request)
@@ -68,7 +67,7 @@ class AuthController extends Controller
     public function register()
     {
         $level = LevelModel::all(); // Ambil level dari basis data
-        return view('sisfo::auth.register', compact('level')); // Kirim level ke view
+        return view('auth.register', compact('level')); // Kirim level ke view
     }
 
     public function postRegister(Request $request)

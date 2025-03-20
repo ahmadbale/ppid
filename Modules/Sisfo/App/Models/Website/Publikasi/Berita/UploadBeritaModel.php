@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Website\Publikasi\Berita;
+namespace App\Models\Website\Publikasi\Berita;
 
-use Modules\Sisfo\App\Models\TraitsModel;
+use App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class UploadBeritaModel extends Model

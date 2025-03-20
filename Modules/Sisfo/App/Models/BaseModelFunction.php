@@ -1,7 +1,10 @@
 <?php
 
-namespace Modules\Sisfo\App\Models;
+namespace App\Models;
 
+use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use App\Models\SistemInformasi\Timeline\TimelineModel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -17,9 +20,6 @@ trait BaseModelFunction
         'deleted_by'
     ];
 
-    /**
-     * Boot trait untuk mengatur event listeners
-     */
     public static function bootBaseModelFunction()
     {
         // Event ketika model dibuat, isi created_by otomatis
@@ -39,33 +39,54 @@ trait BaseModelFunction
             if (session()->has('alias')) {
                 $model->updated_by = session('alias');
             }
+
+            // Pastikan updated_at diisi dengan timestamp sekarang
+            $model->updated_at = now();
         });
 
-        // Event ketika model dihapus (soft delete), isi deleted_by otomatis
+        // Event ketika model dihapus (soft delete), isi deleted_by dan deleted_at otomatis
         static::deleting(function ($model) {
             if (session()->has('alias')) {
                 $model->deleted_by = session('alias');
+            } else {
+                $model->deleted_by = 'System';
             }
+
+            // Ubah kode ini dari conditional menjadi selalu mengisi
+            $model->deleted_at = now();
         });
     }
 
-    /**
-     * Mendapatkan semua field umum
-     *
-     * @return array
-     */
+    public function delete()
+    {
+        // Panggil event deleting yang akan mengisi deleted_by dan deleted_at
+        if ($this->fireModelEvent('deleting') === false) {
+            return false;
+        }
+
+        // Update isDeleted jika belum diubah
+        if ($this->isDeleted !== 1) {
+            $this->isDeleted = 1;
+        }
+
+        // Pastikan deleted_at diisi dengan timestamp sekarang
+        // Tambahan ini memastikan field deleted_at selalu terisi
+        $this->deleted_at = now();
+
+        // Simpan perubahan
+        $this->save();
+
+        // Fire event deleted
+        $this->fireModelEvent('deleted');
+
+        return true;
+    }
+
     public function getCommonFields()
     {
         return $this->commonFields;
     }
 
-    /**
-     * Upload file ke storage dan mengembalikan nama file
-     *
-     * @param \Illuminate\Http\UploadedFile $file
-     * @param string $prefix Prefix untuk direktori penyimpanan
-     * @return string Nama file yang disimpan
-     */
     protected static function uploadFile($file, $prefix)
     {
         if (!$file) {
@@ -77,12 +98,6 @@ trait BaseModelFunction
         return $fileName;
     }
 
-    /**
-     * Menghapus file dari storage
-     *
-     * @param string $fileName Nama file yang akan dihapus
-     * @return void
-     */
     protected static function removeFile($fileName)
     {
         if ($fileName) {
@@ -93,14 +108,6 @@ trait BaseModelFunction
         }
     }
 
-    /**
-     * Format respons sukses untuk operasi CRUD dengan parameter dinamis
-     *
-     * @param mixed $data Data yang akan dikembalikan
-     * @param string $message Pesan sukses
-     * @param array $additionalParams Parameter tambahan yang ingin disertakan dalam respons
-     * @return array
-     */
     protected static function responFormatSukses($data, $message = 'Data berhasil diproses', array $additionalParams = [])
     {
         $response = [
@@ -113,13 +120,6 @@ trait BaseModelFunction
         return array_merge($response, $additionalParams);
     }
 
-    /**
-     * Format respons error untuk kasus validasi gagal dengan parameter dinamis
-     *
-     * @param ValidationException $e Exception validasi
-     * @param array $additionalParams Parameter tambahan yang ingin disertakan dalam respons
-     * @return array
-     */
     protected static function responValidatorError(ValidationException $e, array $additionalParams = [])
     {
         $response = [
@@ -132,14 +132,6 @@ trait BaseModelFunction
         return array_merge($response, $additionalParams);
     }
 
-    /**
-     * Format respons error untuk exception umum dengan parameter dinamis
-     *
-     * @param \Exception $e Exception yang terjadi
-     * @param string $prefix Awalan pesan error (misalnya: "Terjadi kesalahan saat...")
-     * @param array $additionalParams Parameter tambahan yang ingin disertakan dalam respons
-     * @return array
-     */
     protected static function responFormatError(\Exception $e, $prefix = 'Terjadi kesalahan saat memproses data', array $additionalParams = [])
     {
         $response = [
@@ -149,5 +141,55 @@ trait BaseModelFunction
 
         // Menggabungkan parameter tambahan ke dalam respons
         return array_merge($response, $additionalParams);
+    }
+
+    /**
+     * Mendapatkan data timeline berdasarkan nama kategori form
+     *
+     * @param string $kategoriFormNama Nama kategori form
+     * @return mixed Timeline data atau null jika tidak ditemukan
+     */
+    protected static function getTimelineByKategoriForm($kategoriFormNama)
+    {
+        // Ambil ID kategori form berdasarkan nama kategori
+        $kategoriForm = KategoriFormModel::where('kf_nama', $kategoriFormNama)
+            ->where('isDeleted', 0)
+            ->first();
+
+        // Jika kategori form ditemukan, cari timeline terkait
+        $timeline = null;
+        if ($kategoriForm) {
+            $timeline = TimelineModel::with('langkahTimeline')
+                ->where('fk_m_kategori_form', $kategoriForm->kategori_form_id)
+                ->where('isDeleted', 0)
+                ->first();
+        }
+
+        return $timeline;
+    }
+
+    /**
+     * Mendapatkan data ketentuan pelaporan berdasarkan nama kategori form
+     *
+     * @param string $kategoriFormNama Nama kategori form
+     * @return mixed Ketentuan pelaporan data atau null jika tidak ditemukan
+     */
+    protected static function getKetentuanPelaporanByKategoriForm($kategoriFormNama)
+    {
+        // Ambil ID kategori form berdasarkan nama kategori
+        $kategoriForm = KategoriFormModel::where('kf_nama', $kategoriFormNama)
+            ->where('isDeleted', 0)
+            ->first();
+
+        // Jika kategori form ditemukan, cari ketentuan pelaporan terkait
+        $ketentuanPelaporan = null;
+        if ($kategoriForm) {
+            $ketentuanPelaporan = DB::table('m_ketentuan_pelaporan')
+                ->where('fk_m_kategori_form', $kategoriForm->kategori_form_id)
+                ->where('isDeleted', 0)
+                ->first();
+        }
+
+        return $ketentuanPelaporan;
     }
 }

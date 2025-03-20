@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Log;
+namespace App\Models\Log;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +21,7 @@ class NotifVerifikatorModel extends Model
         'sudah_dibaca_notif_verif',
         'isDeleted',
         'created_at',
+        'deleted_by',
         'deleted_at'
     ];
 

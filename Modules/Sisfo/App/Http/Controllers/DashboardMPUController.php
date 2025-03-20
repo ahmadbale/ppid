@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -17,6 +17,6 @@ class DashboardMPUController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('sisfo::dashboardMPU', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('dashboardMPU', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

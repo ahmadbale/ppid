@@ -1,4 +1,4 @@
-@extends('sisfo::layouts.template')
+@extends('layouts.template')
 
 @section('content')
 <div class="error-page">

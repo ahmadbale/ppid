@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Sisfo\App\Models;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

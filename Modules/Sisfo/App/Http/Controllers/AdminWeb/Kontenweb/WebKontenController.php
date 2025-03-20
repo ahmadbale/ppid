@@ -1,9 +1,9 @@
 <?php
-namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\Kontenweb;
+namespace App\Http\Controllers\AdminWeb\Kontenweb;
 
-use Modules\Sisfo\App\Http\Controllers\TraitsController;
-use Modules\Sisfo\App\Models\Website\WebKontenModel;
-use Modules\Sisfo\App\Models\Website\WebKontenImagesModel;
+use App\Http\Controllers\TraitsController;
+use App\Models\Website\WebKontenModel;
+use App\Models\Website\WebKontenImagesModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;

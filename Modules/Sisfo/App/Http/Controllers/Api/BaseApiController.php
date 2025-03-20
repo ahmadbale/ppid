@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api;
 
-use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use App\Http\Controllers\TraitsController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Tymon\JWTAuth\Facades\JWTAuth;

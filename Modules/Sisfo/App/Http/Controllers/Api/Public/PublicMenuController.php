@@ -1,15 +1,15 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
+namespace App\Http\Controllers\Api\Public;
 
-use Modules\Sisfo\App\Models\Website\WebMenuModel;
-use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
+use App\Models\Website\WebMenuModel;
+use App\Http\Controllers\Api\BaseApiController;
 
 class PublicMenuController extends BaseApiController
 {
     public function getPublicMenus()
     {
-        return $this->eksekusi(
+        return $this->execute(
             function() {
                 $menus = WebMenuModel::selectData();
                 return $this->buildMenuTree($menus);

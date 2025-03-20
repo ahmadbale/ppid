@@ -1,24 +1,21 @@
 <?php
-
-namespace Modules\Sisfo\App\Http\Controllers\Api;
-
-use Modules\Sisfo\App\Models\UserModel;
+namespace App\Http\Controllers\Api;
+use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-
 
 class ApiAuthController extends BaseApiController
 {
     public function login(Request $request)
     {
         return $this->eksekusi(
-            function () use ($request) {
+            function() use ($request) {
                 // Calling the processLogin method from UserModel to handle login
                 $loginResult = UserModel::prosesLogin($request);
 
                 // Checking if login was successful
-                if (!$loginResult['success']){
+                if (!$loginResult['success']) {
                     return $this->responKesalahan(self::AUTH_INVALID_CREDENTIALS, $loginResult['message'], 401);
                 }
 
@@ -45,7 +42,6 @@ class ApiAuthController extends BaseApiController
         );
     }
 
-
     /**
      * Logout user dan invalidate token
      */
@@ -69,7 +65,7 @@ class ApiAuthController extends BaseApiController
     public function register(Request $request)
     {
         return $this->eksekusi(
-            function () use ($request) {
+            function() use ($request) {
                 // Calling the processRegister method from UserModel to handle user registration
                 $registerResult = UserModel::prosesRegister($request);
 
@@ -96,41 +92,11 @@ class ApiAuthController extends BaseApiController
     public function getData()
     {
         return $this->eksekusiDenganOtentikasi(
-            function ($user) {
+            function($user) {
                 // Return user data for the logged-in user
                 return UserModel::getDataUser($user);
             },
             'user'
-        );
-    }
-    public function refreshToken()
-    {
-        return $this->eksekusi(
-            function () {
-                try {
-                    // Dapatkan token saat ini
-                    $oldToken = JWTAuth::getToken();
-    
-                    // Periksa apakah token ada
-                    if (!$oldToken) {
-                        throw new JWTException(self::AUTH_TOKEN_NOT_FOUND);
-                    }
-    
-                    // Generate token baru
-                    $token = JWTAuth::refresh($oldToken);
-    
-                    // Kembalikan token baru dengan informasi tambahan
-                    return [
-                        'token' => $token,
-                        'expires_in' => config('jwt.ttl') * 60 // Gunakan konfigurasi JWT
-                    ];
-                } catch (JWTException $e) {
-                    // Lempar exception untuk ditangani oleh eksekusi
-                    throw $e;
-                }
-            },
-            'token',
-            self::ACTION_UPDATE
         );
     }
 }
