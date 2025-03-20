@@ -75,7 +75,8 @@ class LHKPNModel extends Model
                     'dl_file_lhkpn'
                 )
                 ->orderBy('dl_nama_karyawan')
-                ->limit(5) // Batasi 5 karyawan pertama
+                ->offset(0)
+                ->limit(10) // Batasi 10 karyawan pertama
                 ->get()
                 ->map(function ($detail) {
                     return [
@@ -100,7 +101,7 @@ class LHKPNModel extends Model
                 'updated_at' => $lhkpn->updated_at ? $lhkpn->updated_at->format('d M Y, H:i:s') : null, // Format tanggal opsional
                 'details' => $details,
                 'total_karyawan' => $totalKaryawan,
-                'has_more' => $totalKaryawan > 5
+                'has_more' => $totalKaryawan > 10
             ];
         });
 
