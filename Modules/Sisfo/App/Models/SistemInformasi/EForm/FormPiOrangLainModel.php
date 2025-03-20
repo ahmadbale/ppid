@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\SistemInformasi\EForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;

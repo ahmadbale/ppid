@@ -1,27 +1,27 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardMPUController;
-use App\Http\Controllers\DashboardSARController;
-use App\Http\Controllers\DashboardAdminController;
-use App\Http\Controllers\HakAkses\HakAksesController;
-use App\Http\Controllers\DashboardRespondenController;
-use App\Http\Controllers\DashboardVerifikatorController;
-use App\Http\Controllers\Notifikasi\NotifAdminController;
-use App\Http\Controllers\AdminWeb\Footer\FooterController;
-use App\Http\Controllers\SistemInformasi\EForm\WBSController;
-use App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
-use App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
-use App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
-use App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
-use App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
-use App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
-use App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
-use App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
-use App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
-use App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
+use Modules\Sisfo\App\Http\Controllers\AuthController;
+use Modules\Sisfo\App\Http\Controllers\ProfileController;
+use Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
+use Modules\Sisfo\App\Http\Controllers\DashboardSARController;
+use Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
+use Modules\Sisfo\App\Http\Controllers\HakAkses\HakAksesController;
+use Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
+use Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
+use Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 
 /*
 |--------------------------------------------------------------------------

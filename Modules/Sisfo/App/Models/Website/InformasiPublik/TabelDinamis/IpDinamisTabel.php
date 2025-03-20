@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\TabelDinamis;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class IpDinamisTabel extends Model

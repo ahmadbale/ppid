@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Models\Website\Footer;
+namespace Modules\Sisfo\App\Models\Website\Footer;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Support\Facades\DB;
-use App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;

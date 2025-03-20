@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\Publikasi\Pengumuman;
+namespace Modules\Sisfo\App\Models\Website\Publikasi\Pengumuman;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class PengumumanModel extends Model

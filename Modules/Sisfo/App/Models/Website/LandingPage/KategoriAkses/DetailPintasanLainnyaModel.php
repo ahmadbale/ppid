@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\LandingPage\KategoriAkses;
+namespace Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class DetailPintasanLainnyaModel extends Model

@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Models\SistemInformasi\EForm;
+namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
-use App\Models\Log\NotifAdminModel;
-use App\Models\Log\NotifVerifikatorModel;
-use App\Models\Log\TransactionModel;
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\SistemInformasi\Timeline\TimelineModel;
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\Log\NotifAdminModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

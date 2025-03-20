@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Website\Publikasi\Berita;
+namespace Modules\Sisfo\App\Models\Website\Publikasi\Berita;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class BeritaModel extends Model

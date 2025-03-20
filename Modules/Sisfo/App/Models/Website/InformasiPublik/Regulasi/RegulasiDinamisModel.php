@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\Regulasi;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\Regulasi;
 
-use App\Models\TraitsModel;
-use App\Models\Website\WebMenuModel;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Illuminate\Database\Eloquent\Model;
 
 class RegulasiDinamisModel extends Model
