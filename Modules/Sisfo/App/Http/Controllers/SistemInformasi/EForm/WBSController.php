@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\SistemInformasi\EForm;
+namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\SistemInformasi\EForm\WBSModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\WBSModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +31,7 @@ class WBSController extends Controller
 
         $activeMenu = 'WBS';
 
-        return view("SistemInformasi/EForm/$folder/WBS.index", [
+        return view("Sisfo::SistemInformasi/EForm/$folder/WBS.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -64,7 +64,7 @@ class WBSController extends Controller
 
         $activeMenu = 'WBS';
 
-        return view("SistemInformasi/EForm/$folder/WBS.pengisianForm", [
+        return view("Sisfo::SistemInformasi/EForm/$folder/WBS.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

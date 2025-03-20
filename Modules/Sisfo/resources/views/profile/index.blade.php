@@ -1,4 +1,4 @@
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
     <div class="container">

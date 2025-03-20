@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\Public;
+namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
 
-use App\Http\Controllers\Api\BaseApiController;
-use App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
-
+use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
+use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
 
 class ApiAksesCepatController extends BaseApiController
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace Modules\Sisfo\App\Providers;
 
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;

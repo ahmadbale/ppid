@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\SistemInformasi\Timeline;
+namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\SistemInformasi\Timeline\TimelineModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
@@ -29,7 +29,7 @@ class TimelineController extends Controller
 
         $activeMenu = 'Timeline';
 
-        return view("SistemInformasi/Timeline.index", [
+        return view("Sisfo::SistemInformasi/Timeline.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -65,7 +65,7 @@ class TimelineController extends Controller
         // Ambil data kategori form dari database
         $TimelineKategoriForm = KategoriFormModel::where('isDeleted', 0)->get();
 
-        return view("SistemInformasi/Timeline.create", [
+        return view("Sisfo::SistemInformasi/Timeline.create", [
             'TimelineKategoriForm' => $TimelineKategoriForm
         ]);
     }
@@ -99,7 +99,7 @@ class TimelineController extends Controller
         $timeline = TimelineModel::with('langkahTimeline')->findOrFail($id);
         $jumlahLangkah = $timeline->langkahTimeline->count();
 
-        return view("SistemInformasi/Timeline.update", [
+        return view("Sisfo::SistemInformasi/Timeline.update", [
             'TimelineKategoriForm' => $TimelineKategoriForm,
             'timeline' => $timeline,
             'jumlahLangkah' => $jumlahLangkah
@@ -133,7 +133,7 @@ class TimelineController extends Controller
     {
         $timeline = TimelineModel::detailData($id);
         
-        return view("SistemInformasi/Timeline.detail", [
+        return view("Sisfo::SistemInformasi/Timeline.detail", [
             'timeline' => $timeline,
             'title' => 'Detail Timeline'
         ]);
@@ -144,7 +144,7 @@ class TimelineController extends Controller
         if ($request->isMethod('get')) {
             $timeline = TimelineModel::detailData($id);
             
-            return view("SistemInformasi/Timeline.delete", [
+            return view("Sisfo::SistemInformasi/Timeline.delete", [
                 'timeline' => $timeline
             ]);
         }

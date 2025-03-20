@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Notifikasi;
+namespace Modules\Sisfo\App\Http\Controllers\Notifikasi;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\Log\NotifAdminModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Illuminate\Routing\Controller;
 
 class NotifAdminController extends Controller
@@ -23,7 +23,7 @@ class NotifAdminController extends Controller
 
         $activeMenu = 'notifikasi';
 
-        return view('Notifikasi/NotifAdmin.index', [
+        return view('Sisfo::Notifikasi/NotifAdmin.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
