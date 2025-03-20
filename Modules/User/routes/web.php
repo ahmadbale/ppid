@@ -10,7 +10,7 @@ use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
 use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\TimelineController;
-// use Modules\User\App\Http\Controllers\LHKPNController;
+use Modules\User\App\Http\Controllers\BeritaController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
@@ -82,9 +82,14 @@ Route::get('/profil/tugas-fungsi', function () {
 // SOP Controller
 // ~~~ soon ~~~
 
-// Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LhkpnController::class, 'index'])->name('LHKPN');
+//  Berita Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
+Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
 
+
+// Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');
+// Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
 
 
 // Page Dinamis with

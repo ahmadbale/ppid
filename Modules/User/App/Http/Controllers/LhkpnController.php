@@ -2,195 +2,186 @@
 
 namespace Modules\User\App\Http\Controllers;
 
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Http;
-// use Illuminate\Support\Facades\Log;
-// use App\Http\Controllers\Controller;
-
-namespace Modules\User\App\Http\Controllers;
-
- use App\Http\Controllers\Controller;
- use Illuminate\Http\RedirectResponse;
- use Illuminate\Http\Request;
- use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class LhkpnController extends Controller
 {
-    // public function getLHKPNData()
-    // {
-    //     try {
-    //         Log::info('Memulai proses pengambilan data LHKPN');
 
-    //         $response = Http::get('http://ppid-polinema.test/api/public/getDataLhkpn');
+    public function getDataLhkpn(Request $request)
+    {
+        try {
+            Log::info('Memulai proses pengambilan data LHKPN');
 
-    //         if ($response->failed() || !$response->json('success')) {
-    //             Log::warning('LHKPN API gagal diambil atau data tidak lengkap', [
-    //                 'response' => $response->json() ?? 'Tidak ada response'
-    //             ]);
-    //             return view('user::lhkpn', ['data' => [], 'error' => 'Gagal mengambil data LHKPN']);
-    //         }
+            $currentPage = $request->query('page', 1);
+            $perPage = 10;
 
-    //         Log::info('LHKPNController: Response API', ['response' => $response->json()]);
+            $response = Http::get('http://ppid-polinema.test/api/public/getDataLhkpn', [
+                'per_page' => 10,
+                'page' => 1
+            ]);
 
-    //         $processedData = $this->processLHKPNData($response->json('data'));
-    //         return view('user::lhkpn', ['data' => $processedData, 'error' => null]);
-    //     } catch (\Exception $e) {
-    //         Log::error('LHKPN Data Fetch Error', [
-    //             'message' => $e->getMessage(),
-    //             'trace' => $e->getTraceAsString()
-    //         ]);
-    //         return view('user::lhkpn', ['data' => [], 'error' => 'Terjadi kesalahan saat mengambil data']);
-    //     }
-    // }
+            if ($response->failed() || !$response->json('success')) {
+                Log::warning('LHKPN API gagal diambil atau data tidak lengkap');
+                return view('user::lhkpn', [
+                    'tahunList' => [],
+                    'tahunDipilih' => null,
+                    'lhkpnList' => [],
+                    'updated_at' => null,
+                    'pagination' => null,
+                    'error' => 'Gagal mengambil data LHKPN dari API'
+                ]);
+            }
 
-    // private function processLHKPNData($data)
-    // {
-    //     $result = [];
+            $allData = $response->json('data');
+            $tahunList = collect($allData['data'] ?? [])->pluck('tahun')->unique()->sortDesc()->toArray();
 
-    //     foreach ($data['data'] as $item) {
-    //         $result[] = [
-    //             'id' => $item['id'],
-    //             'tahun' => $item['tahun'],
-    //             'judul' => $item['judul'],
-    //             'deskripsi' => $item['deskripsi'],
-    //             'details' => array_map(function ($detail) {
-    //                 return [
-    //                     'id' => $detail['id'],
-    //                     'nama_karyawan' => $detail['nama_karyawan'],
-    //                     'file' => $detail['file']
-    //                 ];
-    //             }, $item['details']),
-    //             'total_karyawan' => $item['total_karyawan'],
-    //             'has_more' => $item['has_more']
-    //         ];
-    //     }
+            $tahunDipilih = $request->query('tahun', null);
 
-    //     return [
-    //         'data' => $result,
-    //         'pagination' => $data['pagination']
-    //     ];
-    // }
-    public function index(Request $request)
-     {
-         // Data dasar hukum
-         $dasarHukum = [
-             'Peraturan Komisi Informasi Republik Indonesia Nomor 1 Tahun 2021 Pasal 15',
-             'Keputusan Direktur No. 1228 Tahun 2022 Butir 1'
-         ];
+            if ($tahunDipilih) {
+                $response = Http::get('http://ppid-polinema.test/api/public/getDataLhkpn', [
+                    'tahun' => $tahunDipilih,
+                    'per_page' => $perPage,
+                    'page' => $currentPage
+                ]);
+            }
 
-         // Data tahun tersedia
-         $tahunList = [2022, 2023];
+                if ($response->failed() || !$response->json('success')) {
+                    Log::warning('LHKPN API gagal diambil atau data tidak lengkap untuk tahun spesifik');
+                    return view('user::lhkpn', [
+                        'tahunList' => $tahunList,
+                        'tahunDipilih' => $tahunDipilih,
+                        'lhkpnList' => [],
+                        'updated_at' => null,
+                        'pagination' => null,
+                        'error' => 'Gagal mengambil data LHKPN untuk tahun '.$tahunDipilih
+                    ]);
+                }
 
-         // Tahun default
-         $tahunDipilih = $request->get('tahun', 2022);
+                $dataLhkpn = $response->json('data');
+                $paginationData = [
+                    'current_page' => $dataLhkpn['current_page'] ?? 1,
+                    'last_page' => $dataLhkpn['last_page'] ?? 1,
+                    'per_page' => $dataLhkpn['per_page'] ?? $perPage,
+                    'total' => $dataLhkpn['total'] ?? 0
+                ];
+            $filteredData = [];
+            if ($tahunDipilih && isset($dataLhkpn['data'])) {
+                $filteredData = collect($dataLhkpn['data'] ?? [])->where('tahun', $tahunDipilih)->values()->all();
+            }
 
-         // Data LHKPN berdasarkan tahun
-         $lhkpnData = [
-             2022 => [
-                 ['nama' => 'Aang Afandi', 'link' => '#'],
-                 ['nama' => 'Abdul Rasyid', 'link' => '#'],
-                 ['nama' => 'Abdullah Helmy', 'link' => '#'],
-                 ['nama' => 'Agus Suhardono', 'link' => '#'],
-                 ['nama' => 'Ahmad Hermawan', 'link' => '#'],
-             ],
-             2023 => [
-                 ['nama' => 'Bayu Saputra', 'link' => '#'],
-                 ['nama' => 'Citra Dewi', 'link' => '#'],
-                 ['nama' => 'Dian Pratama', 'link' => '#'],
-                 ['nama' => 'Eko Suhendar', 'link' => '#'],
-                 ['nama' => 'Fajar Santoso', 'link' => '#'],
-             ],
-         ];
+            $processedData = $this->processLHKPNData($filteredData);
 
-         // Kirim data ke view
-         return view('user::LHKPN', [
-             'dasarHukum' => $dasarHukum,
-             'tahunList' => $tahunList,
-             'tahunDipilih' => $tahunDipilih,
-             'lhkpnList' => $lhkpnData[$tahunDipilih] ?? []
-         ]);
-     }
-}
+            return view('user::lhkpn', [
+                'tahunList' => $tahunList,
+                'tahunDipilih' => $tahunDipilih,
+                'lhkpnList' => $processedData['data'],
+                'updated_at' => $processedData['updated_at'],
+                'pagination' => $paginationData,
+                'error' => null
+            ]);
 
-// ------------------------------------------------------------
-// namespace Modules\User\App\Http\Controllers;
+        } catch (\Exception $e) {
+            Log::error('LHKPN Data Fetch Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return view('user::lhkpn', [
+                'tahunList' => [],
+                'tahunDipilih' => null,
+                'lhkpnList' => [],
+                'updated_at' => null,
+                'pagination' => null,
+                'error' => 'Terjadi kesalahan saat mengambil data'
+            ]);
+        }
 
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Http;
-// use Illuminate\Support\Facades\Log;
-// use App\Http\Controllers\Controller;
 
-// class LhkpnController extends Controller
-// {
-//     public function index(Request $request)
-//     {
+        // try {
+        //     Log::info('Memulai proses pengambilan data LHKPN');
+
+        //     $currentPage = $request->query('page', 1);
+        //     $perPage = 10;
+        //     $tahunDipilih = $request->query('tahun', null);
+
+        //     $params = ['per_page' => $perPage, 'page' => $currentPage];
+        //     if ($tahunDipilih) $params['tahun'] = $tahunDipilih;
+
+        //     $response = Http::get('http://ppid-polinema.test/api/public/getDataLhkpn', $params);
+
+        //     if ($response->failed() || !$response->json('success')) {
+        //         Log::warning('Gagal mengambil data LHKPN dari API');
+        //         return view('user::lhkpn', [
+        //             'tahunList' => [],
+        //             'tahunDipilih' => $tahunDipilih,
+        //             'lhkpnList' => [],
+        //             'updated_at' => null,
+        //             'pagination' => null,
+        //             'error' => 'Gagal mengambil data LHKPN'
+        //         ]);
+        //     }
+
+        //     $dataLhkpn = $response->json('data');
+        //     $tahunList = collect($dataLhkpn['data'] ?? [])->pluck('tahun')->unique()->sortDesc()->toArray();
+        //     $filteredData = $tahunDipilih ? collect($dataLhkpn['data'])->where('tahun', $tahunDipilih)->values()->all() : [];
+
+        //     $processedData = $this->processLHKPNData($filteredData);
+        //     $paginationData = collect($dataLhkpn)->only(['current_page', 'last_page', 'per_page', 'total'])->toArray();
+        //     return view('user::lhkpn', compact('tahunList', 'tahunDipilih', 'processedData', 'paginationData', 'updated_at'));
+        // } catch (\Exception $e) {
+        //     Log::error('LHKPN Data Fetch Error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+        //     return view('user::lhkpn', ['tahunList' => [], 'tahunDipilih' => null, 'lhkpnList' => [], 'updated_at' => null, 'pagination' => null, 'error' => 'Terjadi kesalahan saat mengambil data']);
+        // }
+
+
+
+
 //         try {
-//             Log::info('Memulai proses pengambilan data LHKPN');
+//             Log::info('Mengambil data dari API');
 
-//             $tahun = $request->query('tahun', now()->year);
+//             // Ambil data pintasan
+//             $pintasanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPintasanLainnya');
+//             $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
 
-//             $response = Http::get('http://ppid-polinema.test/api/public/getDataLhkpn', [
-//                 'tahun' => $tahun,
-//                 'page' => 1,
-//                 'per_page' => 10,
-//                 'limit_karyawan' => 10
-//             ]);
+//             // Ambil data akses cepat
+//             $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
+//             $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
 
-//             if ($response->failed() || !$response->json('success')) {
-//                 Log::warning('LHKPN API gagal diambil', ['response' => $response->json()]);
-//                 return view('user::lhkpn', [
-//                     'tahunList' => [],
-//                     'tahunDipilih' => null,
-//                     'lhkpnList' => [],
-//                     'update_at' => null,
-//                     'error' => 'Gagal mengambil data LHKPN'
-//                 ]);
-//             }
-
-//             Log::info('LHKPN API Response', ['response' => $response->json()]);
-
-//             $processedData = $this->processLHKPNData($response->json('data'), $tahun);
-
-//             return view('user::lhkpn', [
-//                 'tahunList' => $processedData['tahun_list'],
-//                 'tahunDipilih' => $tahun,
-//                 'lhkpnList' => $processedData['data'],
-//                 'update_at' => $processedData['update_at'] ?? null,
-//                 'error' => null
-//             ]);
+//             return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus'));
 //         } catch (\Exception $e) {
-//             Log::error('LHKPN Data Fetch Error', ['message' => $e->getMessage()]);
-//             return view('user::lhkpn', [
-//                 'tahunList' => [],
-//                 'tahunDipilih' => null,
-//                 'lhkpnList' => [],
-//                 'update_at' => null,
-//                 'error' => 'Terjadi kesalahan saat mengambil data'
+//             Log::error('Error saat mengambil data dari API', [
+//                 'message' => $e->getMessage(),
+//                 'trace' => $e->getTraceAsString()
 //             ]);
-//         }
-//     }
+//             return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
+//         }
+    }
 
-//     private function processLHKPNData($data, $tahun)
-//     {
-//         $tahunList = collect($data)->pluck('tahun')->unique()->sort()->values()->all();
+    private function processLHKPNData($data)
+    {
+        $latestUpdatedAt = collect($data)->pluck('updated_at')->filter()->max();
 
-//         $filteredData = collect($data)->filter(function ($item) use ($tahun) {
-//             return $item['tahun'] == $tahun;
-//         })->map(function ($item) {
-//             return [
-//                 'nama' => $item['judul'],
-//                 'link' => url('lhkpn/' . $item['id']),
-//                 'updated_at' => $item['updated_at'] ?? null
-//             ];
-//         })->values()->all();
-
-//         $latestUpdate = collect($filteredData)->max('updated_at');
-
-//         return [
-//             'tahun_list' => $tahunList,
-//             'data' => $filteredData,
-//             'update_at' => $latestUpdate
-//         ];
-//     }
-// }
-
+        return [
+            'data' => array_map(function ($item) {
+                return [
+                    'id' => $item['id'],
+                    'tahun' => $item['tahun'],
+                    'judul' => $item['judul'],
+                    'deskripsi' => $item['deskripsi'],
+                    'details' => isset($item['details']) ? array_map(function ($detail) {
+                        return [
+                            'id' => $detail['id'] ?? null,
+                            'nama_karyawan' => $detail['nama_karyawan'] ?? 'Tidak diketahui',
+                            'file' => $detail['file'] ?? '#'
+                        ];
+                    }, $item['details']) : [],
+                    'total_karyawan' => $item['total_karyawan'] ?? 0,
+                    'has_more' => $item['has_more'] ?? false
+                ];
+            }, $data),
+            'updated_at' => $latestUpdatedAt ? date('d M Y, H:i', strtotime($latestUpdatedAt)) : null
+        ];
+    }
+}
