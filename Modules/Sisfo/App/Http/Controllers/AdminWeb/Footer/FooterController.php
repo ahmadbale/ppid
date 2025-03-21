@@ -68,7 +68,7 @@ public function index(Request $request)
     // Modify the query to include search functionality
     $footers = FooterModel::selectData(10, $search);
 
-    return view('Sisfo::AdminWeb.Footer.index', [
+    return view('sisfo::AdminWeb.Footer.index', [
         'breadcrumb' => $breadcrumb,
         'page' => $page,
         'activeMenu' => $activeMenu,
@@ -85,7 +85,7 @@ public function getData(Request $request)
     $footers = FooterModel::selectData(10, $search);
     
     if ($request->ajax()) {
-        return view('Sisfo::AdminWeb.Footer.data', compact('footers', 'search'))->render();
+        return view('sisfo::AdminWeb.Footer.data', compact('footers', 'search'))->render();
     }
     
     return redirect()->route('footer.index');
@@ -96,7 +96,7 @@ public function getData(Request $request)
     public function addData()
     {
         $kategoriFooters = KategoriFooterModel::where('isDeleted', 0)->get();
-        return view('Sisfo::AdminWeb.Footer.create', compact('kategoriFooters'));
+        return view('sisfo::AdminWeb.Footer.create', compact('kategoriFooters'));
     }
 
     // Proses simpan footer
@@ -149,7 +149,7 @@ public function getData(Request $request)
         try {
             $footer = FooterModel::with('kategoriFooter')->findOrFail($id);
             
-            return view('Sisfo::AdminWeb.Footer.detail', [
+            return view('sisfo::AdminWeb.Footer.detail', [
                 'footer' => $footer,
                 'title' => 'Detail Footer'
             ]);
@@ -165,7 +165,7 @@ public function getData(Request $request)
             try {
                 $footer = FooterModel::with('kategoriFooter')->findOrFail($id);
                 
-                return view('Sisfo::AdminWeb.Footer.delete', [
+                return view('sisfo::AdminWeb.Footer.delete', [
                     'footer' => $footer
                 ]);
             } catch (\Exception $e) {

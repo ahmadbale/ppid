@@ -30,7 +30,7 @@ class KategoriAksesController extends Controller
         // Modify the query to include search functionality
         $kategoriAkses = KategoriAksesModel::selectData(10, $search);
 
-        return view('Sisfo::AdminWeb.KategoriAkses.index', [
+        return view('sisfo::AdminWeb.KategoriAkses.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -46,7 +46,7 @@ class KategoriAksesController extends Controller
         $kategoriAkses = KategoriAksesModel::selectData(10, $search);
         
         if ($request->ajax()) {
-            return view('Sisfo::AdminWeb.KategoriAkses.data', compact('kategoriAkses', 'search'))->render();
+            return view('sisfo::AdminWeb.KategoriAkses.data', compact('kategoriAkses', 'search'))->render();
         }
         
         return redirect()->route('kategori-akses.index');
@@ -55,7 +55,7 @@ class KategoriAksesController extends Controller
     // Modal tambah kategori akses
     public function addData()
     {
-        return view('Sisfo::AdminWeb.KategoriAkses.create');
+        return view('sisfo::AdminWeb.KategoriAkses.create');
     }
 
     // Proses simpan kategori akses
@@ -78,7 +78,7 @@ class KategoriAksesController extends Controller
         try {
             $kategoriAkses = KategoriAksesModel::findOrFail($id);
             
-            return view('Sisfo::AdminWeb.KategoriAkses.update', [
+            return view('sisfo::AdminWeb.KategoriAkses.update', [
                 'kategoriAkses' => $kategoriAkses
             ]);
         } catch (\Exception $e) {
@@ -105,7 +105,7 @@ class KategoriAksesController extends Controller
         try {
             $kategoriAkses = KategoriAksesModel::findOrFail($id);
             
-            return view('Sisfo::AdminWeb.KategoriAkses.detail', [
+            return view('sisfo::AdminWeb.KategoriAkses.detail', [
                 'kategoriAkses' => $kategoriAkses,
                 'title' => 'Detail Kategori Akses'
             ]);
@@ -121,7 +121,7 @@ class KategoriAksesController extends Controller
             try {
                 $kategoriAkses = KategoriAksesModel::findOrFail($id);
                 
-                return view('Sisfo::AdminWeb.KategoriAkses.delete', [
+                return view('sisfo::AdminWeb.KategoriAkses.delete', [
                     'kategoriAkses' => $kategoriAkses
                 ]);
             } catch (\Exception $e) {

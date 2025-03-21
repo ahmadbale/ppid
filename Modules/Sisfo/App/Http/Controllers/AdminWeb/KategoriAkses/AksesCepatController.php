@@ -36,7 +36,7 @@ class AksesCepatController extends Controller
           // Ambil data akses cepat
           $aksesCepat = AksesCepatModel::selectData(10, $search, $kategoriAksesId);
 
-          return view('Sisfo::AdminWeb.AksesCepat.index', [
+          return view('sisfo::AdminWeb.AksesCepat.index', [
                'breadcrumb' => $breadcrumb,
                'page' => $page,
                'activeMenu' => $activeMenu,
@@ -52,7 +52,7 @@ class AksesCepatController extends Controller
           $aksesCepat = AksesCepatModel::selectData(10, $search);
      
           if ($request->ajax()) {
-               return view('Sisfo::AdminWeb.AksesCepat.data', compact('aksesCepat', 'search'))->render();
+               return view('sisfo::AdminWeb.AksesCepat.data', compact('aksesCepat', 'search'))->render();
           }
      
           return redirect()->route('akses-cepat.index');
@@ -62,7 +62,7 @@ class AksesCepatController extends Controller
      {
          $kategoriAkses = KategoriAksesModel::where('mka_judul_kategori', 'Akses Menu Cepat')->first();
          
-         return view('Sisfo::AdminWeb.AksesCepat.create', compact('kategoriAkses'));
+         return view('sisfo::AdminWeb.AksesCepat.create', compact('kategoriAkses'));
      }
 
      public function createData(Request $request)
@@ -113,7 +113,7 @@ class AksesCepatController extends Controller
           try {
                $aksesCepat = AksesCepatModel::with('kategoriAkses')->findOrFail($id);
 
-               return view('Sisfo::AdminWeb.AksesCepat.detail', [
+               return view('sisfo::AdminWeb.AksesCepat.detail', [
                     'aksesCepat' => $aksesCepat,
                     'title' => 'Detail Akses Cepat'
                ]);
@@ -127,7 +127,7 @@ class AksesCepatController extends Controller
                try {
                     $aksesCepat = AksesCepatModel::with('kategoriAkses')->findOrFail($id);
 
-                    return view('Sisfo::AdminWeb.AksesCepat.delete', [
+                    return view('sisfo::AdminWeb.AksesCepat.delete', [
                          'aksesCepat' => $aksesCepat
                     ]);
                } catch (\Exception $e) {

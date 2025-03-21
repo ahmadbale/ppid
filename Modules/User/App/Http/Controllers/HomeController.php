@@ -168,14 +168,23 @@ class HomeController extends Controller
             // Ambil data akses cepat
             $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
             $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
+
+            $pengumumanResponse = Http::get('http://ppid-polinema.test/api/public/');
+            $pengumumanMenus = $this->fetchPengumumanData($pengumumanResponse);
+
+            $beritaResponse = Http::get('http://ppid-polinema.test/api/public/');
+            $beritaMenus = $this->fetchBeritaData($beritaResponse);
     
-            return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus'));
+            return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus',
+                        'pengumumanMenus',
+                        'beritaResponse'
+                        ));
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
+            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => [], 'pengumumanMenus' => [], 'beritaMenus' => []]);
         }
     }
     
@@ -241,5 +250,25 @@ class HomeController extends Controller
         return $result;
     }
     
+
+    private function fetchPengumumanData($response)
+    {
+
+    }
+
+    private function processPengumumanData($data)
+    {
+
+    }
+
+    private function fetchBeritaData($response)
+    {
+
+    }
+
+    private function processBeritaData($data)
+    {
+
+    }
 
 }

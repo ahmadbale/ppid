@@ -15,56 +15,33 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link text-white">Beranda</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Profil
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('ppolinema')}}">Profil Polinema</a></li>
-                            <li><a class="dropdown-item" href="{{ route('profil')}}">Profil PPID</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            E-Form
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('permohonan_informasi')}}">Permohonan Informasi</a></li>
-                            <li><a class="dropdown-item" href="{{ route('pernyataan_keberatan')}}">Pernyataan Keberatan</a></li>
-                            <li><a class="dropdown-item" href="{{ route('pengaduan_masyarakat')}}">Pengaduan Masyarakat</a></li>
-                            <li><a class="dropdown-item" href="{{ route('wbs')}}">Whistle Blowing System (WBS)</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Informasi Publik
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Regulasi</a></li>
-                            <li><a class="dropdown-item" href="#">Daftar Informasi Publik</a></li>
-                            <li><a class="dropdown-item" href="#">Daftar Informasi Dikecualikan</a></li>
-                            <li><a class="dropdown-item" href="#">Informasi Berkala</a></li>
-                            <li><a class="dropdown-item" href="#">Informasi Setiap Saat</a></li>
-                            <li><a class="dropdown-item" href="#">Informasi Serta-merta</a></li>
-                            <li><a class="dropdown-item" href="{{ route('LHKPN')}}">LHKPN</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Layanan Informasi
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Pedoman Umum Pengelolaan Layanan</a></li>
-                            <li><a class="dropdown-item" href="#">Pedoman Layanan Kerjasama</a></li>
-                            <li><a class="dropdown-item" href="#">Prosedur Pelayanan Informasi</a></li>
-                        </ul>
-                    </li>
+                    @foreach ($navbar as $menu)
+                        @if (empty($menu['children']))
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{{ url($menu['wm_menu_url']) }}">
+                                    {{ $menu['wm_menu_nama'] }}
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item dropdown">
+                                <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    {{ $menu['wm_menu_nama'] }}
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @foreach ($menu['children'] as $submenu)
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url($submenu['wm_menu_url']) }}">
+                                                {{ $submenu['wm_menu_nama'] }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endif
+                    @endforeach
                 </ul>
             </div>
         </div>
     </nav>
 </body>
-</htm>
+</html>

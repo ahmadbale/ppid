@@ -23,7 +23,7 @@ class NotifAdminController extends Controller
 
         $activeMenu = 'notifikasi';
 
-        return view('Sisfo::Notifikasi/NotifAdmin.index', [
+        return view('sisfo::Notifikasi/NotifAdmin.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu

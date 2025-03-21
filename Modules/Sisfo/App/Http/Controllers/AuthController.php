@@ -3,7 +3,7 @@
 namespace Modules\Sisfo\App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Models\UserModel;
 use Modules\Sisfo\App\Models\LevelModel;
 use Illuminate\Routing\Controller;

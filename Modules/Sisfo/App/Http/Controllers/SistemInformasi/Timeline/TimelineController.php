@@ -29,7 +29,7 @@ class TimelineController extends Controller
 
         $activeMenu = 'Timeline';
 
-        return view("Sisfo::SistemInformasi/Timeline.index", [
+        return view("sisfo::SistemInformasi/Timeline.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -65,7 +65,7 @@ class TimelineController extends Controller
         // Ambil data kategori form dari database
         $TimelineKategoriForm = KategoriFormModel::where('isDeleted', 0)->get();
 
-        return view("Sisfo::SistemInformasi/Timeline.create", [
+        return view("sisfo::SistemInformasi/Timeline.create", [
             'TimelineKategoriForm' => $TimelineKategoriForm
         ]);
     }
@@ -99,7 +99,7 @@ class TimelineController extends Controller
         $timeline = TimelineModel::with('langkahTimeline')->findOrFail($id);
         $jumlahLangkah = $timeline->langkahTimeline->count();
 
-        return view("Sisfo::SistemInformasi/Timeline.update", [
+        return view("sisfo::SistemInformasi/Timeline.update", [
             'TimelineKategoriForm' => $TimelineKategoriForm,
             'timeline' => $timeline,
             'jumlahLangkah' => $jumlahLangkah
@@ -133,7 +133,7 @@ class TimelineController extends Controller
     {
         $timeline = TimelineModel::detailData($id);
         
-        return view("Sisfo::SistemInformasi/Timeline.detail", [
+        return view("sisfo::SistemInformasi/Timeline.detail", [
             'timeline' => $timeline,
             'title' => 'Detail Timeline'
         ]);
@@ -144,7 +144,7 @@ class TimelineController extends Controller
         if ($request->isMethod('get')) {
             $timeline = TimelineModel::detailData($id);
             
-            return view("Sisfo::SistemInformasi/Timeline.delete", [
+            return view("sisfo::SistemInformasi/Timeline.delete", [
                 'timeline' => $timeline
             ]);
         }

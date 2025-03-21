@@ -82,9 +82,9 @@ Route::get('/profil/tugas-fungsi', function () {
 // ~~~ soon ~~~
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LhkpnController::class, 'getLHKPNData'])->name('LHKPN');
+Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');
 
-
+    
 
 // Page Dinamis with
 Route::get('/content-dinamis', function () {

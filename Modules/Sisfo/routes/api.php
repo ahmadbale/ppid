@@ -5,6 +5,8 @@ use Spatie\FlareClient\Api;
 use Illuminate\Support\Facades\Route;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
 use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
@@ -37,7 +39,6 @@ Route::prefix('auth')->group(function () {
 
 // Route publik
 Route::prefix('public')->group(function () {
-    Route::get('menu', [PublicMenuController::class, 'getPublicMenus']);
     Route::post('logout', [ApiAuthController::class, 'logout']);
     Route::get('user', [ApiAuthController::class, 'getData']);
     Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
@@ -47,4 +48,6 @@ Route::prefix('public')->group(function () {
     Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
     Route::get('getDataPintasanLainnya', [ApiPintasanLainnyaController::class, 'getDataPintasanLainnya']);
     Route::get('getDataAksesCepat',[ApiAksesCepatController::class,'getDataAksesCepat']);
+    Route::get('getDataMenu', [ApiMenuController::class, 'getDataMenu']);
+    Route::get('getDataPengumumanLandingPage', [ApiPengumumanLandingPageController::class, 'getDataPengumumanLandingPage']);
 });
