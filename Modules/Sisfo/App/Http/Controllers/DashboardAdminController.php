@@ -16,6 +16,6 @@ class DashboardAdminController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('sisfo::dashboardADM', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('Sisfo::dashboardADM', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

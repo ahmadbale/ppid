@@ -27,7 +27,7 @@ class ProfileController extends Controller
 
         $activeMenu = 'profile'; // Set the active menu
 
-        return view('sisfo::profile.index', [
+        return view('Sisfo::profile.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu

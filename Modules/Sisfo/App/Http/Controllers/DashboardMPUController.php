@@ -17,6 +17,6 @@ class DashboardMPUController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('sisfo::dashboardMPU', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('Sisfo::dashboardMPU', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

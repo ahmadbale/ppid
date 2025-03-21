@@ -1,4 +1,3 @@
-<!-- Modules/Sisfo/App/Resources/views/auth/login.blade.php (halaman login punya backend)-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -95,7 +94,7 @@
   <!-- SweetAlert2 -->
   <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 
-  <!-- modules/sisfo/AdminLTE App -->
+  <!-- AdminLTE App -->
   <script src="{{ asset('modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
 
   <script>
@@ -120,7 +119,7 @@
               if (response.success) {
                 Swal.fire({
                   icon: 'success',
-                  title: 'Berhasil',  
+                  title: 'Berhasil',
                   text: response.message
                 }).then(function () {
                   window.location = response.redirect;
