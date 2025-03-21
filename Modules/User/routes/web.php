@@ -91,6 +91,9 @@ Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
 Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');
 // Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
 
+Route::get('/daftar-informasi', function () {
+    return view('user::daftar_informasi');
+})->name('daftar_informasi');
 
 // Page Dinamis with
 Route::get('/content-dinamis', function () {
