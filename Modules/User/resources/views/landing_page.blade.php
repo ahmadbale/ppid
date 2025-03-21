@@ -54,14 +54,8 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p> --}}
-                        {{-- Politeknik Negeri Malang (Polinema) berkomitmen untuk mewujudkan transparansi dan akuntabilitas
-                        publik sesuai dengan amanat Undang-Undang Nomor 14 Tahun 2008. Melalui Pejabat Pengelola
-                        Informasi dan Dokumentasi (PPID), Polinema menyediakan akses mudah bagi masyarakat terhadap
-                        berbagai informasi terkait kegiatan akademik, penelitian, keuangan, dan pengelolaan kampus.
-                        Selain itu, PPID Polinema siap membantu Anda dalam mengajukan permohonan informasi, menyampaikan
-                        pengaduan, atau sekadar mencari tahu lebih lanjut tentang Polinema. --}}
-                        {{-- {{ $pengantar['content'] }}
+                    <p>
+                        {{ $pengantar['content'] }}
                     </p>
                 </div>
                 <div class="col-md-6 text-center"> --}}
@@ -271,7 +265,7 @@
                 @endforeach
 
                 <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
-                    <a href="#" class="btn-custom">
+                    <a href="{{route('berita')}}" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
                         <span class="ms-2">Berita Lainnya</span>
                     </a>

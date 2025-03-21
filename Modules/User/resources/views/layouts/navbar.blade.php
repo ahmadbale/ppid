@@ -16,7 +16,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link text-white">Beranda</a>
+                        <a class="nav-link text-white" href="{{ route('beranda')}}">Beranda</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -44,12 +44,14 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Regulasi</a></li>
-                            <li><a class="dropdown-item" href="#">Daftar Informasi Publik</a></li>
+                            <li><a class="dropdown-item" href="{{ route('daftar_informasi')}}">Daftar Informasi Publik</a></li>
                             <li><a class="dropdown-item" href="#">Daftar Informasi Dikecualikan</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Berkala</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Setiap Saat</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Serta-merta</a></li>
                             <li><a class="dropdown-item" href="{{ route('LHKPN')}}">LHKPN</a></li>
+                            <li><a class="dropdown-item" href="{{ route('berita')}}">Berita PPID</a></li>
+                            <li><a class="dropdown-item" href="#">Pengumuman</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
