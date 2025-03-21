@@ -44,7 +44,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#">Regulasi</a></li>
-                            <li><a class="dropdown-item" href="#">Daftar Informasi Publik</a></li>
+                            <li><a class="dropdown-item" href="{{ route('daftar_informasi')}}">Daftar Informasi Publik</a></li>
                             <li><a class="dropdown-item" href="#">Daftar Informasi Dikecualikan</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Berkala</a></li>
                             <li><a class="dropdown-item" href="#">Informasi Setiap Saat</a></li>
