@@ -4,6 +4,8 @@ namespace Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+
 
 class PintasanLainnyaModel extends Model
 {

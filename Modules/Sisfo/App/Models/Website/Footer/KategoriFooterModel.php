@@ -4,8 +4,10 @@ namespace Modules\Sisfo\App\Models\Website\Footer;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Illuminate\Database\Eloquent\Model;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -20,25 +22,58 @@ class KategoriFooterModel extends Model
         'kt_footer_nama',
     ];
 
-    // Relasi dengan footer 
+    // Relasi dengan footer
     public function footer()
     {
         return $this->hasMany(FooterModel::class, 'fk_m_kategori_footer', 'kategori_footer_id');
     }
 
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->fillable = array_merge($this->fillable, $this->getCommonFields());
-    }
-
-    // Fungsi untuk mengambil semua data, sesuai dengan selectData() 
+    // Metode untuk select data dengan pagination dan filter
     public static function selectData()
     {
-        return self::where('isDeleted', 0)->get();
     }
 
-    // Fungsi untuk membuat data baru, sama seperti createData() 
+    // Metode untuk select 
+    public static function getDataFooter()
+    {
+        // Get all categories
+        $categories = self::where('isDeleted', 0)
+            ->select('kategori_footer_id', 'kt_footer_kode', 'kt_footer_nama')
+            ->orderBy('kategori_footer_id')
+            ->get();
+    
+        // Initialize result array
+        $result = [];
+    
+        // For each category, get its footer items
+        foreach ($categories as $category) {
+            $footerItems = FooterModel::where('fk_m_kategori_footer', $category->kategori_footer_id)
+                ->where('isDeleted', 0)
+                ->select('footer_id', 'f_judul_footer', 'f_icon_footer', 'f_url_footer')
+                ->orderBy('footer_id')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->footer_id,
+                        'judul' => $item->f_judul_footer,
+                        'icon' => $item->f_icon_footer ? asset('storage/footer_icons/' . $item->f_icon_footer) : null,
+                        'url' => $item->f_url_footer
+                    ];
+                })->toArray();
+    
+            // Add category with its footer items to result
+            $result[] = [
+                'kategori_id' => $category->kategori_footer_id,
+                'kategori_kode' => $category->kt_footer_kode,
+                'kategori_nama' => $category->kt_footer_nama,
+                'items' => $footerItems
+            ];
+        }
+    
+        return $result;
+    }
+
+    // Metode create data
     public static function createData($request)
     {
         try {
@@ -77,16 +112,32 @@ class KategoriFooterModel extends Model
                 $saveData->kt_footer_nama
             );
 
-            DB::commit();
+            $result = [
+                'success' => true,
+                'message' => 'Kategori Footer berhasil dibuat',
+                'data' => $saveData
+            ];
 
-            return self::responFormatSukses($saveData, 'Kategori Footer berhasil dibuat');
+            DB::commit();
+            return $result;
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->validator->errors()
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
-            return self::responFormatError($e, 'Gagal membuat kategori footer');
+            Log::error('Error creating kategori footer: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membuat Kategori Footer: ' . $e->getMessage()
+            ];
         }
     }
 
-    // Fungsi untuk mengupdate data, sama seperti updateData() 
+    // Metode update data
     public static function updateData($request, $id)
     {
         try {
@@ -129,16 +180,32 @@ class KategoriFooterModel extends Model
                 $saveData->kt_footer_nama
             );
 
-            DB::commit();
+            $result = [
+                'success' => true,
+                'message' => 'Kategori Footer berhasil diperbarui',
+                'data' => $saveData
+            ];
 
-            return self::responFormatSukses($saveData, 'Kategori Footer berhasil diperbarui');
+            DB::commit();
+            return $result;
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->validator->errors()
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
-            return self::responFormatError($e, 'Gagal memperbarui kategori footer');
+            Log::error('Error updating kategori footer: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui Kategori Footer: ' . $e->getMessage()
+            ];
         }
     }
 
-    // Fungsi untuk menghapus data, sama seperti deleteData() 
+    // Metode hapus data (soft delete)
     public static function deleteData($id)
     {
         try {
@@ -151,20 +218,21 @@ class KategoriFooterModel extends Model
                 ->count();
 
             if ($footerCount > 0) {
-                return self::responFormatError(
-                    new \Exception('Kategori tidak dapat dihapus karena masih digunakan oleh footer'),
-                    'Kategori tidak dapat dihapus karena masih digunakan oleh footer'
-                );
+                return [
+                    'success' => false,
+                    'message' => 'Kategori tidak dapat dihapus karena masih digunakan oleh footer'
+                ];
             }
 
             DB::beginTransaction();
 
-            // Set isDeleted = 1 secara manual sebelum memanggil delete()
+            // PERBAIKAN: Set isDeleted = 1 secara manual sebelum memanggil delete()
             $saveData->isDeleted = 1;
             $saveData->deleted_at = now();
             $saveData->save();
 
             // Soft delete dengan menggunakan fitur SoftDeletes dari Trait
+            // Ini akan mengisi kolom deleted_at
             $saveData->delete();
 
             // Catat log transaksi
@@ -174,26 +242,24 @@ class KategoriFooterModel extends Model
                 $saveData->kt_footer_nama
             );
 
-            DB::commit();
+            $result = [
+                'success' => true,
+                'message' => 'Kategori Footer berhasil dihapus',
+                'data' => $saveData
+            ];
 
-            return self::responFormatSukses($saveData, 'Kategori Footer berhasil dihapus');
+            DB::commit();
+            return $result;
         } catch (\Exception $e) {
             DB::rollBack();
-            return self::responFormatError($e, 'Gagal menghapus kategori footer');
+            Log::error('Error deleting kategori footer: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus Kategori Footer: ' . $e->getMessage()
+            ];
         }
     }
 
-    public static function detailData($id)
-    {
-        try {
-            $kategoriFooter = self::findOrFail($id);
-            return $kategoriFooter;
-        } catch (\Exception $e) {
-            throw $e;
-        }
-    }
-
-    // Fungsi untuk memvalidasi data, sama seperti validasiData() 
     public static function validasiData($request, $id = null)
     {
         $rules = [
@@ -253,5 +319,76 @@ class KategoriFooterModel extends Model
         }
 
         return true;
+    }
+
+    // Metode untuk mengambil detail data
+    public static function getDetailData($id)
+    {
+        try {
+            $kategoriFooter = self::find($id);
+
+            if (!$kategoriFooter) {
+                return [
+                    'success' => false,
+                    'message' => 'Kategori Footer tidak ditemukan'
+                ];
+            }
+
+            $result = [
+                'success' => true,
+                'kategori_footer' => [
+                    'kt_footer_kode' => $kategoriFooter->kt_footer_kode,
+                    'kt_footer_nama' => $kategoriFooter->kt_footer_nama,
+                    'created_by' => $kategoriFooter->created_by,
+                    'created_at' => $kategoriFooter->created_at->format('Y-m-d H:i:s'),
+                    'updated_by' => $kategoriFooter->updated_by,
+                    'updated_at' => $kategoriFooter->updated_at ? $kategoriFooter->updated_at->format('Y-m-d H:i:s') : null,
+                ]
+            ];
+
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Error in detail kategori footer: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil detail Kategori Footer: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public static function getEditData($id)
+    {
+        try {
+            $kategoriFooter = self::findOrFail($id);
+
+            $result = [
+                'success' => true,
+                'kategori_footer' => $kategoriFooter
+            ];
+
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Error mengambil data edit kategori footer: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error mengambil data edit Kategori Footer: ' . $e->getMessage()
+            ];
+        }
+    }
+    public static function getDataTableList()
+    {
+        $query = self::select('kategori_footer_id', 'kt_footer_kode', 'kt_footer_nama');
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('aksi', function ($row) {
+                $btn = '';
+                $btn .= '<button onclick="showDetailKategoriFooter(' . $row->kategori_footer_id . ')" class="btn btn-info btn-sm" style="margin:2px" title="Detail"><i class="fas fa-eye"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . url('/adminweb/kategori-footer/' . $row->kategori_footer_id . '/edit') . '\')" class="btn btn-warning btn-sm" style="margin:2px" title="Edit"><i class="fas fa-edit"></i></button>';
+                $btn .= '<button onclick="deleteKategoriFooter(' . $row->kategori_footer_id . ')" class="btn btn-danger btn-sm" style="margin:2px" title="Hapus"><i class="fas fa-trash"></i></button>';
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
     }
 }

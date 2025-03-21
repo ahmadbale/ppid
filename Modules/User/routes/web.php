@@ -14,7 +14,6 @@ use Modules\User\App\Http\Controllers\LHKPNController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
-use Modules\User\App\Http\Controllers\LhkpnController;
 use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
 
 

@@ -21,7 +21,6 @@ class NotifVerifikatorModel extends Model
         'sudah_dibaca_notif_verif',
         'isDeleted',
         'created_at',
-        'deleted_by',
         'deleted_at'
     ];
 
