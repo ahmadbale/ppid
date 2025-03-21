@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 
@@ -16,6 +16,6 @@ class DashboardVerifikatorController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('sisfo::dashboardVFR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('dashboardVFR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

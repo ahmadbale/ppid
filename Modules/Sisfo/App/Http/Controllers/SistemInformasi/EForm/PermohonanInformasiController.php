@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm;
+namespace App\Http\Controllers\SistemInformasi\EForm;
 
-use Modules\Sisfo\App\Http\Controllers\TraitsController;
-use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
+use App\Http\Controllers\TraitsController;
+use App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class PermohonanInformasiController extends Controller
 {
     use TraitsController;
-    
+
     public $breadcrumb = 'Permohonan Informasi';
     public $pagename = 'SistemInformasi/EForm/PermohonanInformasi';
 
@@ -31,14 +31,25 @@ class PermohonanInformasiController extends Controller
 
         $activeMenu = 'PermohonanInformasi';
 
-        return view("sisfo::SistemInformasi/EForm/$folder/PermohonanInformasi.index", [
+        return view("SistemInformasi/EForm/$folder/PermohonanInformasi.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
         ]);
     }
 
-    public function create()
+    public function getData()
+    {
+        $timeline = PermohonanInformasiModel::getTimeline();
+        $ketentuanPelaporan = PermohonanInformasiModel::getKetentuanPelaporan();
+
+        return [
+            'timeline' => $timeline,
+            'ketentuanPelaporan' => $ketentuanPelaporan
+        ];
+    }
+
+    public function addData()
     {
         $folder = $this->getUserFolder();
 
@@ -60,7 +71,7 @@ class PermohonanInformasiController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function createData(Request $request)
     {
         try {
             $folder = $this->getUserFolder();

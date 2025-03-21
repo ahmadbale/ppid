@@ -2,20 +2,21 @@
 
 namespace Modules\Sisfo\App\Models\Website\InformasiPublik\LHKPN;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Modules\Sisfo\App\Models\TraitsModel;
+use Illuminate\Database\Eloquent\Model;
 
 class LHKPNModel extends Model
 {
     use TraitsModel;
 
-    protected $table = 'm_lhkpn';
+    protected $table = 't_lhkpn';
     protected $primaryKey = 'lhkpn_id';
     protected $fillable = [
         'lhkpn_tahun',
         'lhkpn_judul_informasi',
         'lhkpn_deskripsi_informasi',
+        'lhkpn_nama_karyawan',
+        'lhkpn_file',
     ];
 
     public function __construct(array $attributes = [])
@@ -26,6 +27,7 @@ class LHKPNModel extends Model
 
     public static function selectData()
     {
+
     }
 
     public static function getDataLhkpn($request = null)
@@ -104,6 +106,7 @@ class LHKPNModel extends Model
                 'has_more' => $totalKaryawan > 10
             ];
         });
+
 
         return $lhkpnData;
     }

@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\Auth;
 
-use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
-use Modules\Sisfo\App\Models\Website\WebMenuModel;
+use App\Http\Controllers\Api\BaseApiController;
+use App\Models\Website\WebMenuModel;
 
 class BeritaPengumumanController extends BaseApiController
 {

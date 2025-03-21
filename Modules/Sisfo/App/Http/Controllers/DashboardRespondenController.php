@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 
@@ -16,6 +16,6 @@ class DashboardRespondenController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('sisfo::dashboardRPN', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('dashboardRPN', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }
