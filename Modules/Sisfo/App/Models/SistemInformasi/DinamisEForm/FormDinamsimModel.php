@@ -1,19 +1,19 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\SistemInformasi\Timeline;
+namespace Modules\Sisfo\App\Models\SistemInformasi\DinamisEForm;
 
-use Modules\Sisfo\App\Models\TraitsModel;
-use Illuminate\Database\Eloquent\Model;
+use Modules\Sisfo\App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TimelineModel extends Model
+class FormDinamsimModel extends BaseModel
 {
-    use TraitsModel;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'm_timeline';
-    protected $primaryKey = 'timeline_id';
+    protected $table = 't_form_dinamis';
+    protected $primaryKey = 'form_dinamis_id';
     protected $fillable = [
-        'kategori_timeline',
-        'judul_timeline',
+        'fd_nama',
     ];
 
     public function __construct(array $attributes = [])

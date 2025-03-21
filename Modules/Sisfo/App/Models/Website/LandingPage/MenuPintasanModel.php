@@ -1,18 +1,19 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\SistemInformasi\KategoriForm;
+namespace Modules\Sisfo\App\Models\Website\LandingPage;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
-class KategoriFormModel extends Model
+class MenuPintasanModel extends Model
 {
     use TraitsModel;
 
-    protected $table = 'm_kategori_form';
-    protected $primaryKey = 'kategori_form_id';
+    protected $table = 't_menu_pintasan_lainnya';
+    protected $primaryKey = 'menu_pintasan_id';
     protected $fillable = [
-        'kf_nama',
+        'mpl_judul',
+        'mpl_url'
     ];
 
     public function __construct(array $attributes = [])

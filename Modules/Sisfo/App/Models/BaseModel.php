@@ -2,11 +2,16 @@
 
 namespace Modules\Sisfo\App\Models;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-trait BaseModelFunction
+abstract class BaseModel extends EloquentModel
 {
+    use HasFactory, SoftDeletes;
+
     protected $commonFields = [
         'isDeleted',
         'created_at',
@@ -17,20 +22,14 @@ trait BaseModelFunction
         'deleted_by'
     ];
 
-    /**
-     * Boot trait untuk mengatur event listeners
-     */
-    public static function bootBaseModelFunction()
+    protected static function boot()
     {
+        parent::boot();
+
         // Event ketika model dibuat, isi created_by otomatis
         static::creating(function ($model) {
-            if (!isset($model->created_by)) {
-                if (session()->has('alias')) {
-                    $model->created_by = session('alias');
-                } else {
-                    // Tambahkan default value untuk kasus registrasi
-                    $model->created_by = 'System';
-                }
+            if (!isset($model->created_by) && session()->has('alias')) {
+                $model->created_by = session('alias');
             }
         });
 

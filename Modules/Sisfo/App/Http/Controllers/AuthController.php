@@ -20,7 +20,7 @@ class AuthController extends Controller
             $levelCode = Auth::user()->level->level_kode;
             return redirect('/dashboard' . $levelCode);
         }
-        return view('Sisfo::auth.login');
+        return view('sisfo::auth.login');
     }
 
     public function postlogin(Request $request)
@@ -67,7 +67,7 @@ class AuthController extends Controller
     public function register()
     {
         $level = LevelModel::all(); // Ambil level dari basis data
-        return view('Sisfo::auth.register', compact('level')); // Kirim level ke view
+        return view('sisfo::auth.register', compact('level')); // Kirim level ke view
     }
 
     public function postRegister(Request $request)

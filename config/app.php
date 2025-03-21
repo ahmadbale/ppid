@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         // App\Providers\ViewComposerServiceProvider::class,
         Modules\User\Providers\FooterServiceProvider::class,
+        Modules\Sisfo\App\Providers\SisfoServiceProvider::class,
     ])->toArray(),
 
     /*
