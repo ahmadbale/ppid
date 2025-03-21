@@ -2,12 +2,23 @@
 
 use Spatie\FlareClient\Api;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\ApiAuthController;
 use App\Http\Controllers\Api\Auth\AuthMenuController;
 use App\Http\Controllers\Api\Auth\ApiFooterController;
 use App\Http\Controllers\Api\Public\PublicMenuController;
 use App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use App\Http\Controllers\Api\Auth\BeritaPengumumanController;
+
+use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
+use Modules\Sisfo\App\Http\Controllers\Api\Auth\GetMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
+
+use Modules\Sisfo\App\Http\Controllers\Api\Public\PublicMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
+use Modules\Sisfo\App\Http\Controllers\Api\Auth\GetBeritaPengumumanController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,10 +40,17 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::post('logout', [ApiAuthController::class, 'logout']);
         Route::get('user', [ApiAuthController::class, 'getData']);
+
         Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
         Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         Route::get('footerData', [ApiFooterController::class, 'getDataFooter']);
         
+
+        // Route::get('getMenu', [AuthMenuController::class, 'getMenu']);
+        // Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
+        // Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
+        Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
+
     });
 });
 
@@ -40,4 +58,9 @@ Route::prefix('auth')->group(function () {
 Route::group(['prefix' => 'public'], function () {
     Route::get('menus', [PublicMenuController::class, 'getPublicMenus']);
     Route::get('getDataAksesCepat',[ApiAksesCepatController::class,'getDataAksesCepat']);
+    Route::get('getMenu', [AuthMenuController::class, 'getMenu']);
+    Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
+    Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
+    Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
+
 });
