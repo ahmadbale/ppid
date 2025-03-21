@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\AdminWeb\KategoriAkses;
+namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Illuminate\Validation\ValidationException;
 use App\Models\Website\LandingPage\KategoriAkses\AksesCepatModel;
 use App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
@@ -36,7 +36,7 @@ class AksesCepatController extends Controller
           // Ambil data akses cepat
           $aksesCepat = AksesCepatModel::selectData(10, $search, $kategoriAksesId);
 
-          return view('AdminWeb.AksesCepat.index', [
+          return view('Sisfo::AdminWeb.AksesCepat.index', [
                'breadcrumb' => $breadcrumb,
                'page' => $page,
                'activeMenu' => $activeMenu,
@@ -52,7 +52,7 @@ class AksesCepatController extends Controller
           $aksesCepat = AksesCepatModel::selectData(10, $search);
      
           if ($request->ajax()) {
-               return view('AdminWeb.AksesCepat.data', compact('aksesCepat', 'search'))->render();
+               return view('Sisfo::AdminWeb.AksesCepat.data', compact('aksesCepat', 'search'))->render();
           }
      
           return redirect()->route('akses-cepat.index');
@@ -62,7 +62,7 @@ class AksesCepatController extends Controller
      {
          $kategoriAkses = KategoriAksesModel::where('mka_judul_kategori', 'Akses Menu Cepat')->first();
          
-         return view('AdminWeb.AksesCepat.create', compact('kategoriAkses'));
+         return view('Sisfo::AdminWeb.AksesCepat.create', compact('kategoriAkses'));
      }
 
      public function createData(Request $request)
@@ -113,7 +113,7 @@ class AksesCepatController extends Controller
           try {
                $aksesCepat = AksesCepatModel::with('kategoriAkses')->findOrFail($id);
 
-               return view('AdminWeb.AksesCepat.detail', [
+               return view('Sisfo::AdminWeb.AksesCepat.detail', [
                     'aksesCepat' => $aksesCepat,
                     'title' => 'Detail Akses Cepat'
                ]);
@@ -127,7 +127,7 @@ class AksesCepatController extends Controller
                try {
                     $aksesCepat = AksesCepatModel::with('kategoriAkses')->findOrFail($id);
 
-                    return view('AdminWeb.AksesCepat.delete', [
+                    return view('Sisfo::AdminWeb.AksesCepat.delete', [
                          'aksesCepat' => $aksesCepat
                     ]);
                } catch (\Exception $e) {

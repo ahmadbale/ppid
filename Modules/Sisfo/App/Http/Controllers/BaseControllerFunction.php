@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\Sisfo\App\Http\Controllers;
 
 use Illuminate\Validation\ValidationException;
 

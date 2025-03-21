@@ -1,6 +1,6 @@
 <!-- SistemInformasi/EForm/RPN/PermohonanPerawatan/pengisianForm.blade.php-->
 
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\SistemInformasi\EForm;
+namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +31,7 @@ class PermohonanInformasiController extends Controller
 
         $activeMenu = 'PermohonanInformasi';
 
-        return view("SistemInformasi/EForm/$folder/PermohonanInformasi.index", [
+        return view("Sisfo::SistemInformasi/EForm/$folder/PermohonanInformasi.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -64,7 +64,7 @@ class PermohonanInformasiController extends Controller
 
         $activeMenu = 'PermohonanInformasi';
 
-        return view("SistemInformasi/EForm/$folder/PermohonanInformasi.pengisianForm", [
+        return view("Sisfo::SistemInformasi/EForm/$folder/PermohonanInformasi.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

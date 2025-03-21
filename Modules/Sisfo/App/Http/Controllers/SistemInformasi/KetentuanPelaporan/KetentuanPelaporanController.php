@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\SistemInformasi\KetentuanPelaporan;
+namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan;
 
-use App\Http\Controllers\TraitsController;
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanModel;
+use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Modules\Sisfo\App\Models\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +31,7 @@ class KetentuanPelaporanController extends Controller
 
         $activeMenu = 'KetentuanPelaporan';
 
-        return view("SistemInformasi/KetentuanPelaporan.index", [
+        return view("Sisfo::SistemInformasi/KetentuanPelaporan.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -63,7 +63,7 @@ class KetentuanPelaporanController extends Controller
     {
         $kategoriForms = KategoriFormModel::where('isDeleted', 0)->get();
 
-        return view("SistemInformasi/KetentuanPelaporan.create", [
+        return view("Sisfo::SistemInformasi/KetentuanPelaporan.create", [
             'kategoriForms' => $kategoriForms
         ]);
     }
@@ -91,7 +91,7 @@ class KetentuanPelaporanController extends Controller
         $kategoriForms = KategoriFormModel::where('isDeleted', 0)->get();
         $ketentuanPelaporan = KetentuanPelaporanModel::findOrFail($id);
 
-        return view("SistemInformasi/KetentuanPelaporan.update", [
+        return view("Sisfo::SistemInformasi/KetentuanPelaporan.update", [
             'kategoriForms' => $kategoriForms,
             'ketentuanPelaporan' => $ketentuanPelaporan
         ]);
@@ -119,7 +119,7 @@ class KetentuanPelaporanController extends Controller
     {
         $ketentuanPelaporan = KetentuanPelaporanModel::with('PelaporanKategoriForm')->findOrFail($id);
         
-        return view("SistemInformasi/KetentuanPelaporan.detail", [
+        return view("Sisfo::SistemInformasi/KetentuanPelaporan.detail", [
             'ketentuanPelaporan' => $ketentuanPelaporan,
             'title' => 'Detail Ketentuan Pelaporan'
         ]);
@@ -130,7 +130,7 @@ class KetentuanPelaporanController extends Controller
         if ($request->isMethod('get')) {
             $ketentuanPelaporan = KetentuanPelaporanModel::with('PelaporanKategoriForm')->findOrFail($id);
             
-            return view("SistemInformasi/KetentuanPelaporan.delete", [
+            return view("Sisfo::SistemInformasi/KetentuanPelaporan.delete", [
                 'ketentuanPelaporan' => $ketentuanPelaporan
             ]);
         }

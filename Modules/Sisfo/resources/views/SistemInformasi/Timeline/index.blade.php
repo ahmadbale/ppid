@@ -1,6 +1,6 @@
 <!-- views/SistemInformasi/Timeline/index.blade.php -->
 
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
   <div class="card card-outline card-primary">

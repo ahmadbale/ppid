@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\Sisfo\App\Http\Controllers;
 
-use App\Models\UserModel;
+use Modules\Sisfo\App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +27,7 @@ class ProfileController extends Controller
 
         $activeMenu = 'profile'; // Set the active menu
 
-        return view('profile.index', [
+        return view('Sisfo::profile.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu

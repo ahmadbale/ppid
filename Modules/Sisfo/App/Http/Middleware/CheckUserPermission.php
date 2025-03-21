@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace Modules\Sisfo\App\Http\Middleware;
 
-use App\Models\HakAkses\HakAksesModel;
-use App\Models\Website\WebMenuModel;
+use Modules\Sisfo\App\Models\HakAkses\HakAksesModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

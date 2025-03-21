@@ -1,19 +1,20 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\SistemInformasi\Timeline;
+namespace Modules\Sisfo\App\Models\Website\LandingPage;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
-class TimelineModel extends Model
+class MenuAksesCepatModel extends Model
 {
     use TraitsModel;
 
-    protected $table = 'm_timeline';
-    protected $primaryKey = 'timeline_id';
+    protected $table = 't_menu_akses_cepat';
+    protected $primaryKey = 'menu_akses_id';
     protected $fillable = [
-        'kategori_timeline',
-        'judul_timeline',
+        'mac_judul',
+        'mac_icon',
+        'mac_url'
     ];
 
     public function __construct(array $attributes = [])
