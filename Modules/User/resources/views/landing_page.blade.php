@@ -214,7 +214,7 @@
                     @endforeach
                 </div>
             </div>
-        </div> 
+        </div>
     </section>--}}
 
     {{-- Pengumuman --}}
@@ -230,7 +230,7 @@
                             <img src="{{ asset('img/dokumentasi-' . ($index + 1) . '.webp') }}"
                                 class="ppid-img-cover" alt="Gambar {{ $index + 1 }}">
                         </div>
-                        <p class="ppid-date">{{ $item['tanggal'] }}</p>
+                        <p class="text-muted">{{ $item['tanggal'] }}</p>
                         <p class="ppid-card-text">{{ $item['deskripsi'] }}</p>
                         <a class="btn btn-primary" href="{{ $item['route'] }}" role="button">Baca Artikel</a>
                     </div>
@@ -238,7 +238,7 @@
             @endforeach
         </div> --}}
 
-{{-- 
+{{--
         <div class="d-flex flex-wrap justify-content-center">
             <a href="#" class="btn-custom">
                 <i class="bi bi-arrow-right"></i>
@@ -315,7 +315,7 @@
                                         {{ $menu['name'] }}
                                         <div class="border-top border-1 mt-1  border-pintasan"></div>
                                     </a>
-                                    
+
                                 </li>
                             @endforeach
                         </ul>

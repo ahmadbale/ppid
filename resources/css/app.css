@@ -4,6 +4,7 @@
 
 body {
     font-family: 'Schibsted Grotesk', sans-serif;
+    scroll-behaviour: smooth;
 }
 
 /* header */
@@ -993,11 +994,6 @@ form {
     z-index: 1;
 }
 
-.ppid-date {
-    color: gray;
-    font-size: 14px;
-}
-
 .ppid-card-text {
     font-size: 16px;
     font-weight: bold;
@@ -1597,4 +1593,12 @@ button {
 button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.card-img-top {
+    border-top-left-radius: 17px;
+    border-top-right-radius: 17px;
+    width: 100%;
+    object-fit: cover;
+    max-height: 120px;
 }

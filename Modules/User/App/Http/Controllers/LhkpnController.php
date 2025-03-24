@@ -13,11 +13,10 @@ class LHKPNController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request){}
 
 
-    public function getDataLhkpn(Request $request)
-
+    public function getLhkpnData(Request $request)
     {
         // Data dasar hukum
         $dasarHukum = [
@@ -130,7 +129,9 @@ class LHKPNController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+
             return view('user::lhkpn', [
+                'dasarHukum' => [],
                 'tahunList' => [],
                 'tahunDipilih' => null,
                 'lhkpnList' => [],
@@ -200,12 +201,12 @@ class LHKPNController extends Controller
 //             return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
 //         }
 
-    }
+
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(){
 
         return view('user::create');
     }
@@ -250,6 +251,8 @@ class LHKPNController extends Controller
     //     //
     // }
 
+    private function processLHKPNData($data)
+    {
         $latestUpdatedAt = collect($data)->pluck('updated_at')->filter()->max();
 
         return [
@@ -273,5 +276,7 @@ class LHKPNController extends Controller
             'updated_at' => $latestUpdatedAt ? date('d M Y, H:i', strtotime($latestUpdatedAt)) : null
         ];
     }
-
 }
+
+
+

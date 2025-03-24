@@ -51,7 +51,7 @@
                             <li><a class="dropdown-item" href="#">Informasi Serta-merta</a></li>
                             <li><a class="dropdown-item" href="{{ route('LHKPN')}}">LHKPN</a></li>
                             <li><a class="dropdown-item" href="{{ route('berita')}}">Berita PPID</a></li>
-                            <li><a class="dropdown-item" href="#">Pengumuman</a></li>
+                            <li><a class="dropdown-item" href="{{ route('pengumuman')}}">Pengumuman</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

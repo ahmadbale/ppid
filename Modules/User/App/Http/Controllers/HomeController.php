@@ -79,7 +79,7 @@ class HomeController extends Controller
     //         ]
     //     ];
 
-    
+
     //     $pintasanMenus = [
     //         [
     //             'title' => 'Sistem Informasi',
@@ -160,15 +160,15 @@ class HomeController extends Controller
     {
         try {
             Log::info('Mengambil data dari API');
-    
+
             // Ambil data pintasan
             $pintasanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPintasanLainnya');
             $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
-    
+
             // Ambil data akses cepat
             $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
             $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
-    
+
             return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus'));
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
@@ -178,7 +178,7 @@ class HomeController extends Controller
             return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
         }
     }
-    
+
     private function fetchPintasanData($response)
     {
         if ($response->failed() || !$response->json('success')) {
@@ -187,10 +187,10 @@ class HomeController extends Controller
             ]);
             return [];
         }
-        
+
         return $this->processPintasanData($response->json('data'));
     }
-    
+
     private function processPintasanData($data)
     {
         $result = [];
@@ -209,7 +209,7 @@ class HomeController extends Controller
         }
         return $result;
     }
-    
+
     private function fetchAksesCepatData($response)
     {
         if ($response->failed() || !$response->json('success')) {
@@ -218,10 +218,10 @@ class HomeController extends Controller
             ]);
             return [];
         }
-        
+
         return $this->processAksesCepatData($response->json('data'));
     }
-    
+
     private function processAksesCepatData($data)
     {
         $result = [];
@@ -240,6 +240,6 @@ class HomeController extends Controller
         }
         return $result;
     }
-    
+
 
 }

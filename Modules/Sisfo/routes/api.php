@@ -22,15 +22,6 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\PublicMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
 
 
-use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\GetMenuController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
-
-use Modules\Sisfo\App\Http\Controllers\Api\Public\PublicMenuController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\GetBeritaPengumumanController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +48,7 @@ Route::prefix('auth')->group(function () {
         Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
         Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         Route::get('footerData', [ApiFooterController::class, 'getDataFooter']);
-        
+
 
         // Route::get('getMenu', [AuthMenuController::class, 'getMenu']);
         // Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
