@@ -47,59 +47,65 @@ class PengumumanModel extends Model
     }
     public static function getDataPengumumanLandingPage()
     {
-        $arr_data = self::query()
+        $arr_data = DB::table('t_pengumuman', 'tp')
+            ->join('m_pengumuman_dinamis as mpd', 'tp.fk_m_pengumuman_dinamis', '=', 'mpd.pengumuman_dinamis_id')
+            ->leftJoin('t_upload_pengumuman as tup', 'tp.pengumuman_id', '=', 'tup.fk_t_pengumuman')
             ->select([
-                'pengumuman_id',
-                'peg_judul',
-                'peg_slug',
-                'fk_m_pengumuman_dinamis',
-                'created_at'
+                'tp.pengumuman_id',
+                'tp.peg_judul',
+                'tp.peg_slug',
+                'tp.status_pengumuman',
+                'mpd.pd_nama_submenu',
+                'tup.up_thumbnail',
+                'tup.up_type',
+                'tup.up_value',
+                'tup.up_konten',
+                'tp.created_at'
             ])
-            ->with(['PengumumanDinamis', 'UploadPengumuman'])
-            ->whereHas('PengumumanDinamis', function($query) {
-                $query->where('isDeleted', 0)
-                      ->where('pd_nama_submenu', 'Pengumuman PPID');
-            })
-            ->where('isDeleted', 0)
-            ->where('status_pengumuman', 'aktif')
-            ->orderBy('created_at', 'desc')
+            ->where('tp.isDeleted', 0)
+            ->where('tp.status_pengumuman', 'aktif')
+            ->where('mpd.isDeleted', 0)
+            ->where('mpd.pd_nama_submenu', 'Pengumuman')
+            ->whereIn('tup.up_type', ['file', 'konten']) // Menambahkan filter untuk tipe file dan konten saja
+            ->orderBy('tp.created_at', 'desc')
             ->limit(3)
             ->get()
             ->map(function ($pengumuman) {
+                 $deskripsi = strip_tags($pengumuman->up_konten);
+                $paragraf = preg_split('/\n\s*\n/', $deskripsi)[0] ?? '';
                 // Proses thumbnail
                 $thumbnail = null;
-                $uploadPengumuman = $pengumuman->UploadPengumuman;
-                
-                if ($uploadPengumuman && $uploadPengumuman->up_thumbnail) {
-                    $thumbnail = asset('storage/' . $uploadPengumuman->up_thumbnail);
+                if ($pengumuman->up_thumbnail) {
+                    $thumbnail = asset('storage/' . $pengumuman->up_thumbnail);
                 }
-    
                 // Proses value 
-                $value = $uploadPengumuman ? $uploadPengumuman->up_value : null;
-                if ($uploadPengumuman && $uploadPengumuman->up_type === 'file') {
-                    $value = asset('storage/' . $value);
+                $value = $pengumuman->up_value;
+                if ($pengumuman->up_type === 'file') {
+                    $value = asset('storage/' . $pengumuman->up_value);
                 }
                 
-                // Format tanggal sesuai desain
-                $formattedDate = \Carbon\Carbon::parse($pengumuman->created_at)->translatedFormat('d F Y');
+                // Format tanggal 
+                $formattedDate = \Carbon\Carbon::parse($pengumuman->created_at)->format('d F Y');
     
                 return [
+                    'kategoriSubmenu' => $pengumuman->pd_nama_submenu,
                     'id' => $pengumuman->pengumuman_id,
                     'judul' => $pengumuman->peg_judul,
                     'slug' => $pengumuman->peg_slug,
-                    'submenu' => $pengumuman->PengumumanDinamis->pd_nama_submenu,
                     'thumbnail' => $thumbnail,
-                    'tipe' => $uploadPengumuman ? $uploadPengumuman->up_type : null,
+                    'tipe' => $pengumuman->up_type,
                     'value' => $value,
-                    'konten' => $uploadPengumuman ? $uploadPengumuman->up_konten : null,
+                    'deskripsi' => strlen($paragraf) > 200 
+                    ? substr($paragraf, 0, 200) . '...' 
+                    : $paragraf,
+                    'url_selengkapnya' => url('#'),
                     'created_at' => $formattedDate
                 ];
             })
             ->toArray();
-    
         return $arr_data;
     }
-    public static function createData($request)
+        public static function createData($request)
     {
         try {
             DB::beginTransaction();

@@ -45,10 +45,13 @@ class PengumumanDinamisModel extends Model
             ->where('tp.status_pengumuman', 'aktif')
             ->where('mpd.isDeleted', 0)
             ->where('mpd.pd_nama_submenu', 'Pengumuman')
+            ->whereIn('tup.up_type', ['file', 'konten']) // Menambahkan filter untuk tipe file dan konten saja
             ->orderBy('tp.created_at', 'desc')
             ->limit(3)
             ->get()
             ->map(function ($pengumuman) {
+                 $deskripsi = strip_tags($pengumuman->up_konten);
+                $paragraf = preg_split('/\n\s*\n/', $deskripsi)[0] ?? '';
                 // Proses thumbnail
                 $thumbnail = null;
                 if ($pengumuman->up_thumbnail) {
@@ -64,14 +67,17 @@ class PengumumanDinamisModel extends Model
                 $formattedDate = \Carbon\Carbon::parse($pengumuman->created_at)->format('d F Y');
     
                 return [
+                    'kategoriSubmenu' => $pengumuman->pd_nama_submenu,
                     'id' => $pengumuman->pengumuman_id,
                     'judul' => $pengumuman->peg_judul,
                     'slug' => $pengumuman->peg_slug,
-                    'submenu' => $pengumuman->pd_nama_submenu,
                     'thumbnail' => $thumbnail,
                     'tipe' => $pengumuman->up_type,
                     'value' => $value,
-                    'konten' => $pengumuman->up_konten,
+                    'deskripsi' => strlen($paragraf) > 200 
+                    ? substr($paragraf, 0, 200) . '...' 
+                    : $paragraf,
+                    'url_selengkapnya' => url('#'),
                     'created_at' => $formattedDate
                 ];
             })
