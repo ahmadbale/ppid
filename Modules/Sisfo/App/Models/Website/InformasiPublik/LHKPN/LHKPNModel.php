@@ -113,7 +113,6 @@ class LHKPNModel extends Model
         ];
         
         return $result;
-
     }
 
     public static function getDataLhkpn($request = null)

@@ -29,6 +29,7 @@ class AuthController extends Controller
             $result = UserModel::prosesLogin($request);
 
             if ($request->ajax() || $request->wantsJson()) {
+                // Pastikan format response konsisten
                 return response()->json($result);
             }
 

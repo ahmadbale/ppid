@@ -15,7 +15,8 @@ class ApiAuthController extends BaseApiController
             function () use ($request) {
                 $loginResult = UserModel::prosesLogin($request);
 
-                if (!$loginResult['success']) {
+                // Checking if login was successful
+                if (!$loginResult['success']){
                     return $this->errorResponse(self::AUTH_INVALID_CREDENTIALS, $loginResult['message'], 401);
                 }
 
@@ -40,25 +41,35 @@ class ApiAuthController extends BaseApiController
 
     public function logout()
     {
-        return $this->execute(
-            function () {
-                $token = JWTAuth::getToken();
-                JWTAuth::invalidate($token);
-                return $this->successResponse(null, self::AUTH_LOGOUT_SUCCESS);
-            },
-            'user',
-            self::ACTION_LOGOUT
-        );
+        try {
+            $token = JWTAuth::getToken();
+            JWTAuth::invalidate($token);
+
+            // Successfully invalidated the token
+            return $this->successResponse(null, self::AUTH_LOGOUT_SUCCESS);
+        } catch (JWTException $e) {
+            // If error occurs during token invalidation
+            return $this->errorResponse(self::AUTH_LOGOUT_FAILED, $e->getMessage(), 500);
+        }
     }
 
     public function register(Request $request)
     {
-        return $this->executeWithValidation(
+        return $this->execute(
             function () use ($request) {
-                return validator($request->all(), [
-                    'username' => 'required|string|unique:users',
-                    'password' => 'required|min:6',
-                    'email' => 'required|email|unique:users'
+                // Calling the processRegister method from UserModel to handle user registration
+                $registerResult = UserModel::prosesRegister($request);
+
+                // If registration is successful, return the success message
+                if (!$registerResult['success']) {
+                    return $this->errorResponse(self::AUTH_REGISTRATION_FAILED, $registerResult['message'], 400);
+                }
+
+                // Successful registration response
+                return response()->json([
+                    'success' => true,
+                    'message' => $registerResult['message'],
+                    'redirect' => $registerResult['redirect']  // Optional: include a redirect URL
                 ]);
             },
             function () use ($request) {
