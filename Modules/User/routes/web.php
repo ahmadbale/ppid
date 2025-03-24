@@ -10,7 +10,9 @@ use Modules\User\App\Http\Controllers\LhkpnController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
 use Modules\User\App\Http\Controllers\TestController;
+use Modules\User\App\Http\Controllers\LHKPNController;
 use Modules\User\App\Http\Controllers\TimelineController;
+use Modules\User\App\Http\Controllers\PengumumanController;
 use Modules\User\App\Http\Controllers\BeritaController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
@@ -86,6 +88,9 @@ Route::get('/profil/tugas-fungsi', function () {
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
 Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
 
+
+
+Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman');
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');

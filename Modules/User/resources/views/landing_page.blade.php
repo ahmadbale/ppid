@@ -214,18 +214,18 @@
                     @endforeach
                 </div>
             </div>
-        </div> 
+        </div>
     </section>--}}
 
     {{-- Pengumuman --}}
-    <section class="container mt-4 py-5">
+    {{-- <section class="container mt-4 py-5">
         @php
         $item = $pengumumanMenus[0] ?? null;
         @endphp
 
         <h3 class="title-section">{{ $item['kategoriSubmenu'] }}<h3>
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
-    
+
         <div class="row row-cols-1 row-cols-md-3 g-4">
             @foreach ($pengumumanMenus as $index => $item)
                 <div class="col">
@@ -234,14 +234,15 @@
                             <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.webp') }}"
                                 class="ppid-img-cover" alt="{{ $item['judul'] }}">
                         </div>
-                        <p class="ppid-date">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
-                        <p class="ppid-card-text">{{ $item['judul'] }}</p>
-                        <p class="ppid-card-description px-1" >{{ $item['deskripsi'] }}</p>
-                        <a class="btn btn-primary" href="{{ url($item['slug']) }}" role="button">Baca Artikel</a>
+                        <p class="text-muted">{{ $item['tanggal'] }}</p>
+                        <p class="ppid-card-text">{{ $item['deskripsi'] }}</p>
+                        <a class="btn btn-primary" href="{{ $item['route'] }}" role="button">Baca Artikel</a>
                     </div>
                 </div>
             @endforeach
-        </div>
+        </div> --}}
+
+{{--
         <div class="d-flex flex-wrap justify-content-center">
             <a href="#" class="btn-custom">
                 <i class="bi bi-arrow-right"></i>
@@ -259,7 +260,7 @@
             <div class="col-md-8">
                 <h3 class="title-section">{{ $itemBerita['kategori'] ?? 'Berita' }}</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
-    
+
                 @foreach ($beritaMenus as  $index => $itemBerita)
                     <div class="news-item">
                         <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
@@ -269,7 +270,7 @@
                         </a>
                     </div>
                 @endforeach
-    
+
                 @if (!empty($itemBerita['url_selengkapnya']))
                     <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
                         <a href="{{ url($itemBerita['url_selengkapnya']) }}" class="btn-custom">
@@ -281,7 +282,7 @@
             </div>
         </div>
     </section>
-    
+
             <!-- Bagian Media I nformasi Publik -->
             {{-- <div class="col-md-4 ">
                 <h3 class="title-section">Media Informasi Publik</h3>
@@ -324,7 +325,7 @@
                                         {{ $menu['name'] }}
                                         <div class="border-top border-1 mt-1  border-pintasan"></div>
                                     </a>
-                                    
+
                                 </li>
                             @endforeach
                         </ul>

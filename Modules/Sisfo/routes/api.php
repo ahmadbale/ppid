@@ -36,7 +36,19 @@ Route::prefix('auth')->group(function () {
 
     // Protected routes (perlu autentikasi)
     Route::middleware('auth:api')->group(function () {
-       
+        Route::post('logout', [ApiAuthController::class, 'logout']);
+        Route::get('user', [ApiAuthController::class, 'getData']);
+
+        Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
+        Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
+        Route::get('footerData', [ApiFooterController::class, 'getDataFooter']);
+
+
+        // Route::get('getMenu', [AuthMenuController::class, 'getMenu']);
+        // Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
+        // Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
+        Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
+
     });
 });
 
