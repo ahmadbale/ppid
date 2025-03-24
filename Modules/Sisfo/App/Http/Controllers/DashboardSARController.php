@@ -16,6 +16,6 @@ class DashboardSARController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('Sisfo::dashboardSAR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('sisfo::dashboardSAR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

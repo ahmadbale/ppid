@@ -16,6 +16,6 @@ class DashboardRespondenController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('Sisfo::dashboardRPN', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('sisfo::dashboardRPN', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

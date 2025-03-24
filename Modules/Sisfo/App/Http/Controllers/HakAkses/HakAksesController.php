@@ -31,7 +31,7 @@ class HakAksesController extends Controller
         $result = HakAksesModel::selectData();
         $levelUsers = $result['data'];
 
-        return view("Sisfo::HakAkses.index", [
+        return view("sisfo::HakAkses.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

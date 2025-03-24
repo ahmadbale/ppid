@@ -49,7 +49,7 @@ class MenuManagementController extends Controller
             // Untuk dropdown di form
             $menus = WebMenuModel::getMenusWithChildren();
 
-            return view('Sisfo::adminweb.MenuManagement.index', compact('breadcrumb', 'page', 'menus', 'activeMenu', 'menusByJenis', 'jenisMenuList'));
+            return view('sisfo::adminweb.MenuManagement.index', compact('breadcrumb', 'page', 'menus', 'activeMenu', 'menusByJenis', 'jenisMenuList'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error loading menu management page: ' . $e->getMessage());
         }

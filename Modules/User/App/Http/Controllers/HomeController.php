@@ -168,14 +168,23 @@ class HomeController extends Controller
             // Ambil data akses cepat
             $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
             $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
+
+            $pengumumanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPengumumanLandingPage');
+            $pengumumanMenus = $this->fetchPengumumanData($pengumumanResponse);
+
+            $beritaResponse = Http::get('http://ppid-polinema.test/api/public/getDataBeritaLandingPage');
+            $beritaMenus = $this->fetchBeritaData($beritaResponse);
     
-            return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus'));
+            return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus',
+                        'pengumumanMenus',
+                        'beritaMenus'
+                        ));
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
+            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => [], 'pengumumanMenus' => [], 'beritaMenus' => []]);
         }
     }
     
@@ -241,5 +250,59 @@ class HomeController extends Controller
         return $result;
     }
     
+ private function fetchPengumumanData($response)
+ {
+     if ($response->failed() || !$response->json('success')) {
+         Log::warning('API Pengumuman gagal atau data tidak lengkap', [
+             'response' => $response->json() ?? 'Tidak ada response'
+         ]);
+         return [];
+     }
+     
+     return $this->processPengumumanData($response->json('data'));
+ }
+ private function processPengumumanData($data)
+ {
+     return collect($data)->map(function ($item) {
+         return [
+             'id' => $item['id'] ?? null,
+             'judul' => $item['judul'] ?? 'Tanpa Judul',
+             'slug' => $item['slug'] ?? null,
+             'kategoriSubmenu' => $item['kategoriSubmenu'] ?? null,
+             'thumbnail' => $item['thumbnail'] ?? null,
+             'tipe' => $item['tipe'] ?? null,
+             'value' => $item['value'] ?? null,
+             'deskripsi' => $item['deskripsi'] ?? null,
+             'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
+             'created_at' => $item['created_at'] ?? null,
+         ];
+     })->toArray();
+ }
+ 
+
+    private function fetchBeritaData($response)
+    {
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Pengumuman gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
+            ]);
+            return [];
+        }
+        
+        return $this->processBeritaData($response->json('data'));
+    }
+
+    private function processBeritaData($data)
+    {
+        return collect($data)->map(function ($item) {
+            return [
+            'kategori' => $item['kategori'] ?? 'Berita',
+            'judul' => $item['judul'] ?? 'Tanpa Judul',
+            'slug' => $item['slug'] ?? null,
+            'deskripsi' => $item['deskripsi'] ?? null,
+            'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
+            ];
+        })->toArray();
+    }
 
 }

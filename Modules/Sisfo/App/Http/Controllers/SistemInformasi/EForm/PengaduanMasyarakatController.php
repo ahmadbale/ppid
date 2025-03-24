@@ -31,7 +31,7 @@ class PengaduanMasyarakatController extends Controller
 
         $activeMenu = 'PengaduanMasyarakat';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/PengaduanMasyarakat.index", [
+        return view("sisfo::SistemInformasi/EForm/$folder/PengaduanMasyarakat.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -64,7 +64,7 @@ class PengaduanMasyarakatController extends Controller
 
         $activeMenu = 'PengaduanMasyarakat';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/PengaduanMasyarakat.pengisianForm", [
+        return view("sisfo::SistemInformasi/EForm/$folder/PengaduanMasyarakat.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

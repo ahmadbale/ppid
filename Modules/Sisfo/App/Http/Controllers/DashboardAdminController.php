@@ -1,3 +1,4 @@
+<!-- Repo ppid -->
 <?php
 
 namespace Modules\Sisfo\App\Http\Controllers;
@@ -16,6 +17,6 @@ class DashboardAdminController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('Sisfo::dashboardADM', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('sisfo::dashboardADM', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

@@ -2,59 +2,76 @@
 
 namespace Modules\User\App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Modules\User\App\Http\Controllers\Controller;
 
 class LHKPNController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan halaman daftar LHKPN.
      */
     public function index(Request $request)
     {
-        // Data dasar hukum
-        $dasarHukum = [
-            'Peraturan Komisi Informasi Republik Indonesia Nomor 1 Tahun 2021 Pasal 15',
-            'Keputusan Direktur No. 1228 Tahun 2022 Butir 1'
-        ];
+        try {
+            $currentPage = $request->query('page', 1);
+            $perPage = 10;
+            $tahunDipilih = $request->query('tahun', 2022);
 
-        // Data tahun tersedia
-        $tahunList = [2022, 2023];
+            $response = Http::get('http://ppid-polinema.test/api/public/getDataLhkpn', [
+                'per_page' => $perPage,
+                'page' => $currentPage
+            ]);
 
-        // Tahun default
-        $tahunDipilih = $request->get('tahun', 2022);
+            if ($response->failed() || !$response->json('success')) {
+                Log::warning('Gagal mengambil data LHKPN dari API');
+                return view('user::lhkpn', [
+                    'tahunList' => [],
+                    'tahunDipilih' => null,
+                    'lhkpnList' => [],
+                    'updated_at' => null,
+                    'pagination' => null,
+                    'error' => 'Gagal mengambil data LHKPN dari API'
+                ]);
+            }
 
-        // Data LHKPN berdasarkan tahun
-        $lhkpnData = [
-            2022 => [
-                ['nama' => 'Aang Afandi', 'link' => '#'],
-                ['nama' => 'Abdul Rasyid', 'link' => '#'],
-                ['nama' => 'Abdullah Helmy', 'link' => '#'],
-                ['nama' => 'Agus Suhardono', 'link' => '#'],
-                ['nama' => 'Ahmad Hermawan', 'link' => '#'],
-            ],
-            2023 => [
-                ['nama' => 'Bayu Saputra', 'link' => '#'],
-                ['nama' => 'Citra Dewi', 'link' => '#'],
-                ['nama' => 'Dian Pratama', 'link' => '#'],
-                ['nama' => 'Eko Suhendar', 'link' => '#'],
-                ['nama' => 'Fajar Santoso', 'link' => '#'],
-            ],
-        ];
+            $dataLhkpn = $response->json('data');
+            $tahunList = collect($dataLhkpn['data'] ?? [])->pluck('tahun')->unique()->sortDesc()->toArray();
+            $filteredData = collect($dataLhkpn['data'] ?? [])->where('tahun', $tahunDipilih)->values()->all();
+            $processedData = $this->processLHKPNData($filteredData);
 
-        // Kirim data ke view
-        return view('user::LHKPN', [
-            'dasarHukum' => $dasarHukum,
-            'tahunList' => $tahunList,
-            'tahunDipilih' => $tahunDipilih,
-            'lhkpnList' => $lhkpnData[$tahunDipilih] ?? []
-        ]);
+            return view('user::lhkpn', [
+                'tahunList' => $tahunList,
+                'tahunDipilih' => $tahunDipilih,
+                'lhkpnList' => $processedData['data'],
+                'updated_at' => $processedData['updated_at'],
+                'pagination' => [
+                    'current_page' => $dataLhkpn['current_page'] ?? 1,
+                    'last_page' => $dataLhkpn['last_page'] ?? 1,
+                    'per_page' => $dataLhkpn['per_page'] ?? $perPage,
+                    'total' => $dataLhkpn['total'] ?? 0
+                ],
+                'error' => null
+            ]);
+        } catch (\Exception $e) {
+            Log::error('LHKPN Data Fetch Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return view('user::lhkpn', [
+                'tahunList' => [],
+                'tahunDipilih' => null,
+                'lhkpnList' => [],
+                'updated_at' => null,
+                'pagination' => null,
+                'error' => 'Terjadi kesalahan saat mengambil data'
+            ]);
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Menampilkan form untuk membuat entri baru.
      */
     public function create()
     {
@@ -62,42 +79,30 @@ class LHKPNController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Memproses data LHKPN untuk ditampilkan.
      */
-    // public function store(Request $request): RedirectResponse
-    // {
-
-    // }
-
-    /**
-     * Show the specified resource.
-     */
-    // public function show($id)
-    // {
-    //     return view('user::show');
-    // }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit($id)
-    // {
-    //     return view('user::edit');
-    // }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(Request $request, $id): RedirectResponse
-    // {
-
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    // public function destroy($id)
-    // {
-    //     //
-    // }
+    private function processLHKPNData(array $data)
+    {
+        $latestUpdatedAt = collect($data)->pluck('updated_at')->filter()->max();
+        return [
+            'data' => array_map(function ($item) {
+                return [
+                    'id' => $item['id'],
+                    'tahun' => $item['tahun'],
+                    'judul' => $item['judul'],
+                    'deskripsi' => $item['deskripsi'],
+                    'details' => isset($item['details']) ? array_map(function ($detail) {
+                        return [
+                            'id' => $detail['id'] ?? null,
+                            'nama_karyawan' => $detail['nama_karyawan'] ?? 'Tidak diketahui',
+                            'file' => $detail['file'] ?? '#'
+                        ];
+                    }, $item['details']) : [],
+                    'total_karyawan' => $item['total_karyawan'] ?? 0,
+                    'has_more' => $item['has_more'] ?? false
+                ];
+            }, $data),
+            'updated_at' => $latestUpdatedAt ? date('d M Y, H:i', strtotime($latestUpdatedAt)) : null
+        ];
+    }
 }
