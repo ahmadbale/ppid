@@ -10,7 +10,7 @@ use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
 use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\TimelineController;
-use Modules\User\App\Http\Controllers\LHKPNController;
+use Modules\User\App\Http\Controllers\BeritaController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
@@ -81,10 +81,18 @@ Route::get('/profil/tugas-fungsi', function () {
 // SOP Controller
 // ~~~ soon ~~~
 
+//  Berita Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
+Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
+
+
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LhkpnController::class, 'getLHKPNData'])->name('LHKPN');
+Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');
+// Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
 
-
+Route::get('/daftar-informasi', function () {
+    return view('user::daftar_informasi');
+})->name('daftar_informasi');
 
 // Page Dinamis with
 Route::get('/content-dinamis', function () {
@@ -126,7 +134,7 @@ Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('p
 // Route::get('/footer', function () {
 //     $footerController = new FooterController();
 //     $footerData = $footerController->getFooterData();
-    
+
 //     return view('user::layouts.footer', $footerData);
 // });
 

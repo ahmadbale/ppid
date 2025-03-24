@@ -12,6 +12,8 @@ use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\PublicMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
 
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -47,4 +49,9 @@ Route::prefix('public')->group(function () {
     Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
     Route::get('getDataPintasanLainnya', [ApiPintasanLainnyaController::class, 'getDataPintasanLainnya']);
     Route::get('getDataAksesCepat',[ApiAksesCepatController::class,'getDataAksesCepat']);
+    Route::get('getMenu', [AuthMenuController::class, 'getMenu']);
+    Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
+    Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
+    Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
+
 });

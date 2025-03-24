@@ -353,7 +353,7 @@ form {
 }
 .signup-link:hover {
     font-weight: bold;
-    text-decoration: underline;
+    /* text-decoration: underline; */
 }
 .divider {
     flex-grow: 1;
@@ -1438,11 +1438,11 @@ margin: 0px auto;
 .visi-misi::before {
     content: "";
     position: absolute;
-    top: -120px; /* Menyesuaikan border-radius */
+    top: -120px;
     left: 0;
     width: 100%;
     height: 120px;
-    background-color: #E7EFFF; /* Sesuaikan dengan bagian atas */
+    background-color: #E7EFFF;
 }
 .visi {
     background-color: #FFD504;
@@ -1467,16 +1467,134 @@ margin: 0px auto;
     margin-bottom: 20px;
 }
 .lhkpn-list {
-    list-style: none;
-    padding: 0;
+    list-style-type: decimal;
+    padding: 20px;
+    list-style-position: inside;
 }
 .lhkpn-list li {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 5px 0;
+}
+.lhkpn-text {
+    flex: 1; }
+
+.lhkpn-list li .grid-columns {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    align-items: center;
 }
 .lhkpn-list a {
     color: #0F2E5A;
     text-decoration: none;
     font-weight: bold;
+}
+
+.read-moree {
+    background-color: #192022;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 30px;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+}
+.read-moree:hover {
+    background: #4D4D4D;
+    color:white;
+}
+
+@media (max-width: 768px) {
+    .news-list article {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+        margin: 20px 10px;
+    }
+
+    .news-list figure {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .news-list img {
+        width: 100%;
+        height: auto;
+    }
+
+    .news-list div {
+        width: 100%;
+    }
+}
+
+.pagination-rounded .page-item .page-link {
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4285f4;
+    border: 1px solid #e0e0e0;
+}
+
+.pagination-rounded .page-item .page-link:hover {
+    background: #183F69;
+    color: #fff;
+    border: 1px solid #183F69;
+}
+
+.pagination-rounded .page-item:first-child .page-link,
+.pagination-rounded .page-item:last-child .page-link {
+    border-radius: 35px;
+    width: 100px;
+    height: 35px;
+    text-align: center;
+}
+
+.title {
+    color: #0F2E5A;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.pdf-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    background: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.controls {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+button {
+    background-color: #0F2E5A;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
