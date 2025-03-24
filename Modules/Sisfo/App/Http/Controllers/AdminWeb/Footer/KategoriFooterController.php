@@ -26,7 +26,7 @@ class KategoriFooterController extends Controller
 
         $activeMenu = 'kategori-footer';
 
-        return view('Sisfo::AdminWeb.KategoriFooter.index', [
+        return view('sisfo::AdminWeb.KategoriFooter.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -66,7 +66,7 @@ class KategoriFooterController extends Controller
     // Modal tambah kategori footer
     public function addData()
     {
-        return view('Sisfo::AdminWeb.KategoriFooter.create');
+        return view('sisfo::AdminWeb.KategoriFooter.create');
     }
 
     // Proses simpan kategori footer
@@ -89,7 +89,7 @@ class KategoriFooterController extends Controller
     {
         try {
             $kategoriFooter = KategoriFooterModel::findOrFail($id);
-            return view('Sisfo::AdminWeb.KategoriFooter.update', [
+            return view('sisfo::AdminWeb.KategoriFooter.update', [
                 'kategoriFooter' => $kategoriFooter
             ]);
         } catch (\Exception $e) {
@@ -118,7 +118,7 @@ class KategoriFooterController extends Controller
         try {
             $kategoriFooter = KategoriFooterModel::detailData($id);
             
-            return view('Sisfo::AdminWeb.KategoriFooter.detail', [
+            return view('sisfo::AdminWeb.KategoriFooter.detail', [
                 'kategoriFooter' => $kategoriFooter,
                 'title' => 'Detail Kategori Footer'
             ]);
@@ -134,7 +134,7 @@ class KategoriFooterController extends Controller
             try {
                 $kategoriFooter = KategoriFooterModel::detailData($id);
                 
-                return view('Sisfo::AdminWeb.KategoriFooter.delete', [
+                return view('sisfo::AdminWeb.KategoriFooter.delete', [
                     'kategoriFooter' => $kategoriFooter
                 ]);
             } catch (\Exception $e) {

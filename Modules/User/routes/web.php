@@ -6,6 +6,7 @@ use Modules\User\App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\PermohonanController;
 use Modules\User\App\Http\Controllers\InformasiPublikController;
 use Modules\User\App\Http\Controllers\HomeController;
+use Modules\User\App\Http\Controllers\LhkpnController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
 use Modules\User\App\Http\Controllers\TestController;
@@ -93,11 +94,8 @@ Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumu
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');
-// Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
 
-Route::get('/daftar-informasi', function () {
-    return view('user::daftar_informasi');
-})->name('daftar_informasi');
+    
 
 // Page Dinamis with
 Route::get('/content-dinamis', function () {

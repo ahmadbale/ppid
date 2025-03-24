@@ -175,7 +175,7 @@ class HomeController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
+            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => [], 'pengumumanMenus' => [], 'beritaMenus' => []]);
         }
     }
 

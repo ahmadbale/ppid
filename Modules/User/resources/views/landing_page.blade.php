@@ -219,16 +219,20 @@
 
     {{-- Pengumuman --}}
     {{-- <section class="container mt-4 py-5">
-        <h3 class="title-section">Pengumuman PPID</h3>
+        @php
+        $item = $pengumumanMenus[0] ?? null;
+        @endphp
+
+        <h3 class="title-section">{{ $item['kategoriSubmenu'] }}<h3>
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
-            @foreach ($pengumuman as $index => $item)
+            @foreach ($pengumumanMenus as $index => $item)
                 <div class="col">
                     <div class="ppid-card-body mb-5">
                         <div class="ppid-card-header">
-                            <img src="{{ asset('img/dokumentasi-' . ($index + 1) . '.webp') }}"
-                                class="ppid-img-cover" alt="Gambar {{ $index + 1 }}">
+                            <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.webp') }}"
+                                class="ppid-img-cover" alt="{{ $item['judul'] }}">
                         </div>
                         <p class="text-muted">{{ $item['tanggal'] }}</p>
                         <p class="ppid-card-text">{{ $item['deskripsi'] }}</p>
@@ -242,36 +246,42 @@
         <div class="d-flex flex-wrap justify-content-center">
             <a href="#" class="btn-custom">
                 <i class="bi bi-arrow-right"></i>
-                <span class="ms-2">Pengumuman PPID Lainnya</span>
+                <span class="ms-2"  href="{{ url($item['url_selengkapnya']) }}">Pengumuman PPID Lainnya</span>
             </a>
         </div>
-    </section> --}}
+    </section>
 
-
-    {{-- <section class="container mt-4 py-5">
+    <section class="container mt-4 py-5">
+        @php
+            $itemBerita = $beritaMenus[0] ?? null;
+        @endphp
         <div class="row gy-4">
             <!-- Bagian Berita PPID -->
             <div class="col-md-8">
-                <h3 class="title-section">Berita PPID</h3>
+                <h3 class="title-section">{{ $itemBerita['kategori'] ?? 'Berita' }}</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
 
-                @foreach ($berita as $item)
+                @foreach ($beritaMenus as  $index => $itemBerita)
                     <div class="news-item">
-                        <h5>{{ $item['title'] }}</h5>
-                        <p>{{ $item['deskripsi'] }}</p>
-                        <a href="{{ $item['route'] }}" class="read-more d-flex flex-wrap justify-content-end">Berita
-                            selengkapnya →</a>
+                        <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
+                        <p>{{ $itemBerita['deskripsi'] ?? '' }}</p>
+                        <a href="{{ url($itemBerita['slug'] ?? '#') }}" class="read-more d-flex flex-wrap justify-content-end">
+                            Berita selengkapnya →
+                        </a>
                     </div>
                 @endforeach
 
-                <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
-                    <a href="{{route('berita')}}" class="btn-custom">
-                        <i class="bi bi-arrow-right"></i>
-                        <span class="ms-2">Berita Lainnya</span>
-                    </a>
-                </div>
-
-            </div> --}}
+                @if (!empty($itemBerita['url_selengkapnya']))
+                    <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
+                        <a href="{{ url($itemBerita['url_selengkapnya']) }}" class="btn-custom">
+                            <i class="bi bi-arrow-right"></i>
+                            <span class="ms-2">Berita Lainnya</span>
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </section>
 
             <!-- Bagian Media I nformasi Publik -->
             {{-- <div class="col-md-4 ">

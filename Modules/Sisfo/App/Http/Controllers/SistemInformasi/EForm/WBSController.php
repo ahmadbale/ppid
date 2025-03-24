@@ -31,7 +31,7 @@ class WBSController extends Controller
 
         $activeMenu = 'WBS';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/WBS.index", [
+        return view("sisfo::SistemInformasi/EForm/$folder/WBS.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -64,7 +64,7 @@ class WBSController extends Controller
 
         $activeMenu = 'WBS';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/WBS.pengisianForm", [
+        return view("sisfo::SistemInformasi/EForm/$folder/WBS.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

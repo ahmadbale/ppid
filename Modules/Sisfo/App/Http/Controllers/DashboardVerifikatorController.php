@@ -16,6 +16,6 @@ class DashboardVerifikatorController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('Sisfo::dashboardVFR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('sisfo::dashboardVFR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }

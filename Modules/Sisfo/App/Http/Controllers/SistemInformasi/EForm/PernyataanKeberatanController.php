@@ -31,7 +31,7 @@ class PernyataanKeberatanController extends Controller
 
         $activeMenu = 'PernyataanKeberatan';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/PernyataanKeberatan.index", [
+        return view("sisfo::SistemInformasi/EForm/$folder/PernyataanKeberatan.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -64,7 +64,7 @@ class PernyataanKeberatanController extends Controller
 
         $activeMenu = 'PernyataanKeberatan';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/PernyataanKeberatan.pengisianForm", [
+        return view("sisfo::SistemInformasi/EForm/$folder/PernyataanKeberatan.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

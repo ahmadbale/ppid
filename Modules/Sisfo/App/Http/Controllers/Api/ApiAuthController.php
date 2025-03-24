@@ -12,14 +12,14 @@ class ApiAuthController extends BaseApiController
 {
     public function login(Request $request)
     {
-        return $this->eksekusi(
+        return $this->execute(
             function () use ($request) {
                 // Calling the processLogin method from UserModel to handle login
                 $loginResult = UserModel::prosesLogin($request);
 
                 // Checking if login was successful
                 if (!$loginResult['success']){
-                    return $this->responKesalahan(self::AUTH_INVALID_CREDENTIALS, $loginResult['message'], 401);
+                    return $this->errorResponse(self::AUTH_INVALID_CREDENTIALS, $loginResult['message'], 401);
                 }
 
                 // Generate token
@@ -56,10 +56,10 @@ class ApiAuthController extends BaseApiController
             JWTAuth::invalidate($token);
 
             // Successfully invalidated the token
-            return $this->responSukses(null, self::AUTH_LOGOUT_SUCCESS);
+            return $this->successResponse(null, self::AUTH_LOGOUT_SUCCESS);
         } catch (JWTException $e) {
             // If error occurs during token invalidation
-            return $this->responKesalahan(self::AUTH_LOGOUT_FAILED, $e->getMessage(), 500);
+            return $this->errorResponse(self::AUTH_LOGOUT_FAILED, $e->getMessage(), 500);
         }
     }
 
@@ -68,14 +68,14 @@ class ApiAuthController extends BaseApiController
      */
     public function register(Request $request)
     {
-        return $this->eksekusi(
+        return $this->execute(
             function () use ($request) {
                 // Calling the processRegister method from UserModel to handle user registration
                 $registerResult = UserModel::prosesRegister($request);
 
                 // If registration is successful, return the success message
                 if (!$registerResult['success']) {
-                    return $this->responKesalahan(self::AUTH_REGISTRATION_FAILED, $registerResult['message'], 400);
+                    return $this->errorResponse(self::AUTH_REGISTRATION_FAILED, $registerResult['message'], 400);
                 }
 
                 // Successful registration response
@@ -95,7 +95,7 @@ class ApiAuthController extends BaseApiController
      */
     public function getData()
     {
-        return $this->eksekusiDenganOtentikasi(
+        return $this->executeWithAuthentication(
             function ($user) {
                 // Return user data for the logged-in user
                 return UserModel::getDataUser($user);
@@ -105,7 +105,7 @@ class ApiAuthController extends BaseApiController
     }
     public function refreshToken()
     {
-        return $this->eksekusi(
+        return $this->execute(
             function () {
                 try {
                     // Dapatkan token saat ini

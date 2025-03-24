@@ -31,7 +31,7 @@ class PermohonanPerawatanController extends Controller
 
         $activeMenu = 'PermohonanPerawatan';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/PermohonanPerawatan.index", [
+        return view("sisfo::SistemInformasi/EForm/$folder/PermohonanPerawatan.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -64,7 +64,7 @@ class PermohonanPerawatanController extends Controller
 
         $activeMenu = 'PermohonanPerawatan';
 
-        return view("Sisfo::SistemInformasi/EForm/$folder/PermohonanPerawatan.pengisianForm", [
+        return view("sisfo::SistemInformasi/EForm/$folder/PermohonanPerawatan.pengisianForm", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,

@@ -31,7 +31,7 @@ class KetentuanPelaporanController extends Controller
 
         $activeMenu = 'KetentuanPelaporan';
 
-        return view("Sisfo::SistemInformasi/KetentuanPelaporan.index", [
+        return view("sisfo::SistemInformasi/KetentuanPelaporan.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -63,7 +63,7 @@ class KetentuanPelaporanController extends Controller
     {
         $kategoriForms = KategoriFormModel::where('isDeleted', 0)->get();
 
-        return view("Sisfo::SistemInformasi/KetentuanPelaporan.create", [
+        return view("sisfo::SistemInformasi/KetentuanPelaporan.create", [
             'kategoriForms' => $kategoriForms
         ]);
     }
@@ -91,7 +91,7 @@ class KetentuanPelaporanController extends Controller
         $kategoriForms = KategoriFormModel::where('isDeleted', 0)->get();
         $ketentuanPelaporan = KetentuanPelaporanModel::findOrFail($id);
 
-        return view("Sisfo::SistemInformasi/KetentuanPelaporan.update", [
+        return view("sisfo::SistemInformasi/KetentuanPelaporan.update", [
             'kategoriForms' => $kategoriForms,
             'ketentuanPelaporan' => $ketentuanPelaporan
         ]);
@@ -119,7 +119,7 @@ class KetentuanPelaporanController extends Controller
     {
         $ketentuanPelaporan = KetentuanPelaporanModel::with('PelaporanKategoriForm')->findOrFail($id);
         
-        return view("Sisfo::SistemInformasi/KetentuanPelaporan.detail", [
+        return view("sisfo::SistemInformasi/KetentuanPelaporan.detail", [
             'ketentuanPelaporan' => $ketentuanPelaporan,
             'title' => 'Detail Ketentuan Pelaporan'
         ]);
@@ -130,7 +130,7 @@ class KetentuanPelaporanController extends Controller
         if ($request->isMethod('get')) {
             $ketentuanPelaporan = KetentuanPelaporanModel::with('PelaporanKategoriForm')->findOrFail($id);
             
-            return view("Sisfo::SistemInformasi/KetentuanPelaporan.delete", [
+            return view("sisfo::SistemInformasi/KetentuanPelaporan.delete", [
                 'ketentuanPelaporan' => $ketentuanPelaporan
             ]);
         }

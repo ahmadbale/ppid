@@ -17,7 +17,8 @@
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
 
   <!-- SweetAlert2 -->
-  <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+  <link rel="stylesheet"
+    href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/adminlte.min.css') }}">
@@ -63,7 +64,7 @@
           <div class="row">
             <div class="col-8">
               <div class="icheck-primary">
-                <input type="checkbox" id="remember">
+                <input type="checkbox" id="remember" name="remember">
                 <label for="remember">Remember Me</label>
               </div>
             </div>
@@ -116,29 +117,53 @@
             type: form.method,
             data: $(form).serialize(),
             success: function (response) {
-              if (response.success) {
+              console.log('Response:', response); // Tambahkan log untuk debugging
+
+              // Periksa format respons dan ambil data yang benar
+              let result = response;
+              if (response.data && response.data.original) {
+                result = response.data.original;
+              }
+
+              if (result.success) {
                 Swal.fire({
                   icon: 'success',
                   title: 'Berhasil',
-                  text: response.message
+                  text: result.message,
+                  showConfirmButton: false,
+                  timer: 1500
                 }).then(function () {
-                  window.location = response.redirect;
+                  // Gunakan window.location.href dan tambahkan timeout
+                  console.log('Redirecting to:', result.redirect);
+                  setTimeout(function () {
+                    window.location.href = result.redirect;
+                  }, 100);
                 });
               } else {
                 $('.error-text').text('');
-                $.each(response.msgField, function (prefix, val) {
-                  $('#error-' + prefix).text(val[0]);
-                });
+                if (result.msgField) {
+                  $.each(result.msgField, function (prefix, val) {
+                    $('#error-' + prefix).text(val[0]);
+                  });
+                }
                 Swal.fire({
                   icon: 'error',
                   title: 'Terjadi Kesalahan',
-                  text: response.message
+                  text: result.message || 'Gagal login'
                 });
               }
+            },
+            error: function (xhr, status, error) {
+              console.error("Error:", error, xhr.responseText);
+              Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan',
+                text: 'Gagal terhubung ke server. Silakan coba lagi.'
+              });
             }
           });
           return false;
-        },
+        }
         errorElement: 'span',
         errorPlacement: function (error, element) {
           error.addClass('invalid-feedback');
@@ -152,6 +177,11 @@
         }
       });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    console.log('Form action:', document.getElementById('form-login').action);
+});
   </script>
 </body>
 
