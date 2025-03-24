@@ -1,5 +1,3 @@
-<!-- Repo PPID-polinema -->
-
 <!DOCTYPE html>
 <html lang="en">
 
