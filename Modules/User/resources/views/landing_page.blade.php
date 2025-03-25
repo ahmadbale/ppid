@@ -234,7 +234,7 @@
                             <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.webp') }}"
                                 class="ppid-img-cover" alt="{{ $item['judul'] }}">
                         </div>
-                        <p class="ppid-date">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
+                        <p class="ppid-date text-muted">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
                         <p class="ppid-card-text">{{ $item['judul'] }}</p>
                         <p class="ppid-card-description px-1" >{{ $item['deskripsi'] }}</p>
                         <a class="btn btn-primary" href="{{ url($item['slug']) }}" role="button">Baca Artikel</a>
