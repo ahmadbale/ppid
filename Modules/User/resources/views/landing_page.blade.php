@@ -263,7 +263,7 @@
                 @foreach ($beritaMenus as  $index => $itemBerita)
                     <div class="news-item">
                         <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
-                        <p>{{ $itemBerita['deskripsi'] ?? '' }}</p>
+                        <p>{{ $itemBerita['deskripsiThumbnail'] ?? '' }}</p>
                         <a href="{{ url($itemBerita['slug'] ?? '#') }}" class="read-more d-flex flex-wrap justify-content-end">
                             Berita selengkapnya →
                         </a>

@@ -299,7 +299,7 @@ class HomeController extends Controller
             'kategori' => $item['kategori'] ?? 'Berita',
             'judul' => $item['judul'] ?? 'Tanpa Judul',
             'slug' => $item['slug'] ?? null,
-            'deskripsi' => $item['deskripsi'] ?? null,
+            'deskripsiThumbnail' => $item['deskripsiThumbnail'] ?? null,
             'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
             ];
         })->toArray();
