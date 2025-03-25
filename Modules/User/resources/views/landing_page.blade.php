@@ -13,8 +13,6 @@
     @include('user::layouts.header')
     @include('user::layouts.navbar')
 
-    <div id="header"></div>
-    <div id="nav-bar"></div>
     <!-- Hero Section -->
     {{-- <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">

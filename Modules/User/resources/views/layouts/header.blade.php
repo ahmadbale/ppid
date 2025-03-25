@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css'])
 </head>
 <body>
-    <header class="py-4" style="background: linear-gradient(to right, #1C4F99, #0F2E5A);">
+    <header class="py-4" style="background: linear-gradient(to right, #1C4F99, #0F2E5A); position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;">
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center px-4">
             <div class="d-flex align-items-center gap-3 text-start">
                 <img src="{{ asset('img/logo-polinema.svg') }}" alt="Logo Polinema" class="img-fluid" style="width: 80px;">
