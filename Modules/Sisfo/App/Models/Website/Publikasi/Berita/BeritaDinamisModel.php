@@ -18,42 +18,40 @@ class BeritaDinamisModel extends Model
 
     public static function getDataBeritaLandingPage()
     {
-        $kategori=1;
-        $arr_data = DB::table('t_berita', 'tb')
-            ->select([
-                'tb.berita_id', 
-                'tb.berita_judul', 
-                'tb.berita_slug',
-                'm_berita_dinamis.bd_nama_submenu',
-                'tb.created_at',
-                'tb.berita_deskripsi'
-            ])
-            ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
-            ->where('tb.isDeleted', 0)
-            ->where('tb.status_berita', 'aktif')
-            ->where('m_berita_dinamis.berita_dinamis_id', $kategori)
-            ->orderBy('tb.created_at', 'DESC')
-            ->limit(3)
-            ->get()
-            ->map(function ($berita) {
-                $deskripsi = strip_tags($berita->berita_deskripsi);
-                $paragraf = preg_split('/\n\s*\n/', $deskripsi)[0] ?? '';
-                
-                return [
-                    'kategori' => $berita->bd_nama_submenu,
-                    'judul' => $berita->berita_judul,
-                    'slug'=> $berita->berita_slug,
-                    'deskripsi' => strlen($paragraf) > 200 
-                        ? substr($paragraf, 0, 200) . '...' 
-                        : $paragraf,
-                    'url_selengkapnya' => url('#')
-                ];
-            })
-            ->toArray();
-        
-        return $arr_data;
-    }
-
+     $kategori = 1;
+     $arr_data = DB::table('t_berita', 'tb')
+         ->select([
+             'tb.berita_id',
+             'tb.berita_judul',
+             'tb.berita_slug',
+             'm_berita_dinamis.bd_nama_submenu',
+             'tb.created_at',
+             'tb.berita_thumbnail_deskripsi'
+         ])
+         ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
+         ->where('tb.isDeleted', 0)
+         ->where('tb.status_berita', 'aktif')
+         ->where('m_berita_dinamis.berita_dinamis_id', $kategori)
+         ->orderBy('tb.created_at', 'DESC')
+         ->limit(3)
+         ->get()
+         ->map(function ($berita) {
+             $deskripsiThumbnail = trim($berita->berita_thumbnail_deskripsi);
+ 
+             return [
+                 'kategori' => $berita->bd_nama_submenu,
+                 'judul' => $berita->berita_judul,
+                 'slug' => $berita->berita_slug,
+                 'deskripsiThumbnail' => strlen($deskripsiThumbnail) > 200
+                     ? substr($deskripsiThumbnail, 0, 200) . '...'
+                     : $deskripsiThumbnail,
+                 'url_selengkapnya' => url('#')
+             ];
+         })
+         ->toArray();
+ 
+     return $arr_data;
+ }
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
