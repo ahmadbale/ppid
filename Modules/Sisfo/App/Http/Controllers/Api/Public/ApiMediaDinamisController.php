@@ -2,6 +2,8 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
 
+
+use Illuminate\Http\Request;
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 use Modules\Sisfo\App\Models\Website\LandingPage\MediaDinamis\MediaDinamisModel;
 
@@ -30,14 +32,22 @@ class ApiMediaDinamisController extends BaseApiController
             'Dokumentasi PPID'
         );
     }
-    public function getDataMediaInformasiPublik()
-    {
-        return $this->execute(
-            function() {
-                $mediainformasi = MediaDinamisModel::getDataMediaInformasiPublik();
-                return $mediainformasi;
-            },
-            'Dokumentasi PPID'
-        );
-    }
+    public function getDataMediaInformasiPublik(Request $request)
+{
+    return $this->execute(
+        function() use ($request) {
+            // Ambil parameter showAll dari query string, default false
+            $showAll = $request->query('showAll', false);
+            
+            // Konversi string 'true' menjadi boolean true jika diperlukan
+            if (is_string($showAll)) {
+                $showAll = ($showAll === 'true' || $showAll === '1');
+            }
+            
+            $mediainformasi = MediaDinamisModel::getDataMediaInformasiPublik($showAll);
+            return $mediainformasi;
+        },
+        'Media Informasi Publik'
+    );
+}
 }
