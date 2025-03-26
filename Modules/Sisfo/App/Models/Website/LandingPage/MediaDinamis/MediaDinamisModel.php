@@ -28,43 +28,53 @@ class MediaDinamisModel extends Model
     public static function getDataHeroSection()
     {
         $arr_data = self::query()
-            ->from('m_media_dinamis')
-            ->select([
-                'media_dinamis_id',
-                'md_kategori_media'
-            ])
-            ->where('media_dinamis_id', 1)
-            ->where('isDeleted', 0)
-            ->get()
-            ->map(function ($kategori) {
-                // Ambil Detail Media untuk Hero Section
-                $heroMedia = DetailMediaDinamisModel::where('fk_m_media_dinamis', $kategori->media_dinamis_id)
+        ->from('m_media_dinamis')
+        ->select([
+            'media_dinamis_id',
+            'md_kategori_media'
+        ])
+        ->where('media_dinamis_id', 1)
+        ->where('isDeleted', 0)
+        ->get()
+        ->map(function ($kategori) {
+            // Ambil Detail Media untuk Dokumentasi
+            $dokumentasiMedia = DetailMediaDinamisModel::where('fk_m_media_dinamis', $kategori->media_dinamis_id)
                 ->where('isDeleted', 0)
                 ->where('status_media', 'aktif')
                 ->orderBy('detail_media_dinamis_id', 'desc')
-                ->limit(4)
+                ->limit(6)
                 ->get()
                 ->map(function ($media) {
-                    // Cek tipe media
+                    // Tampung nilai media sesuai tipe
+                    $mediaValue = null;
                     if ($media->dm_type_media == 'file') {
-                        return asset('storage/' . $media->dm_media_upload);
+                        $mediaValue = asset('storage/' . $media->dm_media_upload);
                     } elseif ($media->dm_type_media == 'link') {
-                        return $media->dm_media_upload; // Kembalikan link asli
+                        $mediaValue = $media->dm_media_upload; 
                     }
-                    return null;
+
+                    // Kembalikan array yang mencakup ID dan nilai media
+                    return [
+                        'id' => $media->detail_media_dinamis_id,
+                        'tipe upload' => $media->dm_type_media,
+                        'media' => $mediaValue
+                    ];
                 })
-                ->filter() 
+                ->filter(function ($item) {
+                    return !is_null($item['media']);
+                })
+                ->values()
                 ->toArray();
-    
-                return [
-                    'kategori_id' => $kategori->media_dinamis_id,
-                    'kategori_nama' => $kategori->md_kategori_media,
-                    'media' => $heroMedia
-                ];
-            })
-            ->toArray();
-    
-        return $arr_data;
+
+            return [
+                'kategori_id' => $kategori->media_dinamis_id,
+                'kategori_nama' => $kategori->md_kategori_media,
+                'media' => $dokumentasiMedia
+            ];
+        })
+        ->toArray();
+
+    return $arr_data;
     }
     public static function getDataDokumentasi()
     {
@@ -86,17 +96,27 @@ class MediaDinamisModel extends Model
                     ->limit(6)
                     ->get()
                     ->map(function ($media) {
-                        // Cek tipe media
+                        // Tampung nilai media sesuai tipe
+                        $mediaValue = null;
                         if ($media->dm_type_media == 'file') {
-                            return asset('storage/' . $media->dm_media_upload);
+                            $mediaValue = asset('storage/' . $media->dm_media_upload);
                         } elseif ($media->dm_type_media == 'link') {
-                            return $media->dm_media_upload; // Kembalikan link asli
+                            $mediaValue = $media->dm_media_upload; // Kembalikan link asli
                         }
-                        return null;
+
+                        // Kembalikan array yang mencakup ID dan nilai media
+                        return [
+                            'id' => $media->detail_media_dinamis_id,
+                            'tipe upload' => $media->dm_type_media,
+                            'media' => $mediaValue
+                        ];
                     })
-                    ->filter() 
+                    ->filter(function ($item) {
+                        return !is_null($item['media']);
+                    })
+                    ->values()
                     ->toArray();
-    
+
                 return [
                     'kategori_id' => $kategori->media_dinamis_id,
                     'kategori_nama' => $kategori->md_kategori_media,
@@ -104,10 +124,10 @@ class MediaDinamisModel extends Model
                 ];
             })
             ->toArray();
-    
+
         return $arr_data;
     }
-    public static function getDataMediaInformasiPublik()
+    public static function getDataMediaInformasiPublik($showAll = false)
     {
         $arr_data = self::query()
             ->from('m_media_dinamis')
@@ -118,36 +138,60 @@ class MediaDinamisModel extends Model
             ->where('media_dinamis_id', 3)
             ->where('isDeleted', 0)
             ->get()
-            ->map(function ($kategori) {
-                // Ambil Detail Media untuk Dokumentasi
-                $dokumentasiMedia = DetailMediaDinamisModel::where('fk_m_media_dinamis', $kategori->media_dinamis_id)
+            ->map(function ($kategori) use ($showAll) {
+                // Tentukan limit berdasarkan parameter showAll
+                $query = DetailMediaDinamisModel::where('fk_m_media_dinamis', $kategori->media_dinamis_id)
                     ->where('isDeleted', 0)
                     ->where('status_media', 'aktif')
-                    ->orderBy('detail_media_dinamis_id', 'desc')
-                    ->limit(1)
-                    ->get()
+                    ->orderBy('detail_media_dinamis_id', 'desc');
+                
+                // Jika tidak showAll, batasi hanya 1 data
+                if (!$showAll) {
+                    $query->limit(1);
+                }
+                
+                $dokumentasiMedia = $query->get()
                     ->map(function ($media) {
+                        // Tampung nilai media sesuai tipe
+                        $mediaValue = null;
+                        if ($media->dm_type_media == 'file') {
+                            $mediaValue = asset('storage/' . $media->dm_media_upload);
+                        } elseif ($media->dm_type_media == 'link') {
+                            $mediaValue = $media->dm_media_upload; // Kembalikan link asli
+                        }
+    
                         return [
-                            'judul_media' => $media->dm_judul_media,
-                            'media_url' => $media->dm_type_media == 'file'
-                                ? asset('storage/' . $media->dm_media_upload)
-                                : ($media->dm_type_media == 'link' ? $media->dm_media_upload : null)
+                            'id' => $media->detail_media_dinamis_id,
+                            'judul' => $media->dm_judul_media,
+                            'tipe' => $media->dm_type_media,
+                            'media' => $mediaValue
                         ];
                     })
-                    ->filter()
+                    ->filter(function ($item) {
+                        return !is_null($item['media']);
+                    })
+                    ->values()
                     ->toArray();
+    
+                // Hitung total data untuk "has_more"
+                $totalMedia = DetailMediaDinamisModel::where('fk_m_media_dinamis', $kategori->media_dinamis_id)
+                    ->where('isDeleted', 0)
+                    ->where('status_media', 'aktif')
+                    ->count();
     
                 return [
                     'kategori_id' => $kategori->media_dinamis_id,
                     'kategori_nama' => $kategori->md_kategori_media,
-                    'media' => $dokumentasiMedia
+                    'media' => $dokumentasiMedia,
+                    'has_more' => $totalMedia > 1 && !$showAll, // True jika ada lebih dari 1 data dan tidak showAll
+                    'total' => $totalMedia
                 ];
             })
             ->toArray();
     
         return $arr_data;
     }
-    
+
     // function untuk API Dokumentasi
     public static function selectData($perPage = 10, $search = '')
     {
