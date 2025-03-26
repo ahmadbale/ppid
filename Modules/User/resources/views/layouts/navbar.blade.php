@@ -7,7 +7,28 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg" style="background-color: #0F2C56;">
+    <nav x-data="{
+        lastScroll: 0,
+        visible: true,
+        headerHeight: 0,
+        isMenuOpen: false
+    }"
+    x-init="
+        headerHeight = document.querySelector('header').offsetHeight;
+        window.addEventListener('scroll', () => {
+            let currentScroll = window.pageYOffset;
+            if (!isMenuOpen) {
+                visible = currentScroll < lastScroll || currentScroll <= 0;
+            }
+            lastScroll = currentScroll;
+        });
+        window.addEventListener('resize', () => {
+            headerHeight = document.querySelector('header').offsetHeight;
+        });
+    "
+    x-bind:style="'top: ' + headerHeight + 'px'"
+    x-bind:class="{ 'hidden-nav': !visible && !isMenuOpen, 'visible-nav': visible || isMenuOpen }"
+    class="navbar navbar-expand-lg bg-dark fixed-top">
         <div class="container">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

@@ -212,7 +212,7 @@
                     @endforeach
                 </div>
             </div>
-        </div> 
+        </div>
     </section>--}}
 
     {{-- Pengumuman --}}
@@ -223,13 +223,13 @@
 
         <h3 class="title-section">{{ $item['kategoriSubmenu'] }}<h3>
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
-    
+
         <div class="row row-cols-1 row-cols-md-3 g-4">
             @foreach ($pengumumanMenus as $index => $item)
                 <div class="col">
                     <div class="ppid-card-body mb-5">
                         <div class="ppid-card-header">
-                            <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.webp') }}"
+                            <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.svg') }}"
                                 class="ppid-img-cover" alt="{{ $item['judul'] }}">
                         </div>
                         <p class="ppid-date text-muted">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
@@ -257,7 +257,7 @@
             <div class="col-md-8">
                 <h3 class="title-section">{{ $itemBerita['kategori'] ?? 'Berita' }}</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
-    
+
                 @foreach ($beritaMenus as  $index => $itemBerita)
                     <div class="news-item">
                         <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
@@ -267,7 +267,7 @@
                         </a>
                     </div>
                 @endforeach
-    
+
                 @if (!empty($itemBerita['url_selengkapnya']))
                     <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
                         <a href="{{ url($itemBerita['url_selengkapnya']) }}" class="btn-custom">
@@ -279,7 +279,7 @@
             </div>
         </div>
     </section>
-    
+
             <!-- Bagian Media I nformasi Publik -->
             {{-- <div class="col-md-4 ">
                 <h3 class="title-section">Media Informasi Publik</h3>
@@ -317,12 +317,12 @@
                         <h5 class="fw-bold mb-4">{{ $pintasan['title'] }}</h5>
                         <ul class="list-unstyled">
                             @foreach ($pintasan['menu'] as $menu)
-                                <li class="mb-3">
+                                <li class="mb-4">
                                     <a href="{{ $menu['route'] }}" class="text-pintasan text-decoration-none" target="_blank">
                                         {{ $menu['name'] }}
-                                        <div class="border-top border-1 mt-1  border-pintasan"></div>
+                                        <div class="border-top border-1 mt-2  border-pintasan"></div>
                                     </a>
-                                    
+
                                 </li>
                             @endforeach
                         </ul>

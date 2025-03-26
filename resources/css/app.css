@@ -8,13 +8,6 @@ body {
 }
 
 /* header */
-/* .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-} */
 .search {
     display: flex;
     align-items: center;
@@ -53,7 +46,18 @@ body {
 .navbar {
     background-color: #0F2E5A !important;
     padding: 0;
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
 }
+
+.hidden-nav {
+    transform: translateY(-100%);
+}
+
+.visible-nav {
+    transform: translateY(0);
+}
+
 
 .navbar-nav .nav-item .nav-link {
     color: white !important;
