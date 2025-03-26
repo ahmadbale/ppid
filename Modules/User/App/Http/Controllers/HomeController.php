@@ -184,7 +184,11 @@ class HomeController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => [], 'pengumumanMenus' => [], 'beritaMenus' => []]);
+            return view('user::landing_page', [
+                'pintasanMenus' => [], 
+                'aksesCepatMenus' => [],
+                'pengumumanMenus' => [],
+                'beritaMenus' => []]);
         }
     }
     
@@ -262,22 +266,25 @@ class HomeController extends Controller
      return $this->processPengumumanData($response->json('data'));
  }
  private function processPengumumanData($data)
- {
-     return collect($data)->map(function ($item) {
-         return [
-             'id' => $item['id'] ?? null,
-             'judul' => $item['judul'] ?? 'Tanpa Judul',
-             'slug' => $item['slug'] ?? null,
-             'kategoriSubmenu' => $item['kategoriSubmenu'] ?? null,
-             'thumbnail' => $item['thumbnail'] ?? null,
-             'tipe' => $item['tipe'] ?? null,
-             'value' => $item['value'] ?? null,
-             'deskripsi' => $item['deskripsi'] ?? null,
-             'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
-             'created_at' => $item['created_at'] ?? null,
-         ];
-     })->toArray();
- }
+{
+    $result = [];
+    foreach ($data as $item) {
+        $result[] = [
+            'id' => $item['id'] ?? null,
+            'judul' => $item['judul'] ?? 'Tanpa Judul',
+            'slug' => $item['slug'] ?? null,
+            'kategoriSubmenu' => $item['kategoriSubmenu'] ?? null,
+            'thumbnail' => $item['thumbnail'] ?? null,
+            'tipe' => $item['tipe'] ?? null,
+            'value' => $item['value'] ?? null,
+            'deskripsi' => $item['deskripsi'] ?? null,
+            'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
+            'created_at' => $item['created_at'] ?? null,
+        ];
+    }
+    return $result;
+}
+
  
 
     private function fetchBeritaData($response)
@@ -294,15 +301,18 @@ class HomeController extends Controller
 
     private function processBeritaData($data)
     {
-        return collect($data)->map(function ($item) {
-            return [
+    $result = [];
+    foreach ($data as $item) {
+        $result[] = [
             'kategori' => $item['kategori'] ?? 'Berita',
             'judul' => $item['judul'] ?? 'Tanpa Judul',
             'slug' => $item['slug'] ?? null,
             'deskripsiThumbnail' => $item['deskripsiThumbnail'] ?? null,
             'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
-            ];
-        })->toArray();
+        ];
     }
+    return $result;
+    }
+
 
 }

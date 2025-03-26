@@ -22,27 +22,27 @@
                 <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
                     @if ($index == 0)
                         <div class="overlay"></div>
-                    @endif --}}
-                    {{-- <div class="custom-slide active"> --}}
-                    {{-- <div class="overlay"></div> --}}
-                    {{-- <img src="{{ $slide['image'] }}" alt="Hero Slide {{ $index + 1 }}">
-                    <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1"> --}}
-                    {{-- <div class="hero-content">
+                    @endif 
+                    <div class="custom-slide active">
+                    <div class="overlay"></div>
+                    <img src="{{ $slide['image'] }}" alt="Hero Slide {{ $index + 1 }}">
+                    <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1"> 
+                    <div class="hero-content">
                     <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
-                </div> --}}
-                    {{-- @if ($slide['title'])
+                </div> 
+                    @if ($slide['title'])
                         <div class="hero-content">
                             <h1>{!! $slide['title'] !!}</h1>
                         </div>
-                    @endif --}}
-                    {{-- </div> --}}
-                    {{-- <div class="custom-slide">
+                    @endif
+                    </div>
+                    <div class="custom-slide">
                 <img src="{{ asset('img/maklumat-ppid.webp') }}" alt="Maklumat Pelayanan Publik">
             </div>
             <div class="custom-slide">
                 <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.webp') }}" alt="Jadwal Pelayanan Informasi Publik">
-            </div> --}}
-                {{-- </div>
+            </div>
+            </div>
             @endforeach
         </div>
     </section> --}}
@@ -220,7 +220,7 @@
     {{-- Pengumuman --}}
     <section class="container mt-4 py-5">
         @php
-        $item = $pengumumanMenus[0] ?? null;
+        $item = $pengumumanMenus[0] ?? 'Pengumuman';
         @endphp
 
         <h3 class="title-section">{{ $item['kategoriSubmenu'] }}<h3>
@@ -283,18 +283,19 @@
     </section>
     
             <!-- Bagian Media I nformasi Publik -->
-            {{-- <div class="col-md-4 ">
+            {{-- <div class="col-md-4">
                 <h3 class="title-section">Media Informasi Publik</h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
-
-                @foreach ($media as $item)
-                    <div class="video-container">
-                        <iframe width="100%" height="200" src="{{ $item['link'] }}" frameborder="0"
-                            allowfullscreen></iframe>
-                        <div class="text-white text-center p-2">{{ $item['title'] }}</div>
-                    </div>
+            
+                @foreach ($mediaInformasi as $kategori)
+                    @foreach ($kategori['media'] as $item)
+                        <div class="video-container">
+                            <iframe width="100%" height="200" src="{{ $item['media_url'] }}" frameborder="0" allowfullscreen></iframe>
+                            <div class="text-white text-center p-2">{{ $item['judul_media'] }}</div>
+                        </div>
+                    @endforeach
                 @endforeach
-
+            
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     <a href="#" class="btn-custom">
                         <i class="bi bi-arrow-right"></i>
@@ -302,6 +303,7 @@
                     </a>
                 </div>
             </div>
+            
 
         </div>
     </section> --}}
