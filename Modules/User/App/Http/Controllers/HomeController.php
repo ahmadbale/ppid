@@ -9,153 +9,6 @@ use App\Http\Controllers\Controller;
 
 class HomeController extends Controller
 {
-    // public function index()
-    // {
-    //     $pengantar = [
-    //         'content' => 'Politeknik Negeri Malang (Polinema) berkomitmen untuk mewujudkan transparansi dan akuntabilitas
-    //                     publik sesuai dengan amanat Undang-Undang Nomor 14 Tahun 2008. Melalui Pejabat Pengelola
-    //                     Informasi dan Dokumentasi (PPID), Polinema menyediakan akses mudah bagi masyarakat terhadap
-    //                     berbagai informasi terkait kegiatan akademik, penelitian, keuangan, dan pengelolaan kampus.
-    //                     Selain itu, PPID Polinema siap membantu Anda dalam mengajukan permohonan informasi, menyampaikan
-    //                     pengaduan, atau sekadar mencari tahu lebih lanjut tentang Polinema.',
-    //         'image' => asset('img/direktur-polinema-bendera.webp')
-    //     ];
-    //     $heroSlides = [
-    //         [
-    //             'image' => asset('img/grapol.webp'),
-    //             'title' => 'Selamat Datang di Laman PPID<br>Politeknik Negeri Malang'
-    //         ],
-    //         [
-    //             'image' => asset('img/maklumat-ppid.webp'),
-    //             'title' => null
-    //         ],
-    //         [
-    //             'image' => asset('img/jadwal-pelayanan-informasi-publik.webp'),
-    //             'title' => null
-    //         ]
-    //     ];
-    //     $quickAccessMenus = [
-    //         [
-    //             'name' => 'Informasi Setiap Saat',
-    //             'route' => route('informasi-publik.setiap-saat'),
-    //             'static_icon' => asset('img/24-hours.svg'),
-    //             'animated_icon' => asset('img/24-hours.gif')
-    //         ],
-    //         [
-    //             'name' => 'Informasi Berkala',
-    //             'route' => route('informasi-publik.berkala'),
-    //             'static_icon' => asset('img/callendar.svg'),
-    //             'animated_icon' => asset('img/calendar-ez.gif')
-    //         ],
-    //         [
-    //             'name' => 'Informasi Serta Merta',
-    //             'route' => route('informasi-publik.serta-merta'),
-    //             'static_icon' => asset('img/website.svg'),
-    //             'animated_icon' => asset('img/website.gif')
-    //         ],
-    //         [
-    //             'name' => 'Lacak Permohonan',
-    //             'route' => route('permohonan.lacak'),
-    //             'static_icon' => asset('img/email.svg'),
-    //             'animated_icon' => asset('img/email.gif')
-    //         ],
-    //         [
-    //             'name' => 'HELPDESK Akademik',
-    //             'url' => 'https://helpakademik.polinema.ac.id/',
-    //             'static_icon' => asset('img/mba-helpdesk.svg'),
-    //             'animated_icon' => asset('img/helpdesk.gif')
-    //         ],
-    //         [
-    //             'name' => 'Lapor PAN RB',
-    //             'url' => 'https://www.lapor.go.id/',
-    //             'static_icon' => asset('img/laporPANRB.svg'),
-    //             'animated_icon' => asset('img/laporPANRB.svg')
-    //         ],
-    //         [
-    //             'name' => 'Lapor KEMDIKBUD',
-    //             'url' => 'https://kemdikbud.lapor.go.id/',
-    //             'static_icon' => asset('img/laporKemdikbud.svg'),
-    //             'animated_icon' => asset('img/laporKemdikbud.svg')
-    //         ]
-    //     ];
-
-    
-    //     $pintasanMenus = [
-    //         [
-    //             'title' => 'Sistem Informasi',
-    //             'menu' => [
-    //                 ['name' => 'POLINEMA', 'route' => '#'],
-    //                 ['name' => 'PORTAL', 'route' => '#'],
-    //                 ['name' => 'SIAKAD', 'route' => '#'],
-    //                 ['name' => 'SPMB', 'route' => '#'],
-    //                 ['name' => 'P2M', 'route' => '#'],
-    //                 ['name' => 'Jaminan Mutu', 'route' => '#'],
-    //                 ['name' => 'Alumni', 'route' => '#'],
-    //             ]
-    //         ],
-    //         [
-    //             'title' => 'Kembdikbud',
-    //             'menu' => [
-    //                 ['name' => 'LPSE KEMDIKBUD', 'route' => '#'],
-    //             ]
-    //         ]
-    //     ];
-    //     $berita = [
-    //         [
-    //             'title' => 'Sosialisasi Layanan Informasi Publik Polinema, Meningkatkan Keterbukaan dan Aksesibilitas Informasi untuk Semua',
-    //             'deskripsi' => 'Malang, 17 Oktober 2024 - Politeknik Negeri Malang (Polinema) hari ini menggelar kegiatan
-    //             “Sosialisasi Layanan Informasi Publik Polinema Pejabat Pengelola Informasi dan Dokumentasi”.
-    //             Acara yang berlangsung di Ruang Rapim Gedung AA lantai 2 ini diadakan secara hybrid ..',
-    //             'route' => '#'
-    //         ],
-    //         [
-    //             'title' => 'Kegiatan Sosialisasi Pejabat Pengelola Informasi Dan Dokumentasi Oleh Pimpinan Dan Jajarannya',
-    //             'deskripsi' => 'Keterbukaan Informasi sangat diperlukan pada era digital saat ini. Oleh karena itu, melalui
-    //             Pejabat Pengelola Informasi dan Dokumentasi (PPID) Politeknik Negeri Malang memberikan pelayanan
-    //             informasi publik yang bersifat terbuka dan dapat diakses oleh masyarakat..',
-    //             'route' => '#'
-    //         ]
-    //     ];
-    //     $dokumentasi = [
-    //         [
-    //             'dokumentasi' => asset('img/dokumentasi-1.webp')
-    //         ],
-    //         [
-    //             'dokumentasi' => asset('img/dokumentasi-2.webp')
-    //         ],
-    //         [
-    //             'dokumentasi' => asset('img/dokumentasi-3.webp')
-    //         ],
-    //         [
-    //             'dokumentasi' => asset('img/dokumentasi-1.webp')
-    //         ]
-    //     ];
-    //     $pengumuman = [
-    //         [
-    //             'tanggal' => '1 Februari 2025',
-    //             'deskripsi' => 'Ini adalah Pengumuman 1',
-    //             'route' => '#'
-    //         ],
-    //         [
-    //             'tanggal' => '30 Januari 2025',
-    //             'deskripsi' => 'Ini adalah Pengumuman 2',
-    //             'route' => '#'
-    //         ],
-    //         [
-    //             'tanggal' => '25 Januari 2025',
-    //             'deskripsi' => 'Ini adalah Pengumuman 3',
-    //             'route' => '#'
-    //         ]
-    //     ];
-    //     $media = [
-    //         [
-    //             'title' => 'Keterbukaan Informasi Publik',
-    //             'link' => 'https://www.youtube.com/embed/9vlRk9C37JE'
-    //         ]
-    //     ];
-
-    //     return view('user::landing_page', compact('heroSlides', 'pengantar', 'quickAccessMenus', 'pintasanMenus', 'berita', 'dokumentasi', 'pengumuman', 'media'));
-    // }
     public function index()
     {
         try {
@@ -174,10 +27,22 @@ class HomeController extends Controller
 
             $beritaResponse = Http::get('http://ppid-polinema.test/api/public/getDataBeritaLandingPage');
             $beritaMenus = $this->fetchBeritaData($beritaResponse);
+
+            $heroSectionResponse = Http::get('http://ppid-polinema.test/api/public/getDataHeroSection');
+            $heroSectionMenus = $this->fetchHeroSectionData($heroSectionResponse);
+
+            $dokumentasiResponse = Http::get('http://ppid-polinema.test/api/public/getDataDokumentasi');
+            $dokumentasiMenus = $this->fetchDokumentasiData($dokumentasiResponse);
+            
+            $mediaInformasiPublikResponse = Http::get('http://ppid-polinema.test/api/public/getDataMediaInformasiPublik');
+            $mediaInformasiPublikMenus = $this->fetchMediaInformasiPublikData($mediaInformasiPublikResponse);
     
             return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus',
                         'pengumumanMenus',
-                        'beritaMenus'
+                        'beritaMenus',
+                        'heroSectionMenus',
+                        'dokumentasiMenus',
+                        'mediaInformasiPublikMenus'
                         ));
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
@@ -188,7 +53,11 @@ class HomeController extends Controller
                 'pintasanMenus' => [], 
                 'aksesCepatMenus' => [],
                 'pengumumanMenus' => [],
-                'beritaMenus' => []]);
+                'beritaMenus' => [],
+                'heroSectionMenus' => [],
+                'dokumentasiMenus' => [],
+                'mediaInformasiPublikMenus' => [],
+            ]);
         }
     }
     
@@ -313,6 +182,101 @@ class HomeController extends Controller
     }
     return $result;
     }
+
+
+    private function fetchHeroSectionData($response)
+    {
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Pengumuman gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
+            ]);
+            return [];
+        }
+        
+        return $this->processHeroSectionData($response->json('data'));
+    }
+
+    private function processHeroSectionData($data)
+    {
+    $result = [];
+    foreach ($data as $item) {
+        $result[] = [
+            'title' => $item['kategori_nama'] ?? 'Hero Section',
+            'media' => array_map(function ($media) {
+                return [
+                    'id' => $media['id'] ?? null,
+                    'type' => $media['tipe upload'] ?? null,
+                    'url' => $media['media'] ?? null,
+                ];
+            }, $item['media'] ?? [])
+        ];
+    }
+    return $result;
+    }
+
+    private function fetchDokumentasiData($response)
+    {
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Pengumuman gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
+            ]);
+            return [];
+        }
+        
+        return $this->processDokumentasiData($response->json('data'));
+    }
+
+    private function processDokumentasiData($data)
+{
+    $result = [];
+    foreach ($data as $item) {
+        $result[] = [
+            'title' => $item['kategori_nama'] ?? 'Dokumentasi PPID',
+            'media' => array_map(function ($media) {
+                return [
+                    'id' => $media['id'] ?? null,
+                    'type' => $media['tipe upload'] ?? null,
+                    'url' => $media['media'] ?? null,
+                ];
+            }, $item['media'] ?? [])
+        ];
+    }
+    return $result;
+}
+
+private function fetchMediaInformasiPublikData($response)
+{
+    if ($response->failed() || !$response->json('success')) {
+        Log::warning('API Pengumuman gagal atau data tidak lengkap', [
+            'response' => $response->json() ?? 'Tidak ada response'
+        ]);
+        return [];
+    }
+    
+    return $this->processMediaInformasiPublikData($response->json('data'));
+}
+
+private function processMediaInformasiPublikData($data)
+{
+    $result = [];
+    foreach ($data as $item) {
+        $result[] = [
+            'title' => $item['kategori_nama'] ?? 'Media Informasi Publik',
+            'has_more' => $item['has_more'] ?? false,
+            'total' => $item['total'] ?? 0,
+            'media' => array_map(function ($media) {
+                return [
+                    'id' => $media['id'] ?? null,
+                    'title' => $media['judul'] ?? null,
+                    'type' => $media['tipe'] ?? null,
+                    'url' => $media['media'] ?? null,
+                ];
+            }, $item['media'] ?? [])
+        ];
+    }
+    return $result;
+}
+
 
 
 }

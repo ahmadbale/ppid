@@ -39,14 +39,14 @@ class PengumumanDinamisModel extends Model
                 'tup.up_type',
                 'tup.up_value',
                 'tup.up_konten',
-            
+                'tp.created_at'
             ])
             ->where('tp.isDeleted', 0)
             ->where('tp.status_pengumuman', 'aktif')
             ->where('mpd.isDeleted', 0)
             ->where('mpd.pd_nama_submenu', 'Pengumuman')
             ->whereIn('tup.up_type', ['file', 'konten']) // Menambahkan filter untuk tipe file dan konten saja
-            ->orderBy('tp.pengumuman_id', 'desc')
+            ->orderBy('tp.pengumuman_id', 'desc') // Diubah dari created_at menjadi pengumuman_id
             ->limit(3)
             ->get()
             ->map(function ($pengumuman) {
