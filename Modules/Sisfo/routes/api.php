@@ -39,7 +39,7 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [ApiAuthController::class, 'logout']);
         Route::get('user', [ApiAuthController::class, 'getData']);
 
-        Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
+        // Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
         Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         Route::get('footerData', [ApiFooterController::class, 'getDataFooter']);
 
