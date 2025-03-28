@@ -13,37 +13,44 @@
     @include('user::layouts.header')
     @include('user::layouts.navbar')
 
+    <div id="header"></div>
+    <div id="nav-bar"></div>
     <!-- Hero Section -->
-    {{-- <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
+    <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">
-            @foreach ($heroSlides as $index => $slide)
-                <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
-                    @if ($index == 0)
-                        <div class="overlay"></div>
-                    @endif --}}
-                    {{-- <div class="custom-slide active"> --}}
-                    {{-- <div class="overlay"></div> --}}
-                    {{-- <img src="{{ $slide['image'] }}" alt="Hero Slide {{ $index + 1 }}">
-                    <img src="{{ asset('img/grapol.webp') }}" alt="Politeknik Negeri Malang 1"> --}}
-                    {{-- <div class="hero-content">
-                    <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
-                </div> --}}
-                    {{-- @if ($slide['title'])
-                        <div class="hero-content">
-                            <h1>{!! $slide['title'] !!}</h1>
-                        </div>
-                    @endif --}}
-                    {{-- </div> --}}
-                    {{-- <div class="custom-slide">
-                <img src="{{ asset('img/maklumat-ppid.webp') }}" alt="Maklumat Pelayanan Publik">
-            </div>
-            <div class="custom-slide">
-                <img src="{{ asset('img/jadwal-pelayanan-informasi-publik.webp') }}" alt="Jadwal Pelayanan Informasi Publik">
-            </div> --}}
-                {{-- </div>
-            @endforeach
+            @if (!empty($heroSectionMenus))
+                @php
+                    // Urutkan array media berdasarkan ID, dengan ID 1 sebagai prioritas pertama
+                    $sortedMedia = collect($heroSectionMenus[0]['media'])
+                        ->sortBy(function ($media) {
+                            return $media['id'] == 1 ? 0 : $media['id'];
+                        })
+                        ->values()
+                        ->toArray();
+                @endphp
+
+                @foreach ($sortedMedia as $index => $media)
+                    <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
+                        <img src="{{ $media['url'] }}" alt="Hero Slide {{ $index + 1 }}">
+
+                        @if ($index == 0)
+                            <div class="hero-content">
+                                <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            @else
+                <div class="custom-slide active">
+                    <div class="overlay"></div>
+                    <img src="{{ asset('img/default-hero.webp') }}" alt="Default Hero Image">
+                    <div class="hero-content">
+                        <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
+                    </div>
+                </div>
+            @endif
         </div>
-    </section> --}}
+    </section>
 
      <!-- Pengantar Section -->
     {{-- <section class="pengantar-section">
@@ -154,16 +161,18 @@
     </section> --}}
 
      {{-- DOKUMENTASI --}}
-    {{-- <section class="dokumentasi-section py-3 py-md-5">
+     <section class="dokumentasi-section py-3 py-md-5">
         <div class="container py-3 py-md-5">
-            <h3 class="title-section-dokumentasi text-white text-center">Dokumentasi PPID</h3>
-            <div class="mt-4 border-top border-1 pt-3 mb-4 w-75 w-md-50 mx-auto"></div> --}}
+            <h3 class="title-section-dokumentasi text-white text-center">
+                {{ $dokumentasiMenus[0]['title'] ?? 'Dokumentasi PPID' }}
+            </h3>
+            <div class="mt-4 border-top border-1 pt-3 mb-4 w-75 w-md-50 mx-auto"></div>
 
             <!-- Carousel untuk Desktop (2 gambar per slide) - Hanya tampil di layar medium ke atas -->
-            {{-- <div id="carouselDesktop" class="carousel slide carousel-container d-none d-md-block"
-                data-bs-ride="carousel"> --}}
+            <div id="carouselDesktop" class="carousel slide carousel-container d-none d-md-block"
+                data-bs-ride="carousel">
                 <!-- Tombol Navigasi Desktop -->
-                {{-- <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop"
+                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop"
                     data-bs-slide="prev">
                     <i class="bi bi-caret-left-fill icon-large"></i>
                 </button>
@@ -173,25 +182,27 @@
                 </button>
 
                 <div class="carousel-inner">
-                    @foreach (array_chunk($dokumentasi, 2) as $index => $chunk)
-                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                            <div class="row d-flex justify-content-center">
-                                @foreach ($chunk as $item)
-                                    <div class="col-6 text-center">
-                                        <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
-                                    </div>
-                                @endforeach
+                    @if(!empty($dokumentasiMenus[0]['media']))
+                        @foreach (array_chunk($dokumentasiMenus[0]['media'], 2) as $index => $chunk)
+                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                <div class="row d-flex justify-content-center">
+                                    @foreach ($chunk as $item)
+                                        <div class="col-6 text-center">
+                                            <img src="{{ $item['url'] }}" class="img-fluid" alt="Dokumentasi">
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endif
                 </div>
-            </div> --}}
+            </div>
 
             <!-- Carousel untuk Mobile (1 gambar per slide) - Hanya tampil di layar kecil -->
-            {{-- <div id="carouselMobile" class="carousel slide carousel-container d-block d-md-none"
-                data-bs-ride="carousel"> --}}
+            <div id="carouselMobile" class="carousel slide carousel-container d-block d-md-none"
+                data-bs-ride="carousel">
                 <!-- Tombol Navigasi Mobile -->
-                {{-- <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile"
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile"
                     data-bs-slide="prev">
                     <i class="bi bi-caret-left-fill icon-large"></i>
                 </button>
@@ -201,19 +212,21 @@
                 </button>
 
                 <div class="carousel-inner">
-                    @foreach ($dokumentasi as $index => $item)
-                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                            <div class="row d-flex justify-content-center">
-                                <div class="col-10 text-center">
-                                    <img src="{{ $item['dokumentasi'] }}" class="img-fluid" alt="Dokumentasi">
+                    @if(!empty($dokumentasiMenus[0]['media']))
+                        @foreach ($dokumentasiMenus[0]['media'] as $index => $item)
+                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-10 text-center">
+                                        <img src="{{ $item['url'] }}" class="img-fluid" alt="Dokumentasi">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endif
                 </div>
             </div>
         </div>
-    </section>--}}
+    </section>
 
     {{-- Pengumuman --}}
     <section class="container mt-4 py-5">
@@ -221,44 +234,75 @@
         $item = $pengumumanMenus[0] ?? null;
         @endphp
 
-        <h3 class="title-section">{{ $item['kategoriSubmenu'] }}<h3>
+        @if($item)
+            <h3 class="title-section">{{ $item['kategoriSubmenu'] ?? 'Pengumuman' }}</h3>
+        @else
+            <h3 class="title-section">Pengumuman</h3>
+        @endif
+
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            @foreach ($pengumumanMenus as $index => $item)
-                <div class="col">
-                    <div class="ppid-card-body mb-5">
-                        <div class="ppid-card-header">
-                            <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.svg') }}"
-                                class="ppid-img-cover" alt="{{ $item['judul'] }}">
+        @if(count($pengumumanMenus) > 0)
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach ($pengumumanMenus as $index => $item)
+                    <div class="col">
+                        <div class="ppid-card-body mb-5">
+                            <div class="ppid-card-header">
+                                <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.webp') }}"
+                                    class="ppid-img-cover" alt="{{ $item['judul'] }}">
+                            </div>
+                            <p class="ppid-date text-muted">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
+                            <p class="ppid-card-text">{{ $item['judul'] }}</p>
+                            <p class="ppid-card-description px-1">{{ $item['deskripsi'] }}</p>
+                            <a class="btn btn-primary" href="{{ url($item['slug']) }}" role="button">Baca Artikel</a>
                         </div>
-                        <p class="ppid-date text-muted">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
-                        <p class="ppid-card-text">{{ $item['judul'] }}</p>
-                        <p class="ppid-card-description px-1" >{{ $item['deskripsi'] }}</p>
-                        <a class="btn btn-primary" href="{{ url($item['slug']) }}" role="button">Baca Artikel</a>
+                    </div>
+                @endforeach
+            </div>
+
+            @if($item)
+            <div class="d-flex flex-wrap justify-content-center">
+                <a href="{{ url($item['url_selengkapnya']) }}" class="btn-custom">
+                    <i class="bi bi-arrow-right"></i>
+                    <span class="ms-2">Pengumuman PPID Lainnya</span>
+                </a>
+            </div>
+            @endif
+        @else
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                        <div class="ppid-card-body mb-5">
+                            <div class="ppid-card-header">
+                                <img src="{{ asset('storage/default_icons/no_image_available.svg') }}"
+                                    class="ppid-img-cover" alt="gambar-default">
+                            </div>
+                            <p class="ppid-date text-muted"></p>
+                            <p class="ppid-card-text"></p>
+                            <p class="ppid-card-description px-1"></p>
+                            <a class="btn btn-primary" href="" role="button">Baca Artikel</a>
+                        </div>
                     </div>
                 </div>
-            @endforeach
-        </div>
-        <div class="d-flex flex-wrap justify-content-center">
-            <a href="#" class="btn-custom">
-                <i class="bi bi-arrow-right"></i>
-                <span class="ms-2"  href="{{ url($item['url_selengkapnya']) }}">Pengumuman PPID Lainnya</span>
-            </a>
-        </div>
+        @endif
     </section>
 
     <section class="container mt-4 py-5">
-        @php
-            $itemBerita = $beritaMenus[0] ?? null;
-        @endphp
-        <div class="row gy-4">
-            <!-- Bagian Berita PPID -->
-            <div class="col-md-8">
-                <h3 class="title-section">{{ $itemBerita['kategori'] ?? 'Berita' }}</h3>
-                <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
+    @php
+    $itemBerita = $beritaMenus[0] ?? null;
+    @endphp
+    <div class="row gy-4">
+    <div class="col-md-8">
+    @if($itemBerita)
+        <h3 class="title-section">{{ $itemBerita['kategori'] ?? 'Berita' }}</h3>
+    @else
+        <h3 class="title-section">Berita</h3>
+    @endif
 
-                @foreach ($beritaMenus as  $index => $itemBerita)
+    <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
+
+    @if(count($beritaMenus) > 0)
+
+                @foreach ($beritaMenus as $index => $itemBerita)
                     <div class="news-item">
                         <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
                         <p>{{ $itemBerita['deskripsiThumbnail'] ?? '' }}</p>
@@ -268,7 +312,7 @@
                     </div>
                 @endforeach
 
-                @if (!empty($itemBerita['url_selengkapnya']))
+                @if($itemBerita && !empty($itemBerita['url_selengkapnya']))
                     <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
                         <a href="{{ url($itemBerita['url_selengkapnya']) }}" class="btn-custom">
                             <i class="bi bi-arrow-right"></i>
@@ -277,32 +321,37 @@
                     </div>
                 @endif
             </div>
-        </div>
-    </section>
-
+    @else
+        <p class="text-center">Tidak ada berita tersedia.</p>
+    @endif
             <!-- Bagian Media I nformasi Publik -->
-            {{-- <div class="col-md-4 ">
-                <h3 class="title-section">Media Informasi Publik</h3>
+            <div class="col-md-4">
+                <h3 class="title-section">
+                    {{ $mediaInformasiPublikMenus[0]['title'] ?? 'Media Informasi Publik' }}
+                </h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
 
-                @foreach ($media as $item)
-                    <div class="video-container">
-                        <iframe width="100%" height="200" src="{{ $item['link'] }}" frameborder="0"
-                            allowfullscreen></iframe>
-                        <div class="text-white text-center p-2">{{ $item['title'] }}</div>
-                    </div>
-                @endforeach
+                @if(!empty($mediaInformasiPublikMenus[0]['media']))
+                    @foreach ($mediaInformasiPublikMenus[0]['media'] as $item)
+                        <div class="video-container">
+                            <iframe width="100%" height="200" src="{{ $item['url'] }}" frameborder="0" allowfullscreen></iframe>
+                            <div class="text-white text-center p-2">{{ $item['title'] }}</div>
+                        </div>
+                    @endforeach
+                @endif
 
-                <div class="d-flex flex-wrap justify-content-center mt-3">
-                    <a href="#" class="btn-custom">
-                        <i class="bi bi-arrow-right"></i>
-                        <span class="ms-2">Media Lainnya</span>
-                    </a>
-                </div>
+
+                    <div class="d-flex flex-wrap justify-content-center mt-3">
+                        <a href="#" class="btn-custom">
+                            <i class="bi bi-arrow-right"></i>
+                            <span class="ms-2">Media Lainnya</span>
+                        </a>
+                    </div>
             </div>
 
+
         </div>
-    </section> --}}
+    </section>
 
 
     {{-- Pintasan Lainnya --}}
@@ -317,10 +366,10 @@
                         <h5 class="fw-bold mb-4">{{ $pintasan['title'] }}</h5>
                         <ul class="list-unstyled">
                             @foreach ($pintasan['menu'] as $menu)
-                                <li class="mb-4">
+                                <li class="mb-3">
                                     <a href="{{ $menu['route'] }}" class="text-pintasan text-decoration-none" target="_blank">
                                         {{ $menu['name'] }}
-                                        <div class="border-top border-1 mt-2  border-pintasan"></div>
+                                        <div class="border-top border-1 mt-1  border-pintasan"></div>
                                     </a>
 
                                 </li>

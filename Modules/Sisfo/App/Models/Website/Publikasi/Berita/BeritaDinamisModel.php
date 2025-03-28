@@ -25,20 +25,20 @@ class BeritaDinamisModel extends Model
              'tb.berita_judul',
              'tb.berita_slug',
              'm_berita_dinamis.bd_nama_submenu',
-             'tb.created_at',
              'tb.berita_thumbnail_deskripsi'
          ])
          ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
          ->where('tb.isDeleted', 0)
          ->where('tb.status_berita', 'aktif')
          ->where('m_berita_dinamis.berita_dinamis_id', $kategori)
-         ->orderBy('tb.created_at', 'DESC')
+         ->orderBy('tb.berita_id', 'DESC')
          ->limit(3)
          ->get()
          ->map(function ($berita) {
              $deskripsiThumbnail = trim($berita->berita_thumbnail_deskripsi);
  
              return [
+                'id'=>$berita->berita_id,
                  'kategori' => $berita->bd_nama_submenu,
                  'judul' => $berita->berita_judul,
                  'slug' => $berita->berita_slug,

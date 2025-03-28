@@ -1,19 +1,19 @@
-
 <?php
 
 use Spatie\FlareClient\Api;
 use Illuminate\Support\Facades\Route;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMenuController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
 use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\PublicMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 
 
 
@@ -39,7 +39,7 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [ApiAuthController::class, 'logout']);
         Route::get('user', [ApiAuthController::class, 'getData']);
 
-        Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
+        // Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
         Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         Route::get('footerData', [ApiFooterController::class, 'getDataFooter']);
 
@@ -66,4 +66,8 @@ Route::prefix('public')->group(function () {
     Route::get('getDataMenu', [ApiMenuController::class, 'getDataMenu']);
     Route::get('getDataPengumumanLandingPage', [ApiPengumumanLandingPageController::class, 'getDataPengumumanLandingPage']);
     Route::get('getDataBeritaLandingPage',[ApiBeritaLandingPageController::class,'getDataBeritaLandingPage']);
+    Route::get('getDataHeroSection',[ApiMediaDinamisController::class,'getDataHeroSection']);
+    Route::get('getDataDokumentasi',[ApiMediaDinamisController::class,'getDataDokumentasi']);
+    Route::get('getDataMediaInformasiPublik',[ApiMediaDinamisController::class,'getDataMediaInformasiPublik']);
+    
 });
