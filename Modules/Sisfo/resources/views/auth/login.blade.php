@@ -24,16 +24,20 @@
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/adminlte.min.css') }}">
 </head>
 
-<body class="hold-transition login-page">
-  <div class="login-box">
+<body class="hold-transition login-page" style="background: url('{{ asset("img/loginadmin.webp") }}') no-repeat center center fixed; background-size: cover;">
+{{-- <body class="hold-transition login-page"> --}}
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7);"></div>
+    <div class="login-box">
     <!-- /.login-logo -->
-    <div class="card card-outline card-primary">
+    <div class="card">
       <div class="card-header text-center">
-        <a href="{{ url('/') }}" class="h1"><b>Login</b>Yuk</a>
+        <a href="{{ url('/') }}">
+            <img src="{{ asset('img/PPIDlogo.svg') }}" alt="PPID Logo" class="logo">
+        </a>
       </div>
       <div class="card-body">
-        <p class="login-box-msg">Sign in to start your session</p>
-
+        <h2 class="text-center fw-bold pb-4">Manajemen</br>PPID Polinema</h2>
+        <p class="login-box-msg">Masukkan akun anda</p>
         <form action="{{ url('login') }}" method="POST" id="form-login">
           @csrf
           <div class="input-group mb-3">
@@ -57,11 +61,11 @@
           </div>
 
           <!-- Register link -->
-          <div class="text-center mb-3">
+          {{-- <div class="text-center mb-3">
             <a href="{{ url('register') }}">Tidak Punya Akun? Register</a>
-          </div>
+          </div> --}}
 
-          <div class="row">
+          <div class="row pt-4">
             <div class="col-8">
               <div class="icheck-primary">
                 <input type="checkbox" id="remember" name="remember">
@@ -70,7 +74,7 @@
             </div>
             <!-- /.col -->
             <div class="col-4">
-              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+              <button type="submit" class="btn btn-primary btn-block">Log In</button>
             </div>
             <!-- /.col -->
           </div>
