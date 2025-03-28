@@ -16,7 +16,7 @@
             <div class="overlay-text">
                 <h3>Satu Langkah dalam</h3>
                 <h1>Keterbukaan Informasi</h1>
-                <h5>Lebih Transparan</h5>
+                <h3>Lebih Transparan</h3>
             </div>
         </div>
 
@@ -25,12 +25,12 @@
                 <img src="{{ asset('img/PPIDlogo.svg') }}" alt="PPID Logo" class="logo">
                 <h4>Selamat datang di</h4>
                 <h3>PPID Polinema</h3>
-                <p class="input-label">Masukan akun Anda</p>
+                <p class="input-label text-center">Masukan akun Anda</p>
 
                 <!-- Login Form -->
                 <form method="POST" action="{{ route('login') }}" id="login-form">
                     @csrf
-                    
+
                     <!-- Error Alert if any -->
                     @if ($errors->any())
                     <div class="alert alert-danger">
@@ -48,7 +48,7 @@
                         <span class="toggle-password"></span>
                     </div>
 
-                    <button type="submit" class="masuk-button">Sign In</button>
+                    <button type="submit" class="signin">Sign In</button>
                 </form>
                 <div class="signup-container">
                     <div class="divider"></div>

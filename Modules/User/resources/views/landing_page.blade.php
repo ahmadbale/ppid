@@ -28,12 +28,11 @@
                         ->values()
                         ->toArray();
                 @endphp
-    
+
                 @foreach ($sortedMedia as $index => $media)
                     <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
-                        {{-- <div class="overlay"></div> --}}
                         <img src="{{ $media['url'] }}" alt="Hero Slide {{ $index + 1 }}">
-                        
+
                         @if ($index == 0)
                             <div class="hero-content">
                                 <h1>Selamat Datang di Laman PPID<br>Politeknik Negeri Malang</h1>
@@ -168,10 +167,10 @@
                 {{ $dokumentasiMenus[0]['title'] ?? 'Dokumentasi PPID' }}
             </h3>
             <div class="mt-4 border-top border-1 pt-3 mb-4 w-75 w-md-50 mx-auto"></div>
-    
+
             <!-- Carousel untuk Desktop (2 gambar per slide) - Hanya tampil di layar medium ke atas -->
             <div id="carouselDesktop" class="carousel slide carousel-container d-none d-md-block"
-                data-bs-ride="carousel"> 
+                data-bs-ride="carousel">
                 <!-- Tombol Navigasi Desktop -->
                  <button class="carousel-control-prev" type="button" data-bs-target="#carouselDesktop"
                     data-bs-slide="prev">
@@ -181,7 +180,7 @@
                     data-bs-slide="next">
                     <i class="bi bi-caret-right-fill icon-large"></i>
                 </button>
-    
+
                 <div class="carousel-inner">
                     @if(!empty($dokumentasiMenus[0]['media']))
                         @foreach (array_chunk($dokumentasiMenus[0]['media'], 2) as $index => $chunk)
@@ -198,10 +197,10 @@
                     @endif
                 </div>
             </div>
-    
+
             <!-- Carousel untuk Mobile (1 gambar per slide) - Hanya tampil di layar kecil -->
             <div id="carouselMobile" class="carousel slide carousel-container d-block d-md-none"
-                data-bs-ride="carousel"> 
+                data-bs-ride="carousel">
                 <!-- Tombol Navigasi Mobile -->
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselMobile"
                     data-bs-slide="prev">
@@ -211,7 +210,7 @@
                     data-bs-slide="next">
                     <i class="bi bi-caret-right-fill icon-large"></i>
                 </button>
-    
+
                 <div class="carousel-inner">
                     @if(!empty($dokumentasiMenus[0]['media']))
                         @foreach ($dokumentasiMenus[0]['media'] as $index => $item)
@@ -226,7 +225,7 @@
                     @endif
                 </div>
             </div>
-        </div> 
+        </div>
     </section>
 
     {{-- Pengumuman --}}
@@ -234,15 +233,15 @@
         @php
         $item = $pengumumanMenus[0] ?? null;
         @endphp
-    
+
         @if($item)
             <h3 class="title-section">{{ $item['kategoriSubmenu'] ?? 'Pengumuman' }}</h3>
         @else
             <h3 class="title-section">Pengumuman</h3>
         @endif
-    
+
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
-        
+
         @if(count($pengumumanMenus) > 0)
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach ($pengumumanMenus as $index => $item)
@@ -260,7 +259,7 @@
                     </div>
                 @endforeach
             </div>
-            
+
             @if($item)
             <div class="d-flex flex-wrap justify-content-center">
                 <a href="{{ url($item['url_selengkapnya']) }}" class="btn-custom">
@@ -300,9 +299,9 @@
     @endif
 
     <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
-    
+
     @if(count($beritaMenus) > 0)
-        
+
                 @foreach ($beritaMenus as $index => $itemBerita)
                     <div class="news-item">
                         <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
@@ -331,7 +330,7 @@
                     {{ $mediaInformasiPublikMenus[0]['title'] ?? 'Media Informasi Publik' }}
                 </h3>
                 <div class="mt-4 border-top border-1 pt-3 w-30 mx-auto"></div>
-                
+
                 @if(!empty($mediaInformasiPublikMenus[0]['media']))
                     @foreach ($mediaInformasiPublikMenus[0]['media'] as $item)
                         <div class="video-container">
@@ -340,8 +339,8 @@
                         </div>
                     @endforeach
                 @endif
-                
-        
+
+
                     <div class="d-flex flex-wrap justify-content-center mt-3">
                         <a href="#" class="btn-custom">
                             <i class="bi bi-arrow-right"></i>
@@ -349,10 +348,10 @@
                         </a>
                     </div>
             </div>
-            
+
 
         </div>
-    </section> 
+    </section>
 
 
     {{-- Pintasan Lainnya --}}
@@ -372,7 +371,7 @@
                                         {{ $menu['name'] }}
                                         <div class="border-top border-1 mt-1  border-pintasan"></div>
                                     </a>
-                                    
+
                                 </li>
                             @endforeach
                         </ul>

@@ -46,7 +46,18 @@ body {
 .navbar {
     background-color: #0F2E5A !important;
     padding: 0;
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
 }
+
+.hidden-nav {
+    transform: translateY(-100%);
+}
+
+.visible-nav {
+    transform: translateY(0);
+}
+
 
 .navbar-nav .nav-item .nav-link {
     color: white !important;
@@ -242,12 +253,13 @@ body {
     z-index: 1;
 }
 
-.overlay-text h3 { font-size: 1.2rem; }
+.overlay-text h3 {
+    font-size: 2rem;
+}
 .overlay-text h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: bold;
 }
-.overlay-text h5 { font-size: 1.2rem; }
 
 .form-container {
     width: 50%;
@@ -336,6 +348,22 @@ form {
 
 .register-btn:hover {
     background-color: #e6a82a;
+}
+
+.signin {
+    background: #FFC030;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #333;
+    border: none;
+    transition: background 0.2s ease-in-out;
+}
+
+.signin:hover {
+    background: #E0A020;
 }
 
 .signup-container {
