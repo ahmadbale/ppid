@@ -45,19 +45,19 @@ class AksesCepatModel extends Model
     /**
      * Metode untuk mengambil data dengan optional filtering
      */
-    public static function selectData($perPage = 10, $search = '')
+    public static function selectData($perPage = null, $search = '')
     {
         $query = self::with('kategoriAkses')
             ->where('isDeleted', 0);
-    
+
         // Add search functionality
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('ac_judul', 'like', "%{$search}%");
             });
         }
-    
-        return $query->paginate($perPage);
+
+        return self::paginateResults($query, $perPage);
     }
 
     /**

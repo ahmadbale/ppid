@@ -16,8 +16,10 @@ class TimelineController extends Controller
     public $breadcrumb = 'Pengaturan Timeline';
     public $pagename = 'SistemInformasi/Timeline';
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->query('search', '');
+
         $breadcrumb = (object) [
             'title' => 'Pengaturan Timeline',
             'list' => ['Home', 'Pengaturan Timeline']
@@ -28,36 +30,30 @@ class TimelineController extends Controller
         ];
 
         $activeMenu = 'Timeline';
+        
+        // Gunakan pagination dan pencarian
+        $timeline = TimelineModel::selectData(10, $search);
 
-        return view("sisfo::SistemInformasi/Timeline.index", [
+        return view("SistemInformasi/Timeline.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
+            'timeline' => $timeline,
+            'search' => $search
         ]);
     }
 
-    public function getData()
+    // Update getData untuk mendukung pagination dan pencarian
+    public function getData(Request $request)
     {
-        $result = TimelineModel::selectData();
-        $data = [];
+        $search = $request->query('search', '');
+        $timeline = TimelineModel::selectData(10, $search);
         
-        foreach ($result as $key => $timeline) {
-            $row = [];
-            $row[] = $key + 1;
-            $row[] = $timeline->TimelineKategoriForm->kf_nama ?? '-'; // Tampilkan nama kategori form
-            $row[] = $timeline->judul_timeline;
-            
-            $row[] = $this->generateActionButtons(
-                'SistemInformasi/Timeline', 
-                $timeline->timeline_id
-            );
-            
-            $data[] = $row;
+        if ($request->ajax()) {
+            return view('SistemInformasi/Timeline.data', compact('timeline', 'search'))->render();
         }
         
-        // Menggunakan model perlu menggunakan response()->json,
-        // tetapi sebaiknya buat fungsi jsonSuccess dengan parameter array data di BaseControllerFunction
-        return response()->json(['data' => $data]);
+        return redirect()->route('timeline.index');
     }
 
     public function addData()
@@ -65,7 +61,7 @@ class TimelineController extends Controller
         // Ambil data kategori form dari database
         $TimelineKategoriForm = KategoriFormModel::where('isDeleted', 0)->get();
 
-        return view("sisfo::SistemInformasi/Timeline.create", [
+        return view("SistemInformasi/Timeline.create", [
             'TimelineKategoriForm' => $TimelineKategoriForm
         ]);
     }
@@ -99,7 +95,7 @@ class TimelineController extends Controller
         $timeline = TimelineModel::with('langkahTimeline')->findOrFail($id);
         $jumlahLangkah = $timeline->langkahTimeline->count();
 
-        return view("sisfo::SistemInformasi/Timeline.update", [
+        return view("SistemInformasi/Timeline.update", [
             'TimelineKategoriForm' => $TimelineKategoriForm,
             'timeline' => $timeline,
             'jumlahLangkah' => $jumlahLangkah
@@ -133,7 +129,7 @@ class TimelineController extends Controller
     {
         $timeline = TimelineModel::detailData($id);
         
-        return view("sisfo::SistemInformasi/Timeline.detail", [
+        return view("SistemInformasi/Timeline.detail", [
             'timeline' => $timeline,
             'title' => 'Detail Timeline'
         ]);
@@ -144,7 +140,7 @@ class TimelineController extends Controller
         if ($request->isMethod('get')) {
             $timeline = TimelineModel::detailData($id);
             
-            return view("sisfo::SistemInformasi/Timeline.delete", [
+            return view("SistemInformasi/Timeline.delete", [
                 'timeline' => $timeline
             ]);
         }

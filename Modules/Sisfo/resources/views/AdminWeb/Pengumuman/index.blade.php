@@ -8,7 +8,7 @@
             <h3 class="card-title">{{ $page->title }}</h3>
           </div>
           <div class="col-md-6 text-right">
-            <button onclick="modalAction('{{ url('SistemInformasi/KetentuanPelaporan/addData') }}')" 
+            <button onclick="modalAction('{{ url('AdminWeb/Pengumuman/addData') }}')" 
                     class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah
             </button>   
@@ -20,7 +20,7 @@
           <div class="col-md-6">
             <form id="searchForm" class="d-flex">
               <input type="text" name="search" class="form-control" 
-                     placeholder="Cari ketentuan pelaporan" 
+                     placeholder="Cari pengumuman" 
                      value="{{ $search ?? '' }}">
               <button type="submit" class="btn btn-primary ml-2">
                 <i class="fas fa-search"></i>
@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('SistemInformasi.KetentuanPelaporan.data')
+          @include('AdminWeb.Pengumuman.data')
         </div>
       </div>
   </div>
@@ -58,6 +58,21 @@
   .pagination {
     justify-content: flex-start; /* Ubah ke kiri */
   }
+  
+  .status-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+  }
+  .status-aktif {
+      background-color: #28a745;
+      color: white;
+  }
+  .status-tidak-aktif {
+      background-color: #dc3545;
+      color: white;
+  }
 </style>
 @endpush
 
@@ -68,7 +83,7 @@
       $('#searchForm').on('submit', function(e) {
         e.preventDefault();
         var search = $(this).find('input[name="search"]').val();
-        loadKetentuanPelaporanData(1, search);
+        loadPengumumanData(1, search);
       });
 
       // Handle pagination links with delegation
@@ -76,13 +91,13 @@
         e.preventDefault();
         var page = $(this).attr('href').split('page=')[1];
         var search = $('#searchForm input[name="search"]').val();
-        loadKetentuanPelaporanData(page, search);
+        loadPengumumanData(page, search);
       });
     });
     
-    function loadKetentuanPelaporanData(page, search) {
+    function loadPengumumanData(page, search) {
       $.ajax({
-        url: '{{ url("SistemInformasi/KetentuanPelaporan/getData") }}',
+        url: '{{ url("AdminWeb/Pengumuman/getData") }}',
         type: 'GET',
         data: {
           page: page,
@@ -117,7 +132,7 @@
       var currentPage = $('.pagination .active .page-link').text();
       currentPage = currentPage || 1;
       var search = $('#searchForm input[name="search"]').val();
-      loadKetentuanPelaporanData(currentPage, search);
+      loadPengumumanData(currentPage, search);
     }
   </script>
 @endpush

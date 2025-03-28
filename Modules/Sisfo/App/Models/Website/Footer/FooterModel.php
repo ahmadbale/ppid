@@ -35,9 +35,22 @@ class FooterModel extends Model
     }
 
     // Metode untuk select data dengan pagination dan filter
-    public static function selectData()
+    public static function selectData($perPage = null, $search = '')
     {
-        // Implementasi nanti
+        $query = self::with('kategoriFooter')
+            ->where('isDeleted', 0);
+
+        // Add search functionality
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('f_judul_footer', 'like', "%{$search}%")
+                    ->orWhereHas('kategoriFooter', function ($subQuery) use ($search) {
+                        $subQuery->where('kt_footer_nama', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return self::paginateResults($query, $perPage);
     }
     // public static function getDataFooter()
     // {
