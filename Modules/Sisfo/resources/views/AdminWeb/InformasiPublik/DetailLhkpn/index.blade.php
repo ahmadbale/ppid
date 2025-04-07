@@ -37,7 +37,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('AdminWeb.InformasiPublik.DetailLhkpn.data')
+          @include('sisfo::AdminWeb.InformasiPublik.DetailLhkpn.data')
         </div>
       </div>
   </div>
