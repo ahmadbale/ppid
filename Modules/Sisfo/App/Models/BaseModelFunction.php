@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace Modules\Sisfo\App\Models;
 
-use App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use App\Models\SistemInformasi\Timeline\TimelineModel;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
 
 trait BaseModelFunction
 {
@@ -28,8 +29,8 @@ trait BaseModelFunction
         // Event ketika model dibuat, isi created_by otomatis
         static::creating(function ($model) {
             if (!isset($model->created_by)) {
-                if (session()->has('alias')) {
-                    $model->created_by = session('alias');
+                if (session()->has('user_data.alias')) {
+                    $model->created_by = session('user_data.alias');
                 } else {
                     // Tambahkan default value untuk kasus registrasi
                     $model->created_by = 'System';
@@ -39,8 +40,8 @@ trait BaseModelFunction
 
         // Event ketika model diupdate, isi updated_by otomatis
         static::updating(function ($model) {
-            if (session()->has('alias')) {
-                $model->updated_by = session('alias');
+            if (session()->has('user_data.alias')) {
+                $model->updated_by = session('user_data.alias');
             }
 
             // Pastikan updated_at diisi dengan timestamp sekarang
@@ -49,8 +50,8 @@ trait BaseModelFunction
 
         // Event ketika model dihapus (soft delete), isi deleted_by dan deleted_at otomatis
         static::deleting(function ($model) {
-            if (session()->has('alias')) {
-                $model->deleted_by = session('alias');
+            if (session()->has('user_data.alias')) {
+                $model->deleted_by = session('user_data.alias');
             } else {
                 $model->deleted_by = 'System';
             }
