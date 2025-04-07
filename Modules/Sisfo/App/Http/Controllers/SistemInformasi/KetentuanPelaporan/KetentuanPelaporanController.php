@@ -7,7 +7,6 @@ use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
 use Modules\Sisfo\App\Models\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -18,8 +17,10 @@ class KetentuanPelaporanController extends Controller
     public $breadcrumb = 'Pengaturan Ketentuan Pelaporan';
     public $pagename = 'SistemInformasi/KetentuanPelaporan';
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->query('search', '');
+
         $breadcrumb = (object) [
             'title' => 'Pengaturan Ketentuan Pelaporan',
             'list' => ['Home', 'Pengaturan Ketentuan Pelaporan']
@@ -30,40 +31,37 @@ class KetentuanPelaporanController extends Controller
         ];
 
         $activeMenu = 'KetentuanPelaporan';
+        
+        // Gunakan pagination dan pencarian
+        $ketentuanPelaporan = KetentuanPelaporanModel::selectData(10, $search);
 
-        return view("sisfo::SistemInformasi/KetentuanPelaporan.index", [
+        return view("SistemInformasi/KetentuanPelaporan.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
+            'ketentuanPelaporan' => $ketentuanPelaporan,
+            'search' => $search
         ]);
     }
 
-    public function getData()
+    // Update getData untuk mendukung pencarian
+    public function getData(Request $request)
     {
-        $result = KetentuanPelaporanModel::selectData();
-        $data = [];
+        $search = $request->query('search', '');
+        $ketentuanPelaporan = KetentuanPelaporanModel::selectData(10, $search);
         
-        foreach ($result as $key => $ketentuanPelaporan) {
-            $row = [];
-            $row[] = $key + 1;
-            $row[] = $ketentuanPelaporan->PelaporanKategoriForm->kf_nama ?? '-';
-            $row[] = $ketentuanPelaporan->kp_judul;
-            
-            $row[] = $this->generateActionButtons(
-                'SistemInformasi/KetentuanPelaporan', 
-                $ketentuanPelaporan->ketentuan_pelaporan_id
-            );
-            $data[] = $row;
+        if ($request->ajax()) {
+            return view('SistemInformasi/KetentuanPelaporan.data', compact('ketentuanPelaporan', 'search'))->render();
         }
         
-        return response()->json(['data' => $data]);
+        return redirect()->route('ketentuan-pelaporan.index');
     }
 
     public function addData()
     {
         $kategoriForms = KategoriFormModel::where('isDeleted', 0)->get();
 
-        return view("sisfo::SistemInformasi/KetentuanPelaporan.create", [
+        return view("SistemInformasi/KetentuanPelaporan.create", [
             'kategoriForms' => $kategoriForms
         ]);
     }
@@ -73,10 +71,9 @@ class KetentuanPelaporanController extends Controller
         try {
             KetentuanPelaporanModel::validasiData($request);
             $result = KetentuanPelaporanModel::createData($request);
-            
-            // Menggunakan method jsonSuccess dari BaseControllerFunction
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Ketentuan pelaporan berhasil dibuat'
             );
         } catch (ValidationException $e) {
@@ -91,7 +88,7 @@ class KetentuanPelaporanController extends Controller
         $kategoriForms = KategoriFormModel::where('isDeleted', 0)->get();
         $ketentuanPelaporan = KetentuanPelaporanModel::findOrFail($id);
 
-        return view("sisfo::SistemInformasi/KetentuanPelaporan.update", [
+        return view("SistemInformasi/KetentuanPelaporan.update", [
             'kategoriForms' => $kategoriForms,
             'ketentuanPelaporan' => $ketentuanPelaporan
         ]);
@@ -102,10 +99,9 @@ class KetentuanPelaporanController extends Controller
         try {
             KetentuanPelaporanModel::validasiData($request);
             $result = KetentuanPelaporanModel::updateData($request, $id);
-            
-            // Menggunakan method jsonSuccess dari BaseControllerFunction
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Ketentuan pelaporan berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -118,8 +114,8 @@ class KetentuanPelaporanController extends Controller
     public function detailData($id)
     {
         $ketentuanPelaporan = KetentuanPelaporanModel::with('PelaporanKategoriForm')->findOrFail($id);
-        
-        return view("sisfo::SistemInformasi/KetentuanPelaporan.detail", [
+
+        return view("SistemInformasi/KetentuanPelaporan.detail", [
             'ketentuanPelaporan' => $ketentuanPelaporan,
             'title' => 'Detail Ketentuan Pelaporan'
         ]);
@@ -129,22 +125,20 @@ class KetentuanPelaporanController extends Controller
     {
         if ($request->isMethod('get')) {
             $ketentuanPelaporan = KetentuanPelaporanModel::with('PelaporanKategoriForm')->findOrFail($id);
-            
-            return view("sisfo::SistemInformasi/KetentuanPelaporan.delete", [
+
+            return view("SistemInformasi/KetentuanPelaporan.delete", [
                 'ketentuanPelaporan' => $ketentuanPelaporan
             ]);
         }
-        
+
         try {
             $result = KetentuanPelaporanModel::deleteData($id);
-            
-            // Menggunakan method jsonSuccess dari BaseControllerFunction
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Ketentuan pelaporan berhasil dihapus'
             );
         } catch (\Exception $e) {
-            // Menggunakan method jsonError dari BaseControllerFunction
             return $this->jsonError($e, 'Terjadi kesalahan saat menghapus ketentuan pelaporan');
         }
     }
@@ -158,29 +152,26 @@ class KetentuanPelaporanController extends Controller
             ]);
 
             $file = $request->file('image');
-            
+
             if (!$file) {
-                // Menggunakan method jsonError dari BaseControllerFunction
                 return $this->jsonError(
-                    new \Exception('Tidak ada file yang diunggah'), 
-                    '', 
+                    new \Exception('Tidak ada file yang diunggah'),
+                    '',
                     400
                 );
             }
 
+            // Generate nama file unik dan simpan
             $fileName = 'ketentuan_pelaporan/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
             $file->storeAs('public', $fileName);
-            
-            // Menggunakan method jsonSuccess dari BaseControllerFunction
+
             return $this->jsonSuccess(
-                ['url' => asset('storage/' . $fileName)], 
+                ['url' => asset('storage/' . $fileName)],
                 'Gambar berhasil diunggah'
             );
         } catch (ValidationException $e) {
-            // Menggunakan method jsonValidationError dari BaseControllerFunction
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
-            // Menggunakan method jsonError dari BaseControllerFunction
             return $this->jsonError($e);
         }
     }
@@ -192,39 +183,35 @@ class KetentuanPelaporanController extends Controller
             $request->validate([
                 'url' => 'required|string'
             ]);
-            
+
             $imageUrl = $request->input('url');
-            
+
             // Extract filename dari full URL
             $pathInfo = parse_url($imageUrl);
             $path = $pathInfo['path'] ?? '';
             $storagePath = str_replace('/storage/', '', $path);
-            
+
             if (!empty($storagePath)) {
                 // Logika untuk menghapus file
                 $filePath = storage_path('app/public/' . $storagePath);
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
-                
-                // Menggunakan method jsonSuccess dari BaseControllerFunction
+
                 return $this->jsonSuccess(
-                    null, 
+                    null,
                     'Gambar berhasil dihapus'
                 );
             } else {
-                // Menggunakan method jsonError dari BaseControllerFunction
                 return $this->jsonError(
-                    new \Exception('Path gambar tidak valid'), 
-                    '', 
+                    new \Exception('Path gambar tidak valid'),
+                    '',
                     400
                 );
             }
         } catch (ValidationException $e) {
-            // Menggunakan method jsonValidationError dari BaseControllerFunction
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
-            // Menggunakan method jsonError dari BaseControllerFunction
             return $this->jsonError($e);
         }
     }

@@ -31,7 +31,6 @@
     
                 @foreach ($sortedMedia as $index => $media)
                     <div class="custom-slide {{ $index == 0 ? 'active' : '' }}">
-                        {{-- <div class="overlay"></div> --}}
                         <img src="{{ $media['url'] }}" alt="Hero Slide {{ $index + 1 }}">
                         
                         @if ($index == 0)

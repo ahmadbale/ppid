@@ -138,6 +138,102 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p> Berita 
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/berita-dinamis') }}"
+                                        class="nav-link {{ $activeMenu == 'berita-dinamis' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Kategori-Berita</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/berita') }}"
+                                        class="nav-link {{ $activeMenu == 'berita' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Berita</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p> Pengumuman
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/AdminWeb/PengumumanDinamis') }}"
+                                        class="nav-link {{ $activeMenu == 'PengumumanDinamis' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Kategori Pengumuman</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/AdminWeb/Pengumuman') }}"
+                                        class="nav-link {{ $activeMenu == 'Pengumuman' ? 'active' : '' }}">
+                                        <i class="fas fa-newspaper nav-icon"></i>
+                                        <p>Pengumuman</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p> Media Dinamis
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/media-dinamis') }}"
+                                        class="nav-link {{ $activeMenu == 'berita-dinamis' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Kategori-Media</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/media-detail') }}"
+                                        class="nav-link {{ $activeMenu == 'berita' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Data Media Dinamis</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p> Data LHKPN
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/lhkpn-tahun') }}"
+                                        class="nav-link {{ $activeMenu == 'Lhkpn Tahun' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Tahun Lhkpn</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/detail-lhkpn') }}"
+                                        class="nav-link {{ $activeMenu == 'detail-lhkpn' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Detail Lhkpn</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </li>
                 @endif
 
@@ -180,7 +276,7 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanPerawatan') }}"
-                                class="nav-link {{ $activeMenu == 'WBS' ? 'active' : '' }}">
+                                class="nav-link {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
                                 <i class="fas fa-file-alt nav-icon"></i>
                                 <p>Permohonan Perawatan SarPras</p>
                             </a>
@@ -194,6 +290,15 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/KategoriForm') }}"
+                                class="nav-link {{ $activeMenu == 'KategoriForm' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Pengaturan Kategori Form</p>
+                            </a>
+                        </li>
+                    </ul>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/Timeline') }}"
@@ -353,7 +458,7 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/RPN/PermohonanPerawatan') }}"
-                                class="nav-link {{ $activeMenu == 'WBS' ? 'active' : '' }}">
+                                class="nav-link {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
                                 <i class="fas fa-file-alt nav-icon"></i>
                                 <p>Permohonan Perawatan SarPras</p>
                             </a>
