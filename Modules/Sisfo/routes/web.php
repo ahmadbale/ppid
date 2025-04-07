@@ -29,6 +29,8 @@ use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawata
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -313,5 +315,28 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteData/{id}', [PengumumanController::class, 'deleteData']);
         Route::post('/uploadImage', [PengumumanController::class, 'uploadImage']);
         Route::post('/removeImage', [PengumumanController::class, 'removeImage']);
+    });
+
+    Route::group(['prefix' => 'adminweb/informasipublik/lhkpn-tahun', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [LhkpnController::class, 'index']);
+        Route::get('/getData', [LhkpnController::class, 'getData']);
+        Route::get('/addData', [LhkpnController::class, 'addData']);
+        Route::post('/createData', [LhkpnController::class, 'createData']);
+        Route::get('/editData/{id}', [LhkpnController::class, 'editData']);
+        Route::post('/updateData/{id}', [LhkpnController::class, 'updateData']);
+        Route::get('/detailData/{id}', [LhkpnController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [LhkpnController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [LhkpnController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/detail-lhkpn', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [DetailLhkpnController::class, 'index']);
+        Route::get('/getData', [DetailLhkpnController::class, 'getData']);
+        Route::get('/addData', [DetailLhkpnController::class, 'addData']);
+        Route::post('/createData', [DetailLhkpnController::class, 'createData']);
+        Route::get('/editData/{id}', [DetailLhkpnController::class, 'editData']);
+        Route::post('/updateData/{id}', [DetailLhkpnController::class, 'updateData']);
+        Route::get('/detailData/{id}', [DetailLhkpnController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
     });
 });
