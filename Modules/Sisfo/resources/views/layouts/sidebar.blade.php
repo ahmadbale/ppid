@@ -156,10 +156,6 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/berita') }}"
                                         class="nav-link {{ $activeMenu == 'berita' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
-                                        <p>Berita</p>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -194,7 +190,6 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item">
                                     <a href="{{ url('/adminweb/media-dinamis') }}"
                                         class="nav-link {{ $activeMenu == 'berita-dinamis' ? 'active' : '' }}">
                                         <i class="fas fa-tasks nav-icon"></i>
@@ -241,8 +236,6 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                 <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-folder-open"></i>
-                        <p> E-Form
-                            <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">

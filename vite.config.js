@@ -13,7 +13,9 @@ export default defineConfig({
                 'resources/js/upload-bukti.js',
                 'resources/css/sidebar.css',
                 'resources/js/timeline.js',
-                'resources/css/timeline.css'
+                'resources/css/timeline.css',
+                'resources/css/summernote.css',
+                'resources/js/summernote.js'
                 ],
             refresh: true,
         }),

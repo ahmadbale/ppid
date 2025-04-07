@@ -7,7 +7,6 @@ use Modules\Sisfo\App\Models\Website\Publikasi\Pengumuman\PengumumanDinamisModel
 use Modules\Sisfo\App\Models\Website\Publikasi\Pengumuman\PengumumanModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
