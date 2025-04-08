@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
   <!-- SweetAlert2 -->
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
- 
+
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/adminlte.min.css')}}">
 
@@ -36,13 +36,13 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{{ url('/profile') }}" class="brand-link">
-      <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('modules/sisfo/user.png') }}" 
-           alt="User Profile Picture" 
-           class="brand-image img-circle elevation-3" 
+      <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('modules/sisfo/user.png') }}"
+           alt="User Profile Picture"
+           class="brand-image img-circle elevation-3"
            style="width: 32px; height: 40px; object-fit: cover; opacity: .8;">
       <span class="brand-text font-weight-light">{{ Auth::user()->nama_pengguna }}</span>
     </a>
-  
+
     <!-- Sidebar -->
     @include("sisfo::layouts.sidebar")
     <!-- /.sidebar -->
@@ -88,7 +88,7 @@
 <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 <!-- modules/sisfo/AdminLTE App -->
 <script src="{{ asset('/modules/sisfo/adminlte/dist/js/adminlte.min.js')}}"></script>
-<script> 
+<script>
     //Untuk Mengirimkan token laravel CSRF pada setiap request ajax
     $.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
 </script>
@@ -107,6 +107,6 @@
     "extendedTimeOut": "500"
 }
 </script>
-@stack('js') 
+@stack('js')
 </body>
 </html>
