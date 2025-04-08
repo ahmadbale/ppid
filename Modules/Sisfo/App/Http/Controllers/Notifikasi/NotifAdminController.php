@@ -48,7 +48,7 @@ class NotifAdminController extends Controller
 
         $activeMenu = 'notifikasi';
 
-        return view('Notifikasi/NotifAdmin.notifPI', [
+        return view('sisfo::Notifikasi/NotifAdmin.notifPI', [
             'notifikasi' => $notifikasi,
             'breadcrumb' => $breadcrumb,
             'page' => $page,

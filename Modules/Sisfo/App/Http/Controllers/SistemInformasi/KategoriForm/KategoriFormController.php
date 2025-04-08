@@ -33,7 +33,7 @@ class KategoriFormController extends Controller
         // Gunakan pagination dan pencarian
         $kategoriForm = KategoriFormModel::selectData(10, $search);
 
-        return view("SistemInformasi/KategoriForm.index", [
+        return view("sisfo::SistemInformasi/KategoriForm.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -49,7 +49,7 @@ class KategoriFormController extends Controller
         $kategoriForm = KategoriFormModel::selectData(10, $search);
         
         if ($request->ajax()) {
-            return view('SistemInformasi/KategoriForm.data', compact('kategoriForm', 'search'))->render();
+            return view('sisfo::SistemInformasi/KategoriForm.data', compact('kategoriForm', 'search'))->render();
         }
         
         return redirect()->route('kategori-form.index');
@@ -57,7 +57,7 @@ class KategoriFormController extends Controller
 
     public function addData()
     {
-        return view("SistemInformasi/KategoriForm.create");
+        return view("sisfo::SistemInformasi/KategoriForm.create");
     }
 
     public function createData(Request $request)
@@ -81,7 +81,7 @@ class KategoriFormController extends Controller
     {
         $kategoriForm = KategoriFormModel::detailData($id);
 
-        return view("SistemInformasi/KategoriForm.update", [
+        return view("sisfo::SistemInformasi/KategoriForm.update", [
             'kategoriForm' => $kategoriForm
         ]);
     }
@@ -107,7 +107,7 @@ class KategoriFormController extends Controller
     {
         $kategoriForm = KategoriFormModel::detailData($id);
         
-        return view("SistemInformasi/KategoriForm.detail", [
+        return view("sisfo::SistemInformasi/KategoriForm.detail", [
             'kategoriForm' => $kategoriForm,
             'title' => 'Detail Kategori Form'
         ]);
@@ -118,7 +118,7 @@ class KategoriFormController extends Controller
         if ($request->isMethod('get')) {
             $kategoriForm = KategoriFormModel::detailData($id);
             
-            return view("SistemInformasi/KategoriForm.delete", [
+            return view("sisfo::SistemInformasi/KategoriForm.delete", [
                 'kategoriForm' => $kategoriForm
             ]);
         }

@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('SistemInformasi.Timeline.data')
+          @include('sisfo::SistemInformasi.Timeline.data')
         </div>
       </div>
   </div>

@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('SistemInformasi.KetentuanPelaporan.data')
+          @include('sisfo::SistemInformasi.KetentuanPelaporan.data')
         </div>
       </div>
   </div>
