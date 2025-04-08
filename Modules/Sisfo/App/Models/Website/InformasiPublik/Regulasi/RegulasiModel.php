@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Website\InformasiPublik\Regulasi;
+namespace App\Models\Website\InformasiPublik\Regulasi;
 
-use Modules\Sisfo\App\Models\TraitsModel;
+use App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class RegulasiModel extends Model

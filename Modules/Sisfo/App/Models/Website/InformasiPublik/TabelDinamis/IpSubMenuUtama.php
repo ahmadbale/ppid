@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
+namespace App\Models\Website\InformasiPublik\TabelDinamis;
 
-use Modules\Sisfo\App\Models\TraitsModel;
+use App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
 class IpSubMenuUtama extends Model

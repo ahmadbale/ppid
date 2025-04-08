@@ -4,7 +4,7 @@
 
 <?php
 
-use App\Models\Log\NotifAdminModel;
+use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 
 // Hitung jumlah notifikasi untuk kategori 'permohonan'
 $jumlahNotifikasiPermohonan = NotifAdminModel::where('kategori_notif_admin', 'E-Form Permohonan Informasi')

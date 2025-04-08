@@ -11,15 +11,21 @@
             Selamat Datang Admin di PPID Polinema
 
             <div class="card-footer">
-                <p>Nama Pengguna: {{ session('nama_pengguna') }}</p>
-                <p>Email: {{ session('email_pengguna') }}</p>
-                <p>Alamat: {{ session('alamat_pengguna')}}
-                <p>No HP: {{ session('no_hp_pengguna') }}</p>
-                <p>Pekerjaan: {{ session('pekerjaan_pengguna') }}</p>
-                <p>NIK: {{ session('nik_pengguna')}}
-                <p>Foto NIk: {{ session('upload_nik_pengguna')}}
-                <p>Alias: {{ session('alias') }}</p>
+                <p>Nama Pengguna: {{ session('user_data.nama_pengguna') }}</p>
+                <p>Email: {{ session('user_data.email_pengguna') }}</p>
+                <p>Alamat: {{ session('user_data.alamat_pengguna')}}
+                <p>No HP: {{ session('user_data.no_hp_pengguna') }}</p>
+                <p>Pekerjaan: {{ session('user_data.pekerjaan_pengguna') }}</p>
+                <p>NIK: {{ session('user_data.nik_pengguna')}}
+                <p>Foto NIk: {{ session('user_data.upload_nik_pengguna')}}
+                <p>Alias: {{ session('user_data.alias') }}</p>
             </div>
+
+            @if(app()->environment('local'))
+            <hr>
+            <h4>Debug Session Data:</h4>
+            <pre>{{ print_r(session()->all(), true) }}</pre>
+            @endif
 
         </div>
     </div>

@@ -7,8 +7,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Illuminate\Validation\ValidationException;
-use App\Models\Website\LandingPage\KategoriAkses\AksesCepatModel;
-use App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
+use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\AksesCepatModel;
+use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
 
 class AksesCepatController extends Controller
 {
@@ -85,7 +85,7 @@ class AksesCepatController extends Controller
                $aksesCepat = AksesCepatModel::findOrFail($id);
                $kategoriAkses = KategoriAksesModel::where('isDeleted', 0)->get();
      
-               return view('AdminWeb.AksesCepat.update', [
+               return view('sisfo::AdminWeb.AksesCepat.update', [
                     'aksesCepat' => $aksesCepat,
                     'kategoriAkses' => $kategoriAkses
                ]);

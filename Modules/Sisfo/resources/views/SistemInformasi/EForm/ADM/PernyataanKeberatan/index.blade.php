@@ -3,7 +3,7 @@
 
 <?php
 // Di bagian awal view atau sebelum dibutuhkan
-$data = app()->call([app('App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController'), 'getData']);
+$data = app()->call([app('Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController'), 'getData']);
 $timeline = $data['timeline'];
 $ketentuanPelaporan = $data['ketentuanPelaporan'];
 ?>

@@ -120,7 +120,7 @@ public function getData(Request $request)
             $footer = FooterModel::findOrFail($id);
             $kategoriFooters = KategoriFooterModel::where('isDeleted', 0)->get();
             
-            return view('AdminWeb.Footer.update', [
+            return view('sisfo::AdminWeb.Footer.update', [
                 'footer' => $footer,
                 'kategoriFooters' => $kategoriFooters
             ]);
