@@ -1,4 +1,4 @@
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
   <div class="card card-outline card-primary">
@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('AdminWeb.KategoriAkses.data')
+          @include('sisfo::AdminWeb.KategoriAkses.data')
         </div>
       </div>
   </div>
