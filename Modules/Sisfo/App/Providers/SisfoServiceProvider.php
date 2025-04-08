@@ -4,6 +4,7 @@ namespace Modules\Sisfo\App\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class SisfoServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,11 @@ class SisfoServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
+        // tambahan saya 
+        // Konfigurasi pagination
+        Paginator::useBootstrap();
+
+     
     }
 
     /**
