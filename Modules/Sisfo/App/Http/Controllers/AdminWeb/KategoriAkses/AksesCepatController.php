@@ -85,7 +85,7 @@ class AksesCepatController extends Controller
                $aksesCepat = AksesCepatModel::findOrFail($id);
                $kategoriAkses = KategoriAksesModel::where('isDeleted', 0)->get();
      
-               return view('AdminWeb.AksesCepat.update', [
+               return view('sisfo::AdminWeb.AksesCepat.update', [
                     'aksesCepat' => $aksesCepat,
                     'kategoriAkses' => $kategoriAkses
                ]);
