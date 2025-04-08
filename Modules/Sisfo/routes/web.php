@@ -31,6 +31,7 @@ use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFor
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
+use Modules\Sisfo\App\Http\Controllers\SummernoteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/updateData', [HakAksesController::class, 'update'])->middleware('authorize:SAR');
 
     Route::get('/session', [AuthController::class, 'getData']);
+    Route::get('/js/summernote.js', [SummernoteController::class, 'getSummernoteJS']);
+    Route::get('/css/summernote.css', [SummernoteController::class, 'getSummernoteCSS']);
 
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);
