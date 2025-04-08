@@ -7,8 +7,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Illuminate\Validation\ValidationException;
-use App\Models\Website\LandingPage\KategoriAkses\AksesCepatModel;
-use App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
+use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\AksesCepatModel;
+use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\KategoriAksesModel;
 
 class AksesCepatController extends Controller
 {

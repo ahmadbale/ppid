@@ -1,6 +1,6 @@
 <!-- views/AdminWeb/KategoriFooter/index.blade.php -->
 
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
   <div class="card card-outline card-primary">

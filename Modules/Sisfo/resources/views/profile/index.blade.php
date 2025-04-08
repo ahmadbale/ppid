@@ -59,7 +59,7 @@
                                             <input type="text"
                                                 class="form-control @error('alias') is-invalid @enderror"
                                                 id="alias" name="alias"
-                                                value="{{ session('alias') }}" disabled>
+                                                value="{{ session('user_data.alias') }}" disabled>
                                             @error('alias')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror

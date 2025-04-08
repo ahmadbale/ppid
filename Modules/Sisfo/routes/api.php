@@ -13,6 +13,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 
 
@@ -48,7 +49,6 @@ Route::prefix('auth')->group(function () {
         // Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         // Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
         Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
-
     });
 });
 
@@ -62,12 +62,12 @@ Route::prefix('public')->group(function () {
     Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
     Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
     Route::get('getDataPintasanLainnya', [ApiPintasanLainnyaController::class, 'getDataPintasanLainnya']);
-    Route::get('getDataAksesCepat',[ApiAksesCepatController::class,'getDataAksesCepat']);
+    Route::get('getDataAksesCepat', [ApiAksesCepatController::class, 'getDataAksesCepat']);
     Route::get('getDataMenu', [ApiMenuController::class, 'getDataMenu']);
     Route::get('getDataPengumumanLandingPage', [ApiPengumumanLandingPageController::class, 'getDataPengumumanLandingPage']);
-    Route::get('getDataBeritaLandingPage',[ApiBeritaLandingPageController::class,'getDataBeritaLandingPage']);
-    Route::get('getDataHeroSection',[ApiMediaDinamisController::class,'getDataHeroSection']);
-    Route::get('getDataDokumentasi',[ApiMediaDinamisController::class,'getDataDokumentasi']);
-    Route::get('getDataMediaInformasiPublik',[ApiMediaDinamisController::class,'getDataMediaInformasiPublik']);
-    
+    Route::get('getDataBeritaLandingPage', [ApiBeritaLandingPageController::class, 'getDataBeritaLandingPage']);
+    Route::get('getDataHeroSection', [ApiMediaDinamisController::class, 'getDataHeroSection']);
+    Route::get('getDataDokumentasi', [ApiMediaDinamisController::class, 'getDataDokumentasi']);
+    Route::get('getDataMediaInformasiPublik', [ApiMediaDinamisController::class, 'getDataMediaInformasiPublik']);
+    Route::get('getDataBerita', [ApiBeritaController::class, 'getDataBerita']);
 });
