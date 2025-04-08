@@ -57,7 +57,7 @@ class DetailLhkpnController extends Controller
             return view('sisfo::AdminWeb/InformasiPublik/DetailLhkpn.data', compact('detailLhkpn', 'search'))->render();
         }
         
-        return redirect()->route('detail-lhkpn.index');
+        return redirect()->route('sisfo::detail-lhkpn.index');
     }
   
     public function addData()
@@ -165,8 +165,7 @@ class DetailLhkpnController extends Controller
             
             // Hapus file dari storage jika ada
             if ($detailLhkpn->dl_file_lhkpn) {
-                $filePath = str_replace('storage/', '', $detailLhkpn->dl_file_lhkpn);
-                Storage::disk('public')->delete($filePath);
+                Storage::delete($detailLhkpn->dl_file_lhkpn);
             }
             
             $result = DetailLhkpnModel::deleteData($id);
@@ -175,7 +174,6 @@ class DetailLhkpnController extends Controller
             return response()->json(DetailLhkpnModel::responFormatError($e, 'Terjadi kesalahan saat menghapus detail LHKPN'));
         }
     }
-
     private function processFileUpload(Request $request, $id = null)
     {
         if (!$request->hasFile('lhkpn_file')) {
@@ -185,22 +183,21 @@ class DetailLhkpnController extends Controller
         $file = $request->file('lhkpn_file');
         $fileExt = $file->getClientOriginalExtension();
         
-        // Generate random filename
+        // Generate nama file acak
         $randomName = Str::random(20) . '.' . $fileExt;
         
         // Hapus file lama jika sedang update
         if ($id) {
             $detailLhkpn = DetailLhkpnModel::findOrFail($id);
             if ($detailLhkpn->dl_file_lhkpn) {
-                $oldFilePath = str_replace('storage/', '', $detailLhkpn->dl_file_lhkpn);
-                Storage::disk('public')->delete($oldFilePath);
+                Storage::delete($detailLhkpn->dl_file_lhkpn);
             }
         }
         
         // Simpan file di storage/app/public/lhkpn
         $path = $file->storeAs('lhkpn', $randomName, 'public');
         
-        // Update request
+        // update request dengan path
         $request->merge([
             't_detail_lhkpn' => array_merge(
                 $request->t_detail_lhkpn,
