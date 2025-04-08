@@ -17,18 +17,23 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/fontawesome-free/css/all.min.css')}}">
   <!-- DataTables -->
-  <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+  <link rel="stylesheet"
+    href="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+  <link rel="stylesheet"
+    href="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+  <link rel="stylesheet"
+    href="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
   <!-- SweetAlert2 -->
-  <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+  <link rel="stylesheet"
+    href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/adminlte.min.css')}}">
 
   <!-- Summernote CSS -->
   <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
-  @vite('resources/css/summernote.css')
+  <!-- Custom Summernote CSS (dari Controller) -->
+  <link href="{{ url('/css/summernote.css') }}" rel="stylesheet">
   @stack('css') <!-- Digunakan untuk memanggil custom css dari perintah push('css') pada masing-masing view -->
 </head>
 
@@ -43,7 +48,8 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="{{ url('/profile') }}" class="brand-link">
-        <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('modules/sisfo/user.png') }}"
+        <img
+          src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('modules/sisfo/user.png') }}"
           alt="User Profile Picture" class="brand-image img-circle elevation-3"
           style="width: 32px; height: 40px; object-fit: cover; opacity: .8;">
         <span class="brand-text font-weight-light">{{ Auth::user()->nama_pengguna }}</span>
@@ -77,8 +83,10 @@
   <!-- DataTables  & Plugins -->
   <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
   <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-  <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-  <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+  <script
+    src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+  <script
+    src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
   <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
   <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
   <script src="{{ asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
@@ -114,10 +122,11 @@
     }
   </script>
 
-<!-- Summernote JS -->
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-@vite('resources/js/summernote.js')
+  <!-- Summernote JS -->
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+  <!-- Custom Summernote JS (dari Controller) -->
+  <script src="{{ url('/js/summernote.js') }}"></script>
   @stack('js')
 </body>
 
