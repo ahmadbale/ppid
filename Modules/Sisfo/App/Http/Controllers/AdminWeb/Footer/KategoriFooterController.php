@@ -26,7 +26,7 @@ class KategoriFooterController extends Controller
 
         $activeMenu = 'kategori-footer';
 
-        return view('sisfo::AdminWeb.KategoriFooter.index', [
+    return view('sisfo::AdminWeb.KategoriFooter.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
