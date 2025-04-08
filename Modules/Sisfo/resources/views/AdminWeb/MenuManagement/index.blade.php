@@ -1,5 +1,5 @@
 {{-- resources/views/adminweb/MenuManagement/index.blade.php --}}
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
     <div class="card card-outline card-primary">
@@ -8,7 +8,7 @@
             <div class="card-tools">
                 @if(
                     Auth::user()->level->level_kode === 'SAR' ||
-                    App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'create')
+                    Modules\Sisfo\App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'create')
                 )
                 <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addMenuModal">
                     <i class="fas fa-plus"></i> Tambah Menu
@@ -36,7 +36,7 @@
                             <div class="dd nestable-ADM" data-jenis="ADM">
                                 <ol class="dd-list">
                                     @foreach($menusByJenis['ADM']['menus'] as $menu)
-                                        @include('adminweb.MenuManagement.menu-item', ['menu' => $menu])
+                                        @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu])
                                     @endforeach
                                 </ol>
                             </div>
@@ -61,7 +61,7 @@
                             <div class="dd nestable-RPN" data-jenis="RPN">
                                 <ol class="dd-list">
                                     @foreach($menusByJenis['RPN']['menus'] as $menu)
-                                        @include('adminweb.MenuManagement.menu-item', ['menu' => $menu])
+                                        @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu])
                                     @endforeach
                                 </ol>
                             </div>
@@ -88,7 +88,7 @@
                             <div class="dd nestable-MPU" data-jenis="MPU">
                                 <ol class="dd-list">
                                     @foreach($menusByJenis['MPU']['menus'] as $menu)
-                                        @include('adminweb.MenuManagement.menu-item', ['menu' => $menu])
+                                        @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu])
                                     @endforeach
                                 </ol>
                             </div>
@@ -113,7 +113,7 @@
                             <div class="dd nestable-VFR" data-jenis="VFR">
                                 <ol class="dd-list">
                                     @foreach($menusByJenis['VFR']['menus'] as $menu)
-                                        @include('adminweb.MenuManagement.menu-item', ['menu' => $menu])
+                                        @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu])
                                     @endforeach
                                 </ol>
                             </div>
@@ -137,7 +137,7 @@
     <!-- Add Menu Modal -->
     @if(
         Auth::user()->level->level_kode === 'SAR' ||
-        App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'create')
+        Modules\Sisfo\App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'create')
     )
         <div class="modal fade" id="addMenuModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -574,7 +574,7 @@
             // Edit Menu
             @if(
                 Auth::user()->level->level_kode === 'SAR' ||
-                App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'update')
+                Modules\Sisfo\App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'update')
             )
                 $(document).on('click', '.edit-menu', function () {
                     let menuId = $(this).data('id');
@@ -631,7 +631,7 @@
             // Hapus Menu
             @if(
                 Auth::user()->level->level_kode === 'SAR' ||
-                App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'delete')
+                 Modules\Sisfo\App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'delete')
             )
                 $(document).on('click', '.delete-menu', function () {
                     let menuId = $(this).data('id');

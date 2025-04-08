@@ -8,7 +8,7 @@
             </span>
             <span class="badge badge-info">
                 @php
-                    $jenisMenuList = \App\Models\Website\WebMenuModel::getJenisMenuList();
+                    $jenisMenuList =  Modules\Sisfo\App\Models\Website\WebMenuModel::getJenisMenuList();
                     echo $jenisMenuList[$menu->wm_jenis_menu] ?? $menu->wm_jenis_menu;
                 @endphp
             </span>
@@ -21,7 +21,7 @@
 
             <!-- Tombol Edit hanya tampil jika user adalah SAR atau memiliki hak akses update -->
             @if(Auth::user()->level->level_kode === 'SAR' || 
-                App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'update'))
+                 Modules\Sisfo\App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'update'))
             <button type="button" class="btn btn-xs btn-warning edit-menu dd-nodrag" data-id="{{ $menu->web_menu_id }}"
                 data-toggle="modal" data-target="#editMenuModal">
                 <i class="fas fa-edit"></i>
@@ -30,7 +30,7 @@
             
             <!-- Tombol Delete hanya tampil jika user adalah SAR atau memiliki hak akses delete -->
             @if(Auth::user()->level->level_kode === 'SAR' || 
-                App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'delete'))
+                 Modules\Sisfo\App\Models\HakAkses\HakAksesModel::cekHakAkses(Auth::user()->user_id, 'adminweb/menu-management', 'delete'))
             <button type="button" class="btn btn-xs btn-danger delete-menu dd-nodrag"
                 data-id="{{ $menu->web_menu_id }}" data-name="{{ $menu->wm_menu_nama }}" data-toggle="modal"
                 data-target="#deleteConfirmModal">
@@ -42,7 +42,7 @@
     @if ($menu->children->count() > 0)
         <ol class="dd-list">
             @foreach ($menu->children as $child)
-                @include('adminweb.MenuManagement.menu-item', ['menu' => $child])
+                @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $child])
             @endforeach
         </ol>
     @endif

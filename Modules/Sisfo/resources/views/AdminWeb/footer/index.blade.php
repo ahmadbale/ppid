@@ -1,4 +1,4 @@
-@extends('layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
   <div class="card card-outline card-primary">
@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('AdminWeb.Footer.data')
+          @include('sisfo::AdminWeb.Footer.data')
         </div>
       </div>
   </div>

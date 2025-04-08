@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('SistemInformasi.KategoriForm.data')
+          @include('sisfo::SistemInformasi.KategoriForm.data')
         </div>
       </div>
   </div>
