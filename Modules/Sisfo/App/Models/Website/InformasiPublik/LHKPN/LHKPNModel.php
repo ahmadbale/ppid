@@ -27,46 +27,112 @@ class LhkpnModel extends Model
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
 
-    public static function getDataLhkpn($request = null)
+    // public static function getDataLhkpn($request = null)
+    // {
+    //     // Parameter default
+    //     $perPage = $request->input('per_page', 10);
+    //     $page = $request->input('page', 1);
+    //     $tahun = $request->input('tahun', null);
+    //     $search = $request->input('search', '');
+
+    //     // Query dasar untuk LHKPN
+    //     $query = self::where('isDeleted', 0)
+    //         ->select(
+    //             'lhkpn_id',
+    //             'lhkpn_tahun',
+    //             'lhkpn_judul_informasi',
+    //             'lhkpn_deskripsi_informasi',
+    //             'updated_at' // Tambahkan kolom updated_at
+    //         )
+    //         ->orderBy('lhkpn_tahun', 'desc');
+
+    //     // Filter berdasarkan tahun jika diberikan
+    //     if ($tahun !== null) {
+    //         $query->where('lhkpn_tahun', $tahun);
+    //     }
+
+    //     // Filter pencarian jika ada
+    //     if (!empty($search)) {
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('lhkpn_judul_informasi', 'like', "%{$search}%")
+    //                 ->orWhere('lhkpn_deskripsi_informasi', 'like', "%{$search}%")
+    //                 ->orWhere('lhkpn_tahun', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     // Ambil data dengan pagination
+    //     $lhkpnData = $query->paginate($perPage);
+
+    //     // Tambahkan detail karyawan untuk setiap LHKPN
+    //     $lhkpnData->getCollection()->transform(function ($lhkpn) {
+    //         // Ambil detail karyawan untuk LHKPN ini
+    //         $details = DetailLhkpnModel::where('fk_m_lhkpn', $lhkpn->lhkpn_id)
+    //             ->where('isDeleted', 0)
+    //             ->select(
+    //                 'detail_lhkpn_id',
+    //                 'dl_nama_karyawan',
+    //                 'dl_file_lhkpn'
+    //             )
+    //             ->orderBy('dl_nama_karyawan')
+    //             ->offset(0)
+    //             ->limit(10) // Batasi 10 karyawan pertama
+    //             ->get()
+    //             ->map(function ($detail) {
+    //                 return [
+    //                     'id' => $detail->detail_lhkpn_id,
+    //                     'nama_karyawan' => $detail->dl_nama_karyawan,
+    //                     'file' => $detail->dl_file_lhkpn
+    //                         ? asset('storage/lhkpn/' . $detail->dl_file_lhkpn)
+    //                         : null
+    //                 ];
+    //             });
+
+    //         // Hitung total karyawan
+    //         $totalKaryawan = DetailLhkpnModel::where('fk_m_lhkpn', $lhkpn->lhkpn_id)
+    //             ->where('isDeleted', 0)
+    //             ->count();
+
+    //         return [
+    //             'id' => $lhkpn->lhkpn_id,
+    //             'tahun' => $lhkpn->lhkpn_tahun,
+    //             'judul' => $lhkpn->lhkpn_judul_informasi,
+    //             'deskripsi' => $lhkpn->lhkpn_deskripsi_informasi,
+    //             'updated_at' => $lhkpn->updated_at ? $lhkpn->updated_at->format('d M Y, H:i:s') : null, // Format tanggal opsional
+    //             'details' => $details,
+    //             'total_karyawan' => $totalKaryawan,
+    //             'has_more' => $totalKaryawan > 10
+    //         ];
+    //     });
+
+
+    //     return $lhkpnData;
+    // }
+    public static function getDataLhkpn($per_page = 5, $tahun = null, $page = 1)
     {
-        // Parameter default
-        $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
-        $tahun = $request->input('tahun', null);
-        $search = $request->input('search', '');
-
-        // Query dasar untuk LHKPN
-        $query = self::where('isDeleted', 0)
-            ->select(
-                'lhkpn_id',
-                'lhkpn_tahun',
-                'lhkpn_judul_informasi',
-                'lhkpn_deskripsi_informasi',
-                'updated_at' // Tambahkan kolom updated_at
-            )
-            ->orderBy('lhkpn_tahun', 'desc');
-
-        // Filter berdasarkan tahun jika diberikan
+        // Base query for LHKPN 
+        $query = DB::table('m_lhkpn as ml')
+            ->select([
+                'ml.lhkpn_id',
+                'ml.lhkpn_tahun',
+                'ml.lhkpn_judul_informasi',
+                'ml.lhkpn_deskripsi_informasi',
+                'ml.updated_at'
+            ])
+            ->where('ml.isDeleted', 0);
+    
+        // Filter by year if provided
         if ($tahun !== null) {
-            $query->where('lhkpn_tahun', $tahun);
+            $query->where('ml.lhkpn_tahun', $tahun);
         }
-
-        // Filter pencarian jika ada
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('lhkpn_judul_informasi', 'like', "%{$search}%")
-                    ->orWhere('lhkpn_deskripsi_informasi', 'like', "%{$search}%")
-                    ->orWhere('lhkpn_tahun', 'like', "%{$search}%");
-            });
-        }
-
-        // Ambil data dengan pagination
-        $lhkpnData = $query->paginate($perPage);
-
-        // Tambahkan detail karyawan untuk setiap LHKPN
-        $lhkpnData->getCollection()->transform(function ($lhkpn) {
-            // Ambil detail karyawan untuk LHKPN ini
-            $details = DetailLhkpnModel::where('fk_m_lhkpn', $lhkpn->lhkpn_id)
+    
+        // Get LHKPN data ordered by year
+        $lhkpnData = $query->orderBy('ml.lhkpn_id', 'asc')->get();
+    
+        // Transform the data
+        $transformedData = $lhkpnData->map(function ($lhkpn) use ($per_page, $page) {
+            // Fetch ALL details for each LHKPN
+            $allDetails = DB::table('t_detail_lhkpn')
+                ->where('fk_m_lhkpn', $lhkpn->lhkpn_id)
                 ->where('isDeleted', 0)
                 ->select(
                     'detail_lhkpn_id',
@@ -74,38 +140,64 @@ class LhkpnModel extends Model
                     'dl_file_lhkpn'
                 )
                 ->orderBy('dl_nama_karyawan')
-                ->offset(0)
-                ->limit(10) // Batasi 10 karyawan pertama
-                ->get()
-                ->map(function ($detail) {
-                    return [
-                        'id' => $detail->detail_lhkpn_id,
-                        'nama_karyawan' => $detail->dl_nama_karyawan,
-                        'file' => $detail->dl_file_lhkpn
-                            ? asset('storage/lhkpn/' . $detail->dl_file_lhkpn)
-                            : null
-                    ];
-                });
-
-            // Hitung total karyawan
-            $totalKaryawan = DetailLhkpnModel::where('fk_m_lhkpn', $lhkpn->lhkpn_id)
-                ->where('isDeleted', 0)
-                ->count();
-
+                ->get();
+    
+            // Paginate the details
+            $totalDetails = $allDetails->count();
+            $totalPages = ceil($totalDetails / $per_page);
+            $offset = ($page - 1) * $per_page;
+            $paginatedDetails = $allDetails->slice($offset, $per_page);
+    
+            // Transform details
+            $details = $paginatedDetails->map(function ($detail) {
+                return [
+                    'id' => $detail->detail_lhkpn_id,
+                    'nama_karyawan' => $detail->dl_nama_karyawan,
+                    'file' => $detail->dl_file_lhkpn
+                        ? asset('storage/' . $detail->dl_file_lhkpn)
+                        : null
+                ];
+            });
+    
+            // Format update date
+            $tanggalUpdate = $lhkpn->updated_at
+                ? \Carbon\Carbon::parse($lhkpn->updated_at)->format('d F Y, H:i:s')
+                : null;
+    
+            $deskripsi = trim($lhkpn->lhkpn_deskripsi_informasi);
+            // $deskripsi = preg_replace('/<[^>]*>/', '', trim($lhkpn->lhkpn_deskripsi_informasi));
+    
+            // Prepare pagination info
+            $nextPage = $page < $totalPages ? $page + 1 : null;
+            $prevPage = $page > 1 ? $page - 1 : null;
+    
             return [
                 'id' => $lhkpn->lhkpn_id,
                 'tahun' => $lhkpn->lhkpn_tahun,
                 'judul' => $lhkpn->lhkpn_judul_informasi,
-                'deskripsi' => $lhkpn->lhkpn_deskripsi_informasi,
-                'updated_at' => $lhkpn->updated_at ? $lhkpn->updated_at->format('d M Y, H:i:s') : null, // Format tanggal opsional
+                'deskripsi' => $deskripsi,
+                'updated_at' => $tanggalUpdate,
                 'details' => $details,
-                'total_karyawan' => $totalKaryawan,
-                'has_more' => $totalKaryawan > 10
+                'total_karyawan' => $totalDetails,
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'next_page' => $nextPage,
+                'prev_page' => $prevPage
             ];
-        });
-
-
-        return $lhkpnData;
+        })->toArray();
+    
+        // Return response
+        return [
+            'success' => true,
+            'message' => 'Data LHKPN berhasil diambil.',
+            'data' => [
+                'current_page' => $page,
+                'data' => $transformedData,
+                'total_pages' => 1, 
+                'total_items' => count($lhkpnData),
+                'per_page' => $per_page
+            ]
+        ];
     }
     public static function selectData($perPage = null, $search = '')
     {

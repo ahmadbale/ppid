@@ -31,7 +31,7 @@
     @yield('content')
 
     <!-- Include Footer -->
-    @include('user::layout.footer')
+    @include('user::layouts.footer')
 
     @stack('scripts')
 </body>
