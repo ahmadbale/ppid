@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Sisfo\App\Http\Controllers\AuthController;
 use  Modules\Sisfo\App\Http\Controllers\ProfileController;
+use Modules\Sisfo\App\Http\Controllers\SummernoteController;
 use  Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
 use  Modules\Sisfo\App\Http\Controllers\DashboardSARController;
 use  Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
@@ -19,6 +20,7 @@ use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
@@ -28,10 +30,9 @@ use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformas
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
-use Modules\Sisfo\App\Http\Controllers\SummernoteController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
+use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -341,5 +342,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [DetailLhkpnController::class, 'detailData']);
         Route::get('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [RegulasiDinamisController::class, 'index']);
+        Route::get('/getData', [RegulasiDinamisController::class, 'getData']);
+        Route::get('/addData', [RegulasiDinamisController::class, 'addData']);
+        Route::post('/createData', [RegulasiDinamisController::class, 'createData']);
+        Route::get('/editData/{id}', [RegulasiDinamisController::class, 'editData']);
+        Route::post('/updateData/{id}', [RegulasiDinamisController::class, 'updateData']);
+        Route::get('/detailData/{id}', [RegulasiDinamisController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [RegulasiDinamisController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [RegulasiDinamisController::class, 'deleteData']);
     });
 });
