@@ -92,7 +92,7 @@ Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
 Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman');
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LhkpnController::class, 'getDataLhkpn'])->name('LHKPN');
+Route::get('/LHKPN', [LhkpnController::class, 'index'])->name('LHKPN');
 
 
 
