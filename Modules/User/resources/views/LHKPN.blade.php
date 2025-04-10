@@ -30,14 +30,10 @@
             </div>
 
             @if (!empty($lhkpnItems))
-                <div class="mb-4">
-                    @foreach (explode("\n", $lhkpnItems[0]['deskripsi'] ?? '') as $deskripsiItem)
-                        @if (!empty(trim($deskripsiItem)))
-                            <p>{{ $deskripsiItem }}</p>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
+            <div class="mb-4">
+                {!! $lhkpnItems[0]['deskripsi'] ?? '' !!}
+            </div>
+        @endif
 
             <h5 class="fw-bold text-start mt-5">Dokumen LHKPN</h5>
             <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
