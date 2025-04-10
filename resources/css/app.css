@@ -1110,6 +1110,57 @@ form {
     overflow: hidden;
     max-width: 100%;
 }
+/* Custom styling for pagination - consistently black */
+.pagination .page-link {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+    transition: none; /* Prevents any transition effects */
+}
+
+/* Active state */
+.pagination .page-item.active .page-link {
+    background-color: #444; /* Slightly lighter black for active page */
+    color: #fff;
+    border-color: #333;
+    box-shadow: none; /* Remove any focus shadow */
+}
+
+/* Disabled state */
+.pagination .page-item.disabled .page-link {
+    background-color: #444;
+    color: #999;
+    border-color: #444;
+    opacity: 0.65;
+}
+
+
+/* Override hover effects */
+.pagination .page-link:hover,
+.pagination .page-link:focus,
+.pagination .page-link:active {
+    background-color: #444 !important; /* Use !important to override Bootstrap defaults */
+    color: #fff !important;
+    border-color: #000 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Override focus state */
+.pagination .page-link:focus-visible {
+    background-color: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Ensure no blue color for any state */
+.pagination .page-item a.page-link:any-link {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}
 
 /* pintasan menu */
 .pintasan  {
@@ -1635,3 +1686,4 @@ button:disabled {
     object-fit: cover;
     max-height: 120px;
 }
+
