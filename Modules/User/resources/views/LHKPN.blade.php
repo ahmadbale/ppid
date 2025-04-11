@@ -33,7 +33,7 @@
             <div class="mb-4">
                 {!! $lhkpnItems[0]['deskripsi'] ?? '' !!}
             </div>
-        @endif
+            @endif
 
             <h5 class="fw-bold text-start mt-5">Dokumen LHKPN</h5>
             <div class="mt-4 border-top border-1 pt-3 w-70 mx-auto"></div>
@@ -59,56 +59,79 @@
             </div>
 
             @if (!empty($pagination) && $pagination['last_page'] > 1 && $tahunDipilih)
-                <div class="pagination_rounded mt-4">
-                    <ul>
-                        <li>
-                            <a href="javascript:void(0)" 
-                               @click="changePage('{{ $pagination['prev_page_url'] }}')" 
-                               class="prev" 
-                               :class="{ 'disabled': '{{ $pagination['prev_page_url'] }}' === 'null' }">
-                                <i class="fa fa-angle-left" aria-hidden="true"></i> Prev
-                            </a>
+            <div id="pagination-container" class="Pagination mt-4 mb-4">
+                <ul class="pagination pagination-rounded justify-content-center gap-2">
+                    {{-- Previous --}}
+                    <li class="page-item {{ $pagination['current_page'] <= 1 ? 'disabled' : '' }}">
+                        <a class="page-link page-nav" 
+                           href="javascript:void(0);" 
+                           @click="changePage({{ $pagination['current_page'] - 1 }}, {{ $pagination['current_page'] > 1 ? 'true' : 'false' }})"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo; Prev</span>
+                        </a>
+                    </li>
+                    
+                    {{-- Numbered Pages --}}
+                    @php
+                        $totalPages = $pagination['last_page'];
+                        $currentPage = $pagination['current_page'];
+                        
+                        // Determine the range of pages to show
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($totalPages, $startPage + 4);
+                        
+                        // Adjust start page if we're near the end
+                        if ($endPage - $startPage < 4) {
+                            $startPage = max(1, $endPage - 4);
+                        }
+                    @endphp
+                    
+                    {{-- First page --}}
+                    @if($startPage > 1)
+                        <li class="page-item">
+                            <a class="page-link page-nav" href="javascript:void(0);" @click="changePage(1)">1</a>
                         </li>
-                        
-                        @php
-                            $startPage = max(1, $pagination['current_page'] - 2);
-                            $endPage = min($pagination['last_page'], $pagination['current_page'] + 2);
-                        @endphp
-                        
-                        @if ($startPage > 1)
-                            <li><a href="javascript:void(0)" @click="changePage('?page=1')">1</a></li>
-                            @if ($startPage > 2)
-                                <li class="visible-xs"><a href="javascript:void(0)">...</a></li>
-                            @endif
-                        @endif
-                        
-                        @for ($i = $startPage; $i <= $endPage; $i++)
-                            <li class="{{ $i == $pagination['current_page'] ? 'active' : '' }}">
-                                <a href="javascript:void(0)" @click="changePage('?page={{ $i }}')">{{ $i }}</a>
-                            </li>
-                        @endfor
-                        
-                        @if ($endPage < $pagination['last_page'])
-                            @if ($endPage < $pagination['last_page'] - 1)
-                                <li class="visible-xs"><a href="javascript:void(0)">...</a></li>
-                            @endif
-                            <li>
-                                <a href="javascript:void(0)" @click="changePage('?page={{ $pagination['last_page'] }}')">
-                                    {{ $pagination['last_page'] }}
-                                </a>
+                        @if($startPage > 2)
+                            <li class="page-item d-none d-md-inline">
+                                <span class="page-link">...</span>
                             </li>
                         @endif
-                        
-                        <li>
-                            <a href="javascript:void(0)" 
-                               @click="changePage('{{ $pagination['next_page_url'] }}')" 
-                               class="next"
-                               :class="{ 'disabled': '{{ $pagination['next_page_url'] }}' === 'null' }">
-                                Next <i class="fa fa-angle-right" aria-hidden="true"></i>
-                            </a>
+                    @endif
+                    
+                    {{-- Page numbers --}}
+                    @for($i = $startPage; $i <= $endPage; $i++)
+                        <li class="page-item {{ $i == $currentPage ? 'active' : '' }} {{ ($i != $startPage && $i != $endPage && $i != $currentPage) ? 'd-none d-md-inline' : '' }}">
+                            @if($i == $currentPage)
+                                <span class="page-link">{{ $i }}</span>
+                            @else
+                                <a class="page-link page-nav" href="javascript:void(0);" @click="changePage({{ $i }})">{{ $i }}</a>
+                            @endif
                         </li>
-                    </ul>
-                </div>
+                    @endfor
+                    
+                    {{-- Last page --}}
+                    @if($endPage < $totalPages)
+                        @if($endPage < $totalPages - 1)
+                            <li class="page-item d-inline d-md-none">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                        <li class="page-item">
+                            <a class="page-link page-nav" href="javascript:void(0);" @click="changePage({{ $totalPages }})">{{ $totalPages }}</a>
+                        </li>
+                    @endif
+                        
+                    {{-- Next --}}
+                    <li class="page-item {{ $pagination['current_page'] >= $pagination['last_page'] ? 'disabled' : '' }}">
+                        <a class="page-link page-nav" 
+                           href="javascript:void(0);" 
+                           @click="changePage({{ $pagination['current_page'] + 1 }}, {{ $pagination['current_page'] < $pagination['last_page'] ? 'true' : 'false' }})"
+                           aria-label="Next">
+                            <span aria-hidden="true">Next &raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
             @endif
         </div>
     </div>
@@ -118,18 +141,16 @@
     <script>
         function lhkpnHandler() {
             return {
-                changePage(url) {
-                    if (!url || url === 'null') {
+                changePage(pageNumber, isEnabled = true) {
+                    if (!isEnabled) {
                         return;
                     }
                     
                     const baseUrl = "{{ route('LHKPN') }}";
-                    const tahunParam = "{{ $tahunDipilih ? '&tahun=' . $tahunDipilih : '' }}";
+                    const tahunParam = "{{ $tahunDipilih }}";
                     
-                    // Handle both full URLs and query strings
-                    const fullUrl = url.startsWith('?') 
-                        ? `${baseUrl}${url}${tahunParam}` 
-                        : url + (tahunParam ? tahunParam : '');
+                    // Create URL with both page and tahun parameters
+                    const fullUrl = `${baseUrl}?page=${pageNumber}${tahunParam ? '&tahun=' + tahunParam : ''}`;
                     
                     // Show loading state
                     document.getElementById('lhkpn-content').innerHTML = 
@@ -146,11 +167,11 @@
                         
                         // Update URL without page reload
                         const newUrl = new URL(window.location);
-                        const pageMatch = url.match(/page=(\d+)/);
-                        if (pageMatch && pageMatch[1]) {
-                            newUrl.searchParams.set('page', pageMatch[1]);
-                            window.history.pushState({}, '', newUrl);
+                        newUrl.searchParams.set('page', pageNumber);
+                        if (tahunParam) {
+                            newUrl.searchParams.set('tahun', tahunParam);
                         }
+                        window.history.pushState({}, '', newUrl);
                     })
                     .catch(error => {
                         console.error('Error fetching data:', error);
