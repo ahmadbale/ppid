@@ -1,60 +1,80 @@
 <div class="modal-header">
-    <h5 class="modal-title">Tambah Kategori Footer Baru</h5>
+    <h5 class="modal-title">Tambah Footer Baru</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
-</div>
+  </div>
   
-<div class="modal-body">
-    <form id="formCreateKategoriFooter" action="{{ url('AdminWeb/Footer/createData') }}" method="POST">
+  <div class="modal-body">
+    <form id="formCreateFooter" action="{{ url('adminweb/footer/createData') }}" method="POST" enctype="multipart/form-data">
       @csrf
   
       <div class="form-group">
         <label for="fk_m_kategori_footer">Kategori Footer <span class="text-danger">*</span></label>
-        <select class="form-control" id="fk_m_kategori_footer" name="m_kategori_footer[fk_m_kategori_footer]" maxlength="255">
-            <option value="">Pilih Kategori</option>
-            @foreach($kategoriFooters as $kategori)
-                <option value="{{ $kategori->kategori_footer_id }}">{{ $kategori->kt_footer_nama }}</option>
-            @endforeach
+        <select class="form-control" id="fk_m_kategori_footer" name="fk_m_kategori_footer">
+          <option value="">Pilih Kategori Footer</option>
+          @foreach($kategoriFooters as $kategori)
+            <option value="{{ $kategori->kategori_footer_id }}">{{ $kategori->kt_footer_nama }}</option>
+          @endforeach
         </select>
         <div class="invalid-feedback" id="fk_m_kategori_footer_error"></div>
       </div>
 
       <div class="form-group">
         <label for="f_judul_footer">Judul Footer <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" id="f_judul_footer" name="m_kategori_footer[f_judul_footer]" maxlength="255">
+        <input type="text" class="form-control" id="f_judul_footer" name="f_judul_footer" maxlength="100">
         <div class="invalid-feedback" id="f_judul_footer_error"></div>
       </div>
+
+      <div class="form-group">
+        <label for="f_url_footer">URL Footer</label>
+        <input type="url" class="form-control" id="f_url_footer" name="f_url_footer" maxlength="100">
+        <small class="form-text text-muted">
+            Contoh: https://www.example.com/
+        </small>
+        <div class="invalid-feedback" id="f_url_footer_error"></div>
+     </div>
+
+      <div class="form-group">
+        <label for="f_icon_footer">Ikon Footer</label>
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="f_icon_footer" name="f_icon_footer" accept="image/*">
+          <label class="custom-file-label" for="f_icon_footer">Pilih file gambar</label>
+        </div>
+        <div class="invalid-feedback" id="f_icon_footer_error"></div>
+      </div>
     </form>
-</div>
+  </div>
   
-<div class="modal-footer">
+  <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
     <button type="button" class="btn btn-success" id="btnSubmitForm">
       <i class="fas fa-save mr-1"></i> Simpan
     </button>
-</div>
+  </div>
   
-<script>
+  <script>
     $(document).ready(function () {
-      // Hapus error ketika input berubah
+      // Tampilkan nama file yang dipilih
+      $('.custom-file-input').on('change', function() {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).siblings('.custom-file-label').addClass('selected').html(fileName);
+      });
+
       $(document).on('input change', 'input, select, textarea', function() {
         $(this).removeClass('is-invalid');
         const errorId = `#${$(this).attr('id')}_error`;
         $(errorId).html('');
       });
   
-      // Handle submit form
       $('#btnSubmitForm').on('click', function() {
-        // Reset semua error
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').html('');
         
-        const form = $('#formCreateKategoriFooter');
+        const form = $('#formCreateFooter');
         const formData = new FormData(form[0]);
         const button = $(this);
         
-        // Tampilkan loading state pada tombol submit
         button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
         
         $.ajax({
@@ -75,18 +95,9 @@
               });
             } else {
               if (response.errors) {
-                // Tampilkan pesan error pada masing-masing field
                 $.each(response.errors, function(key, value) {
-                  // Untuk m_kategori_footer fields
-                  if (key.startsWith('m_kategori_footer.')) {
-                    const fieldName = key.replace('m_kategori_footer.', '');
-                    $(`#${fieldName}`).addClass('is-invalid');
-                    $(`#${fieldName}_error`).html(value[0]);
-                  } else {
-                    // Untuk field biasa
-                    $(`#${key}`).addClass('is-invalid');
-                    $(`#${key}_error`).html(value[0]);
-                  }
+                  $(`#${key}`).addClass('is-invalid');
+                  $(`#${key}_error`).html(value[0]);
                 });
                 
                 Swal.fire({
@@ -111,10 +122,9 @@
             });
           },
           complete: function() {
-            // Kembalikan tombol submit ke keadaan semula
             button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
           }
         });
       });
     });
-</script>
+  </script>
