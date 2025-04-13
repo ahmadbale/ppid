@@ -11,7 +11,7 @@ class DashboardAdminController extends Controller
 
     public function index() {
         $breadcrumb = (object) [
-            'title' => 'Administrator',
+            'title' => 'Pintasan Menu',
             'list' => ['Home', 'welcome']
         ];
 

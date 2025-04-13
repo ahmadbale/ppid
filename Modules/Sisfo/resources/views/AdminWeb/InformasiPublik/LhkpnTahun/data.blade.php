@@ -3,9 +3,10 @@
          Showing {{ $lhkpn->firstItem() }} to {{ $lhkpn->lastItem() }} of {{ $lhkpn->total() }} results
      </div>
  </div>
- 
- <table class="table table-bordered table-striped table-hover table-sm">
-     <thead>
+
+ <div class="table-responsive">
+ <table class="table table-responsive-stack table-bordered table-striped table-hover table-sm">
+     <thead class="text-center">
          <tr>
              <th width="5%">Nomor</th>
              <th width="15%">Tahun</th>
@@ -16,10 +17,10 @@
      <tbody>
          @forelse($lhkpn as $key => $item)
          <tr>
-             <td>{{ ($lhkpn->currentPage() - 1) * $lhkpn->perPage() + $key + 1 }}</td>
-             <td>{{ $item->lhkpn_tahun }}</td>
-             <td>{{ $item->lhkpn_judul_informasi }}</td>
-             <td>
+             <td table-data-label="Nomor" class="text-center">{{ ($lhkpn->currentPage() - 1) * $lhkpn->perPage() + $key + 1 }}</td>
+             <td table-data-label="Tahun" class="text-center">{{ $item->lhkpn_tahun }}</td>
+             <td table-data-label="Judul" class="text-center">{{ $item->lhkpn_judul_informasi }}</td>
+             <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/lhkpn-tahun/editData/{$item->lhkpn_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>
@@ -44,7 +45,8 @@
          @endforelse
      </tbody>
  </table>
- 
+</div>
+
  <div class="mt-3">
      {{ $lhkpn->appends(['search' => $search])->links() }}
  </div>

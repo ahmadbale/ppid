@@ -32,7 +32,8 @@
         href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/adminlte.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/addstyle.css') }}">
 
     <!-- Summernote CSS -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
@@ -47,10 +48,10 @@
         <!-- Navbar -->
         @include('sisfo::layouts.header')
         <!-- /.navbar -->
-
+        @include('sisfo::layouts.sidebar')
         {{-- </aside> --}}
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="background-color: #0E1F43">
+        {{-- <aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
             <!-- Brand Logo -->
             <a class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
                 <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
@@ -59,9 +60,8 @@
                 <h2 style="color: #FFC030">PPID</h2>
                 <h6 style="color: white">POLITEKNIK NEGERI</br>MALANG</h6>
             </a>
-            @include('sisfo::layouts.sidebar')
             <!-- /.sidebar -->
-        </aside>
+        </aside> --}}
 
         <div class="content-wrapper">
             @include('sisfo::layouts.breadcrumb')

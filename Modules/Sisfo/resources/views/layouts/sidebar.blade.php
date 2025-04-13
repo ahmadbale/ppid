@@ -9,6 +9,17 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
 // $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
 ?>
 
+<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
+    <!-- Brand Logo -->
+    <a class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
+        <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
+            style= "display: block; margin: 0 auto; height: 110px; width: auto; "
+            class="brand-image opacity-75 shadow">
+        <h2 style="color: #FFC030">PPID</h2>
+        <h6 style="color: white">POLITEKNIK NEGERI</br>MALANG</h6>
+    </a>
+    <!-- /.sidebar -->
+
 <div class="sidebar">
     <!-- Sidebar Menu -->
     <nav class="mt-4">
@@ -21,7 +32,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                     <button class="btn" style="background-color: transparent; border: 1px solid #fff; border-left: none; border-radius: 0 30px 30px 0; color: #fff;">
                         <i class="fas fa-search"></i>
                     </button>
-                    
+
                 </div>
             </div>
 
@@ -486,6 +497,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
         </ul>
     </nav>
 </div>
+</aside>
 
 <script>
     document.querySelector('#logout-sidebar').addEventListener('click', function (e) {

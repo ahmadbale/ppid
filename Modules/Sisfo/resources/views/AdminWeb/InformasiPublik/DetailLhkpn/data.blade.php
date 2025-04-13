@@ -3,25 +3,25 @@
          Showing {{ $detailLhkpn->firstItem() ?? 0 }} to {{ $detailLhkpn->lastItem() ?? 0 }} of {{ $detailLhkpn->total() ?? 0 }} results
      </div>
  </div>
- 
- <table class="table table-bordered table-striped table-hover table-sm">
-     <thead>
+
+ <div class="table-responsive">
+ <table class="table table-responsive-stack table-bordered table-striped table-hover table-sm">
+     <thead class="text-center">
          <tr>
-             <th width="5%">No</th>
-             <th width="20%">Nama Karyawan</th>
-             <th width="15%">Tahun</th>
-             <th width="30%">Judul Informasi</th>
+             <th width="10%">No</th>
+             <th width="20%">Tahun</th>
+             <th width="40%">Nama Karyawan</th>
              <th width="30%">Aksi</th>
          </tr>
      </thead>
      <tbody>
          @forelse($detailLhkpn as $key => $item)
          <tr>
-             <td>{{ ($detailLhkpn->currentPage() - 1) * $detailLhkpn->perPage() + $key + 1 }}</td>
-             <td>{{ $item->dl_nama_karyawan }}</td>
-             <td>{{ $item->lhkpn->lhkpn_tahun }}</td>
-             <td>{{ $item->lhkpn->lhkpn_judul_informasi }}</td>
-             <td>
+             <td table-data-label="Nomor" class="text-center">{{ ($detailLhkpn->currentPage() - 1) * $detailLhkpn->perPage() + $key + 1 }}</td>
+             <td table-data-label="Tahun" class="text-center">{{ $item->lhkpn->lhkpn_tahun }}</td>
+             <td table-data-label="Nama Karyawan" class="text-center">{{ $item->dl_nama_karyawan }}</td>
+             {{-- <td table-data-label="Nomor" class="text-center">{{ $item->lhkpn->lhkpn_judul_informasi }}</td> --}}
+             <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/detail-lhkpn/detailData/{$item->detail_lhkpn_id}") }}')">
                      <i class="fas fa-eye"></i> Detail
                  </button>
@@ -46,7 +46,8 @@
          @endforelse
      </tbody>
  </table>
- 
+ </div>
+
  <div class="mt-3">
 {{ $detailLhkpn->appends(['search' => $search])->links() }}
  </div>

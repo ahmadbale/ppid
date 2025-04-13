@@ -3,9 +3,10 @@
         Showing {{ $footers->firstItem() }} to {{ $footers->lastItem() }} of {{ $footers->total() }} results
     </div>
 </div>
-
-<table class="table table-bordered table-striped table-hover table-sm">
-    <thead>
+<div class="table-responsive">
+<table class="table table-responsive-stack table-bordered table-striped table-hover table-sm align-middle">
+{{-- <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm"> --}}
+    <thead class="text-center">
         <tr>
             <th width="5%">Nomor</th>
             <th width="20%">Kategori</th>
@@ -16,10 +17,11 @@
     <tbody>
         @forelse($footers as $key => $footer)
         <tr>
-            <td>{{ ($footers->currentPage() - 1) * $footers->perPage() + $key + 1 }}</td>
-            <td>{{ $footer->kategoriFooter ? $footer->kategoriFooter->kt_footer_nama : '-' }}</td>
-            <td>{{ $footer->f_judul_footer }}</td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($footers->currentPage() - 1) * $footers->perPage() + $key + 1 }}</td>
+            <td table-data-label="Kategori" class="text-start">{{ $footer->kategoriFooter ? $footer->kategoriFooter->kt_footer_nama : '-' }}</td>
+            <td table-data-label="Judul" class="text-start">{{ $footer->f_judul_footer }}</td>
+
+            <td table-data-label="Nomor" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/footer/editData/{$footer->footer_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
@@ -44,6 +46,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 
 <div class="mt-3">
     {{ $footers->appends(['search' => $search])->links() }}

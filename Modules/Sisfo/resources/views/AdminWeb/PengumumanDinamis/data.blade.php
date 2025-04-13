@@ -4,20 +4,21 @@
     </div>
 </div>
 
-<table class="table table-bordered table-striped table-hover table-sm">
-    <thead>
+<div class="table-responsive">
+<table class="table table-responsive-stack table-bordered table-striped table-hover table-sm">
+    <thead class="text-center">
         <tr>
             <th width="5%">Nomor</th>
-            <th width="65%">Nama Submenu Pengumuman</th>
-            <th width="30%">Aksi</th>
+            <th width="55%">Nama Submenu Pengumuman</th>
+            <th width="40%">Aksi</th>
         </tr>
     </thead>
     <tbody>
         @forelse($pengumumanDinamis as $key => $item)
         <tr>
-            <td>{{ ($pengumumanDinamis->currentPage() - 1) * $pengumumanDinamis->perPage() + $key + 1 }}</td>
-            <td>{{ $item->pd_nama_submenu }}</td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($pengumumanDinamis->currentPage() - 1) * $pengumumanDinamis->perPage() + $key + 1 }}</td>
+            <td table-data-label="Nama Submenu" class="text-center">{{ $item->pd_nama_submenu }}</td>
+            <td table-data-label="Aksi" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("AdminWeb/PengumumanDinamis/editData/{$item->pengumuman_dinamis_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
@@ -42,6 +43,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 
 <div class="mt-3">
     {{ $pengumumanDinamis->appends(['search' => $search])->links() }}

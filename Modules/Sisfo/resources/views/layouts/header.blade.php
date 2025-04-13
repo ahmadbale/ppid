@@ -14,7 +14,7 @@
             <a class="nav-link d-flex align-items-center pr-2" data-widget="pushmenu" href="#" role="button">
                 <i class="fas fa-bars"></i>
             </a>
-            <span class="text-muted ml-2" style="font-size: 1.1rem; margin-top: 2px;">
+            {{-- <span class="text-muted ml-2" style="font-size: 1.1rem; margin-top: 2px;">
                 @if (Auth::user()->level->level_kode == 'ADM')
                     Administrator
                 @elseif (Auth::user()->level->level_kode == 'SAR')
@@ -22,7 +22,7 @@
                 @elseif (Auth::user()->level->level_kode == 'MPU')
                     Pimpinan
                 @endif
-            </span>
+            </span> --}}
         </li>
     </ul>
 
@@ -90,7 +90,8 @@
         </li>
 
         <!-- User Profile -->
-        <li class="nav-item d-flex align-items-center">
+        {{-- kanan kiri --}}
+        {{-- <li class="nav-item d-flex align-items-center">
             <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
                 <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
                     alt="User Profile Picture"
@@ -99,7 +100,9 @@
                     <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
                         {{ Auth::user()->nama_pengguna }}
                     </span>
-            </a>
+            </a> --}}
+
+        {{-- kanan kabeh --}}
         {{-- <li class="nav-item d-flex align-items-center">
             <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
                 <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
@@ -124,7 +127,9 @@
                 </div>
             </a>
         </li> --}}
-        {{-- <li class="nav-item d-flex align-items-center">
+
+        {{-- tumpuk --}}
+        <li class="nav-item d-flex align-items-center">
             <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
                 <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
                     alt="User Profile Picture"
@@ -147,7 +152,7 @@
                         @endif
                     </span>
                 </div>
-            </a> --}}
+            </a>
         </li>
 
     </ul>
