@@ -17,11 +17,11 @@ class ApiBeritaController extends BaseApiController
             'Menu Berita'
         );
     }
-    public function getDetailBeritaById($berita_id)
+    public function getDetailBeritaById($id)
     {
         return $this->execute(
-            function () use ($berita_id) {
-                $berita = BeritaDinamisModel::getDetailBeritaById($berita_id);
+            function () use ($id) {
+                $berita = BeritaDinamisModel::getDetailBeritaById($id);
                 return $berita;
             },
             'Detail Berita'
