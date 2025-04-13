@@ -10,7 +10,7 @@ class DashboardRespondenController extends Controller
 
     public function index() {
         $breadcrumb = (object) [
-            'title' => 'Selamat Datang Pengguna',
+            'title' => 'Responden',
             'list' => ['Home', 'welcome']
         ];
 
