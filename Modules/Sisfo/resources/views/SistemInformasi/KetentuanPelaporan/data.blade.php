@@ -4,22 +4,23 @@
     </div>
 </div>
 
-<table class="table table-bordered table-striped table-hover table-sm">
-    <thead>
+<div class="table-responsive">
+<table class="table table-responsive-stack table-bordered table-striped table-hover table-sm align-middle">
+    <thead class="text-center">
         <tr>
-            <th width="5%">Nomor</th>
-            <th width="20%">Kategori Form</th>
-            <th width="45%">Judul Ketentuan</th>
-            <th width="30%">Aksi</th>
+            <th>Nomor</th>
+            <th>Kategori Form</th>
+            <th>Judul Ketentuan</th>
+            <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
         @forelse($ketentuanPelaporan as $key => $item)
         <tr>
-            <td>{{ ($ketentuanPelaporan->currentPage() - 1) * $ketentuanPelaporan->perPage() + $key + 1 }}</td>
-            <td>{{ $item->PelaporanKategoriForm->kf_nama ?? '-' }}</td>
-            <td>{{ $item->kp_judul }}</td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($ketentuanPelaporan->currentPage() - 1) * $ketentuanPelaporan->perPage() + $key + 1 }}</td>
+            <td table-data-label="Kategori Form" class="text-start">{{ $item->PelaporanKategoriForm->kf_nama ?? '-' }}</td>
+            <td table-data-label="Judul" class="text-start">{{ $item->kp_judul }}</td>
+            <td table-data-label="Aksi" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("SistemInformasi/KetentuanPelaporan/editData/{$item->ketentuan_pelaporan_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
@@ -44,6 +45,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 
 <div class="mt-3">
     {{ $ketentuanPelaporan->appends(['search' => $search])->links() }}

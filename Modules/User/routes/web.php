@@ -85,7 +85,7 @@ Route::get('/profil/tugas-fungsi', function () {
 
 //  Berita Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
-Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
+Route::get('/berita-detail/{slug}/{beritaId}', [BeritaController::class, 'detail'])->name('berita-detail');
 
 
 
@@ -151,23 +151,23 @@ Route::middleware(['token'])->group(function () {
 });
 
 // Route untuk dashboard berdasarkan level
-Route::get('/dashboardSAR', function () {
-    $activeMenu = 'dashboard'; // Sesuaikan dengan kebutuhan Anda
-    $breadcrumb = (object) [
-        'title' => 'Selamat Datang Super Administrator',
-        'list' => ['Home', 'welcome']
-    ];
-    return view('sisfo::dashboardSAR', compact('activeMenu', 'breadcrumb'));
-})->name('dashboard.sar');
+// Route::get('/dashboardSAR', function () {
+//     $activeMenu = 'dashboard';
+//     $breadcrumb = (object) [
+//         'title' => 'Selamat Datang Super Administrator',
+//         'list' => ['Home', 'welcome']
+//     ];
+//     return view('sisfo::dashboardSAR', compact('activeMenu', 'breadcrumb'));
+// })->name('dashboard.sar');
 
-Route::get('/dashboardADM', function () {
-    $activeMenu = 'dashboard';
-    $breadcrumb = (object) [
-        'title' => 'Selamat Datang Administrator',
-        'list' => ['Home', 'welcome']
-    ];
-    return view('sisfo::dashboardADM', compact('activeMenu', 'breadcrumb'));
-})->name('dashboard.adm');
+// Route::get('/dashboardADM', function () {
+//     $activeMenu = 'dashboard';
+//     $breadcrumb = (object) [
+//         'title' => 'Selamat Datang Administrator',
+//         'list' => ['Home', 'welcome']
+//     ];
+//     return view('sisfo::dashboardADM', compact('activeMenu', 'breadcrumb'));
+// })->name('dashboard.adm');
 
 Route::get('/dashboardMPU', function () {
     $activeMenu = 'dashboard';

@@ -4,32 +4,23 @@
         Showing {{ $detailMediaDinamis->firstItem() }} to {{ $detailMediaDinamis->lastItem() }} of {{$detailMediaDinamis->total() }} results
     </div>
 </div>
-<table class="table table-bordered table-striped table-hover table-sm">
-    <thead>
+<div class="table-responsive"></div>
+<table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+    <thead class="text-center">
         <tr>
             <th width="5%">Nomor</th>
             <th width="15%">Kategori</th>
             <th width="20%">Judul Media</th>
-            <th width="15%">Tipe Media</th>
-            <th width="25%">Media</th>
             <th width="20%">Aksi</th>
         </tr>
     </thead>
     <tbody>
         @forelse($detailMediaDinamis as $key => $item)
         <tr>
-            <td>{{ ($detailMediaDinamis->currentPage() - 1) * $detailMediaDinamis->perPage() + $key + 1 }}</td>
-            <td>{{ $item->mediaDinamis->md_kategori_media ?? '-' }}</td>
-            <td>{{ $item->dm_judul_media }}</td>
-            <td>{{ ucfirst($item->dm_type_media) }}</td>
-            <td>
-                @if($item->dm_type_media == 'file')
-                    {{ basename($item->dm_media_upload) }}
-                @else
-                    {{ $item->dm_media_upload }}
-                @endif
-            </td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($detailMediaDinamis->currentPage() - 1) * $detailMediaDinamis->perPage() + $key + 1 }}</td>
+            <td table-data-label="Nomor" class="text-center">{{ $item->mediaDinamis->md_kategori_media ?? '-' }}</td>
+            <td table-data-label="Nomor" class="text-center">{{ $item->dm_judul_media }}</td>
+            <td table-data-label="Nomor" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/media-detail/editData/{$item->detail_media_dinamis_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
@@ -54,6 +45,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 <div class="mt-3">
     {{ $detailMediaDinamis->appends(['search' => $search])->links() }}
 </div>

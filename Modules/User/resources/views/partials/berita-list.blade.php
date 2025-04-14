@@ -12,7 +12,7 @@
             <time class="text-muted pt-2 pb-2" datetime="{{ $berita['tanggal'] }}">{{ \Carbon\Carbon::parse($berita['tanggal'])->translatedFormat('d F Y') }}</time>
             <p class="pt-2">{{ $berita['deskripsiThumbnail'] }}</p>
             @if($berita['url_selengkapnya'])
-                <a class="read-moree" href="{{ $berita['url_selengkapnya'] }}" target="_blank">Baca selengkapnya</a>
+                <a class="read-moree" href="{{ url('berita-detail'.'/'.$berita['slug'].'/'.$berita['berita_id'] ?? '#') }}" target="_blank">Baca selengkapnya</a>
             @endif
         </div>
     </article>

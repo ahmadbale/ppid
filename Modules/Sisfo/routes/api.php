@@ -70,7 +70,7 @@ Route::prefix('public')->group(function () {
     Route::get('getDataDokumentasi', [ApiMediaDinamisController::class, 'getDataDokumentasi']);
     Route::get('getDataMediaInformasiPublik', [ApiMediaDinamisController::class, 'getDataMediaInformasiPublik']);
     Route::get('getDataBerita', [ApiBeritaController::class, 'getDataBerita']);
-    Route::get('getDetailBeritaById/{id}', [ApiBeritaController::class, 'getDetailBeritaById']);
+    Route::get('getDetailBeritaById/{slug}/{berita_id}', [ApiBeritaController::class, 'getDetailBeritaById']);
 
     Route::get('/public/getFooterItemById/{id}', [ApiFooterController::class, 'getFooterItemById']);
     
