@@ -85,7 +85,7 @@ Route::get('/profil/tugas-fungsi', function () {
 
 //  Berita Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
-Route::get('/berita-1', [BeritaController::class, 'detail'])->name('berita-1');
+Route::get('/berita-detail/{slug}/{beritaId}', [BeritaController::class, 'detail'])->name('berita-detail');
 
 
 

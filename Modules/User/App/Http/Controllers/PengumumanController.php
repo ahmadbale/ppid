@@ -2,77 +2,111 @@
 
 namespace Modules\User\App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class PengumumanController extends Controller
 {
-    // public function index(Request $request){
-    //     $title = "Pengumuman PPID Polinema";
-    //     $pengumuman = [
-    //         [
-    //             'gambar' => 'img/gambarcoverpedoman.png',
-    //             'tanggal' => '15 Maret 2024',
-    //             'judul' => 'Nomor Verified WhatsApp Business Resmi Polinema',
-    //             'link' => '#'
-    //         ],
-    //         [
-    //             'gambar' => 'img/berita-1.png',
-    //             'tanggal' => '12 Desember 2024',
-    //             'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
-    //             'link' => '#'
-    //         ],
-    //         [
-    //             'gambar' => 'img/gambarcoverpedoman.png',
-    //             'tanggal' => '12 Desember 2024',
-    //             'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
-    //             'link' => '#'
-    //         ],
-    //         [
-    //             'gambar' => 'img/berita-1.png',
-    //             'tanggal' => '12 Desember 2024',
-    //             'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
-    //             'link' => '#'
-    //         ],
-    //         [
-    //             'gambar' => 'img/gambarcoverpedoman.png',
-    //             'tanggal' => '12 Desember 2024',
-    //             'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
-    //             'link' => '#'
-    //         ],
-    //         [
-    //             'gambar' => 'img/berita-1.png',
-    //             'tanggal' => '12 Desember 2024',
-    //             'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
-    //             'link' => '#'
-    //         ],
-    //     ];
+    // public function index()
+    // {
+    //     try {
+    //         Log::info('Mengambil data dari API');
 
-    //     return view('user::pengumuman', compact('title', 'pengumuman'));
+    //         // Ambil data pintasan
+    //         $pengumumanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPengumumanLandingPage');
+    //         $pengumumanMenus = $this->fetchPengumumanData($pengumumanResponse);
+
+    //         return view('user::pengumuman', compact('pengumumanMenus'));
+    //     } catch (\Exception $e) {
+    //         Log::error('Error saat mengambil data dari API', [
+    //             'message' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+    //         return view('user::pengumuman', ['pengumumanMenus' => [],
+    //     ]);
+    //   }
     // }
 
-    public function index()
-    {
-        try {
-            Log::info('Mengambil data dari API');
+    // private function fetchPengumumanData($response)
+    // {
+    //     if ($response->failed() || !$response->json('success')) {
+    //         Log::warning('API Pintasan gagal atau data tidak lengkap', [
+    //             'response' => $response->json() ?? 'Tidak ada response'
+    //         ]);
+    //         return [];
+    //     }
 
-            // Ambil data pintasan
-            $pintasanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPintasanLainnya');
-            $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
+    //     return $this->processPintasanData($response->json('data'));
+    // }
 
-            // Ambil data akses cepat
-            $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
-            $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
+    //  private function processPengumumanData($data)
+    // {
+    //     $result = [];
+    //     foreach ($data as $item) {
+    //         $result[] = [
+    //             'id' => $item['id'] ?? null,
+    //             'judul' => $item['judul'] ?? 'Tanpa Judul',
+    //             'slug' => $item['slug'] ?? null,
+    //             'kategoriSubmenu' => $item['kategoriSubmenu'] ?? null,
+    //             'thumbnail' => $item['thumbnail'] ?? null,
+    //             'tipe' => $item['tipe'] ?? null,
+    //             'value' => $item['value'] ?? null,
+    //             'deskripsi' => $item['deskripsi'] ?? null,
+    //             'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
+    //             'created_at' => $item['created_at'] ?? null,
+    //         ];
+    //     }
+    //     return $result;
+    // }
 
-            return view('user::landing_page', compact('pintasanMenus', 'aksesCepatMenus'));
-        } catch (\Exception $e) {
-            Log::error('Error saat mengambil data dari API', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return view('user::landing_page', ['pintasanMenus' => [], 'aksesCepatMenus' => []]);
-        }
-    }
+
+    
+public function index(Request $request){
+        $title = "Pengumuman PPID Polinema";
+        $pengumuman = [
+            [
+                'gambar' => 'img/gambarcoverpedoman.png',
+                'tanggal' => '15 Maret 2024',
+                'judul' => 'Nomor Verified WhatsApp Business Resmi Polinema',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/berita-1.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/gambarcoverpedoman.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/berita-1.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/gambarcoverpedoman.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/berita-1.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+        ];
+
+        return view('user::pengumuman', compact('title', 'pengumuman'));
+    }
+
+
 }
+

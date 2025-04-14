@@ -109,93 +109,100 @@ class LhkpnModel extends Model
     // }
     public static function getDataLhkpn($per_page = 5, $tahun = null, $page = 1)
     {
-        // Base query for LHKPN 
-        $query = DB::table('m_lhkpn as ml')
-            ->select([
-                'ml.lhkpn_id',
-                'ml.lhkpn_tahun',
-                'ml.lhkpn_judul_informasi',
-                'ml.lhkpn_deskripsi_informasi',
-                'ml.updated_at'
-            ])
-            ->where('ml.isDeleted', 0);
+        // Base query untuk data LHKPN
+        $query = DB::table('m_lhkpn')
+            ->select('lhkpn_id', 'lhkpn_tahun', 'lhkpn_judul_informasi', 'lhkpn_deskripsi_informasi', 'updated_at')
+            ->where('isDeleted', 0);
     
-        // Filter by year if provided
+        // Filter berdasarkan tahun jika ada
         if ($tahun !== null) {
-            $query->where('ml.lhkpn_tahun', $tahun);
+            $query->where('lhkpn_tahun', $tahun);
         }
     
-        // Get LHKPN data ordered by year
-        $lhkpnData = $query->orderBy('ml.lhkpn_id', 'asc')->get();
-    
-        // Transform the data
-        $transformedData = $lhkpnData->map(function ($lhkpn) use ($per_page, $page) {
-            // Fetch ALL details for each LHKPN
-            $allDetails = DB::table('t_detail_lhkpn')
+        // Ambil data LHKPN
+        $lhkpnData = $query->orderBy('lhkpn_id', 'asc')->get();
+        
+        $transformedData = [];
+        
+        // Proses setiap item LHKPN
+        foreach ($lhkpnData as $lhkpn) {
+            // Query untuk detail LHKPN
+            $detailQuery = DB::table('t_detail_lhkpn')
                 ->where('fk_m_lhkpn', $lhkpn->lhkpn_id)
                 ->where('isDeleted', 0)
-                ->select(
-                    'detail_lhkpn_id',
-                    'dl_nama_karyawan',
-                    'dl_file_lhkpn'
-                )
-                ->orderBy('dl_nama_karyawan')
-                ->get();
-    
-            // Paginate the details
-            $totalDetails = $allDetails->count();
+                ->orderBy('dl_nama_karyawan');
+                
+            // Hitung total detail untuk pagination
+            $totalDetails = $detailQuery->count();
+            
+            // Ambil detail dengan pagination manual
+            $details = $detailQuery->select('detail_lhkpn_id', 'dl_nama_karyawan', 'dl_file_lhkpn')
+                ->skip(($page - 1) * $per_page)
+                ->take($per_page)
+                ->get()
+                ->map(function ($detail) {
+                    return [
+                        'id' => $detail->detail_lhkpn_id,
+                        'nama_karyawan' => $detail->dl_nama_karyawan,
+                        'file' => $detail->dl_file_lhkpn ? asset('storage/' . $detail->dl_file_lhkpn) : null
+                    ];
+                });
+            
+            // Hitung total halaman
             $totalPages = ceil($totalDetails / $per_page);
-            $offset = ($page - 1) * $per_page;
-            $paginatedDetails = $allDetails->slice($offset, $per_page);
-    
-            // Transform details
-            $details = $paginatedDetails->map(function ($detail) {
-                return [
-                    'id' => $detail->detail_lhkpn_id,
-                    'nama_karyawan' => $detail->dl_nama_karyawan,
-                    'file' => $detail->dl_file_lhkpn
-                        ? asset('storage/' . $detail->dl_file_lhkpn)
-                        : null
-                ];
-            });
-    
-            // Format update date
-            $tanggalUpdate = $lhkpn->updated_at
-                ? \Carbon\Carbon::parse($lhkpn->updated_at)->format('d F Y, H:i:s')
-                : null;
-    
-            $deskripsi = trim($lhkpn->lhkpn_deskripsi_informasi);
-            // $deskripsi = preg_replace('/<[^>]*>/', '', trim($lhkpn->lhkpn_deskripsi_informasi));
-    
-            // Prepare pagination info
-            $nextPage = $page < $totalPages ? $page + 1 : null;
-            $prevPage = $page > 1 ? $page - 1 : null;
-    
-            return [
+            
+            // Tambahkan ke data hasil
+            $transformedData[] = [
                 'id' => $lhkpn->lhkpn_id,
                 'tahun' => $lhkpn->lhkpn_tahun,
                 'judul' => $lhkpn->lhkpn_judul_informasi,
-                'deskripsi' => $deskripsi,
-                'updated_at' => $tanggalUpdate,
-                'details' => $details,
+                'deskripsi' => $lhkpn->lhkpn_deskripsi_informasi,
+                'updated_at' => $lhkpn->updated_at ? date('d F Y, H:i:s', strtotime($lhkpn->updated_at)) : null,
+                'details' => $details->toArray(),
                 'total_karyawan' => $totalDetails,
                 'current_page' => $page,
                 'total_pages' => $totalPages,
-                'next_page' => $nextPage,
-                'prev_page' => $prevPage
+                'next_page' => $page < $totalPages ? $page + 1 : null,
+                'prev_page' => $page > 1 ? $page - 1 : null,
+                'has_more' => $totalDetails > $details->count()
             ];
-        })->toArray();
-    
-        // Return response
+        }
+        
+        // Filter by year if needed
+        if ($tahun !== null) {
+            $transformedData = array_values(array_filter($transformedData, function($item) use ($tahun) {
+                return $item['tahun'] === $tahun;
+            }));
+        }
+        
+        // Buat URL untuk pagination
+        $nextPageUrl = null;
+        $prevPageUrl = null;
+        
+        if (!empty($transformedData)) {
+            $item = $transformedData[0];
+            if ($item['next_page']) {
+                $params = array_merge(request()->query(), ['page' => $item['next_page']]);
+                $nextPageUrl = url()->current() . '?' . http_build_query($params);
+            }
+            if ($item['prev_page']) {
+                $params = array_merge(request()->query(), ['page' => $item['prev_page']]);
+                $prevPageUrl = url()->current() . '?' . http_build_query($params);
+            }
+        }
+        
+        // Return hasil
         return [
             'success' => true,
             'message' => 'Data LHKPN berhasil diambil.',
             'data' => [
                 'current_page' => $page,
                 'data' => $transformedData,
-                'total_pages' => 1, 
+                'total_pages' => !empty($transformedData) ? $transformedData[0]['total_pages'] : 1,
                 'total_items' => count($lhkpnData),
-                'per_page' => $per_page
+                'per_page' => $per_page,
+                'next_page_url' => $nextPageUrl,
+                'prev_page_url' => $prevPageUrl
             ]
         ];
     }

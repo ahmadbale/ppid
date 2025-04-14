@@ -2,24 +2,29 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
 
-use Illuminate\Http\Request;
-
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 use Modules\Sisfo\App\Models\Website\Publikasi\Berita\BeritaDinamisModel;
-
-
-
 
 class ApiBeritaController extends BaseApiController
 {
     public function getDataBerita()
     {
         return $this->execute(
-            function() {
+            function () {
                 $berita = BeritaDinamisModel::getDataBerita();
                 return $berita;
             },
             'Menu Berita'
+        );
+    }
+    public function getDetailBeritaById($slug,$berita_id)
+    {
+        return $this->execute(
+            function () use ($slug,$berita_id) {
+                $berita = BeritaDinamisModel::getDetailBeritaById($slug,$berita_id);
+                return $berita;
+            },
+            'Detail Berita'
         );
     }
 }

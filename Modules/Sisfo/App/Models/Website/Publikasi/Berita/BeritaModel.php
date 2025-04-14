@@ -52,7 +52,8 @@ class BeritaModel extends Model
             });
         }
 
-        return $query->paginate($perPage);
+         // Gunakan paginateResults dari trait BaseModelFunction
+         return self::paginateResults($query, $perPage);
     }
     // Modify createData method to handle image cleanup
     public static function createData($request)
