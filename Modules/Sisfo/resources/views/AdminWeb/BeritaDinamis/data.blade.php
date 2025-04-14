@@ -3,21 +3,21 @@
          Showing {{ $beritaDinamis->firstItem() }} to {{ $beritaDinamis->lastItem() }} of {{ $beritaDinamis->total() }} results
      </div>
  </div>
- 
- <table class="table table-bordered table-striped table-hover table-sm">
-     <thead>
+ <div class="table-responsive">
+ <table class="table table-responsive-stack table-bordered table-striped table-hover table-sm align-middle">
+     <thead class="text-center">
          <tr>
-             <th width="10%">Nomor</th>
-             <th width="60%">Nama Submenu Berita</th>
-             <th width="30%">Aksi</th>
+             <th>Nomor</th>
+             <th>Nama Submenu</th>
+             <th>Aksi</th>
          </tr>
      </thead>
      <tbody>
          @forelse($beritaDinamis as $key => $item)
          <tr>
-             <td>{{ ($beritaDinamis->currentPage() - 1) * $beritaDinamis->perPage() + $key + 1 }}</td>
-             <td>{{ $item->bd_nama_submenu }}</td>
-             <td>
+             <td table-data-label="Nomor" class="text-center">{{ ($beritaDinamis->currentPage() - 1) * $beritaDinamis->perPage() + $key + 1 }}</td>
+             <td table-data-label="Nama Submenu" class="text-center">{{ $item->bd_nama_submenu }}</td>
+             <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/berita-dinamis/editData/{$item->berita_dinamis_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>
@@ -42,7 +42,8 @@
          @endforelse
      </tbody>
  </table>
- 
+ </div>
+
  <div class="mt-3">
      {{ $beritaDinamis->appends(['search' => $search])->links() }}
  </div>

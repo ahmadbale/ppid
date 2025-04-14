@@ -7,10 +7,10 @@ use Illuminate\Routing\Controller;
 class DashboardVerifikatorController extends Controller
 {
     use TraitsController;
-    
+
     public function index() {
         $breadcrumb = (object) [
-            'title' => 'Selamat Datang Pengguna',
+            'title' => 'Verifikator',
             'list' => ['Home', 'welcome']
         ];
 

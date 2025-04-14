@@ -1,44 +1,51 @@
 <?php
 use Illuminate\Support\Facades\Auth;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+// use Modules\Sisfo\App\Models\Log\NotifAdminModel;
+// use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 use Modules\Sisfo\App\Helpers\MenuHelper;
 
 // Hitung total notifikasi belum dibaca
-$totalNotifikasiADM = NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
-$totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
+// $totalNotifikasiADM = NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
+// $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
 ?>
 
+<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
+    <!-- Brand Logo -->
+    <a class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
+        <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
+            style= "display: block; margin: 0 auto; height: 110px; width: auto; "
+            class="brand-image opacity-75 shadow">
+        <h2 style="color: #FFC030">PPID</h2>
+        <h6 style="color: white">POLITEKNIK NEGERI</br>MALANG</h6>
+    </a>
+    <!-- /.sidebar -->
+
 <div class="sidebar">
-    <!-- SidebarSearch Form -->
-    <div class="form-inline mt-2">
-        <div class="input-group" data-widget="sidebar-search">
-            <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-            <div class="input-group-append">
-                <button class="btn btn-sidebar">
-                    <i class="fas fa-search fa-fw"></i>
-                </button>
-            </div>
-        </div>
-    </div>
     <!-- Sidebar Menu -->
-    <nav class="mt-2">
+    <nav class="mt-4">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <!-- Navbar Search -->
+            <div class="input-group" data-widget="sidebar-search" style="margin-bottom: 1rem;">
+                <input class="form-control" type="search" placeholder="Cari Menu" aria-label="Search"
+                    style="background-color: transparent; border: 1px solid #fff; color: #fff; border-radius: 30px 0 0 30px; padding-left: 15px; font-size: 0.9rem;">
+                <div class="input-group-append">
+                    <button class="btn" style="background-color: transparent; border: 1px solid #fff; border-left: none; border-radius: 0 30px 30px 0; color: #fff;">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                </div>
+            </div>
+
             <!-- Menu untuk setiap level_kode -->
             @if (Auth::user()->level->level_kode == 'ADM')
+                <li class="nav-header">Menu Umum</li>
                 <li class="nav-item">
                     <a href="{{ url('/dashboardADM') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url('/profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>Profile</p>
-                    </a>
-                </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ url('/Notifikasi/NotifAdmin') }}"
                         class="nav-link {{ $activeMenu == 'notifikasi' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-bell"></i>
@@ -47,10 +54,10 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                             <span class="badge badge-danger notification-badge">{{ $totalNotifikasiADM }}</span>
                         @endif
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-folder-open"></i>
+                        <i class="nav-icon fas fa-user-cog"></i>
                         <p> Manage Pengguna
                             <i class="right fas fa-angle-left"></i>
                         </p>
@@ -70,7 +77,88 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                     </ul>
                 </li>
-                <li class="nav-header">Website / Portal</li>
+                <li class="nav-header">Sistem Informasi</li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-file-signature"></i>
+                        <p> E-Form
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanInformasi') }}"
+                                class="nav-link {{ $activeMenu == 'PermohonanInformasi' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Permohonan Informasi</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/EForm/ADM/PernyataanKeberatan') }}"
+                                class="nav-link {{ $activeMenu == 'PernyataanKeberatan' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Pernyataan Keberatan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/EForm/ADM/PengaduanMasyarakat') }}"
+                                class="nav-link {{ $activeMenu == 'PengaduanMasyarakat' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Pengaduan Masyarakat</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/EForm/ADM/WBS') }}"
+                                class="nav-link {{ $activeMenu == 'WBS' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Whistle Blowing System</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanPerawatan') }}"
+                                class="nav-link {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Permohonan Perawatan SarPras</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-question-circle"></i>
+                        <p> Petunjuk E-Form
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/KategoriForm') }}"
+                                class="nav-link {{ $activeMenu == 'KategoriForm' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Pengaturan Kategori Form</p>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/Timeline') }}"
+                                class="nav-link {{ $activeMenu == 'Timeline' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Pengaturan Timeline</p>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('SistemInformasi/KetentuanPelaporan') }}"
+                                class="nav-link {{ $activeMenu == 'KetentuanPelaporan' ? 'active' : '' }}">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <p>Pengaturan Ketentuan Pelaporan</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-header">Manajemen Website</li>
                 <!-- Menu Utama -->
                     <li class="nav-item">
                         @if(MenuHelper::shouldShowInSidebar('adminweb/menu-management'))
@@ -84,7 +172,7 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         @endif
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
+                                <i class="nav-icon fas fa-columns"></i>
                                 <p> Footer
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
@@ -93,14 +181,14 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/kategori-footer') }}"
                                         class="nav-link {{ $activeMenu == 'kategori-footer' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="fas fa-list-alt nav-icon"></i>
                                         <p>Kategori-Footer</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/footer') }}"
                                         class="nav-link {{ $activeMenu == 'footer' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Footer</p>
                                     </a>
                                 </li>
@@ -108,8 +196,8 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <p> Pintasan&AksesCepat
+                                <i class="nav-icon fas fa-bolt"></i>
+                                <p> Pintasan & AksesCepat
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
@@ -132,8 +220,8 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <p> Berita 
+                                <i class="nav-icon fas fa-newspaper"></i>
+                                <p> Berita
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
@@ -156,7 +244,7 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
+                                <i class="nav-icon fas fa-bullhorn"></i>
                                 <p> Pengumuman
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
@@ -180,7 +268,7 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
+                                <i class="nav-icon fas fa-photo-video"></i>
                                 <p> Media Dinamis
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
@@ -227,88 +315,6 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                             </ul>
                         </li>
                     </li>
-                <li class="nav-header">Sistem Informasi</li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-folder-open"></i>
-                        <p> E-Form
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanInformasi') }}"
-                                class="nav-link {{ $activeMenu == 'PermohonanInformasi' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Permohonan Informasi</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/EForm/ADM/PernyataanKeberatan') }}"
-                                class="nav-link {{ $activeMenu == 'PernyataanKeberatan' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pernyataan Keberatan</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/EForm/ADM/PengaduanMasyarakat') }}"
-                                class="nav-link {{ $activeMenu == 'PengaduanMasyarakat' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaduan Masyarakat</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/EForm/ADM/WBS') }}"
-                                class="nav-link {{ $activeMenu == 'WBS' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Whistle Blowing System</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanPerawatan') }}"
-                                class="nav-link {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Permohonan Perawatan SarPras</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-folder-open"></i>
-                        <p> Petunjuk E-Form
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/KategoriForm') }}"
-                                class="nav-link {{ $activeMenu == 'KategoriForm' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaturan Kategori Form</p>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/Timeline') }}"
-                                class="nav-link {{ $activeMenu == 'Timeline' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaturan Timeline</p>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ url('SistemInformasi/KetentuanPelaporan') }}"
-                                class="nav-link {{ $activeMenu == 'KetentuanPelaporan' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaturan Ketentuan Pelaporan</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                
             @elseif (Auth::user()->level->level_kode == 'SAR')
                 <li class="nav-item">
                     <a href="{{ url('/dashboardSAR') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
@@ -480,32 +486,51 @@ $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', n
                         <p>Hasil Pertanyaan</p>
                     </a>
                 </li>
-
             @endif
+            <li class="nav-header">Logout</li>
+            <li class="nav-item">
+                <a class="nav-link active bg-danger" data-widget="logout" id="logout-sidebar" role="button">
+                    <i class="nav-icon fas fa-sign-out-alt"></i>
+                    <p>Logout</p>
+                </a>
+            </li>
         </ul>
     </nav>
 </div>
+</aside>
+
+<script>
+    document.querySelector('#logout-sidebar').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Apakah yakin ingin keluar?',
+            text: "Session anda akan berakhir",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Log Out',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ url('logout/') }}";
+            }
+        });
+    });
+</script>
 
 <style>
     .notification-badge {
         position: absolute;
         top: 50%;
-        /* Vertikal tengah */
         right: 10px;
-        /* Geser ke kiri dari ujung kanan */
         transform: translateY(-50%);
-        /* Perbaiki posisi tengah */
         background-color: #dc3545;
-        /* Warna merah */
         color: white;
-        /* Warna teks */
         padding: 3px 8px;
-        /* Spasi dalam */
         border-radius: 12px;
-        /* Membulatkan sudut */
         font-size: 12px;
-        /* Ukuran font */
         font-weight: bold;
-        /* Tebal */
     }
 </style>

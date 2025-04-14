@@ -8,10 +8,10 @@ use Illuminate\Routing\Controller;
 class DashboardMPUController extends Controller
 {
     use TraitsController;
-    
+
     public function index() {
         $breadcrumb = (object) [
-            'title' => 'Selamat Datang Pengguna',
+            'title' => 'Selamat Datang Pimpinan',
             'list' => ['Home', 'welcome']
         ];
 
