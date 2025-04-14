@@ -80,6 +80,7 @@ class BeritaController extends Controller
 
         foreach ($beritaList as $item) {
             $result[] = [
+                'berita_id' => $item['berita_id'] ?? null,
                 'kategori' => $item['kategori'] ?? 'Berita',
                 'judul' => $item['judul'] ?? 'Tanpa Judul',
                 'slug' => $item['slug'] ?? null,
@@ -100,4 +101,62 @@ class BeritaController extends Controller
             ]
         ];
     }
+
+    public function detail($slug,$beritaId)
+{
+    try {
+        Log::info('Mengambil detail berita dari API', ['berita_id' => $beritaId]);
+
+        // Ambil data detail berita dari API berdasarkan ID
+        $detailResponse = Http::get("http://ppid-polinema.test/api/public/getDetailBeritaById/{$slug}/{$beritaId}");
+        
+        $detailData = $this->fetchBeritaDetail($detailResponse);
+
+        if (empty($detailData)) {
+            return redirect()->route('berita')->with('error', 'Detail berita tidak ditemukan');
+        }
+
+        return view('user::berita-detail', [
+            'beritaDetail' => $detailData
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error saat mengambil detail berita dari API', [
+            'berita_id' => $beritaId,
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return redirect()->route('berita')->with('error', 'Terjadi kesalahan saat mengambil detail berita');
+    }
+}
+
+private function fetchBeritaDetail($response)
+{
+    if ($response->failed() || !$response->json('success')) {
+        Log::warning('API Detail Berita gagal atau data tidak lengkap', [
+            'response' => $response->json() ?? 'Tidak ada response'
+        ]);
+        return null;
+    }
+
+    return $this->processBeritaDetail($response->json('data'));
+}
+
+private function processBeritaDetail($data)
+{
+    if (empty($data)) {
+        return null;
+    }
+
+    return [
+        'berita_id' => $data['berita_id'] ?? null,
+        'kategori' => $data['kategori'] ?? 'Berita',
+        'judul' => $data['judul'] ?? 'Tanpa Judul',
+        'slug' => $data['slug'] ?? null,
+        'thumbnail' => $data['thumbnail'] ?? null,
+        'deskripsiThumbnail' => $data['deskripsiThumbnail'] ?? null,
+        'tanggal' => $data['tanggal'] ?? null,
+        'konten' => $data['konten'] ?? null
+    ];
+}
 }

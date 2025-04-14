@@ -45,7 +45,7 @@ class BeritaDinamisModel extends Model
                 $deskripsiThumbnail = trim($berita->berita_thumbnail_deskripsi);
 
                 return [
-                    'id' => $berita->berita_id,
+                    'berita_id' => $berita->berita_id,
                     'kategori' => $berita->bd_nama_submenu,
                     'judul' => $berita->berita_judul,
                     'slug' => $berita->berita_slug,
@@ -113,7 +113,7 @@ class BeritaDinamisModel extends Model
             'prev_page_url' => $arr_data->previousPageUrl()
         ];
     }
-    public static function getDetailBeritaById($berita_id)
+    public static function getDetailBeritaById($slug,$berita_id)
     {
         $berita = DB::table('t_berita as tb')
             ->select([

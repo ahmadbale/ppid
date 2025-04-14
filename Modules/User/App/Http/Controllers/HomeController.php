@@ -141,7 +141,7 @@ class HomeController extends Controller
         $result = [];
         foreach ($data as $item) {
             $result[] = [
-                'id' => $item['id'] ?? null,
+                'berita_id' => $item['id'] ?? null,
                 'judul' => $item['judul'] ?? 'Tanpa Judul',
                 'slug' => $item['slug'] ?? null,
                 'kategoriSubmenu' => $item['kategoriSubmenu'] ?? null,
@@ -173,13 +173,14 @@ class HomeController extends Controller
     private function processBeritaData($data)
     {
         $result = [];
-        foreach ($data as $item) {
+        foreach ($data as $itemBerita) {
             $result[] = [
-                'kategori' => $item['kategori'] ?? 'Berita',
-                'judul' => $item['judul'] ?? 'Tanpa Judul',
-                'slug' => $item['slug'] ?? null,
-                'deskripsiThumbnail' => $item['deskripsiThumbnail'] ?? null,
-                'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
+                'berita_id' => $itemBerita['berita_id'] ?? null,
+                'kategori' => $itemBerita['kategori'] ?? 'Berita',
+                'judul' => $itemBerita['judul'] ?? 'Tanpa Judul',
+                'slug' => $itemBerita['slug'] ?? null,
+                'deskripsiThumbnail' => $itemBerita['deskripsiThumbnail'] ?? null,
+                'url_selengkapnya' => $itemBerita['url_selengkapnya'] ?? null,
             ];
         }
         return $result;

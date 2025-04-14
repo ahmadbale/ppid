@@ -254,7 +254,7 @@
                             <p class="ppid-date text-muted">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
                             <p class="ppid-card-text">{{ $item['judul'] }}</p>
                             <p class="ppid-card-description px-1">{{ $item['deskripsi'] }}</p>
-                            <a class="btn btn-primary" href="{{ url($item['slug'].'/'.$item['id']) }}" role="button">Baca Artikel</a>
+                            <a class="btn btn-primary" href="{{ url($item['slug']) }}" role="button">Baca Artikel</a>
                         </div>
                     </div>
                 @endforeach
@@ -306,7 +306,7 @@
                     <div class="news-item">
                         <h5>{{ $itemBerita['judul'] ?? 'Tanpa Judul' }}</h5>
                         <p>{{ $itemBerita['deskripsiThumbnail'] ?? '' }}</p>
-                        <a href="{{ url($itemBerita['slug'].'/'.$item['id'] ?? '#') }}" class="read-more d-flex flex-wrap justify-content-end">
+                        <a href="{{ url('berita-detail'.'/'.$itemBerita['slug'].'/'.$itemBerita['berita_id'] ?? '#') }}" class="read-more d-flex flex-wrap justify-content-end">
                             Berita selengkapnya →
                         </a>
                     </div>
