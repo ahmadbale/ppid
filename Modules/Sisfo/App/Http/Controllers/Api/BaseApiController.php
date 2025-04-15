@@ -76,10 +76,30 @@ class BaseApiController extends Controller
      * @return JsonResponse
      */
     // untuk Akses publik tanpa autentikasi
+// protected function execute(callable $action, string $sourceName, string $actionType = self::ACTION_GET): JsonResponse
+// {
+//     try {
+//         $result = $action();
+//         $message = sprintf($this->messageTemplates[$actionType]['success'], $sourceName);
+//         return $this->successResponse($result, $message);
+//     } catch (\Exception $e) {
+//         $this->logError('Execution error', $e);
+        
+//         $message = sprintf($this->messageTemplates[$actionType]['error'], $sourceName);
+//         return $this->errorResponse($message, $e->getMessage(), 500);
+//     }
+// }
 protected function execute(callable $action, string $sourceName, string $actionType = self::ACTION_GET): JsonResponse
 {
     try {
         $result = $action();
+        
+        // Pengecekan baru: Jika hasil null, kembalikan respons error
+        if ($result === null) {
+            $message = sprintf('%s tidak ditemukan.', $sourceName);
+            return $this->errorResponse($message, null, 404);
+        }
+        
         $message = sprintf($this->messageTemplates[$actionType]['success'], $sourceName);
         return $this->successResponse($result, $message);
     } catch (\Exception $e) {
