@@ -14,7 +14,7 @@ class ApiFooterController extends BaseApiController
                  $getDataFooter = KategoriFooterModel::getDataFooter();
                  return $getDataFooter;
              },
-             'Data Footer'
+             'laman Data Footer'
          );
      }
  }
