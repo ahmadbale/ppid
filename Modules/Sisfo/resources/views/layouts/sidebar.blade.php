@@ -336,6 +336,13 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                         <p>Kategori Regulasi</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/regulasi') }}"
+                                        class="nav-link {{ $activeMenu == 'Regulasi' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Regulasi</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     </li>

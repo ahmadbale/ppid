@@ -31,6 +31,7 @@ use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawata
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
@@ -365,6 +366,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [KategoriRegulasiController::class, 'detailData']);
         Route::get('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/regulasi', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [RegulasiController::class, 'index']);
+        Route::get('/getData', [RegulasiController::class, 'getData']);
+        Route::get('/addData', [RegulasiController::class, 'addData']);
+        Route::post('/createData', [RegulasiController::class, 'createData']);
+        Route::get('/editData/{id}', [RegulasiController::class, 'editData']);
+        Route::post('/updateData/{id}', [RegulasiController::class, 'updateData']);
+        Route::get('/detailData/{id}', [RegulasiController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [RegulasiController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [RegulasiController::class, 'deleteData']);
     });
 
 });
