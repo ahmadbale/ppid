@@ -23,6 +23,7 @@ use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisContro
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
 use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\DetailMediaDinamisController;
 use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
@@ -132,6 +133,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [AksesCepatController::class, 'detailData']);
         Route::get('/deleteData/{id}', [AksesCepatController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [AksesCepatController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/pintasan-lainnya', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [PintasanLainnyaController::class, 'index']);
+        Route::get('/getData', [PintasanLainnyaController::class, 'getData']);
+        Route::get('/addData', [PintasanLainnyaController::class, 'addData']);
+        Route::post('/createData', [PintasanLainnyaController::class, 'createData']);
+        Route::get('/editData/{id}', [PintasanLainnyaController::class, 'editData']);
+        Route::post('/updateData/{id}', [PintasanLainnyaController::class, 'updateData']);
+        Route::get('/detailData/{id}', [PintasanLainnyaController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [PintasanLainnyaController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [PintasanLainnyaController::class, 'deleteData']);
     });
     Route::group(['prefix' => 'adminweb/berita-dinamis', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [BeritaDinamisController::class, 'index']);
