@@ -169,29 +169,29 @@ Route::middleware(['token'])->group(function () {
 //     return view('sisfo::dashboardADM', compact('activeMenu', 'breadcrumb'));
 // })->name('dashboard.adm');
 
-Route::get('/dashboardMPU', function () {
-    $activeMenu = 'dashboard';
-    $breadcrumb = (object) [
-        'title' => 'Selamat Datang Super Manajemen dan Pimpinan Unit',
-        'list' => ['Home', 'welcome']
-    ];
-    return view('sisfo::dashboardMPU', compact('activeMenu', 'breadcrumb'));
-})->name('dashboard.mpu');
+// Route::get('/dashboardMPU', function () {
+//     $activeMenu = 'dashboard';
+//     $breadcrumb = (object) [
+//         'title' => 'Selamat Datang Super Manajemen dan Pimpinan Unit',
+//         'list' => ['Home', 'welcome']
+//     ];
+//     return view('sisfo::dashboardMPU', compact('activeMenu', 'breadcrumb'));
+// })->name('dashboard.mpu');
 
-Route::get('/dashboardVFR', function () {
-    $activeMenu = 'dashboard';
-    $breadcrumb = (object) [
-        'title' => 'Selamat Datang Super Verifikator',
-        'list' => ['Home', 'welcome']
-    ];
-    return view('sisfo::dashboardVFR', compact('activeMenu', 'breadcrumb'));
-})->name('dashboard.vfr');
+// Route::get('/dashboardVFR', function () {
+//     $activeMenu = 'dashboard';
+//     $breadcrumb = (object) [
+//         'title' => 'Selamat Datang Super Verifikator',
+//         'list' => ['Home', 'welcome']
+//     ];
+//     return view('sisfo::dashboardVFR', compact('activeMenu', 'breadcrumb'));
+// })->name('dashboard.vfr');
 
-Route::get('/dashboardRPN', function () {
-    $activeMenu = 'dashboard';
-    $breadcrumb = (object) [
-        'title' => 'Selamat Datang Super Responden',
-        'list' => ['Home', 'welcome']
-    ];
-    return view('sisfo::dashboardRPN', compact('activeMenu', 'breadcrumb'));
-})->name('dashboard.rpn');
+// Route::get('/dashboardRPN', function () {
+//     $activeMenu = 'dashboard';
+//     $breadcrumb = (object) [
+//         'title' => 'Selamat Datang Super Responden',
+//         'list' => ['Home', 'welcome']
+//     ];
+//     return view('sisfo::dashboardRPN', compact('activeMenu', 'breadcrumb'));
+// })->name('dashboard.rpn');
