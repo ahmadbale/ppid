@@ -11017,7 +11017,7 @@ body:not(.layout-fixed).layout-navbar-fixed.text-sm .wrapper .main-sidebar .side
 
 .layout-navbar-fixed .wrapper .main-header {
   left: 0;
-  position: fixed;
+  position: fixed !important;
   right: 0;
   top: 0;
   z-index: 1033;
@@ -88251,6 +88251,10 @@ a.close.disabled, a.disabled.mailbox-attachment-close {
 
 .projects .project-state {
   text-align: center;
+}
+
+.main-sidebar{
+  top: 56px !important;
 }
 
 body.iframe-mode .main-sidebar {

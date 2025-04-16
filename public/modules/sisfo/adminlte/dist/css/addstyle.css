@@ -30,5 +30,21 @@
     width: 100%;
     overflow-x: hidden;
   }
+
+  body.sidebar-collapse .main-sidebar:hover {
+    width: 4.6rem !important; /* Tetap kecil walau di-hover */
+}
+
+body.sidebar-collapse .main-sidebar,
+body.sidebar-collapse .main-sidebar .nav-sidebar,
+body.sidebar-collapse .main-sidebar .nav-link {
+    overflow: hidden !important;
+    white-space: nowrap !important;
+}
+
+body.sidebar-collapse .main-sidebar .nav-treeview {
+    display: none !important;
+}
+
 }
 

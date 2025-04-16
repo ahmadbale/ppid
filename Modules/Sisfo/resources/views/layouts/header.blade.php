@@ -14,15 +14,7 @@
             <a class="nav-link d-flex align-items-center pr-2" data-widget="pushmenu" href="#" role="button">
                 <i class="fas fa-bars"></i>
             </a>
-            {{-- <span class="text-muted ml-2" style="font-size: 1.1rem; margin-top: 2px;">
-                @if (Auth::user()->level->level_kode == 'ADM')
-                    Administrator
-                @elseif (Auth::user()->level->level_kode == 'SAR')
-                    Sarana dan Prasarana
-                @elseif (Auth::user()->level->level_kode == 'MPU')
-                    Pimpinan
-                @endif
-            </span> --}}
+            <h3 class="pl-2 card-title greeting-nich text-bold"></h3>
         </li>
     </ul>
 
@@ -158,3 +150,22 @@
     </ul>
 
 </nav>
+<script>
+    function getGreeting() {
+        const now = new Date();
+        const hour = now.getHours();
+
+        if (hour >= 0 && hour < 5) {
+            return "🦉 It's super late. Time to get some rest!";
+        } else if (hour >= 5 && hour < 11) {
+            return "☀️ Good morning! Let's make awesome today.";
+        } else if (hour >= 11 && hour < 14) {
+            return "🍱 Selamat siang! It's lunch time is calling.";
+        } else if (hour >= 14 && hour < 18) {
+            return "☕ Good afternoon! Time for a latte break.";
+        } else {
+            return "🌙 Good evening! Time to chill down.";
+        }
+    }
+    document.querySelector(".greeting-nich").textContent =  getGreeting();
+</script>
