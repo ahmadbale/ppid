@@ -82,45 +82,6 @@
         </li>
 
         <!-- User Profile -->
-        {{-- kanan kiri --}}
-        {{-- <li class="nav-item d-flex align-items-center">
-            <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
-                    alt="User Profile Picture"
-                    class="img-circle"
-                    style="width: 32px; height: 32px; object-fit: cover; opacity: 0.9; margin-right: 10px;">
-                    <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
-                        {{ Auth::user()->nama_pengguna }}
-                    </span>
-            </a> --}}
-
-        {{-- kanan kabeh --}}
-        {{-- <li class="nav-item d-flex align-items-center">
-            <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
-                    alt="User Profile Picture" class="img-circle"
-                    style="width: 32; height: 32px; object-fit: cover; opacity: .9; margin-right: 10px;">
-                <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
-                    {{ Auth::user()->nama_pengguna }}
-                </span>
-                <span class="text-muted mx-2" style="font-size: 1.05rem;">/</span>
-                <div class="d-flex flex-column justify-content-center">
-                    <span class="text-muted" style="font-size: 1rem;">
-                        @if (Auth::user()->level->level_kode == 'ADM')
-                            Administrator
-                        @elseif (Auth::user()->level->level_kode == 'SAR')
-                            Sarana dan Prasarana
-                        @elseif (Auth::user()->level->level_kode == 'MPU')
-                            Pimpinan
-                        @else
-                            {{ Auth::user()->level->level_nama ?? 'Level Tidak Dikenal' }}
-                        @endif
-                    </span>
-                </div>
-            </a>
-        </li> --}}
-
-        {{-- tumpuk --}}
         <li class="nav-item d-flex align-items-center">
             <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
                 <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
@@ -133,15 +94,7 @@
                         {{ Auth::user()->nama_pengguna }}
                     </span>
                     <span class="text-muted" style="font-size: 0.85rem;">
-                        @if (Auth::user()->level->level_kode == 'ADM')
-                            Administrator
-                        @elseif (Auth::user()->level->level_kode == 'SAR')
-                            Sarana dan Prasarana
-                        @elseif (Auth::user()->level->level_kode == 'MPU')
-                            Pimpinan
-                        @else
-                            {{ Auth::user()->level->level_nama ?? 'Level Tidak Dikenal' }}
-                        @endif
+                        {{ Auth::user()->level->level_nama }}
                     </span>
                 </div>
             </a>
