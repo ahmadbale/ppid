@@ -18,7 +18,7 @@ class ApiBeritaLandingPageController extends BaseApiController
                 $beritaLandingPage = BeritaDinamisModel::getDataBeritaLandingPage();
                 return $beritaLandingPage;
             },
-            'Berita LandingPage'
+            'Laman Berita LandingPage'
         );
     }
 }

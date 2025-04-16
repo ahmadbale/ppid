@@ -15,7 +15,7 @@ class ApiMenuController extends BaseApiController
                 $menu = WebMenuModel::getDataMenu();
                 return $menu;
             },
-            'menu' // hanya penanda data yang akan diambil
+            'Laman menu dinamis'
         );
     }
 }
