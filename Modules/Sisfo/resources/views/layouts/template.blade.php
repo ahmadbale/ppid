@@ -49,20 +49,6 @@
         @include('sisfo::layouts.header')
         <!-- /.navbar -->
         @include('sisfo::layouts.sidebar')
-        {{-- </aside> --}}
-        <!-- Main Sidebar Container -->
-        {{-- <aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
-            <!-- Brand Logo -->
-            <a class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
-                <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
-                    style= "display: block; margin: 0 auto; height: 110px; width: auto; "
-                    class="brand-image opacity-75 shadow">
-                <h2 style="color: #FFC030">PPID</h2>
-                <h6 style="color: white">POLITEKNIK NEGERI</br>MALANG</h6>
-            </a>
-            <!-- /.sidebar -->
-        </aside> --}}
-
         <div class="content-wrapper">
             @include('sisfo::layouts.breadcrumb')
 
@@ -124,8 +110,6 @@
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
     <!-- SweetAlert2 -->
     <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    <!-- AdminLTE App -->
-    <script src="{{ asset('modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
     <script>
         //Untuk Mengirimkan token laravel CSRF pada setiap request ajax
         $.ajaxSetup({
