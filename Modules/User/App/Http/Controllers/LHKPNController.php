@@ -18,10 +18,16 @@ class LHKPNController extends Controller
 
             $page = $request->get('page', 1);
             $tahunDipilih = $request->get('tahun');
+            $detailPage = $request->get('detail_page', []);
 
             $params = ['page' => $page];
             if ($tahunDipilih) {
                 $params['tahun'] = $tahunDipilih;
+            }
+            
+            // Tambahkan parameter detail_page jika ada
+            if (!empty($detailPage)) {
+                $params['detail_page'] = $detailPage;
             }
 
             $response = Http::get("http://ppid-polinema.test/api/public/getDataLhkpn", $params);
@@ -33,7 +39,7 @@ class LHKPNController extends Controller
             $lhkpnData = $this->fetchLHKPNData($response);
 
             // Ambil tahun dari semua item LHKPN secara dinamis
-            $allData = $response->json('data.data.data') ?? [];
+            $allData = $response->json('data.data') ?? [];
             $tahunList = collect($allData)
                             ->pluck('tahun')
                             ->unique()
@@ -109,28 +115,20 @@ class LHKPNController extends Controller
         $result = [];
         
         // Sesuaikan dengan struktur JSON yang diberikan
-        $lhkpnList = $data['data']['data']['data'] ?? [];
+        $lhkpnList = $data['data']['data'] ?? [];
         
         foreach ($lhkpnList as $item) {
-            $details = [];
+            $details = $item['details'] ?? [];
             
-            // Jika ada detail karyawan, proses data detail
-            if (!empty($item['details'])) {
-                foreach ($item['details'] as $detail) {
-                    $details[] = [
-                        'id' => $detail['id'] ?? null,
-                        'nama_karyawan' => $detail['nama_karyawan'] ?? 'Tidak Diketahui',
-                        'file' => $detail['file'] ?? null,
-                    ];
-                }
-            }
+            // Ambil informasi pagination detail dari response
+            $detailPagination = $item['detail_pagination'] ?? null;
             
             // Cek apakah ada lebih banyak data yang tersedia
             $has_more = false;
-            $total_karyawan = $item['total_karyawan'] ?? 0;
+            $total_karyawan = $detailPagination['total_items'] ?? 0;
             $total_details = count($details);
             
-            if ($total_karyawan > $total_details) {
+            if ($detailPagination && $detailPagination['total_pages'] > $detailPagination['current_page']) {
                 $has_more = true;
             }
             
@@ -144,27 +142,20 @@ class LHKPNController extends Controller
                 'total_karyawan' => $total_karyawan,
                 'has_more' => $has_more,
                 'details' => $details,
-                'next_page' => $item['next_page'] ?? null,
-                'prev_page' => $item['prev_page'] ?? null,
-                'current_page' => $item['current_page'] ?? 1,
-                'total_pages' => $item['total_pages'] ?? 1,
+                'detail_pagination' => $detailPagination,
             ];
         }
         
         // Ambil informasi paginasi dari response
-        $paginationData = $data['data']['data'] ?? [];
+        $paginationData = $data['data'] ?? [];
         
         return [
             'items' => $result,
             'pagination' => [
                 'current_page' => $paginationData['current_page'] ?? 1,
                 'last_page' => $paginationData['total_pages'] ?? 1,
-                'next_page_url' => $paginationData['current_page'] < $paginationData['total_pages'] 
-                    ? "?page=" . ($paginationData['current_page'] + 1) 
-                    : null,
-                'prev_page_url' => $paginationData['current_page'] > 1 
-                    ? "?page=" . ($paginationData['current_page'] - 1) 
-                    : null,
+                'next_page_url' => $paginationData['next_page_url'] ?? null,
+                'prev_page_url' => $paginationData['prev_page_url'] ?? null,
                 'total' => $paginationData['total_items'] ?? 0,
                 'per_page' => $paginationData['per_page'] ?? 0,
             ]

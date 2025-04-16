@@ -107,90 +107,104 @@ class LhkpnModel extends Model
 
     //     return $lhkpnData;
     // }
-    public static function getDataLhkpn($per_page = 5, $tahun = null, $detail_page = [])
-    {
-        $query = DB::table('m_lhkpn as ml')
-            ->select([
-                'ml.lhkpn_id',
-                'ml.lhkpn_tahun',
-                'ml.lhkpn_judul_informasi',
-                'ml.lhkpn_deskripsi_informasi',
-                'ml.updated_at'
-            ])
-            ->where('ml.isDeleted', 0);
+    public static function getDataLhkpn($per_page = 10, $tahun = null, $detail_page = [])
+{
+    $query = DB::table('m_lhkpn as ml')
+        ->select([
+            'ml.lhkpn_id',
+            'ml.lhkpn_tahun',
+            'ml.lhkpn_judul_informasi',
+            'ml.lhkpn_deskripsi_informasi',
+            'ml.updated_at'  // Tambahkan updated_at dari tabel utama
+        ])
+        ->where('ml.isDeleted', 0);
 
-        // Filter tahun jika disediakan
-        if ($tahun !== null) {
-            $query->where('ml.lhkpn_tahun', $tahun);
-        }
-
-        $arr_data = $query->orderBy('ml.lhkpn_id', 'DESC')
-            ->paginate($per_page);
-
-        // Transformasi data
-        $transformedData = collect($arr_data->items())->map(function ($item) use ($detail_page) {
-            $tahun = $item->lhkpn_tahun;
-            $currentPage = isset($detail_page[$tahun]) ? (int)$detail_page[$tahun] : 1;
-            $perDetailPage = 5;
-            $offset = ($currentPage - 1) * $perDetailPage;
-        
-            $detailQuery = DB::table('t_detail_lhkpn')
-                ->select([
-                    'detail_lhkpn_id',
-                    'dl_nama_karyawan',
-                    'dl_file_lhkpn'
-                ])
-                ->where('fk_m_lhkpn', $item->lhkpn_id)
-                ->where('isDeleted', 0)
-                ->orderBy('dl_nama_karyawan');
-        
-            $totalDetails = $detailQuery->count();
-        
-            $details = $detailQuery
-                ->offset($offset)
-                ->limit($perDetailPage)
-                ->get()
-                ->map(function ($row) {
-                    return [
-                        'id' => $row->detail_lhkpn_id,
-                        'nama_karyawan' => $row->dl_nama_karyawan,
-                        'file' => $row->dl_file_lhkpn ? asset('storage/' . $row->dl_file_lhkpn) : null
-                    ];
-                })->toArray();
-        
-            $totalDetailPages = ceil($totalDetails / $perDetailPage);
-        
-            return [
-                'id' => $item->lhkpn_id,
-                'tahun' => $item->lhkpn_tahun,
-                'judul' => $item->lhkpn_judul_informasi,
-                'deskripsi' => $item->lhkpn_deskripsi_informasi,
-                'updated_at' => $item->updated_at
-                    ? \Carbon\Carbon::parse($item->updated_at)->format('d F Y, H:i:s')
-                    : null,
-                'details' => $details,
-                'detail_pagination' => [
-                    'current_page' => $currentPage,
-                    'total_pages' => $totalDetailPages,
-                    'per_page' => $perDetailPage,
-                    'total_items' => $totalDetails,
-                    'next_page_url' => $currentPage < $totalDetailPages ? url()->current() . '?detail_page[' . $tahun . ']=' . ($currentPage + 1) : null,
-                    'prev_page_url' => $currentPage > 1 ? url()->current() . '?detail_page[' . $tahun . ']=' . ($currentPage - 1) : null,
-                ]
-            ];
-        });
-        
-        // Format response pagination
-        return [
-            'current_page' => $arr_data->currentPage(),
-            'data' => $transformedData,
-            'total_pages' => $arr_data->lastPage(),
-            'total_items' => $arr_data->total(),
-            'per_page' => $arr_data->perPage(),
-            'next_page_url' => $arr_data->nextPageUrl(),
-            'prev_page_url' => $arr_data->previousPageUrl()
-        ];
+    // Filter tahun jika disediakan
+    if ($tahun !== null) {
+        $query->where('ml.lhkpn_tahun', $tahun);
     }
+
+    $arr_data = $query->orderBy('ml.lhkpn_id', 'DESC')
+        ->paginate($per_page);
+
+    // Transformasi data
+    $transformedData = collect($arr_data->items())->map(function ($item) use ($detail_page) {
+        $tahun = $item->lhkpn_tahun;
+        $currentPage = isset($detail_page[$tahun]) ? (int)$detail_page[$tahun] : 1;
+        $perDetailPage = 10;
+        $offset = ($currentPage - 1) * $perDetailPage;
+    
+        // Subquery untuk mencari updated_at terbaru dari detail
+        $latestDetailUpdate = DB::table('t_detail_lhkpn')
+            ->where('fk_m_lhkpn', $item->lhkpn_id)
+            ->where('isDeleted', 0)
+            ->max('updated_at');
+    
+        $detailQuery = DB::table('t_detail_lhkpn')
+            ->select([
+                'detail_lhkpn_id',
+                'dl_nama_karyawan',
+                'dl_file_lhkpn',
+                'updated_at'
+            ])
+            ->where('fk_m_lhkpn', $item->lhkpn_id)
+            ->where('isDeleted', 0)
+            ->orderBy('dl_nama_karyawan');
+    
+        $totalDetails = $detailQuery->count();
+    
+        $details = $detailQuery
+            ->offset($offset)
+            ->limit($perDetailPage)
+            ->get()
+            ->map(function ($row) {
+                return [
+                    'id' => $row->detail_lhkpn_id,
+                    'nama_karyawan' => $row->dl_nama_karyawan,
+                    'file' => $row->dl_file_lhkpn ? asset('storage/' . $row->dl_file_lhkpn) : null,
+                    'updated_at' => $row->updated_at
+                        ? \Carbon\Carbon::parse($row->updated_at)->format('d F Y, H:i')
+                        : null,
+                ];
+            })->toArray();
+    
+        $totalDetailPages = ceil($totalDetails / $perDetailPage);
+    
+        return [
+            'id' => $item->lhkpn_id,
+            'tahun' => $item->lhkpn_tahun,
+            'judul' => $item->lhkpn_judul_informasi,
+            'deskripsi' => $item->lhkpn_deskripsi_informasi,
+            'updated_at' => $latestDetailUpdate
+                ? \Carbon\Carbon::parse($latestDetailUpdate)->format('d F Y, H:i')
+                : (
+                    $item->updated_at 
+                    ? \Carbon\Carbon::parse($item->updated_at)->format('d F Y, H:i')
+                    : null
+                ),
+            'details' => $details,
+            'detail_pagination' => [
+                'current_page' => $currentPage,
+                'total_pages' => $totalDetailPages,
+                'per_page' => $perDetailPage,
+                'total_items' => $totalDetails,
+                'next_page_url' => $currentPage < $totalDetailPages ? url()->current() . '?detail_page[' . $tahun . ']=' . ($currentPage + 1) : null,
+                'prev_page_url' => $currentPage > 1 ? url()->current() . '?detail_page[' . $tahun . ']=' . ($currentPage - 1) : null,
+            ]
+        ];
+    });
+    
+    // Format response pagination
+    return [
+        'current_page' => $arr_data->currentPage(),
+        'data' => $transformedData,
+        'total_pages' => $arr_data->lastPage(),
+        'total_items' => $arr_data->total(),
+        'per_page' => $arr_data->perPage(),
+        'next_page_url' => $arr_data->nextPageUrl(),
+        'prev_page_url' => $arr_data->previousPageUrl()
+    ];
+}
     public static function selectData($perPage = null, $search = '')
     {
         $query = self::query()
