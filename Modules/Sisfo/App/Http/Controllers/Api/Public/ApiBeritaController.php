@@ -14,7 +14,7 @@ class ApiBeritaController extends BaseApiController
                 $berita = BeritaDinamisModel::getDataBerita();
                 return $berita;
             },
-            'Menu Berita'
+            'Laman Berita'
         );
     }
     public function getDetailBeritaById($slug,$berita_id)
@@ -24,7 +24,7 @@ class ApiBeritaController extends BaseApiController
                 $berita = BeritaDinamisModel::getDetailBeritaById($slug,$berita_id);
                 return $berita;
             },
-            'Detail Berita'
+            'Laman Berita'
         );
     }
 }

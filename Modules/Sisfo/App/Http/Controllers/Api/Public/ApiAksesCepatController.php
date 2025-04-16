@@ -14,7 +14,7 @@ class ApiAksesCepatController extends BaseApiController
                 $aksesCepat = KategoriAksesModel::getDataAksesCepat();
                 return $aksesCepat;
             },
-            'Akses Cepat'
+            'Laman Akses Cepat'
         );
     }
 }

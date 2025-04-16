@@ -124,10 +124,11 @@ class BeritaDinamisModel extends Model
                 'tb.created_at',
                 'tb.berita_thumbnail',
                 'tb.berita_thumbnail_deskripsi',
-                'tb.berita_deskripsi' // Tambahkan kolom deskripsi lengkap
+                'tb.berita_deskripsi' 
             ])
             ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
             ->where('tb.berita_id', $berita_id)
+            ->where('tb.berita_slug', $slug)
             ->where('tb.isDeleted', 0)
             ->where('tb.status_berita', 'aktif')
             ->first();

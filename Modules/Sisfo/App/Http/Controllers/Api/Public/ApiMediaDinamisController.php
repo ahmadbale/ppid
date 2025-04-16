@@ -19,7 +19,7 @@ class ApiMediaDinamisController extends BaseApiController
                 $heroSection = MediaDinamisModel::getDataHeroSection();
                 return $heroSection;
             },
-            'Hero Section'
+            'Laman Hero Section'
         );
     }
     public function getDataDokumentasi()
@@ -29,7 +29,7 @@ class ApiMediaDinamisController extends BaseApiController
                 $dokumentasi = MediaDinamisModel::getDataDokumentasi();
                 return $dokumentasi;
             },
-            'Dokumentasi PPID'
+            'Laman Dokumentasi PPID'
         );
     }
     public function getDataMediaInformasiPublik(Request $request)
@@ -47,7 +47,7 @@ class ApiMediaDinamisController extends BaseApiController
             $mediainformasi = MediaDinamisModel::getDataMediaInformasiPublik($showAll);
             return $mediainformasi;
         },
-        'Media Informasi Publik'
+        'Laman Media Informasi Publik'
     );
 }
 }

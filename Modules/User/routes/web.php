@@ -87,6 +87,8 @@ Route::get('/profil/tugas-fungsi', function () {
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita');
 Route::get('/berita-detail/{slug}/{beritaId}', [BeritaController::class, 'detail'])->name('berita-detail');
 
+Route::get('/404');
+
 
 
 Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman');

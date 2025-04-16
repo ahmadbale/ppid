@@ -216,6 +216,13 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                         <p>Akses Cepat</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/pintasan-lainnya') }}"
+                                        class="nav-link {{ $activeMenu == 'pintasan-lainnya' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Pintasan Lainnya</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -334,6 +341,13 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                         class="nav-link {{ $activeMenu == 'kategori-regulasi' ? 'active' : '' }}">
                                         <i class="fas fa-tasks nav-icon"></i>
                                         <p>Kategori Regulasi</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/regulasi') }}"
+                                        class="nav-link {{ $activeMenu == 'Regulasi' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Regulasi</p>
                                     </a>
                                 </li>
                             </ul>

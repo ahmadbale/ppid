@@ -3,19 +3,21 @@
         Showing {{ $footer->firstItem() }} to {{ $footer->lastItem() }} of {{ $footer->total() }} results
     </div>
 </div>
-<table class="table table-bordered table-striped table-hover table-sm">
-    <thead>
+
+<div class="table-responsive">
+<table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+    <thead class="text-center">
         <tr>
-            <th width="5%">Nomor</th>
-            <th width="35%">Judul Footer</th>
-            <th width="35%">Kategori Footer</th>
-            <th width="25%">Aksi</th>
+            <th >Nomor</th>
+            <th >Judul Footer</th>
+            <th >Kategori Footer</th>
+            <th >Aksi</th>
         </tr>
     </thead>
     <tbody>
         @forelse($footer as $key => $item)
         <tr>
-            <td>{{ ($footer->currentPage() - 1) * $footer->perPage() + $key + 1 }}</td>
+            <td data-title="Nomor">{{ ($footer->currentPage() - 1) * $footer->perPage() + $key + 1 }}</td>
             <td>{{ $item->f_judul_footer }}</td>
             <td>{{ $item->kategoriFooter->kt_footer_nama ?? 'Tidak Ada' }}</td>
             <td>
@@ -32,7 +34,7 @@
         </tr>
         @empty
         <tr>
-            <td colspan="4" class="text-center">
+            <td colspan="3" class="text-center">
                 @if(!empty($search))
                     Tidak ada data yang cocok dengan pencarian "{{ $search }}"
                 @else
@@ -43,6 +45,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 <div class="mt-3">
     {{ $footer->appends(['search' => $search])->links() }}
 </div>
