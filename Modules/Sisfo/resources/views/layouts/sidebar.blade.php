@@ -307,6 +307,30 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p> Data Regulasi
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/regulasi-dinamis') }}"
+                                        class="nav-link {{ $activeMenu == 'regulasi-dinamis' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Regulasi Dinamis</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/kategori-regulasi') }}"
+                                        class="nav-link {{ $activeMenu == 'kategori-regulasi' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>Kategori Regulasi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </li>
             @elseif (Auth::user()->level->level_kode == 'SAR')
             <li class="nav-header">Menu Umum</li>
