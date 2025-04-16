@@ -1,24 +1,17 @@
 <?php
 use Illuminate\Support\Facades\Auth;
-// use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-// use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 use Modules\Sisfo\App\Helpers\MenuHelper;
-
-// Hitung total notifikasi belum dibaca
-// $totalNotifikasiADM = NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
-// $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
 ?>
 
 <aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
     <!-- Brand Logo -->
-    <a class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
+    <div class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
         <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
             style= "display: block; margin: 0 auto; height: 110px; width: auto; "
             class="brand-image opacity-75 shadow">
         <h2 style="color: #FFC030">PPID</h2>
         <h6 style="color: white">POLITEKNIK NEGERI</br>MALANG</h6>
-    </a>
-    <!-- /.sidebar -->
+    </div>
 
 <div class="sidebar">
     <!-- Sidebar Menu -->
@@ -89,44 +82,46 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanInformasi') }}"
                                 class="nav-link {{ $activeMenu == 'PermohonanInformasi' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
+                                <i class="far fa-circle nav-icon"></i>
                                 <p>Permohonan Informasi</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/ADM/PernyataanKeberatan') }}"
                                 class="nav-link {{ $activeMenu == 'PernyataanKeberatan' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
+                                <i class="far fa-circle nav-icon"></i>
                                 <p>Pernyataan Keberatan</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/ADM/PengaduanMasyarakat') }}"
                                 class="nav-link {{ $activeMenu == 'PengaduanMasyarakat' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
+                                <i class="far fa-circle nav-icon"></i>
                                 <p>Pengaduan Masyarakat</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/ADM/WBS') }}"
                                 class="nav-link {{ $activeMenu == 'WBS' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
+                                <i class="far fa-circle nav-icon"></i>
                                 <p>Whistle Blowing System</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanPerawatan') }}"
                                 class="nav-link {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Permohonan Perawatan SarPras</p>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Perawatan SarPras</p>
                             </a>
                         </li>
                     </ul>
                 </li>
+                <li class="nav-header">Manajemen Website</li>
+                <!-- Menu Utama -->
                 <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-question-circle"></i>
-                        <p> Petunjuk E-Form
+                        <p> Pengaturan E-Form
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
@@ -134,8 +129,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/KategoriForm') }}"
                                 class="nav-link {{ $activeMenu == 'KategoriForm' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaturan Kategori Form</p>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Kategori Form</p>
                             </a>
                         </li>
                     </ul>
@@ -143,8 +138,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/Timeline') }}"
                                 class="nav-link {{ $activeMenu == 'Timeline' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaturan Timeline</p>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Timeline</p>
                             </a>
                         </li>
                     </ul>
@@ -152,14 +147,12 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         <li class="nav-item">
                             <a href="{{ url('SistemInformasi/KetentuanPelaporan') }}"
                                 class="nav-link {{ $activeMenu == 'KetentuanPelaporan' ? 'active' : '' }}">
-                                <i class="fas fa-file-alt nav-icon"></i>
-                                <p>Pengaturan Ketentuan Pelaporan</p>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Ketentuan Pelaporan</p>
                             </a>
                         </li>
                     </ul>
                 </li>
-                <li class="nav-header">Manajemen Website</li>
-                <!-- Menu Utama -->
                     <li class="nav-item">
                         @if(MenuHelper::shouldShowInSidebar('adminweb/menu-management'))
                             <li class="nav-item">
@@ -181,7 +174,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/kategori-footer') }}"
                                         class="nav-link {{ $activeMenu == 'kategori-footer' ? 'active' : '' }}">
-                                        <i class="fas fa-list-alt nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori-Footer</p>
                                     </a>
                                 </li>
@@ -205,14 +198,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/kategori-akses') }}"
                                         class="nav-link {{ $activeMenu == 'kategori-akses' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori-Akses</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/akses-cepat') }}"
                                         class="nav-link {{ $activeMenu == 'akses-cepat' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Akses Cepat</p>
                                     </a>
                                 </li>
@@ -229,15 +222,15 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/berita-dinamis') }}"
                                         class="nav-link {{ $activeMenu == 'berita-dinamis' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori-Berita</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/berita') }}"
                                         class="nav-link {{ $activeMenu == 'berita' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
-                                        <p>Berita</p>
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Detail Berita</p>
                                     </a>
                                 </li>
                             </ul>
@@ -316,16 +309,11 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </li>
                     </li>
             @elseif (Auth::user()->level->level_kode == 'SAR')
+            <li class="nav-header">Menu Umum</li>
                 <li class="nav-item">
                     <a href="{{ url('/dashboardSAR') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>Profile</p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -335,13 +323,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                     </a>
                 </li>
             @elseif (Auth::user()->level->level_kode == 'MPU')
+            <li class="nav-header">Menu Umum</li>
                 <li class="nav-item">
                     <a href="{{ url('/dashboardMPU') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ url('/profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Profile</p>
@@ -352,7 +341,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         <i class="nav-icon fas fa-bell"></i>
                         <p>Notifikasi</p>
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a href="{{ url('/pengajuanPermohonan') }}"
                         class="nav-link {{ $activeMenu == 'pengajuan_permohonan' ? 'active' : '' }}">
@@ -368,18 +357,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                     </a>
                 </li>
             @elseif (Auth::user()->level->level_kode == 'VFR')
+            <li class="nav-header">Menu Umum</li>
                 <li class="nav-item">
                     <a href="{{ url('/dashboardVFR') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url('/profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>Profile</p>
-                    </a>
-                </li>
+
                 <li class="nav-item" style="position: relative;">
                     <a href="{{ url('/notifikasi') }}" class="nav-link {{ $activeMenu == 'notifikasi' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-bell"></i>
@@ -388,7 +373,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             <span class="badge badge-danger notification-badge">{{ $totalNotifikasiVFR }}</span>
                         @endif
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a href="{{ url('/daftarPermohonan') }}"
                         class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
@@ -404,16 +389,11 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                     </a>
                 </li>
             @elseif (Auth::user()->level->level_kode == 'RPN')
+            <li class="nav-header">Menu Umum</li>
                 <li class="nav-item">
                     <a href="{{ url('/dashboardRPN') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/profile') }}" class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>Profile</p>
                     </a>
                 </li>
                 <li class="nav-item">
