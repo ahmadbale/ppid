@@ -158,13 +158,13 @@
         if (hour >= 0 && hour < 5) {
             return "🦉 It's super late. Time to get some rest!";
         } else if (hour >= 5 && hour < 11) {
-            return "☀️ Good morning! Coffee dulu biar semangat.";
+            return "☀️ Good morning! Let's make awesome today.";
         } else if (hour >= 11 && hour < 14) {
-            return "🍱 Selamat siang! Lunch time is calling.";
+            return "🍱 Selamat siang! It's lunch time is calling.";
         } else if (hour >= 14 && hour < 18) {
-            return "☕ Good afternoon! Time for a creamy latte break.";
+            return "☕ Good afternoon! Time for a latte break.";
         } else {
-            return "🌙 Good evening! Waktunya chill and wind down.";
+            return "🌙 Good evening! Time to chill down.";
         }
     }
     document.querySelector(".greeting-nich").textContent =  getGreeting();
