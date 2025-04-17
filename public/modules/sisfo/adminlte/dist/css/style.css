@@ -11901,7 +11901,6 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
   -webkit-animation-duration: 0s !important;
   animation-duration: 0s !important;
 }
-
 .dark-mode {
   background-color: #454d55 !important;
   color: #fff;
