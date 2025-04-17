@@ -120,81 +120,126 @@ $ketentuanPelaporan = $data['ketentuanPelaporan'];
     @endif
 
     <!-- Statistik -->
-    <div class="card card-outline">
-        <div class="card-body">
-            <h5 class="mb-3 text-bold">Jumlah Permohonan Pemeliharaan SarPras</h5>
-            <div class="row text-center">
-                <div class="col">
-                    <div class="card bg-light p-3">Masuk: 12</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box border-masuk">
+                    <span class="info-box-icon "><i class="fas fa-inbox fa-2x text-warning"></i></span>
+                    <div class="info-box-content ">
+                        <span class="info-box-text">Masuk</span>
+                        <span class="info-box-number">12</span>
+                    </div>
                 </div>
-                <div class="col">
-                    <div class="card bg-info text-white p-3">Diproses: 8</div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box border-diproses">
+                    <span class="info-box-icon">
+                        <i class="fas fa-spinner fa-2x text-primary"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Diproses</span>
+                        <span class="info-box-number">8</span>
+                    </div>
                 </div>
-                <div class="col">
-                    <div class="card bg-success text-white p-3">Selesai: 3</div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box border-selesai">
+                    <span class="info-box-icon">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Selesai</span>
+                        <span class="info-box-number">3</span>
+                    </div>
                 </div>
-                <div class="col">
-                    <div class="card bg-danger text-white p-3">Ditolak: 1</div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box border-ditolak">
+                    <span class="info-box-icon">
+                        <i class="fas fa-times-circle fa-2x text-danger"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Ditolak</span>
+                        <span class="info-box-number">1</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card card-outline ">
-        <div class="card-body">
-            <h5 class="mb-3 text-bold">Daftar Permohonan Pemeliharaan SarPras</h5>
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <form id="searchForm" class="d-flex">
-                        <input type="text" name="search" class="form-control" placeholder="Cari nama pemohon">
-                        <button type="submit" class="btn btn-primary ml-2">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
-                <div class="col-md-6 text-right">
-                    <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PengaduanMasyarakat/addData') }}"
-                        class="btn btn-sm btn-success d-inline-flex align-items-center">
-                        <i class="fas fa-plus mr-1"></i> Ajukan Pengaduan
-                    </a>
-                </div>
-            </div>
 
-            <div class="table-responsive" id="table-container">
-                <table class="table table-responsive-stack table-bordered table-striped">
-                    <thead class="text-center">
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Pemohon</th>
-                            <th>Status</th>
-                            <th>Tanggal Pengaduan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        <tr>
-                            <td>1</td>
-                            <td>Surya Kurniawan</td>
-                            <td><span class="badge bg-warning">Masuk</span></td>
-                            <td>2025-04-14</td>
-                            <td><a href="#" class="btn btn-sm btn-outline-info">Detail</a></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Nurul</td>
-                            <td><span class="badge bg-primary">Diproses</span></td>
-                            <td>2025-04-13</td>
-                            <td><a href="#" class="btn btn-sm btn-outline-info">Detail</a></td>
-                        </tr>
-                    </tbody>
-                </table>
+    <div class="container-fluid">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title text-center font-weight-bold">
+                    Daftar Permohonan Perawatan
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4 align-items-center">
+                    <!-- Kolom Pencarian -->
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <form id="searchForm" class="d-flex">
+                            <input type="text" name="search" class="form-control" placeholder="Cari nama pemohon">
+                            <button type="submit" class="btn btn-primary ml-2">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Kolom Tombol Tambah -->
+                    <div class="col-md-6 text-md-right mt-2 mt-md-0">
+                        <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanPerawatan/addData') }}"
+                            class="btn btn-sm btn-success d-inline-flex align-items-center">
+                            <i class="fas fa-plus mr-1"></i> Ajukan Permohonan
+                        </a>
+                    </div>
+                </div>
+
+
+                <!-- Tabel Data -->
+                <div class="table-responsive" id="table-container">
+                    <table class="table table-responsive-stack table-bordered table-striped">
+                        <thead class="text-center">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Pemohon</th>
+                                <th>Status</th>
+                                <th>Tanggal Pengaduan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr>
+                                <td>1</td>
+                                <td>Andi Wijaya</td>
+                                <td><span class="badge bg-warning">Masuk</span></td>
+                                <td>2025-04-14</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-info">Detail</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Budi Setia</td>
+                                <td><span class="badge bg-primary">Diproses</span></td>
+                                <td>2025-04-13</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-info">Detail</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-
 
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primeri">
             <h3 class="card-title tetx-center font-weight-bold">
                 @if (isset($ketentuanPelaporan))
                     {{ $ketentuanPelaporan->kp_judul }}
@@ -229,7 +274,7 @@ $ketentuanPelaporan = $data['ketentuanPelaporan'];
     </div>
 
     <div class="card">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primeri">
             <h3 class="card-title font-weight-bold mb-0">
                 @if (isset($ketentuanPelaporan))
                     {{ $ketentuanPelaporan->kp_judul }}
