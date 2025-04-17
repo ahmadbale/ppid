@@ -94,7 +94,7 @@ Route::get('/404');
 Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman');
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/LHKPN', [LhkpnController::class, 'index'])->name('LHKPN');
+Route::get('/lhkpn', [LhkpnController::class, 'index'])->name('lhkpn');
 
 
 
