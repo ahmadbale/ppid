@@ -55,34 +55,40 @@ class FooterModel extends Model
 
     public static function createData($request)
     {
+        // Ambil file dari input yang benar
+        $iconFile = self::uploadFile(
+            $request->file('t_footer')['f_icon_footer'] ?? null,
+            'footer_icons'
+        );
+    
         try {
             DB::beginTransaction();
-
-            $data = $request->only([
-                'fk_m_kategori_footer',
-                'f_judul_footer', 
-                'f_url_footer'
-            ]);
+    
+            $data = $request->t_footer;
             
-            // Proses upload ikon
-            if ($request->hasFile('f_icon_footer')) {
-                $iconPath = $request->file('f_icon_footer')->store(self::ICON_PATH, 'public');
-                $data['f_icon_footer'] = basename($iconPath);
+            // Jika icon diupload
+            if ($iconFile) {
+                $data['f_icon_footer'] = $iconFile;
             }
-
+    
             $footer = self::create($data);
-
+    
             TransactionModel::createData(
                 'CREATED',
                 $footer->footer_id,
                 $footer->f_judul_footer
             );
-
+            $result = self::responFormatSukses($footer, 'Footer berhasil dibuat');
+            
             DB::commit();
-
-            return self::responFormatSukses($footer, 'Footer berhasil dibuat');
+            return $result;
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            self::removeFile($iconFile);
+            return self::responValidatorError($e);
         } catch (\Exception $e) {
             DB::rollBack();
+            self::removeFile($iconFile);
             return self::responFormatError($e, 'Gagal membuat footer');
         }
     }

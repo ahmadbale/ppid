@@ -12,14 +12,14 @@
     
         <div class="form-group">
             <label for="kt_footer_kode">Kode Kategori Footer <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="kt_footer_kode" name="kt_footer_kode" maxlength="20"
+            <input type="text" class="form-control" id="kt_footer_kode" name="m_kategori_footer[kt_footer_kode]" maxlength="20"
                 value="{{ $kategoriFooter->kt_footer_kode }}">
             <div class="invalid-feedback" id="kt_footer_kode_error"></div>
         </div>
     
         <div class="form-group">
             <label for="kt_footer_nama">Nama Kategori Footer <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="kt_footer_nama" name="kt_footer_nama" maxlength="100"
+            <input type="text" class="form-control" id="kt_footer_nama" name="m_kategori_footer[kt_footer_nama]" maxlength="100"
                 value="{{ $kategoriFooter->kt_footer_nama }}">
             <div class="invalid-feedback" id="kt_footer_nama_error"></div>
         </div>
