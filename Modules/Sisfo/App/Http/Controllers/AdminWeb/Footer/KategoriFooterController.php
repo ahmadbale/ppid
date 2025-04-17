@@ -112,18 +112,24 @@ class KategoriFooterController extends Controller
         ]);
     }
 
+    
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             $kategoriFooter = KategoriFooterModel::detailData($id);
             
-            return view("sisfo::AdminWeb/KategoriFooter.delete", [
+            return view("AdminWeb/KategoriFooter.delete", [
                 'kategoriFooter' => $kategoriFooter
             ]);
         }
         
         try {
             $result = KategoriFooterModel::deleteData($id);
+            
+            // Periksa apakah operasi berhasil
+            if ($result['success'] === false) {
+                return $this->jsonError(new \Exception($result['message']), $result['message']);
+            }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

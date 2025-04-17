@@ -13,7 +13,7 @@ class FooterController extends Controller
 {
     use TraitsController;
 
-    public $breadcrumb = 'Manajemen Footer';
+    public $breadcrumb = 'Pengaturan Footer';
     public $pagename = 'AdminWeb/Footer';
 
     public function index(Request $request)
@@ -21,8 +21,8 @@ class FooterController extends Controller
         $search = $request->query('search', '');
 
         $breadcrumb = (object) [
-            'title' => 'Manajemen Footer',
-            'list' => ['Home', 'Footer']
+            'title' => 'Pengaturan Footer',
+            'list' => ['Home', 'Pengaturan Footer']
         ];
 
         $page = (object) [
