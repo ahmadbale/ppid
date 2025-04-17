@@ -6,7 +6,6 @@ use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -22,13 +21,12 @@ class FooterModel extends Model
         'f_icon_footer',
         'f_url_footer',
     ];
-     // Relasi dengan kategori footer
-     public function kategoriFooter()
-     {
-         return $this->belongsTo(KategoriFooterModel::class, 'fk_m_kategori_footer', 'kategori_footer_id');
-     }
 
-    const ICON_PATH = 'footer_icons';
+    // Relasi dengan kategori footer
+    public function kategoriFooter()
+    {
+        return $this->belongsTo(KategoriFooterModel::class, 'fk_m_kategori_footer', 'kategori_footer_id');
+    }
 
     public function __construct(array $attributes = [])
     {
@@ -41,6 +39,7 @@ class FooterModel extends Model
         $query = self::with('kategoriFooter')
             ->where('isDeleted', 0);
 
+        // Tambahkan fungsionalitas pencarian
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
                 $q->where('f_judul_footer', 'like', "%{$search}%")
@@ -55,9 +54,8 @@ class FooterModel extends Model
 
     public static function createData($request)
     {
-        // Ambil file dari input yang benar
         $iconFile = self::uploadFile(
-            $request->file('t_footer')['f_icon_footer'] ?? null,
+            $request->file('f_icon_footer'),
             'footer_icons'
         );
     
@@ -92,44 +90,48 @@ class FooterModel extends Model
             return self::responFormatError($e, 'Gagal membuat footer');
         }
     }
-
+    
     public static function updateData($request, $id)
     {
+        $iconFile = self::uploadFile(
+            $request->file('f_icon_footer'),
+            'footer_icons'
+        );
+    
         try {
             DB::beginTransaction();
-
+    
             $footer = self::findOrFail($id);
-
-            $data = $request->only([
-                'fk_m_kategori_footer',
-                'f_judul_footer', 
-                'f_url_footer'
-            ]);
-            
-            // Proses upload ikon
-            if ($request->hasFile('f_icon_footer')) {
-                // Hapus ikon lama jika ada
+            $data = $request->t_footer;
+    
+            // Jika icon diupload
+            if ($iconFile) {
+                // Hapus icon lama jika ada
                 if ($footer->f_icon_footer) {
-                    self::deleteIconFile($footer->f_icon_footer);
+                    self::removeFile($footer->f_icon_footer);
                 }
-
-                $iconPath = $request->file('f_icon_footer')->store(self::ICON_PATH, 'public');
-                $data['f_icon_footer'] = basename($iconPath);
+    
+                $data['f_icon_footer'] = $iconFile;
             }
-
+    
             $footer->update($data);
-
+    
             TransactionModel::createData(
                 'UPDATED',
                 $footer->footer_id,
                 $footer->f_judul_footer
             );
-
+            $result = self::responFormatSukses($footer, 'Footer berhasil diperbarui');
+            
             DB::commit();
-
-            return self::responFormatSukses($footer, 'Footer berhasil diperbarui');
+            return $result;
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            self::removeFile($iconFile);
+            return self::responValidatorError($e);
         } catch (\Exception $e) {
             DB::rollBack();
+            self::removeFile($iconFile);
             return self::responFormatError($e, 'Gagal memperbarui footer');
         }
     }
@@ -141,9 +143,9 @@ class FooterModel extends Model
 
             $footer = self::findOrFail($id);
 
-            // Hapus file ikon jika ada
+            // Hapus file icon jika ada
             if ($footer->f_icon_footer) {
-                self::deleteIconFile($footer->f_icon_footer);
+                self::removeFile($footer->f_icon_footer);
             }
 
             $footer->delete();
@@ -168,27 +170,30 @@ class FooterModel extends Model
         return self::with('kategoriFooter')->findOrFail($id);
     }
 
-    public static function validasiData($request, $id = null)
+    public static function validasiData($request)
     {
         $rules = [
-            'fk_m_kategori_footer' => 'required|exists:m_kategori_footer,kategori_footer_id',
-            'f_judul_footer' => 'required|max:100',
-            'f_url_footer' => 'nullable|url|max:100',
-            'f_icon_footer' => [
-                'nullable',
+            't_footer.fk_m_kategori_footer' => 'required|exists:m_kategori_footer,kategori_footer_id',
+            't_footer.f_judul_footer' => 'required|max:100',
+            't_footer.f_url_footer' => 'nullable|url|max:100',
+        ];
+
+        // Validasi icon
+        if ($request->hasFile('f_icon_footer')) {
+            $rules['f_icon_footer'] = [
                 'image',
                 'mimes:jpeg,png,jpg,gif,svg',
                 'max:2048'
-            ],
-        ];
+            ];
+        }
 
         $messages = [
-            'fk_m_kategori_footer.required' => 'Kategori footer wajib dipilih',
-            'fk_m_kategori_footer.exists' => 'Kategori footer tidak valid',
-            'f_judul_footer.required' => 'Judul footer wajib diisi',
-            'f_judul_footer.max' => 'Judul footer maksimal 100 karakter',
-            'f_url_footer.url' => 'URL footer harus berupa URL yang valid',
-            'f_url_footer.max' => 'URL footer maksimal 100 karakter',
+            't_footer.fk_m_kategori_footer.required' => 'Kategori footer wajib dipilih',
+            't_footer.fk_m_kategori_footer.exists' => 'Kategori footer tidak valid',
+            't_footer.f_judul_footer.required' => 'Judul footer wajib diisi',
+            't_footer.f_judul_footer.max' => 'Judul footer maksimal 100 karakter',
+            't_footer.f_url_footer.url' => 'URL footer harus berupa URL yang valid',
+            't_footer.f_url_footer.max' => 'URL footer maksimal 100 karakter',
             'f_icon_footer.image' => 'Ikon harus berupa gambar',
             'f_icon_footer.mimes' => 'Ikon hanya boleh berupa file: jpeg, png, jpg, gif, atau svg',
             'f_icon_footer.max' => 'Ukuran ikon maksimal 2MB',
@@ -201,19 +206,5 @@ class FooterModel extends Model
         }
 
         return true;
-    }
-
-
-    // Helper method untuk menghapus file ikon
-    private static function deleteIconFile($filename)
-    {
-        try {
-            $path = self::ICON_PATH . '/' . $filename;
-            if (Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
-        } catch (\Exception $e) {
-            // Log error jika diperlukan
-        }
     }
 }

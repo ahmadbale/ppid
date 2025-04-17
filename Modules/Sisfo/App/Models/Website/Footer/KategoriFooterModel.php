@@ -168,24 +168,33 @@ class KategoriFooterModel extends Model
             return self::responFormatError($e, 'Gagal memperbarui kategori footer');
         }
     }
-
     public static function deleteData($id)
     {
         try {
             DB::beginTransaction();
-
+    
             $kategoriFooter = self::findOrFail($id);
-
+    
+            // Periksa apakah ada footer yang terkait dengan kategori ini
+            $footerTerkait = FooterModel::where('fk_m_kategori_footer', $kategoriFooter->kategori_footer_id)
+                ->where('isDeleted', 0)
+                ->count();
+    
+            // Jika masih ada footer terkait, lempar exception
+            if ($footerTerkait > 0) {
+                throw new \Exception('Masih terdapat footer aktif yang terkait');
+            }
+    
             $kategoriFooter->delete();
-
+    
             TransactionModel::createData(
                 'DELETED',
                 $kategoriFooter->kategori_footer_id,
                 $kategoriFooter->kt_footer_nama
             );
-
+    
             DB::commit();
-
+    
             return self::responFormatSukses($kategoriFooter, 'Kategori footer berhasil dihapus');
         } catch (\Exception $e) {
             DB::rollBack();
