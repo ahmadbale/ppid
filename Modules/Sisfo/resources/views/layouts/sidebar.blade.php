@@ -285,14 +285,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                     <a href="{{ url('/adminweb/media-dinamis') }}"
                                         class="nav-link {{ $activeMenu == 'media-dinamis' ? 'active' : '' }}">
                                         <i class="fas fa-tasks nav-icon"></i>
-                                        <p>Kategori-Media</p>
+                                        <p>Kategori Media Dinamis</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/media-detail') }}"
                                         class="nav-link {{ $activeMenu == 'media-detail' ? 'active' : '' }}">
                                         <i class="fas fa-tasks nav-icon"></i>
-                                        <p>Data Media Dinamis</p>
+                                        <p>Detail Media Dinamis</p>
                                     </a>
                                 </li>
                             </ul>
