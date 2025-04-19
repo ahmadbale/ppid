@@ -6,23 +6,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
+
 class BeritaController extends Controller
 {
     public function index(Request $request)
     {
         try {
             Log::info('Mengambil data dari API');
-
+    
             // Ambil halaman saat ini dari request, default ke 1
             $page = $request->get('page', 1);
-
+    
+            // Validasi nomor halaman
+            if (!is_numeric($page) || $page < 1) {
+                Log::warning('Nomor halaman tidak valid', [
+                    'page' => $page
+                ]);
+    
+                return view('user::404', [
+                    'message' => 'Halaman tidak ditemukan'
+                ]);
+            }
+    
             // Ambil data dari API dengan parameter halaman
             $beritaResponse = Http::get("http://ppid-polinema.test/api/public/getDataBerita", [
                 'page' => $page
             ]);
-
+    
             $beritaData = $this->fetchBeritaData($beritaResponse);
-
+    
+            // Validasi data berita
+            if (empty($beritaData['items']) && $page > 1) {
+                Log::warning('Halaman tidak ditemukan', [
+                    'page' => $page
+                ]);
+    
+                return view('user::404', [
+                    'message' => 'Halaman tidak ditemukan'
+                ]);
+            }
+    
             // Jika ini adalah request AJAX, kembalikan hanya data JSON
             if ($request->ajax()) {
                 return response()->json([
@@ -32,7 +55,7 @@ class BeritaController extends Controller
                     'pagination' => $beritaData['pagination'],
                 ]);
             }
-
+    
             return view('user::berita', [
                 'beritaMenus' => $beritaData['items'],
                 'pagination' => $beritaData['pagination'],
@@ -42,17 +65,16 @@ class BeritaController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+    
             if ($request->ajax()) {
                 return response()->json([
                     'html' => '<p class="text-center">Terjadi kesalahan saat mengambil data.</p>',
                     'pagination' => null
                 ]);
             }
-
-            return view('user::berita', [
-                'beritaMenus' => [],
-                'pagination' => null,
+    
+            return view('user::404', [
+                'message' => 'Terjadi kesalahan saat mengambil data'
             ]);
         }
     }
@@ -102,46 +124,45 @@ class BeritaController extends Controller
         ];
     }
 
-    
+
     public function detail($slug, $encryptedId)
-{
-    try {
-        // Dekripsi ID dari URL
-        $beritaId = Crypt::decryptString(urldecode($encryptedId));
+    {
+        try {
+            // Dekripsi ID dari URL
+            $beritaId = Crypt::decryptString(urldecode($encryptedId));
 
-        Log::info('Mengambil detail berita dari API', ['berita_id' => $beritaId]);
+            Log::info('Mengambil detail berita dari API', ['berita_id' => $beritaId]);
 
-        // Ambil data detail berita dari API berdasarkan ID
-        $detailResponse = Http::get("http://ppid-polinema.test/api/public/getDetailBeritaById/{$slug}/{$beritaId}");
+            // Ambil data detail berita dari API berdasarkan ID
+            $detailResponse = Http::get("http://ppid-polinema.test/api/public/getDetailBeritaById/{$slug}/{$beritaId}");
 
-        $detailData = $this->fetchBeritaDetail($detailResponse);
+            $detailData = $this->fetchBeritaDetail($detailResponse);
 
-        // Validasi data kosong atau slug tidak cocok
-        if (empty($detailData) || $detailData['slug'] !== $slug) {
+            // Validasi data kosong atau slug tidak cocok
+            if (empty($detailData) || $detailData['slug'] !== $slug) {
+                return view('user::404', [
+                    'message' => 'Laman Tidak Ditemukan',
+                ]);
+            }
+
+            return view('user::berita-detail', [
+                'beritaDetail' => $detailData
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saat mengambil detail berita dari API', [
+                'encrypted_id' => $encryptedId,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Jika gagal dekripsi atau terjadi error lain, arahkan ke 404
             return view('user::404', [
                 'message' => 'Laman Tidak Ditemukan',
             ]);
         }
-
-        return view('user::berita-detail', [
-            'beritaDetail' => $detailData
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Error saat mengambil detail berita dari API', [
-            'encrypted_id' => $encryptedId,
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        // Jika gagal dekripsi atau terjadi error lain, arahkan ke 404
-        return view('user::404', [
-            'message' => 'Laman Tidak Ditemukan',
-        ]);
     }
-}
 
-    
+
     private function fetchBeritaDetail($response)
     {
         if ($response->failed() || !$response->json('success')) {
@@ -150,26 +171,25 @@ class BeritaController extends Controller
             ]);
             return null;
         }
-    
+
         return $this->processBeritaDetail($response->json('data'));
     }
-    
+
     private function processBeritaDetail($data)
     {
         if (empty($data)) {
             return null;
         }
-    
+
         return [
             'berita_id'         => $data['berita_id'] ?? null,
             'kategori'          => $data['kategori'] ?? 'Berita',
             'judul'             => $data['judul'] ?? 'Tanpa Judul',
             'slug'              => $data['slug'] ?? null,
             'thumbnail'         => $data['thumbnail'] ?? null,
-            'deskripsiThumbnail'=> $data['deskripsiThumbnail'] ?? null,
+            'deskripsiThumbnail' => $data['deskripsiThumbnail'] ?? null,
             'tanggal'           => $data['tanggal'] ?? null,
             'konten'            => $data['konten'] ?? null
         ];
     }
-    
 }

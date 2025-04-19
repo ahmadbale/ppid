@@ -2,17 +2,17 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer;
 
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Modules\Sisfo\App\Models\Website\Footer\KategoriFooterModel;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
 
 class KategoriFooterController extends Controller
 {
     use TraitsController;
 
-    public $breadcrumb = 'Manajemen Kategori Footer';
+    public $breadcrumb = 'Pengaturan Kategori Footer';
     public $pagename = 'AdminWeb/KategoriFooter';
 
     public function index(Request $request)
@@ -20,8 +20,8 @@ class KategoriFooterController extends Controller
         $search = $request->query('search', '');
 
         $breadcrumb = (object) [
-            'title' => 'Manajemen Kategori Footer',
-            'list' => ['Home', 'Kategori Footer']
+            'title' => 'Pengaturan Kategori Footer',
+            'list' => ['Home', 'Pengaturan Kategori Footer']
         ];
 
         $page = (object) [
@@ -124,6 +124,11 @@ class KategoriFooterController extends Controller
         
         try {
             $result = KategoriFooterModel::deleteData($id);
+            
+            // Periksa apakah operasi berhasil
+            if ($result['success'] === false) {
+                return $this->jsonError(new \Exception($result['message']), $result['message']);
+            }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

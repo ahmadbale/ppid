@@ -60,7 +60,7 @@ class BeritaDinamisModel extends Model
         return $arr_data;
     }
 
-    public static function getDataBerita($per_page = 5, $kategori_id = null)
+    public static function getDataBerita($per_page = 5, $kategori_id = null, )
     {
         $query = DB::table('t_berita as tb')
             ->select([

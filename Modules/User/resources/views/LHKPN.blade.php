@@ -156,7 +156,7 @@
                         return;
                     }
                     
-                    const baseUrl = "{{ route('LHKPN') }}";
+                    const baseUrl = "{{ route('lhkpn') }}";
                     const tahunParam = "{{ $tahunDipilih }}";
                     
                     // Get current detail_page parameters from URL if any
@@ -217,7 +217,7 @@
         
         // Function to select a year without navigating to a new page
         function selectYear(tahun) {
-            const baseUrl = "{{ route('LHKPN') }}";
+            const baseUrl = "{{ route('lhkpn') }}";
             
             // Update button states immediately
             document.querySelectorAll('.tahun-btn').forEach(btn => {
@@ -282,7 +282,7 @@
         
         // Global function for loading detail pages
         function loadDetailPage(tahun, page) {
-            const baseUrl = "{{ route('LHKPN') }}";
+            const baseUrl = "{{ route('lhkpn') }}";
             // Get current page from URL
             const currentUrl = new URL(window.location);
             const currentPage = currentUrl.searchParams.get('page') || 1;

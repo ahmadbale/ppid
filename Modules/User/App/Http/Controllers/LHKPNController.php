@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class LHKPNController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         try {

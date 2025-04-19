@@ -3,7 +3,14 @@ use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Helpers\MenuHelper;
 ?>
 
-<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
+<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" 
+style="position: fixed !important;
+ top: 0 !important; 
+ left: 0 !important;
+  height: 100vh !important; 
+  overflow-y: auto !important; 
+  z-index: 1030 !important; 
+  background-color: #0E1F43">
     <!-- Brand Logo -->
     <div class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
         <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
@@ -278,14 +285,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                     <a href="{{ url('/adminweb/media-dinamis') }}"
                                         class="nav-link {{ $activeMenu == 'media-dinamis' ? 'active' : '' }}">
                                         <i class="fas fa-tasks nav-icon"></i>
-                                        <p>Kategori-Media</p>
+                                        <p>Kategori Media Dinamis</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/media-detail') }}"
                                         class="nav-link {{ $activeMenu == 'media-detail' ? 'active' : '' }}">
                                         <i class="fas fa-tasks nav-icon"></i>
-                                        <p>Data Media Dinamis</p>
+                                        <p>Detail Media Dinamis</p>
                                     </a>
                                 </li>
                             </ul>
