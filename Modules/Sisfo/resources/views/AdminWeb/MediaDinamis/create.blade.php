@@ -17,7 +17,7 @@
     
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary" id="btn-save">
+        <button type="button" class="btn btn-primary" id="btnSubmitForm">
             <i class="fas fa-save mr-1"></i> Simpan
         </button>
     </div>
@@ -33,7 +33,7 @@
         });
 
         // Form submission
-        $('#btn-save').on('click', function() {
+        $('#btnSubmitForm').on('click', function() {
             // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');

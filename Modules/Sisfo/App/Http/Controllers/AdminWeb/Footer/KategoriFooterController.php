@@ -112,13 +112,12 @@ class KategoriFooterController extends Controller
         ]);
     }
 
-    
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             $kategoriFooter = KategoriFooterModel::detailData($id);
             
-            return view("AdminWeb/KategoriFooter.delete", [
+            return view("sisfo::AdminWeb/KategoriFooter.delete", [
                 'kategoriFooter' => $kategoriFooter
             ]);
         }

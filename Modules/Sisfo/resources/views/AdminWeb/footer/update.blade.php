@@ -33,8 +33,21 @@
 
         <div class="form-group">
             <label for="f_url_footer">URL Footer</label>
-            <input type="url" class="form-control" id="f_url_footer" name="t_footer[f_url_footer]" 
-                maxlength="100" value="{{ $footer->f_url_footer }}">
+            <input type="url" class="form-control" id="f_url_footer" 
+                   name="t_footer[f_url_footer]" 
+                   maxlength="100" 
+                   value="{{ $footer->f_url_footer }}"
+                   placeholder="Contoh: https://www.example.com"
+                   pattern="https?://.+">
+            <small class="form-text text-muted">
+                Format URL yang benar: 
+                <ul class="pl-3">
+                    <li>https://www.example.com</li>
+                    <li>http://subdomain.website.co.id</li>
+                    <li>https://example.org/halaman</li>
+                </ul>
+                Pastikan URL diawali dengan http:// atau https://
+            </small>
             <div class="invalid-feedback" id="f_url_footer_error"></div>
         </div>
 
