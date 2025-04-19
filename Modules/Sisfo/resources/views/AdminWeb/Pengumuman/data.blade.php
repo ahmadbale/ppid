@@ -9,7 +9,6 @@
     <thead class="text-center">
         <tr>
             <th width="5%">No</th>
-            <th width="20%">Kategori</th>
             <th width="25%">Judul</th>
             <th width="10%">Tipe</th>
             <th width="10%">Status</th>
@@ -20,8 +19,7 @@
         @forelse($pengumuman as $key => $item)
         <tr>
             <td table-data-label="Nomor" class="text-center">{{ ($pengumuman->currentPage() - 1) * $pengumuman->perPage() + $key + 1 }}</td>
-            <td table-data-label="Kategori" class="text-center">{{ $item->PengumumanDinamis->pd_nama_submenu ?? '-' }}</td>
-            <td table-data-label="Judul" class="text-center">{{ $item->peg_judul ?? '-' }}</td>
+            <td table-data-label="Judul" class="text-start">{{ $item->peg_judul ?? '-' }}</td>
             <td table-data-label="Tipe" class="text-center">
                 @if($item->UploadPengumuman)
                     @if($item->UploadPengumuman->up_type === 'link')

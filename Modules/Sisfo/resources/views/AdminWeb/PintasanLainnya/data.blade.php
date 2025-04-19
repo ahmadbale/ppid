@@ -3,12 +3,11 @@
          Showing {{ $pintasanLainnya->firstItem() }} to {{ $pintasanLainnya->lastItem() }} of {{ $pintasanLainnya->total() }} results
      </div>
  </div>
- 
- <table class="table table-bordered table-striped table-hover table-sm">
-     <thead>
+ <div class="table-responsive">
+ <table class="table table-responsive-stack table-bordered table-striped table-hover table-sm">
+     <thead class="text-center">
          <tr>
              <th width="5%">Nomor</th>
-             <th width="30%">Nama Kategori Akses</th>
              <th width="30%">Nama Pintasan Lainnya</th>
              <th width="35%">Aksi</th>
          </tr>
@@ -16,10 +15,9 @@
      <tbody>
           @forelse($pintasanLainnya as $key => $item)
           <tr>
-              <td>{{ ($pintasanLainnya->currentPage() - 1) * $pintasanLainnya->perPage() + $key + 1 }}</td>
-              <td>{{ $item->kategoriAkses->mka_judul_kategori ?? 'Kategori Tidak Tersedia' }}</td>
-              <td>{{ $item->tpl_nama_kategori }}</td>
-              <td>
+              <td table-data-label="Nomor" class="text-center">{{ ($pintasanLainnya->currentPage() - 1) * $pintasanLainnya->perPage() + $key + 1 }}</td>
+              <td table-data-label="Pintasan Lainnya" class="text-center">{{ $item->tpl_nama_kategori }}</td>
+              <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/pintasan-lainnya/editData/{$item->pintasan_lainnya_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>
@@ -44,7 +42,8 @@
          @endforelse
      </tbody>
  </table>
- 
+</div>
+
  <div class="mt-3">
      {{ $pintasanLainnya->appends(['search' => $search])->links() }}
  </div>

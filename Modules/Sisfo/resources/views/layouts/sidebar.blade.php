@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Helpers\MenuHelper;
 ?>
 
-<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
+<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed !important; top: 0 !important; left: 0 !important; height: 100vh !important; overflow-y: auto !important; z-index: 1030 !important; background-color: #0E1F43 !important">
     <!-- Brand Logo -->
     <div class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
         <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
@@ -38,16 +38,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         <p>Dashboard</p>
                     </a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a href="{{ url('/Notifikasi/NotifAdmin') }}"
-                        class="nav-link {{ $activeMenu == 'notifikasi' ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-bell"></i>
-                        <p>Notifikasi</p>
-                        @if ($totalNotifikasiADM > 0)
-                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiADM }}</span>
-                        @endif
-                    </a>
-                </li> --}}
+                
                 <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-cog"></i>
@@ -212,7 +203,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/pintasan-lainnya') }}"
                                         class="nav-link {{ $activeMenu == 'pintasan-lainnya' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Pintasan Lainnya</p>
                                     </a>
                                 </li>
@@ -253,14 +244,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/AdminWeb/PengumumanDinamis') }}"
                                         class="nav-link {{ $activeMenu == 'PengumumanDinamis' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori Pengumuman</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/AdminWeb/Pengumuman') }}"
                                         class="nav-link {{ $activeMenu == 'Pengumuman' ? 'active' : '' }}">
-                                        <i class="fas fa-newspaper nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Pengumuman</p>
                                     </a>
                                 </li>
@@ -277,14 +268,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/media-dinamis') }}"
                                         class="nav-link {{ $activeMenu == 'media-dinamis' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori-Media</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/media-detail') }}"
                                         class="nav-link {{ $activeMenu == 'media-detail' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Data Media Dinamis</p>
                                     </a>
                                 </li>
@@ -301,14 +292,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/informasipublik/lhkpn-tahun') }}"
                                         class="nav-link {{ $activeMenu == 'Lhkpn Tahun' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Tahun Lhkpn</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/informasipublik/detail-lhkpn') }}"
                                         class="nav-link {{ $activeMenu == 'detail-lhkpn' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Detail Lhkpn</p>
                                     </a>
                                 </li>
@@ -325,21 +316,21 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/informasipublik/regulasi-dinamis') }}"
                                         class="nav-link {{ $activeMenu == 'regulasi-dinamis' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Regulasi Dinamis</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/informasipublik/kategori-regulasi') }}"
                                         class="nav-link {{ $activeMenu == 'kategori-regulasi' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori Regulasi</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="{{ url('/adminweb/informasipublik/regulasi') }}"
                                         class="nav-link {{ $activeMenu == 'Regulasi' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <i class="far fa-circle nav-icon"></i>
                                         <p>Regulasi</p>
                                     </a>
                                 </li>

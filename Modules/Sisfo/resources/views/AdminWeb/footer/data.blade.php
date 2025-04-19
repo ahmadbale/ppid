@@ -8,19 +8,19 @@
 <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
     <thead class="text-center">
         <tr>
-            <th >Nomor</th>
-            <th >Judul Footer</th>
-            <th >Kategori Footer</th>
-            <th >Aksi</th>
+            <th width=10% >Nomor</th>
+            <th width=20%>Kode Footer</th>
+            <th width=40%>Judul Footer</th>
+            <th width=35%>Aksi</th>
         </tr>
     </thead>
     <tbody>
         @forelse($footer as $key => $item)
         <tr>
-            <td data-title="Nomor">{{ ($footer->currentPage() - 1) * $footer->perPage() + $key + 1 }}</td>
-            <td>{{ $item->f_judul_footer }}</td>
-            <td>{{ $item->kategoriFooter->kt_footer_nama ?? 'Tidak Ada' }}</td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($footer->currentPage() - 1) * $footer->perPage() + $key + 1 }}</td>
+            <td table-data-label="Kode Footer" class="text-center">{{ $item->kategoriFooter->kt_footer_kode ?? 'Tidak Ada' }}</td>
+            <td table-data-label="Judul Footer" class="text-center">{{ $item->f_judul_footer }}</td>
+            <td table-data-label="Aksi" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/footer/editData/{$item->footer_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
