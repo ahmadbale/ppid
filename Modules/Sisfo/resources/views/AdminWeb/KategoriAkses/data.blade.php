@@ -1,6 +1,7 @@
 <div class="d-flex justify-content-between align-items-center mb-2">
     <div class="showing-text">
-        Showing {{ $kategoriAkses->firstItem() }} to {{ $kategoriAkses->lastItem() }} of {{ $kategoriAkses->total() }} results
+        Showing {{ $kategoriAkses->firstItem() }} to {{ $kategoriAkses->lastItem() }} of {{ $kategoriAkses->total() }}
+        results
     </div>
 </div>
 
@@ -43,7 +44,7 @@
         @endforelse
     </tbody>
 </table>
-</div>
+
 <div class="mt-3">
     {{ $kategoriAkses->appends(['search' => $search])->links() }}
 </div>
