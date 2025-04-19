@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title">Konfirmasi Hapus Media Dinamis</h5>
+  <h5 class="modal-title">Konfirmasi Hapus Detail Media Dinamis</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
   </button>
@@ -7,7 +7,7 @@
 
 <div class="modal-body">    
   <div class="alert alert-danger mt-3">
-      <i class="fas fa-exclamation-triangle mr-2"></i> Apakah Anda yakin ingin menghapus media dinamis dengan detail berikut:
+      <i class="fas fa-exclamation-triangle mr-2"></i> Apakah Anda yakin ingin menghapus detail media dinamis dengan detail berikut:
   </div>
   
   <div class="card">
@@ -45,8 +45,8 @@
 
   <div class="alert alert-warning mt-3">
       <i class="fas fa-info-circle mr-2"></i> <strong>Perhatian:</strong> 
-      Menghapus media dinamis ini mungkin akan memengaruhi data lain yang terkait dengannya. 
-      Pastikan tidak ada data lain yang masih menggunakan media dinamis ini.
+      Menghapus Detail media dinamis ini akan menghapus semua data terkait.
+      Tindakan ini tidak dapat dibatalkan
   </div>
 </div>
 
