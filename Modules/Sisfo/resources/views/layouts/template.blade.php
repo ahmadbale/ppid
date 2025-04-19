@@ -34,6 +34,7 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/addstyle.css') }}">
+    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/info-box.css') }}">
 
     <!-- Summernote CSS -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">

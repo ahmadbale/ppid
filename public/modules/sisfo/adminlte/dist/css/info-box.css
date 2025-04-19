@@ -1,0 +1,55 @@
+.info-box {
+  transition: background-color 0.3s ease, border 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.info-box-title {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.info-box-value {
+  font-size: 1.25rem;
+  color: #343a40;
+}
+
+.border-masuk {
+  border-color: #ffc107;
+}
+
+.border-diproses {
+  border-color: #007bff;
+}
+
+.border-selesai {
+  border-color: #28a745;
+}
+
+.border-ditolak {
+  border-color: #dc3545;
+}
+.info-box.border-masuk:hover {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.info-box.border-diproses:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.info-box.border-selesai:hover {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.info-box.border-ditolak:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+.bg-primeri{
+  background-color: #0E1F43;
+  color: white;
+}
