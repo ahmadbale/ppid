@@ -113,22 +113,99 @@
 
 <script>
     $(document).ready(function () {
-        // Inisialisasi kembali event handler untuk tombol submit
-        $('#btnSubmitForm').off('click').on('click', function () {
-            console.log('Tombol submit diklik');
+        function validateForm() {
+            let isValid = true;
+
             // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');
             $('.note-editor').removeClass('border border-danger');
 
-            const form = $('#formCreatePengumuman');
+            const tipe = $('#tipe_pengumuman').val();
+            const kategori = $('#kategori_pengumuman').val();
+            const judul = $('#judul_pengumuman').val().trim();
+            const url = $('#url').val().trim();
+            const file = $('#file').val();
+            const konten = $('#konten').val().trim();
+            const status = $('#status_pengumuman').val();
+            const thumbnail = $('#thumbnail').val();
+            const hasOldThumbnail = $('#thumbnail_image').attr('src') !== '';
+
+            // Validasi kategori
+            if (!kategori) {
+                $('#kategori_pengumuman').addClass('is-invalid');
+                $('#kategori_pengumuman_error').text('Kategori harus dipilih');
+                isValid = false;
+            }
+
+            // Validasi tipe
+            if (!tipe) {
+                $('#tipe_pengumuman').addClass('is-invalid');
+                $('#tipe_pengumuman_error').text('Tipe harus dipilih');
+                isValid = false;
+            }
+
+            // Validasi berdasarkan tipe
+            if (tipe === 'link') {
+                if (!url) {
+                    $('#url').addClass('is-invalid');
+                    $('#url_error').text('URL wajib diisi');
+                    isValid = false;
+                }
+            } else {
+                // Tipe file/konten membutuhkan judul
+                if (!judul) {
+                    $('#judul_pengumuman').addClass('is-invalid');
+                    $('#judul_pengumuman_error').text('Judul wajib diisi');
+                    isValid = false;
+                }
+
+                // Tipe file: wajib isi file jika tidak ada file lama
+                if (tipe === 'file' && !file && !$('#file_container').find('a').length) {
+                    $('#file').addClass('is-invalid');
+                    $('#file_error').text('File wajib diunggah');
+                    isValid = false;
+                }
+
+                // Tipe konten: konten tidak boleh kosong
+                if (tipe === 'konten' && !konten) {
+                    $('.note-editor').addClass('border border-danger');
+                    $('#konten_error').text('Konten wajib diisi');
+                    isValid = false;
+                }
+
+                // Thumbnail validasi: wajib isi jika tidak ada thumbnail sebelumnya
+                if (!hasOldThumbnail && !thumbnail) {
+                    $('#thumbnail').addClass('is-invalid');
+                    $('#thumbnail_error').text('Thumbnail wajib diunggah');
+                    isValid = false;
+                }
+            }
+
+            // Validasi status
+            if (!status) {
+                $('#status_pengumuman').addClass('is-invalid');
+                $('#status_pengumuman_error').text('Status harus dipilih');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        $('#btnSubmitForm').off('click').on('click', function () {
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validasi Gagal',
+                    text: 'Silakan periksa kembali input yang masih kosong atau tidak sesuai.',
+                });
+                return;
+            }
+
+            const form = $('#formUpdatePengumuman');
             const formData = new FormData(form[0]);
             const button = $(this);
 
-            // Tambah pengumuman_id null untuk validasi
-            formData.append('pengumuman_id', null);
-
-            // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
 
             $.ajax({
@@ -140,70 +217,20 @@
                 success: function (response) {
                     if (response.success) {
                         $('.modal').modal('hide');
-
                         if (typeof reloadTable === 'function') {
                             reloadTable();
-                        } else {
-                            console.warn('Fungsi reloadTable tidak ditemukan, halaman mungkin perlu di-refresh manual');
                         }
-
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
-                            text: response.message
+                            text: response.message,
                         });
                     } else {
-                        if (response.errors) {
-                            // Tampilkan pesan error pada masing-masing field
-                            $.each(response.errors, function (key, value) {
-                                if (key.startsWith('t_pengumuman.')) {
-                                    const fieldName = key.replace('t_pengumuman.', '');
-                                    if (fieldName === 'fk_m_pengumuman_dinamis') {
-                                        $('#kategori_pengumuman').addClass('is-invalid');
-                                        $('#kategori_pengumuman_error').html(value[0]);
-                                    } else if (fieldName === 'peg_judul') {
-                                        $('#judul_pengumuman').addClass('is-invalid');
-                                        $('#judul_pengumuman_error').html(value[0]);
-                                    } else if (fieldName === 'status_pengumuman') {
-                                        $('#status_pengumuman').addClass('is-invalid');
-                                        $('#status_pengumuman_error').html(value[0]);
-                                    }
-                                } else if (key === 'up_type') {
-                                    $('#tipe_pengumuman').addClass('is-invalid');
-                                    $('#tipe_pengumuman_error').html(value[0]);
-                                } else if (key === 'up_value') {
-                                    if ($('#tipe_pengumuman').val() === 'link') {
-                                        $('#url').addClass('is-invalid');
-                                        $('#url_error').html(value[0]);
-                                    } else {
-                                        $('#file').addClass('is-invalid');
-                                        $('#file_error').html(value[0]);
-                                    }
-                                } else if (key === 'up_thumbnail') {
-                                    $('#thumbnail').addClass('is-invalid');
-                                    $('#thumbnail_error').html(value[0]);
-                                } else if (key === 'up_konten') {
-                                    $('.note-editor').addClass('border border-danger');
-                                    $('#konten_error').html(value[0]).show();
-                                } else {
-                                    // Untuk field biasa
-                                    $(`#${key}`).addClass('is-invalid');
-                                    $(`#${key}_error`).html(value[0]);
-                                }
-                            });
-
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validasi Gagal',
-                                text: 'Mohon periksa kembali input Anda'
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data'
-                            });
-                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: response.message || 'Terjadi kesalahan saat menyimpan data.',
+                        });
                     }
                 },
                 error: function (xhr) {
@@ -211,17 +238,27 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
-                        text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+                        text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.',
                     });
                 },
                 complete: function () {
-                    // Kembalikan tombol submit ke keadaan semula
                     button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
                 }
             });
         });
 
-        // Tambahkan pengaturan tampilan field berdasarkan tipe yang sudah dipilih
-        $('#tipe_pengumuman').trigger('change');
+        // Tampilkan/ubah input sesuai tipe saat perubahan tipe dipilih
+        $('#tipe_pengumuman').on('change', function () {
+            const tipe = $(this).val();
+            $('#judul_container, #thumbnail_container, #url_container, #file_container, #konten_container').hide();
+
+            if (tipe === 'link') {
+                $('#url_container').show();
+            } else if (tipe === 'file') {
+                $('#judul_container, #thumbnail_container, #file_container').show();
+            } else if (tipe === 'konten') {
+                $('#judul_container, #thumbnail_container, #konten_container').show();
+            }
+        }).trigger('change');
     });
 </script>
