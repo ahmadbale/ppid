@@ -10,7 +10,7 @@ class DashboardSARController extends Controller
 
     public function index() {
         $breadcrumb = (object) [
-            'title' => 'Super Administrator',
+            'title' => '',
             'list' => ['Home', 'welcome']
         ];
 
