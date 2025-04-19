@@ -3,13 +3,16 @@
          Showing {{ $pintasanLainnya->firstItem() }} to {{ $pintasanLainnya->lastItem() }} of {{ $pintasanLainnya->total() }} results
      </div>
  </div>
+
  <div class="table-responsive">
- <table class="table table-responsive-stack table-bordered table-striped table-hover table-sm">
+ <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
      <thead class="text-center">
          <tr>
-             <th width="5%">Nomor</th>
-             <th width="30%">Nama Pintasan Lainnya</th>
-             <th width="35%">Aksi</th>
+             <th>Nomor</th>
+             <th>Nama Kategori Akses</th>
+             <th>Nama Pintasan Lainnya</th>
+             <th>Aksi</th>
+
          </tr>
      </thead>
      <tbody>

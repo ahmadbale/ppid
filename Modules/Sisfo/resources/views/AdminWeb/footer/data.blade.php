@@ -17,6 +17,7 @@
     <tbody>
         @forelse($footer as $key => $item)
         <tr>
+
             <td table-data-label="Nomor" class="text-center">{{ ($footer->currentPage() - 1) * $footer->perPage() + $key + 1 }}</td>
             <td table-data-label="Kode Footer" class="text-center">{{ $item->kategoriFooter->kt_footer_kode ?? 'Tidak Ada' }}</td>
             <td table-data-label="Judul Footer" class="text-center">{{ $item->f_judul_footer }}</td>

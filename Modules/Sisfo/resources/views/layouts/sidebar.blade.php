@@ -4,6 +4,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
 ?>
 
 <aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed !important; top: 0 !important; left: 0 !important; height: 100vh !important; overflow-y: auto !important; z-index: 1030 !important; background-color: #0E1F43 !important">
+
     <!-- Brand Logo -->
     <div class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
         <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"
@@ -270,6 +271,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                         class="nav-link {{ $activeMenu == 'media-dinamis' ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Kategori-Media</p>
+
                                     </a>
                                 </li>
                                 <li class="nav-item">
