@@ -9,7 +9,14 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
 // $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
 ?>
 
-<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" style="position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 1030; background-color: #0E1F43">
+<aside class="main-sidebar sidebar-dark-primary pt-4 pb-4" 
+style="position: fixed !important;
+ top: 0 !important; 
+ left: 0 !important;
+  height: 100vh !important; 
+  overflow-y: auto !important; 
+  z-index: 1030 !important; 
+  background-color: #0E1F43">
     <!-- Brand Logo -->
     <a class="sidebar-brand text-center pb-4" style="font-family: 'K2D', sans-serif; font-weight: 700;">
         <img src="{{ asset('img/logo-polinema.svg') }}" alt="logo PPID"

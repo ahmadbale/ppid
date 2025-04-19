@@ -4,14 +4,15 @@
      </div>
  </div>
  
- <table class="table table-bordered table-striped table-hover table-sm">
-     <thead>
+ <div class="table-responsive">
+ <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+     <thead class="text-center">
          <tr>
-             <th width="5%">Nomor</th>
-             <th width="30%">Kategori Regulasi</th>
-             <th width="30%">Judul</th>
-             <th width="10%">Tipe</th>
-             <th width="15%">Aksi</th>
+             <th >Nomor</th>
+             <th >Kategori Regulasi</th>
+             <th >Judul</th>
+             <th >Tipe</th>
+             <th >Aksi</th>
          </tr>
      </thead>
      <tbody>
@@ -41,7 +42,7 @@
          </tr>
          @empty
          <tr>
-             <td colspan="6" class="text-center">
+             <td colspan="3" class="text-center">
                  @if(!empty($search))
                      Tidak ada data yang cocok dengan pencarian "{{ $search }}"
                  @else
@@ -52,7 +53,7 @@
          @endforelse
      </tbody>
  </table>
- 
+ </div>
  <div class="mt-3">
      {{ $regulasi->appends(['search' => $search])->links() }}
  </div>

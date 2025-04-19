@@ -146,9 +146,7 @@
                 </div>
             </a>
         </li>
-
     </ul>
-
 </nav>
 <script>
     function getGreeting() {

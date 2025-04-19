@@ -4,12 +4,13 @@
      </div>
  </div>
  
- <table class="table table-bordered table-striped table-hover table-sm">
-     <thead>
+ <div class="table-responsive">
+ <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+     <thead class="text-center">
          <tr>
-             <th width="5%">Nomor</th>
-             <th width="65%">Nama Regulasi Dinamis</th>
-             <th width="30%">Aksi</th>
+             <th >Nomor</th>
+             <th >Nama Regulasi Dinamis</th>
+             <th >Aksi</th>
          </tr>
      </thead>
      <tbody>
@@ -42,7 +43,7 @@
          @endforelse
      </tbody>
  </table>
- 
+ </div>
  <div class="mt-3">
      {{ $RegulasiDinamis->appends(['search' => $search])->links() }}
  </div>

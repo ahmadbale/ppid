@@ -32,16 +32,57 @@
 
 <script>
   $(document).ready(function () {
+    // Menghapus error saat user mengedit input
     $(document).on('input change', 'input, select, textarea', function() {
       $(this).removeClass('is-invalid');
       const errorId = `#${$(this).attr('id')}_error`;
       $(errorId).html('');
     });
 
+    function validateForm() {
+      let isValid = true;
+
+      const kode = $('#kt_footer_kode').val().trim();
+      const nama = $('#kt_footer_nama').val().trim();
+
+      if (kode === '') {
+        $('#kt_footer_kode').addClass('is-invalid');
+        $('#kt_footer_kode_error').html('Kode Kategori Footer wajib diisi.');
+        isValid = false;
+      } else if (kode.length > 5) {
+        $('#kt_footer_kode').addClass('is-invalid');
+        $('#kt_footer_kode_error').html('Maksimal 5 karakter.');
+        isValid = false;
+      }
+
+      if (nama === '') {
+        $('#kt_footer_nama').addClass('is-invalid');
+        $('#kt_footer_nama_error').html('Nama Kategori Footer wajib diisi.');
+        isValid = false;
+      } else if (nama.length > 100) {
+        $('#kt_footer_nama').addClass('is-invalid');
+        $('#kt_footer_nama_error').html('Maksimal 100 karakter.');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
     $('#btnSubmitForm').on('click', function() {
+      // Bersihkan error
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').html('');
-      
+
+      // Validasi form terlebih dahulu
+      if (!validateForm()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Terjadi Kesalahan',
+          text: 'Mohon periksa kembali input Anda.'
+        });
+        return;
+      }
+
       const form = $('#formCreateKategoriFooter');
       const formData = new FormData(form[0]);
       const button = $(this);
@@ -58,7 +99,6 @@
           if (response.success) {
             $('#myModal').modal('hide');
             reloadTable();
-            
             Swal.fire({
               icon: 'success',
               title: 'Berhasil',
@@ -70,10 +110,9 @@
                 $(`#${key}`).addClass('is-invalid');
                 $(`#${key}_error`).html(value[0]);
               });
-              
               Swal.fire({
                 icon: 'error',
-                title: 'Validasi Gagal',
+                title: 'Terjadi Kesalahan',
                 text: 'Mohon periksa kembali input Anda'
               });
             } else {
