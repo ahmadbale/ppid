@@ -39,14 +39,41 @@
             // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');
-            
+
+            // Ambil nilai input
+            const namaSubmenu = $('#pd_nama_submenu').val().trim();
             const form = $('#formUpdatePengumumanDinamis');
             const formData = new FormData(form[0]);
             const button = $(this);
             
+            // Validasi client-side
+            let isValid = true;
+
+            // Validasi Nama Submenu Pengumuman
+            if (namaSubmenu === '') {
+                $('#pd_nama_submenu').addClass('is-invalid');
+                $('#pd_nama_submenu_error').html('Nama Submenu Pengumuman wajib diisi.');
+                isValid = false;
+            } else if (namaSubmenu.length > 255) {
+                $('#pd_nama_submenu').addClass('is-invalid');
+                $('#pd_nama_submenu_error').html('Maksimal 255 karakter.');
+                isValid = false;
+            }
+
+            // Jika validasi gagal, tampilkan pesan error dan batalkan pengiriman form
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Mohon periksa kembali input Anda.'
+                });
+                return;
+            }
+
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-            
+
+            // Kirim data form menggunakan AJAX
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
@@ -107,7 +134,6 @@
                     });
                 },
                 complete: function() {
-                    // Kembalikan tombol submit ke keadaan semula
                     button.html('<i class="fas fa-save mr-1"></i> Simpan Perubahan').attr('disabled', false);
                 }
             });

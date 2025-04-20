@@ -127,6 +127,72 @@ $(document).ready(function() {
         const formData = new FormData(form[0]);
         const button = $(this);
 
+        // Validasi file atau link
+        const mediaType = $('#dm_type_media').val();
+        let isValid = true;
+
+        // Validasi Kategori Media
+        if ($('#fk_m_media_dinamis').val() === '') {
+            isValid = false;
+            $('#fk_m_media_dinamis').addClass('is-invalid');
+            $('#fk_m_media_dinamis_error').html('Kategori Media wajib dipilih.');
+        }
+
+        // Validasi Judul Media
+        if ($('#dm_judul_media').val() === '') {
+            isValid = false;
+            $('#dm_judul_media').addClass('is-invalid');
+            $('#dm_judul_media_error').html('Judul Media wajib diisi.');
+        }
+
+        // Validasi file media
+        if (mediaType === 'file' && $('#media_file').val()) {
+            // Tidak perlu validasi lebih lanjut jika file diisi
+        } else if (mediaType === 'file' && !$('#media_file').val()) {
+            // Jika file tidak dipilih, tidak perlu menampilkan error
+            // Cukup lewati validasi file pada bagian ini
+        }
+
+        // Validasi URL media (link)
+        if (mediaType === 'link') {
+            const url = $('#dm_media_upload_link').val();
+
+            if (url === '') {
+                isValid = false;
+                $('#dm_media_upload_link').addClass('is-invalid');
+                $('#dm_media_upload_error').html('URL Media wajib diisi.');
+            } else {
+                // Validasi format URL menggunakan regular expression
+                const urlPattern = /^(https?:\/\/)?([\w\d-]+\.)+[\w-]+(\/[\w\d\-._~:/?#[\]@!$&'()*+,;=]*)?$/;
+                if (!urlPattern.test(url)) {
+                    isValid = false;
+                    $('#dm_media_upload_link').addClass('is-invalid');
+                    $('#dm_media_upload_error').html('Format URL tidak valid.');
+                } else if (url.length > 100) {
+                    isValid = false;
+                    $('#dm_media_upload_link').addClass('is-invalid');
+                    $('#dm_media_upload_error').html('Maksimal 100 karakter.');
+                }
+            }
+        }
+
+        // Validasi status media
+        if ($('#status_media').val() === '') {
+            isValid = false;
+            $('#status_media').addClass('is-invalid');
+            $('#status_media_error').html('Status Media wajib dipilih.');
+        }
+
+        // Jika form tidak valid, hentikan pengiriman
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi Gagal',
+                text: 'Mohon periksa kembali input Anda'
+            });
+            return;
+        }
+
         // Tampilkan loading state pada tombol submit
         button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
 

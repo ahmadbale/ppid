@@ -259,23 +259,31 @@ class MediaDinamisModel extends Model
     {
         try {
             DB::beginTransaction();
-
+    
             $mediaDinamis = self::findOrFail($id);
-
+    
+            $mediaTerkait = DetailMediaDinamisModel::where('fk_m_media_dinamis', $id)
+                ->where('isDeleted', 0)
+                ->count();
+    
+            if ($mediaTerkait > 0) {
+                throw new \Exception('Masih terdapat footer aktif yang terkait');
+            }
+    
             $mediaDinamis->delete();
-
+    
             TransactionModel::createData(
                 'DELETED',
                 $mediaDinamis->media_dinamis_id,
                 $mediaDinamis->md_kategori_media
             );
-
+    
             DB::commit();
-
+    
             return self::responFormatSukses($mediaDinamis, 'Media dinamis berhasil dihapus');
         } catch (\Exception $e) {
             DB::rollBack();
-            return self::responFormatError($e, 'Gagal menghapus media dinamis');
+            return self::responFormatError($e, $e->getMessage());
         }
     }
 

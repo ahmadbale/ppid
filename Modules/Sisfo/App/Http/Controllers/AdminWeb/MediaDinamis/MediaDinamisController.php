@@ -78,7 +78,7 @@ class MediaDinamisController extends Controller
 
     public function editData($id)
     {
-            $mediaDinamis = MediaDinamisModel::findOrFail($id);
+            $mediaDinamis = MediaDinamisModel::detailData($id);
             
             return view("sisfo::AdminWeb/MediaDinamis.update", [
                 'mediaDinamis' => $mediaDinamis
@@ -103,32 +103,38 @@ class MediaDinamisController extends Controller
 
     public function detailData($id)
     {
-            $mediaDinamis = MediaDinamisModel::findOrFail($id);
+            $mediaDinamis = MediaDinamisModel::detailData($id);
             
-            return view("sisfo::AdminWeb/MediaDinamis.detail", [
+            return view("AdminWeb/MediaDinamis.detail", [
                 'mediaDinamis' => $mediaDinamis,
                 'title' => 'Detail Media Dinamis'
             ]);
     }
 
+
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-                $mediaDinamis = MediaDinamisModel::findOrFail($id);
+                $mediaDinamis = MediaDinamisModel::detailData($id);
                 
                 return view("sisfo::AdminWeb/MediaDinamis.delete", [
                     'mediaDinamis' => $mediaDinamis
                 ]);
-                try {
-                    $result = MediaDinamisModel::deleteData($id);
-                    
-                    return $this->jsonSuccess(
-                        $result['data'] ?? null, 
-                        $result['message'] ?? 'Kategori form berhasil dihapus'
-                    );
-                } catch (\Exception $e) {
-                    return $this->jsonError($e, 'Terjadi kesalahan saat menghapus kategori form');
-                }
-            }
+        
+        }
+        try {
+            $result =MediaDinamisModel::deleteData($id);
+          // Periksa apakah operasi berhasil
+          if ($result['success'] === false) {
+            return $this->jsonError(new \Exception($result['message']), $result['message']);
+        }
+        
+        return $this->jsonSuccess(
+            $result['data'] ?? null, 
+            $result['message'] ?? 'Media Dinamis berhasil dihapus'
+        );
+    } catch (\Exception $e) {
+        return $this->jsonError($e, 'Terjadi kesalahan saat menghapus Media Dinamis');
     }
+}
 }

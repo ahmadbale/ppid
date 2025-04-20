@@ -99,53 +99,61 @@ class DetailMediaDinamisModel extends Model
     }
     
     public static function updateData($request, $id)
-    {
-        $detailMediaDinamisFile = self::uploadFile(
-            $request->file('media_file'),
-            'media_dinamis'
-        );
-    
-        try {
-            DB::beginTransaction();
-    
-            $detailMediaDinamis = self::findOrFail($id);
-            $data = $request->t_detail_media_dinamis;
-    
-            // Jika file diupload dan tipe media adalah file
-            if ($detailMediaDinamisFile && $data['dm_type_media'] == 'file') {
-                // Hapus file lama jika ada
-                if ($detailMediaDinamis->dm_media_upload && $detailMediaDinamis->dm_type_media == 'file') {
-                    self::removeFile($detailMediaDinamis->dm_media_upload);
-                }
-    
-                $data['dm_media_upload'] = $detailMediaDinamisFile;
-            } 
-            // Jika tidak ada upload file baru tetapi tipe media berubah dari link ke file
-            elseif ($data['dm_type_media'] == 'file' && $detailMediaDinamis->dm_type_media == 'link') {
-                $data['dm_media_upload'] = $detailMediaDinamis->dm_media_upload;
+{
+    $detailMediaDinamisFile = self::uploadFile(
+        $request->file('media_file'),
+        'media_dinamis'
+    );
+
+    try {
+        DB::beginTransaction();
+
+        $detailMediaDinamis = self::findOrFail($id);
+        $data = $request->get('t_detail_media_dinamis', []);
+
+        $tipeMedia = $data['dm_type_media'] ?? $detailMediaDinamis->dm_type_media;
+
+        // Jika file diupload dan tipe media adalah file
+        if ($detailMediaDinamisFile && $tipeMedia == 'file') {
+            // Hapus file lama jika ada
+            if ($detailMediaDinamis->dm_media_upload && $detailMediaDinamis->dm_type_media == 'file') {
+                self::removeFile($detailMediaDinamis->dm_media_upload);
             }
-    
-            $detailMediaDinamis->update($data);
-    
-            TransactionModel::createData(
-                'UPDATED',
-                $detailMediaDinamis->detail_media_dinamis_id,
-                $detailMediaDinamis->dm_judul_media
-            );
-            $result = self::responFormatSukses($detailMediaDinamis, 'Detail Media Dinamis berhasil diperbarui');
-            
-            DB::commit();
-            return $result;
-        } catch (ValidationException $e) {
-            DB::rollBack();
-            self::removeFile($detailMediaDinamisFile);
-            return self::responValidatorError($e);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            self::removeFile($detailMediaDinamisFile);
-            return self::responFormatError($e, 'Gagal memperbarui Detail Media Dinamis');
+
+            $data['dm_media_upload'] = $detailMediaDinamisFile;
+        } elseif ($tipeMedia == 'file' && $detailMediaDinamis->dm_type_media == 'link') {
+            $data['dm_media_upload'] = $detailMediaDinamis->dm_media_upload;
         }
+
+        // Update hanya field yang diberikan
+        foreach ($data as $key => $value) {
+            if (!is_null($value)) {
+                $detailMediaDinamis->$key = $value;
+            }
+        }
+
+        $detailMediaDinamis->save();
+
+        TransactionModel::createData(
+            'UPDATED',
+            $detailMediaDinamis->detail_media_dinamis_id,
+            $detailMediaDinamis->dm_judul_media
+        );
+
+        DB::commit();
+
+        return self::responFormatSukses($detailMediaDinamis, 'Detail Media Dinamis berhasil diperbarui');
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        self::removeFile($detailMediaDinamisFile);
+        return self::responValidatorError($e);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        self::removeFile($detailMediaDinamisFile);
+        return self::responFormatError($e, 'Gagal memperbarui Detail Media Dinamis');
     }
+}
+
     
     public static function deleteData($id)
     {
