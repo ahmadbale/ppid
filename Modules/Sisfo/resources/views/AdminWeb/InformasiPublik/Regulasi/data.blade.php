@@ -6,6 +6,7 @@
  
  <div class="table-responsive">
  <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+
      <thead class="text-center">
          <tr>
              <th >Nomor</th>
@@ -18,10 +19,11 @@
      <tbody>
          @forelse($regulasi as $key => $item)
          <tr>
-             <td>{{ ($regulasi->currentPage() - 1) * $regulasi->perPage() + $key + 1 }}</td>
-             <td>{{ $item->KategoriRegulasi->kr_nama_kategori }}</td>
-             <td>{{ $item->reg_judul }}</td>
-             <td>
+             <td table-data-label="Nomor" class="text-center">{{ ($regulasi->currentPage() - 1) * $regulasi->perPage() + $key + 1 }}</td>
+             <td table-data-label="Kategori" class="text-center">{{ $item->KategoriRegulasi->kr_nama_kategori }}</td>
+             <td table-data-label="Judul" class="text-center">{{ $item->reg_judul }}</td>
+             <td table-data-label="Tipe" class="text-center">{{ $item->tipe }}</td>
+             <td table-data-label="Aksi" class="text-center">
                  @if($item->reg_tipe_dokumen == 'file')
                      <span class="badge badge-primary">File</span>
                  @else
@@ -54,6 +56,8 @@
      </tbody>
  </table>
  </div>
+
  <div class="mt-3">
      {{ $regulasi->appends(['search' => $search])->links() }}
  </div>
+
