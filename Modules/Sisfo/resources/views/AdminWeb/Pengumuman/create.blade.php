@@ -101,10 +101,39 @@
 
 <script>
     $(document).ready(function () {
-        // Inisialisasi kembali event handler untuk tombol submit
+        // Preview thumbnail saat dipilih
+        $('#thumbnail').on('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const maxSize = 10 * 1024 * 1024; // 10MB
+
+                if (file.size > maxSize) {
+                    $('#thumbnail').addClass('is-invalid');
+                    $('#thumbnail_error').html('Ukuran maksimal thumbnail 10MB.');
+                    $('#thumbnail_preview').hide();
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#thumbnail_image').attr('src', e.target.result);
+                    $('#thumbnail_preview').show();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                $('#thumbnail_preview').hide();
+            }
+        });
+
+        // Tampilkan nama file pada label input
+        $('.custom-file-input').on('change', function () {
+            const fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass('selected').html(fileName);
+        });
+
+        // Tombol submit
         $('#btnSubmitForm').off('click').on('click', function () {
             console.log('Tombol submit diklik');
-            // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');
             $('.note-editor').removeClass('border border-danger');
@@ -112,11 +141,94 @@
             const form = $('#formCreatePengumuman');
             const formData = new FormData(form[0]);
             const button = $(this);
+            let isValid = true;
 
-            // Tambah pengumuman_id null untuk validasi
+            const kategori = $('#kategori_pengumuman').val();
+            const tipe = $('#tipe_pengumuman').val();
+            const judul = $('#judul_pengumuman').val();
+            const url = $('#url').val();
+            const file = $('#file')[0].files[0];
+            const thumbnail = $('#thumbnail')[0].files[0];
+            const konten = $('#konten').val();
+            const status = $('#status_pengumuman').val();
+
+            // Validasi client-side
+            if (!kategori) {
+                $('#kategori_pengumuman').addClass('is-invalid');
+                $('#kategori_pengumuman_error').html('Kategori wajib dipilih.');
+                isValid = false;
+            }
+
+            if (!tipe) {
+                $('#tipe_pengumuman').addClass('is-invalid');
+                $('#tipe_pengumuman_error').html('Tipe pengumuman wajib dipilih.');
+                isValid = false;
+            }
+
+            if (tipe !== 'link' && !judul) {
+                $('#judul_pengumuman').addClass('is-invalid');
+                $('#judul_pengumuman_error').html('Judul wajib diisi.');
+                isValid = false;
+            }
+
+            if (tipe === 'link' && !url) {
+                $('#url').addClass('is-invalid');
+                $('#url_error').html('URL wajib diisi.');
+                isValid = false;
+            }
+
+            if (tipe === 'file' && !file) {
+                $('#file').addClass('is-invalid');
+                $('#file_error').html('File wajib dipilih.');
+                isValid = false;
+            } else if (file && file.size > 50 * 1024 * 1024) {
+                $('#file').addClass('is-invalid');
+                $('#file_error').html('Ukuran maksimal file 50MB.');
+                isValid = false;
+            }
+
+            if (tipe === 'konten' && !konten.trim()) {
+                $('.note-editor').addClass('border border-danger');
+                $('#konten_error').html('Konten wajib diisi.').show();
+                isValid = false;
+            }
+
+            if (tipe !== 'link' && !thumbnail) {
+                $('#thumbnail').addClass('is-invalid');
+                $('#thumbnail_error').html('Thumbnail wajib dipilih.');
+                isValid = false;
+            } else if (thumbnail) {
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(thumbnail.type)) {
+                    $('#thumbnail').addClass('is-invalid');
+                    $('#thumbnail_error').html('Hanya gambar JPG, PNG, dan GIF yang diizinkan.');
+                    isValid = false;
+                } else if (thumbnail.size > 10 * 1024 * 1024) {
+                    $('#thumbnail').addClass('is-invalid');
+                    $('#thumbnail_error').html('Ukuran maksimal thumbnail 10MB.');
+                    isValid = false;
+                }
+            }
+
+            if (!status) {
+                $('#status_pengumuman').addClass('is-invalid');
+                $('#status_pengumuman_error').html('Status wajib dipilih.');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Mohon periksa kembali input Anda'
+                });
+                return;
+            }
+
+            // Tambahkan pengumuman_id null untuk validasi
             formData.append('pengumuman_id', null);
 
-            // Tampilkan loading state pada tombol submit
+            // Loading
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
 
             $.ajax({
@@ -132,7 +244,7 @@
                         if (typeof reloadTable === 'function') {
                             reloadTable();
                         } else {
-                            console.warn('Fungsi reloadTable tidak ditemukan, halaman mungkin perlu di-refresh manual');
+                            console.warn('Fungsi reloadTable tidak ditemukan');
                         }
 
                         Swal.fire({
@@ -142,7 +254,6 @@
                         });
                     } else {
                         if (response.errors) {
-                            // Tampilkan pesan error pada masing-masing field
                             $.each(response.errors, function (key, value) {
                                 if (key.startsWith('t_pengumuman.')) {
                                     const fieldName = key.replace('t_pengumuman.', '');
@@ -160,7 +271,7 @@
                                     $('#tipe_pengumuman').addClass('is-invalid');
                                     $('#tipe_pengumuman_error').html(value[0]);
                                 } else if (key === 'up_value') {
-                                    if ($('#tipe_pengumuman').val() === 'link') {
+                                    if (tipe === 'link') {
                                         $('#url').addClass('is-invalid');
                                         $('#url_error').html(value[0]);
                                     } else {
@@ -173,10 +284,6 @@
                                 } else if (key === 'up_konten') {
                                     $('.note-editor').addClass('border border-danger');
                                     $('#konten_error').html(value[0]).show();
-                                } else {
-                                    // Untuk field biasa
-                                    $(`#${key}`).addClass('is-invalid');
-                                    $(`#${key}_error`).html(value[0]);
                                 }
                             });
 
@@ -203,13 +310,12 @@
                     });
                 },
                 complete: function () {
-                    // Kembalikan tombol submit ke keadaan semula
                     button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
                 }
             });
         });
 
-        // Tambahkan pengaturan tampilan field berdasarkan tipe yang sudah dipilih
+        // Trigger perubahan tampilan berdasarkan tipe
         $('#tipe_pengumuman').trigger('change');
     });
 </script>
