@@ -2,10 +2,9 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
 
-
-use Illuminate\Http\Request;
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 use Modules\Sisfo\App\Models\Website\InformasiPublik\LHKPN\LHKPNModel;
+use Illuminate\Http\Request;
 
 class ApiLhkpnController extends BaseApiController
 {
@@ -13,11 +12,14 @@ class ApiLhkpnController extends BaseApiController
     {
         return $this->execute(
             function () use ($request) {
-                $lhkpnData = LhkpnModel::getDataLhkpn($request);
+                $tahun = $request->input('tahun');
+                $perPage = $request->input('per_page', 10);
+                $detailPage = $request->input('detail_page', []);
+
+                $lhkpnData = LhkpnModel::getDataLhkpn($perPage, $tahun, $detailPage);
                 return $lhkpnData;
             },
-            'Data LHKPN'
+            'Laman LHKPN'
         );
     }
-
 }

@@ -14,6 +14,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 
 
@@ -70,4 +71,9 @@ Route::prefix('public')->group(function () {
     Route::get('getDataDokumentasi', [ApiMediaDinamisController::class, 'getDataDokumentasi']);
     Route::get('getDataMediaInformasiPublik', [ApiMediaDinamisController::class, 'getDataMediaInformasiPublik']);
     Route::get('getDataBerita', [ApiBeritaController::class, 'getDataBerita']);
+    Route::get('getDetailBeritaById/{slug}/{berita_id}', [ApiBeritaController::class, 'getDetailBeritaById']);
+    Route::get('/public/getFooterItemById/{id}', [ApiFooterController::class, 'getFooterItemById']);
+    Route::get('getDashboardStatistics', [ApiDashboardStatisticsController::class, 'getDashboardStatistics']);
+    
+
 });

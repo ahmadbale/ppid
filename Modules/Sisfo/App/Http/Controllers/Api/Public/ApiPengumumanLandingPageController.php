@@ -17,7 +17,7 @@ class ApiPengumumanLandingPageController extends BaseApiController
                 $pengumumanLandingPage = PengumumanDinamisModel::getDataPengumumanLandingPage();
                 return $pengumumanLandingPage;
             },
-            'Pengumuman LandingPage'
+            'Laman Pengumuman LandingPage'
         );
     }
 }

@@ -1,218 +1,195 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita;
+namespace Modules\User\App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
-use Modules\Sisfo\App\Http\Controllers\TraitsController;
-use Illuminate\Validation\ValidationException;
-use Modules\Sisfo\App\Models\Website\Publikasi\Berita\BeritaModel;
-use Modules\Sisfo\App\Models\Website\Publikasi\Berita\BeritaDinamisModel;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
 
 class BeritaController extends Controller
 {
-    use TraitsController;
     public function index(Request $request)
     {
-        $search = $request->query('search', '');
-        
-        $breadcrumb = (object) [
-            'title' => 'Manajemen Berita',
-            'list' => ['Home', 'Berita', 'Daftar']
-        ];
-
-        $page = (object) [
-            'title' => 'Daftar Berita'
-        ];
-        
-        $activeMenu = 'berita';
-        
-        $berita = BeritaModel::selectData(10, $search);
-        $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
-
-        return view('AdminWeb.Berita.index', [
-            'breadcrumb' => $breadcrumb,
-            'page' => $page,
-            'activeMenu' => $activeMenu,
-            'berita' => $berita,
-            'beritaDinamis' => $beritaDinamis,
-            'search' => $search
-        ]);
-    }
-
-    public function getData(Request $request)
-    {
-        $search = $request->query('search', '');
-        $berita = BeritaModel::selectData(10, $search);
-        
-        if ($request->ajax()) {
-            return view('AdminWeb.Berita.data', compact('berita', 'search'))->render();
-        }
-        
-        return redirect()->route('berita.index');
-    }
-
-    public function addData()
-    {
-        $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
-        return view('AdminWeb.Berita.create', compact('beritaDinamis'));
-    }
-
-    public function createData(Request $request)
-    {
         try {
-            $result = BeritaModel::createData($request);
-            
-            return $this->jsonSuccess(
-                $result,
-                'Berita berhasil dibuat'
-            );
-        } catch (ValidationException $e) {
-            return $this->jsonValidationError($e);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal membuat berita');
-        }
-    }
+            Log::info('Mengambil data dari API');
     
-    public function detailData($id)
-    {
-        try {
-            $berita = BeritaModel::with('BeritaDinamis')->findOrFail($id);
-            $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
-            
-            return view('AdminWeb.Berita.detail', [
-                'berita' => $berita,
-                'beritaDinamis' => $beritaDinamis
-            ]);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal mengambil detail berita');
-        }
-    }
-
-    public function editData($id)
-    {
-        try {
-            $berita = BeritaModel::findOrFail($id);
-            $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
-            
-            return view('AdminWeb.Berita.update', [
-                'berita' => $berita,
-                'beritaDinamis' => $beritaDinamis
-            ]);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal mengambil data berita');
-        }
-    }
-
-    public function updateData(Request $request, $id)
-    {
-        try {
-            $result = BeritaModel::updateData($request, $id);
-            
-            return $this->jsonSuccess(
-                $result,
-                'Berita berhasil diperbarui'
-            );
-        } catch (ValidationException $e) {
-            return $this->jsonValidationError($e);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal memperbarui berita');
-        }
-    }
-
-    public function deleteData(Request $request, $id)
-    {
-        if ($request->isMethod('get')) {
-            try {
-                $berita = BeritaModel::with('BeritaDinamis')->findOrFail($id);
-                
-                return view('AdminWeb.Berita.delete', [
-                    'berita' => $berita
+            // Ambil halaman saat ini dari request, default ke 1
+            $page = $request->get('page', 1);
+    
+            // Validasi nomor halaman
+            if (!is_numeric($page) || $page < 1) {
+                Log::warning('Nomor halaman tidak valid', [
+                    'page' => $page
                 ]);
-            } catch (\Exception $e) {
-                return $this->jsonError($e, 'Terjadi kesalahan saat mengambil data');
+    
+                return view('user::404', [
+                    'message' => 'Halaman tidak ditemukan'
+                ]);
             }
-        }
-        
-        try {
-            $result = BeritaModel::deleteData($id);
-            return $this->jsonSuccess(
-                $result['data'] ?? null,
-                $result['message'] ?? 'Berita berhasil dihapus'
-            );
+    
+            // Ambil data dari API dengan parameter halaman
+            $beritaResponse = Http::get("http://ppid-polinema.test/api/public/getDataBerita", [
+                'page' => $page
+            ]);
+    
+            $beritaData = $this->fetchBeritaData($beritaResponse);
+    
+            // Validasi data berita
+            if (empty($beritaData['items']) && $page > 1) {
+                Log::warning('Halaman tidak ditemukan', [
+                    'page' => $page
+                ]);
+    
+                return view('user::404', [
+                    'message' => 'Halaman tidak ditemukan'
+                ]);
+            }
+    
+            // Jika ini adalah request AJAX, kembalikan hanya data JSON
+            if ($request->ajax()) {
+                return response()->json([
+                    'html' => view('user::partials.berita-list', [
+                        'beritaMenus' => $beritaData['items'],
+                    ])->render(),
+                    'pagination' => $beritaData['pagination'],
+                ]);
+            }
+    
+            return view('user::berita', [
+                'beritaMenus' => $beritaData['items'],
+                'pagination' => $beritaData['pagination'],
+            ]);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Terjadi kesalahan saat menghapus berita');
+            Log::error('Error saat mengambil data dari API', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+    
+            if ($request->ajax()) {
+                return response()->json([
+                    'html' => '<p class="text-center">Terjadi kesalahan saat mengambil data.</p>',
+                    'pagination' => null
+                ]);
+            }
+    
+            return view('user::404', [
+                'message' => 'Terjadi kesalahan saat mengambil data'
+            ]);
         }
     }
 
-    public function uploadImage(Request $request)
+    private function fetchBeritaData($response)
+    {
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Pengumuman gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
+            ]);
+            return [
+                'items' => [],
+                'pagination' => null,
+            ];
+        }
+
+        return $this->processBeritaData($response->json('data'));
+    }
+
+    private function processBeritaData($data)
+    {
+        $result = [];
+
+        $beritaList = $data['data'] ?? [];
+
+        foreach ($beritaList as $item) {
+            $result[] = [
+                'berita_id' => $item['berita_id'] ?? null,
+                'kategori' => $item['kategori'] ?? 'Berita',
+                'judul' => $item['judul'] ?? 'Tanpa Judul',
+                'slug' => $item['slug'] ?? null,
+                'thumbnail' => $item['thumbnail'] ?? null,
+                'deskripsiThumbnail' => $item['deskripsiThumbnail'] ?? null,
+                'tanggal' => $item['tanggal'] ?? null,
+                'url_selengkapnya' => $item['url_selengkapnya'] ?? null,
+            ];
+        }
+
+        return [
+            'items' => $result,
+            'pagination' => [
+                'current_page' => $data['current_page'] ?? 1,
+                'total_pages' => $data['total_pages'] ?? 1,
+                'next_page_url' => $data['next_page_url'] ?? null,
+                'prev_page_url' => $data['prev_page_url'] ?? null,
+            ]
+        ];
+    }
+
+
+    public function detail($slug, $encryptedId)
     {
         try {
-            $request->validate([
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
-            ]);
+            // Dekripsi ID dari URL
+            $beritaId = Crypt::decryptString(urldecode($encryptedId));
 
-            $file = $request->file('image');
-            
-            if (!$file) {
-                return $this->jsonError(
-                    new \Exception('Tidak ada file yang diunggah'), 
-                    '', 
-                    400
-                );
+            Log::info('Mengambil detail berita dari API', ['berita_id' => $beritaId]);
+
+            // Ambil data detail berita dari API berdasarkan ID
+            $detailResponse = Http::get("http://ppid-polinema.test/api/public/getDetailBeritaById/{$slug}/{$beritaId}");
+
+            $detailData = $this->fetchBeritaDetail($detailResponse);
+
+            // Validasi data kosong atau slug tidak cocok
+            if (empty($detailData) || $detailData['slug'] !== $slug) {
+                return view('user::404', [
+                    'message' => 'Laman Tidak Ditemukan',
+                ]);
             }
 
-            $fileName = 'berita/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public', $fileName);
-            
-            return $this->jsonSuccess(
-                ['url' => asset('storage/' . $fileName)], 
-                'Gambar berhasil diunggah'
-            );
-        } catch (ValidationException $e) {
-            return $this->jsonValidationError($e);
+            return view('user::berita-detail', [
+                'beritaDetail' => $detailData
+            ]);
         } catch (\Exception $e) {
-            return $this->jsonError($e);
+            Log::error('Error saat mengambil detail berita dari API', [
+                'encrypted_id' => $encryptedId,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Jika gagal dekripsi atau terjadi error lain, arahkan ke 404
+            return view('user::404', [
+                'message' => 'Laman Tidak Ditemukan',
+            ]);
         }
     }
 
-    public function removeImage(Request $request)
+
+    private function fetchBeritaDetail($response)
     {
-        try {
-            $request->validate([
-                'url' => 'required|string'
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Detail Berita gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
             ]);
-            
-            $imageUrl = $request->input('url');
-            
-            // Extract filename dari full URL
-            $pathInfo = parse_url($imageUrl);
-            $path = $pathInfo['path'] ?? '';
-            $storagePath = str_replace('/storage/', '', $path);
-            
-            if (!empty($storagePath)) {
-                // Logika untuk menghapus file
-                $filePath = storage_path('app/public/' . $storagePath);
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
-                
-                return $this->jsonSuccess(
-                    null, 
-                    'Gambar berhasil dihapus'
-                );
-            } else {
-                return $this->jsonError(
-                    new \Exception('Path gambar tidak valid'), 
-                    '', 
-                    400
-                );
-            }
-        } catch (ValidationException $e) {
-            return $this->jsonValidationError($e);
-        } catch (\Exception $e) {
-            return $this->jsonError($e);
+            return null;
         }
+
+        return $this->processBeritaDetail($response->json('data'));
+    }
+
+    private function processBeritaDetail($data)
+    {
+        if (empty($data)) {
+            return null;
+        }
+
+        return [
+            'berita_id'         => $data['berita_id'] ?? null,
+            'kategori'          => $data['kategori'] ?? 'Berita',
+            'judul'             => $data['judul'] ?? 'Tanpa Judul',
+            'slug'              => $data['slug'] ?? null,
+            'thumbnail'         => $data['thumbnail'] ?? null,
+            'deskripsiThumbnail' => $data['deskripsiThumbnail'] ?? null,
+            'tanggal'           => $data['tanggal'] ?? null,
+            'konten'            => $data['konten'] ?? null
+        ];
     }
 }

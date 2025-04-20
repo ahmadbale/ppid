@@ -25,42 +25,42 @@ class BeritaDinamisModel extends Model
 
     public static function getDataBeritaLandingPage()
     {
-     $kategori = 1;
-     $arr_data = DB::table('t_berita', 'tb')
-         ->select([
-             'tb.berita_id',
-             'tb.berita_judul',
-             'tb.berita_slug',
-             'm_berita_dinamis.bd_nama_submenu',
-             'tb.berita_thumbnail_deskripsi'
-         ])
-         ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
-         ->where('tb.isDeleted', 0)
-         ->where('tb.status_berita', 'aktif')
-         ->where('m_berita_dinamis.berita_dinamis_id', $kategori)
-         ->orderBy('tb.berita_id', 'DESC')
-         ->limit(3)
-         ->get()
-         ->map(function ($berita) {
-             $deskripsiThumbnail = trim($berita->berita_thumbnail_deskripsi);
- 
-             return [
-                'id'=>$berita->berita_id,
-                 'kategori' => $berita->bd_nama_submenu,
-                 'judul' => $berita->berita_judul,
-                 'slug' => $berita->berita_slug,
-                 'deskripsiThumbnail' => strlen($deskripsiThumbnail) > 200
-                     ? substr($deskripsiThumbnail, 0, 200) . '...'
-                     : $deskripsiThumbnail,
-                 'url_selengkapnya' => url('#')
-             ];
-         })
-         ->toArray();
- 
-     return $arr_data;
- }
+        $kategori = 1;
+        $arr_data = DB::table('t_berita', 'tb')
+            ->select([
+                'tb.berita_id',
+                'tb.berita_judul',
+                'tb.berita_slug',
+                'm_berita_dinamis.bd_nama_submenu',
+                'tb.berita_thumbnail_deskripsi'
+            ])
+            ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
+            ->where('tb.isDeleted', 0)
+            ->where('tb.status_berita', 'aktif')
+            ->where('m_berita_dinamis.berita_dinamis_id', $kategori)
+            ->orderBy('tb.berita_id', 'DESC')
+            ->limit(3)
+            ->get()
+            ->map(function ($berita) {
+                $deskripsiThumbnail = trim($berita->berita_thumbnail_deskripsi);
 
- public static function getDataBerita($per_page = 5, $kategori_id = null)
+                return [
+                    'berita_id' => $berita->berita_id,
+                    'kategori' => $berita->bd_nama_submenu,
+                    'judul' => $berita->berita_judul,
+                    'slug' => $berita->berita_slug,
+                    'deskripsiThumbnail' => strlen($deskripsiThumbnail) > 200
+                        ? substr($deskripsiThumbnail, 0, 200) . '...'
+                        : $deskripsiThumbnail,
+                    'url_selengkapnya' => url('#')
+                ];
+            })
+            ->toArray();
+
+        return $arr_data;
+    }
+
+    public static function getDataBerita($per_page = 5, $kategori_id = null, )
     {
         $query = DB::table('t_berita as tb')
             ->select([
@@ -113,6 +113,41 @@ class BeritaDinamisModel extends Model
             'prev_page_url' => $arr_data->previousPageUrl()
         ];
     }
+    public static function getDetailBeritaById($slug,$berita_id)
+    {
+        $berita = DB::table('t_berita as tb')
+            ->select([
+                'tb.berita_id',
+                'tb.berita_judul',
+                'tb.berita_slug',
+                'm_berita_dinamis.bd_nama_submenu',
+                'tb.created_at',
+                'tb.berita_thumbnail',
+                'tb.berita_thumbnail_deskripsi',
+                'tb.berita_deskripsi' 
+            ])
+            ->join('m_berita_dinamis', 'tb.fk_m_berita_dinamis', '=', 'm_berita_dinamis.berita_dinamis_id')
+            ->where('tb.berita_id', $berita_id)
+            ->where('tb.berita_slug', $slug)
+            ->where('tb.isDeleted', 0)
+            ->where('tb.status_berita', 'aktif')
+            ->first();
+
+        if (!$berita) {
+            return null;
+        }
+
+        return [
+            'berita_id' => $berita->berita_id,
+            'kategori' => $berita->bd_nama_submenu,
+            'judul' => $berita->berita_judul,
+            'slug' => $berita->berita_slug,
+            'thumbnail' => asset('storage/' . $berita->berita_thumbnail),
+            'deskripsiThumbnail' => $berita->berita_thumbnail_deskripsi,
+            'tanggal' => \Carbon\Carbon::parse($berita->created_at)->format('d F Y'),
+            'konten' => $berita->berita_deskripsi // Konten lengkap dari Summernote
+        ];
+    }
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -129,7 +164,8 @@ class BeritaDinamisModel extends Model
             $query->where('bd_nama_submenu', 'like', "%{$search}%");
         }
 
-        return $query->paginate($perPage);
+        // Gunakan paginateResults dari trait BaseModelFunction
+        return self::paginateResults($query, $perPage);
     }
 
     // Fungsi untuk membuat data baru

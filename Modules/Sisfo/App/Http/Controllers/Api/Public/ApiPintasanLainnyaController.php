@@ -15,7 +15,7 @@ class ApiPintasanLainnyaController extends BaseApiController
                 $pintasanLainnya = KategoriAksesModel::getDataPintasanLainnya();
                 return $pintasanLainnya;
             },
-            'Pintasan Lainnya'
+            'Laman Pintasan Lainnya'
         );
     }
 }

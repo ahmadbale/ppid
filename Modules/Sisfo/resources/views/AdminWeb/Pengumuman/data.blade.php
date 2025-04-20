@@ -4,11 +4,11 @@
     </div>
 </div>
 
-<table class="table table-bordered table-striped table-hover table-sm">
-    <thead>
+<div class="table-responsive">
+<table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+    <thead class="text-center">
         <tr>
             <th width="5%">No</th>
-            <th width="20%">Kategori Pengumuman</th>
             <th width="25%">Judul</th>
             <th width="10%">Tipe</th>
             <th width="10%">Status</th>
@@ -18,10 +18,9 @@
     <tbody>
         @forelse($pengumuman as $key => $item)
         <tr>
-            <td>{{ ($pengumuman->currentPage() - 1) * $pengumuman->perPage() + $key + 1 }}</td>
-            <td>{{ $item->PengumumanDinamis->pd_nama_submenu ?? '-' }}</td>
-            <td>{{ $item->peg_judul ?? '-' }}</td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($pengumuman->currentPage() - 1) * $pengumuman->perPage() + $key + 1 }}</td>
+            <td table-data-label="Judul" class="text-start">{{ $item->peg_judul ?? '-' }}</td>
+            <td table-data-label="Tipe" class="text-center">
                 @if($item->UploadPengumuman)
                     @if($item->UploadPengumuman->up_type === 'link')
                         <span class="badge badge-info">Link</span>
@@ -36,14 +35,14 @@
                     -
                 @endif
             </td>
-            <td>
+            <td table-data-label="Status" class="text-center">
                 @if($item->status_pengumuman === 'aktif')
                     <span class="status-badge status-aktif">Aktif</span>
                 @else
                     <span class="status-badge status-tidak-aktif">Tidak Aktif</span>
                 @endif
             </td>
-            <td>
+            <td table-data-label="Aksi" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("AdminWeb/Pengumuman/editData/{$item->pengumuman_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
@@ -68,6 +67,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 
 <div class="mt-3">
     {{ $pengumuman->appends(['search' => $search])->links() }}
