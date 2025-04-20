@@ -35,19 +35,48 @@
             $(errorId).html('');
         });
 
+        // Fungsi untuk validasi form
+        function validateForm() {
+            let isValid = true;
+
+            // Validasi Judul Kategori
+            const judulKategori = $('#mka_judul_kategori').val().trim();
+            if (judulKategori === '') {
+                $('#mka_judul_kategori').addClass('is-invalid');
+                $('#mka_judul_kategori_error').html('Judul Kategori wajib diisi.');
+                isValid = false;
+            } else if (judulKategori.length > 100) {
+                $('#mka_judul_kategori').addClass('is-invalid');
+                $('#mka_judul_kategori_error').html('Maksimal 100 karakter.');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
         // Handle submit form
         $('#btnSubmitForm').on('click', function() {
             // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');
-            
+
+            // Validasi form terlebih dahulu
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Mohon periksa kembali input Anda.'
+                });
+                return;
+            }
+
             const form = $('#formUpdateKategoriAkses');
             const formData = new FormData(form[0]);
             const button = $(this);
-            
+
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-            
+
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
@@ -58,7 +87,7 @@
                     if (response.success) {
                         $('#myModal').modal('hide');
                         reloadTable();
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
@@ -79,7 +108,7 @@
                                     $(`#${key}_error`).html(value[0]);
                                 }
                             });
-                            
+
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Validasi Gagal',

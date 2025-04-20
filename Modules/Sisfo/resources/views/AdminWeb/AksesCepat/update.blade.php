@@ -18,23 +18,21 @@
         <div class="form-group">
             <label for="ac_judul">Judul Akses Cepat <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="ac_judul" name="t_akses_cepat[ac_judul]" 
-                   required maxlength="100" value="{{ $aksesCepat->ac_judul }}">
+                   maxlength="100" value="{{ $aksesCepat->ac_judul }}">
             <div class="invalid-feedback" id="ac_judul_error"></div>
         </div>
 
         <div class="form-group">
             <label for="ac_url">URL Akses Cepat <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" 
-                   required maxlength="100" placeholder="https://contoh.com" value="{{ $aksesCepat->ac_url }}">
+                   maxlength="100" placeholder="https://contoh.com" value="{{ $aksesCepat->ac_url }}">
             <div class="invalid-feedback" id="ac_url_error"></div>
-            <small class="form-text text-muted">Masukkan URL lengkap dengan http:// atau https://</small>
         </div>
 
         <div class="form-group">
             <label for="ac_static_icon">Icon Statis Akses Cepat</label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_static_icon" 
-                       name="t_akses_cepat[ac_static_icon]" accept="image/*">
+                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" accept="image/*">
                 <label class="custom-file-label" for="ac_static_icon">
                     {{ $aksesCepat->ac_static_icon ? $aksesCepat->ac_static_icon : 'Pilih file' }}
                 </label>
@@ -59,8 +57,7 @@
         <div class="form-group">
             <label for="ac_animation_icon">Icon Hover Akses Cepat</label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_animation_icon" 
-                       name="t_akses_cepat[ac_animation_icon]" accept="image/*">
+                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" accept="image/*">
                 <label class="custom-file-label" for="ac_animation_icon">
                     {{ $aksesCepat->ac_animation_icon ? $aksesCepat->ac_animation_icon : 'Pilih file' }}
                 </label>
@@ -112,14 +109,12 @@
             const file = input[0].files[0];
             if (file) {
                 const fileSizeMB = file.size / (1024 * 1024);
-                $(labelSelector).text(
-                    file.name + ' (' + fileSizeMB.toFixed(2) + ' MB)'
-                );
+                $(labelSelector).text(file.name + ' (' + fileSizeMB.toFixed(2) + ' MB)');
                 
-                if (fileSizeMB > 3) {
+                if (fileSizeMB > 2.5) {
                     Swal.fire({
                         title: 'Peringatan!',
-                        text: 'Ukuran file ' + fileSizeMB.toFixed(2) + ' MB melebihi batas 3MB',
+                        text: 'Ukuran file ' + fileSizeMB.toFixed(2) + ' MB melebihi batas 2.5MB',
                         icon: 'warning'
                     });
                     
@@ -170,6 +165,54 @@
             const formData = new FormData(this);
             const button = $('#btn-update');
             
+            // Validasi client-side
+            let isValid = true;
+            if ($('#ac_judul').val().trim() === '') {
+                $('#ac_judul').addClass('is-invalid');
+                $('#ac_judul_error').html('Judul Akses Cepat wajib diisi.');
+                isValid = false;
+            }
+            
+            const acUrl = $('#ac_url').val().trim();
+            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
+            if (!urlPattern.test(acUrl)) {
+                $('#ac_url').addClass('is-invalid');
+                $('#ac_url_error').html('URL Akses Cepat tidak valid.');
+                isValid = false;
+            }
+            
+            // Icon statis dan animasi tidak wajib diisi
+            if ($('#ac_static_icon')[0].files.length > 0) {
+                // Check if file selected, proceed to validation
+                const file = $('#ac_static_icon')[0].files[0];
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+                if (!allowedTypes.includes(file.type)) {
+                    $('#ac_static_icon').addClass('is-invalid');
+                    $('#ac_static_icon_error').html('Hanya format JPG, PNG, GIF, SVG yang diterima.');
+                    isValid = false;
+                }
+            }
+
+            if ($('#ac_animation_icon')[0].files.length > 0) {
+                // Check if file selected, proceed to validation
+                const file = $('#ac_animation_icon')[0].files[0];
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+                if (!allowedTypes.includes(file.type)) {
+                    $('#ac_animation_icon').addClass('is-invalid');
+                    $('#ac_animation_icon_error').html('Hanya format JPG, PNG, GIF, SVG yang diterima.');
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Mohon periksa kembali input Anda'
+                });
+                return;
+            }
+            
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Memperbarui...').attr('disabled', true);
             
@@ -191,9 +234,7 @@
                         });
                     } else {
                         if (response.errors) {
-                            // Tampilkan pesan error pada masing-masing field
                             $.each(response.errors, function(key, value) {
-                                // Hapus prefix 't_akses_cepat.' dari key
                                 const cleanKey = key.replace('t_akses_cepat.', '');
                                 $(`#${cleanKey}`).addClass('is-invalid');
                                 $(`#${cleanKey}_error`).html(value[0]);
@@ -221,7 +262,6 @@
                     });
                 },
                 complete: function() {
-                    // Kembalikan tombol submit ke keadaan semula
                     button.html('<i class="fas fa-save mr-1"></i> Perbarui').attr('disabled', false);
                 }
             });
