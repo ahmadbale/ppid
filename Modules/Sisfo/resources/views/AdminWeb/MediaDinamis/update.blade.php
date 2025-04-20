@@ -43,7 +43,26 @@
             const form = $('#formUpdateMediaDinamis');
             const formData = new FormData(form[0]);
             const button = $(this);
-            
+
+            // Client-side validation
+            let isValid = true;
+            const kategori = $('#md_kategori_media').val().trim();
+            if (kategori === '') {
+                $('#md_kategori_media').addClass('is-invalid');
+                $('#md_kategori_media_error').html('Kategori media tidak boleh kosong.');
+                isValid = false;
+            }
+
+            // Jika gagal validasi client-side, batalkan pengiriman AJAX
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Periksa Kembali',
+                    text: 'Beberapa input tidak valid. Mohon perbaiki terlebih dahulu.'
+                });
+                return;
+            }
+
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
             
@@ -65,15 +84,12 @@
                         });
                     } else {
                         if (response.errors) {
-                            // Tampilkan pesan error pada masing-masing field
                             $.each(response.errors, function(key, value) {
-                                // Untuk m_media_dinamis fields
                                 if (key.startsWith('m_media_dinamis.')) {
                                     const fieldName = key.replace('m_media_dinamis.', '');
                                     $(`#${fieldName}`).addClass('is-invalid');
                                     $(`#${fieldName}_error`).html(value[0]);
                                 } else {
-                                    // Untuk field biasa
                                     $(`#${key}`).addClass('is-invalid');
                                     $(`#${key}_error`).html(value[0]);
                                 }

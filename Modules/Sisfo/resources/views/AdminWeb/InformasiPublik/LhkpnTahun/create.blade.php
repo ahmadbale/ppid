@@ -38,127 +38,164 @@
 </div>
 <script>
   $(document).ready(function () {
-    // Inisialisasi Summernote pada textarea deskripsi informasi
-    $('#lhkpn_deskripsi_informasi').summernote({
-      placeholder: 'Masukkan deskripsi informasi...',
-      tabsize: 2,
-      height: 200,
-      toolbar: [
-        ['style', ['style']],
-        ['font', ['bold', 'underline', 'italic', 'clear', 'fontsize', 'fontname']], 
-        ['color', ['color']],
-        ['para', ['ul', 'ol', 'paragraph', 'height', 'align']], 
-        ['table', ['table']],
-        ['insert', ['link', 'picture']],
-        ['view', ['fullscreen', 'codeview', 'help']]
-      ],
-      callbacks: {
-        onChange: function(contents) {
-          // Reset invalid state saat konten berubah
-          $(this).next('.note-editor').removeClass('is-invalid');
-          $('#lhkpn_deskripsi_informasi_error').html('');
-        }
+  // Inisialisasi Summernote pada textarea deskripsi informasi
+  $('#lhkpn_deskripsi_informasi').summernote({
+    placeholder: 'Masukkan deskripsi informasi...',
+    tabsize: 2,
+    height: 200,
+    toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'underline', 'italic', 'clear', 'fontsize', 'fontname']], 
+      ['color', ['color']],
+      ['para', ['ul', 'ol', 'paragraph', 'height', 'align']], 
+      ['table', ['table']],
+      ['insert', ['link', 'picture']],
+      ['view', ['fullscreen', 'codeview', 'help']]
+    ],
+    callbacks: {
+      onChange: function(contents) {
+        // Reset invalid state saat konten berubah
+        $(this).next('.note-editor').removeClass('is-invalid');
+        $('#lhkpn_deskripsi_informasi_error').html('');
       }
-    });
+    }
+  });
 
-    // Tambahkan CSS untuk validasi error pada summernote
-    $('<style>.note-editor.is-invalid {border: 1px solid #dc3545 !important;}</style>').appendTo('head');
+  // Tambahkan CSS untuk validasi error pada summernote
+  $('<style>.note-editor.is-invalid {border: 1px solid #dc3545 !important;}</style>').appendTo('head');
 
-    // Hapus error ketika input berubah
-    $(document).on('input change', 'input, select, textarea', function() {
-      $(this).removeClass('is-invalid');
-      const errorId = `#${$(this).attr('id')}_error`;
-      $(errorId).html('');
-    });
+  // Hapus error ketika input berubah
+  $(document).on('input change', 'input, select, textarea', function() {
+    $(this).removeClass('is-invalid');
+    const errorId = `#${$(this).attr('id')}_error`;
+    $(errorId).html('');
+  });
 
-    // Handle submit form
-    $('#btnSubmitForm').on('click', function() {
-      // Reset semua error
-      $('.is-invalid').removeClass('is-invalid');
-      $('.invalid-feedback').html('');
-      
-      const form = $('#form-create-lhkpn');
-      const formData = new FormData(form[0]);
-      const button = $(this);
-      
-      // Tambahkan konten Summernote ke formData
-      let summernoteContent = $('#lhkpn_deskripsi_informasi').summernote('code');
-      formData.set('m_lhkpn[lhkpn_deskripsi_informasi]', summernoteContent);
-      
-      // Tampilkan loading state pada tombol submit
-      button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-      
-      $.ajax({
-        url: form.attr('action'),
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response) {
-          if (response.success) {
-            $('#myModal').modal('hide');
-            
-            // Reload tabel data
-            reloadTable();
+  // Handle submit form
+  $('#btnSubmitForm').on('click', function() {
+    // Reset semua error
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').html('');
+    
+    const form = $('#form-create-lhkpn');
+    const formData = new FormData(form[0]);
+    const button = $(this);
+
+    // Validasi Tahun LHKPN (4 digit angka)
+    const lhkpnTahun = $('#lhkpn_tahun').val();
+    let isValid = true;
+    
+    if (lhkpnTahun === '') {
+      isValid = false;
+      $('#lhkpn_tahun').addClass('is-invalid');
+      $('#lhkpn_tahun_error').html('Tahun LHKPN wajib diisi.');
+    } else if (!/^\d{4}$/.test(lhkpnTahun)) {
+      isValid = false;
+      $('#lhkpn_tahun').addClass('is-invalid');
+      $('#lhkpn_tahun_error').html('Tahun LHKPN harus berupa angka 4 digit.');
+    }
+
+    // Validasi Judul Informasi
+    const lhkpnJudulInformasi = $('#lhkpn_judul_informasi').val();
+    if (lhkpnJudulInformasi === '') {
+      isValid = false;
+      $('#lhkpn_judul_informasi').addClass('is-invalid');
+      $('#lhkpn_judul_informasi_error').html('Judul Informasi wajib diisi.');
+    }
+
+    // Validasi Deskripsi Informasi (Summernote)
+    const lhkpnDeskripsiInformasi = $('#lhkpn_deskripsi_informasi').summernote('code');
+    if (lhkpnDeskripsiInformasi === '' || lhkpnDeskripsiInformasi === '<p><br></p>') {
+      isValid = false;
+      $('#lhkpn_deskripsi_informasi').next('.note-editor').addClass('is-invalid');
+      $('#lhkpn_deskripsi_informasi_error').html('Deskripsi Informasi wajib diisi.');
+    }
+
+    // Validasi file atau link
+    const mediaType = $('#dm_type_media').val();
+    if (!isValid) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validasi Gagal',
+        text: 'Mohon periksa kembali input Anda'
+      });
+      return;
+    }
+
+    // Tambahkan konten Summernote ke formData
+    formData.set('m_lhkpn[lhkpn_deskripsi_informasi]', lhkpnDeskripsiInformasi);
+    
+    // Tampilkan loading state pada tombol submit
+    button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+
+    $.ajax({
+      url: form.attr('action'),
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(response) {
+        if (response.success) {
+          $('#myModal').modal('hide');
+          
+          // Reload tabel data
+          reloadTable();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: response.message
+          });
+        } else {
+          if (response.errors) {
+            // Tampilkan pesan error pada masing-masing field
+            $.each(response.errors, function(key, value) {
+              if (key.startsWith('m_lhkpn.')) {
+                const fieldName = key.replace('m_lhkpn.', '');
+                // Penanganan khusus untuk deskripsi informasi (Summernote)
+                if (fieldName === 'lhkpn_deskripsi_informasi') {
+                  $('#lhkpn_deskripsi_informasi').next('.note-editor').addClass('is-invalid');
+                  $('#lhkpn_deskripsi_informasi_error').html(value[0]);
+                } else {
+                  $(`#${fieldName}`).addClass('is-invalid');
+                  $(`#${fieldName}_error`).html(value[0]);
+                }
+              } else {
+                $(`#${key}`).addClass('is-invalid');
+                $(`#${key}_error`).html(value[0]);
+              }
+            });
             
             Swal.fire({
-              icon: 'success',
-              title: 'Berhasil',
-              text: response.message
+              icon: 'error',
+              title: 'Validasi Gagal',
+              text: 'Mohon periksa kembali input Anda'
             });
           } else {
-            if (response.errors) {
-              // Tampilkan pesan error pada masing-masing field
-              $.each(response.errors, function(key, value) {
-                // Untuk m_lhkpn fields
-                if (key.startsWith('m_lhkpn.')) {
-                  const fieldName = key.replace('m_lhkpn.', '');
-                  
-                  // Penanganan khusus untuk deskripsi informasi (Summernote)
-                  if (fieldName === 'lhkpn_deskripsi_informasi') {
-                    $('#lhkpn_deskripsi_informasi').next('.note-editor').addClass('is-invalid');
-                    $('#lhkpn_deskripsi_informasi_error').html(value[0]);
-                  } else {
-                    $(`#${fieldName}`).addClass('is-invalid');
-                    $(`#${fieldName}_error`).html(value[0]);
-                  }
-                } else {
-                  // Untuk field biasa
-                  $(`#${key}`).addClass('is-invalid');
-                  $(`#${key}_error`).html(value[0]);
-                }
-              });
-              
-              Swal.fire({
-                icon: 'error',
-                title: 'Validasi Gagal',
-                text: 'Mohon periksa kembali input Anda'
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: response.message || 'Terjadi kesalahan saat menyimpan data'
-              });
-            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal',
+              text: response.message || 'Terjadi kesalahan saat menyimpan data'
+            });
           }
-        },
-        error: function(xhr) {
-          console.error('Error:', xhr);
-          Swal.fire({
-            icon: 'error',
-            title: 'Gagal',
-            text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
-          });
-        },
-        complete: function() {
-          // Kembalikan tombol submit ke keadaan semula
-          button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
         }
-      });
+      },
+      error: function(xhr) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+        });
+      },
+      complete: function() {
+        // Kembalikan tombol submit ke keadaan semula
+        button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
+      }
     });
   });
+});
+
 </script>
