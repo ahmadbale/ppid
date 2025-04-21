@@ -4,7 +4,8 @@
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanInformasi') }}" class="btn btn-secondary">
+                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanInformasi') }}"
+                    class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -21,17 +22,25 @@
                 </div>
             @endif
 
-            <form action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanInformasi/createData') }}" method="POST"
-                enctype="multipart/form-data" novalidate>
+            <form
+                action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanInformasi/createData') }}"
+                method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
                 <div class="form-group">
-                    <label for="pi_kategori_pemohon">Permohonan Informasi Dilakukan Atas <span class="text-danger">*</span></label>
+                    <label for="pi_kategori_pemohon">Permohonan Informasi Dilakukan Atas <span
+                            class="text-danger">*</span></label>
                     <select class="form-control @error('t_permohonan_informasi.pi_kategori_pemohon') is-invalid @enderror"
                         id="pi_kategori_pemohon" name="t_permohonan_informasi[pi_kategori_pemohon]" required>
                         <option value="">-- Silakan Pilih Kategori Pemohon --</option>
-                        <option value="Diri Sendiri" {{ old('t_permohonan_informasi.pi_kategori_pemohon') == 'Diri Sendiri' ? 'selected' : '' }}>Diri Sendiri</option>
-                        <option value="Orang Lain" {{ old('t_permohonan_informasi.pi_kategori_pemohon') == 'Orang Lain' ? 'selected' : '' }}>Orang Lain</option>
-                        <option value="Organisasi" {{ old('t_permohonan_informasi.pi_kategori_pemohon') == 'Organisasi' ? 'selected' : '' }}>Organisasi</option>
+                        <option value="Diri Sendiri"
+                            {{ old('t_permohonan_informasi.pi_kategori_pemohon') == 'Diri Sendiri' ? 'selected' : '' }}>Diri
+                            Sendiri</option>
+                        <option value="Orang Lain"
+                            {{ old('t_permohonan_informasi.pi_kategori_pemohon') == 'Orang Lain' ? 'selected' : '' }}>Orang
+                            Lain</option>
+                        <option value="Organisasi"
+                            {{ old('t_permohonan_informasi.pi_kategori_pemohon') == 'Organisasi' ? 'selected' : '' }}>
+                            Organisasi</option>
                     </select>
                     @error('t_permohonan_informasi.pi_kategori_pemohon')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -44,7 +53,8 @@
                     <div class="form-group">
                         <label for="pi_nama_pengguna">Nama Pelapor <span class="text-danger">*</span></label>
                         <small class="text-muted d-block">Nama lengkap sesuai KTP</small>
-                        <input type="text" class="form-control @error('t_form_pi_diri_sendiri.pi_nama_pengguna') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_diri_sendiri.pi_nama_pengguna') is-invalid @enderror"
                             id="pi_nama_pengguna" name="t_form_pi_diri_sendiri[pi_nama_pengguna]"
                             value="{{ old('t_form_pi_diri_sendiri.pi_nama_pengguna') }}">
                         @error('t_form_pi_diri_sendiri.pi_nama_pengguna')
@@ -54,7 +64,8 @@
                     <div class="form-group">
                         <label for="pi_alamat_pengguna">Alamat Pelapor <span class="text-danger">*</span></label>
                         <small class="text-muted d-block">Alamat lengkap sesuai KTP</small>
-                        <input type="text" class="form-control @error('t_form_pi_diri_sendiri.pi_alamat_pengguna') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_diri_sendiri.pi_alamat_pengguna') is-invalid @enderror"
                             id="pi_alamat_pengguna" name="t_form_pi_diri_sendiri[pi_alamat_pengguna]"
                             value="{{ old('t_form_pi_diri_sendiri.pi_alamat_pengguna') }}">
                         @error('t_form_pi_diri_sendiri.pi_alamat_pengguna')
@@ -62,51 +73,57 @@
                         @enderror
                     </div>
                     <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="pi_no_hp_pengguna">No Hp Pelapor <span class="text-danger">*</span></label>
-                        <small class="text-muted d-block">08xxx xxxx xxxx</small>
-                        <input type="text" class="form-control @error('t_form_pi_diri_sendiri.pi_no_hp_pengguna') is-invalid @enderror"
-                            id="pi_no_hp_pengguna" name="t_form_pi_diri_sendiri[pi_no_hp_pengguna]"
-                            value="{{ old('t_form_pi_diri_sendiri.pi_no_hp_pengguna') }}">
-                        @error('t_form_pi_diri_sendiri.pi_no_hp_pengguna')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
+                        <div class="form-group col-md-6">
+                            <label for="pi_no_hp_pengguna">No Hp Pelapor <span class="text-danger">*</span></label>
+                            <small class="text-muted d-block">08xxx xxxx xxxx</small>
+                            <input type="text"
+                                class="form-control @error('t_form_pi_diri_sendiri.pi_no_hp_pengguna') is-invalid @enderror"
+                                id="pi_no_hp_pengguna" name="t_form_pi_diri_sendiri[pi_no_hp_pengguna]"
+                                value="{{ old('t_form_pi_diri_sendiri.pi_no_hp_pengguna') }}">
+                            @error('t_form_pi_diri_sendiri.pi_no_hp_pengguna')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="pi_email_pengguna">Email Pelapor <span class="text-danger">*</span></label>
+                            <small class="text-muted d-block">nama_email@gmail.com</small>
+                            <input type="email"
+                                class="form-control @error('t_form_pi_diri_sendiri.pi_email_pengguna') is-invalid @enderror"
+                                id="pi_email_pengguna" name="t_form_pi_diri_sendiri[pi_email_pengguna]"
+                                value="{{ old('t_form_pi_diri_sendiri.pi_email_pengguna') }}">
+                            @error('t_form_pi_diri_sendiri.pi_email_pengguna')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label for="pi_email_pengguna">Email Pelapor <span class="text-danger">*</span></label>
-                        <small class="text-muted d-block">nama_email@gmail.com</small>
-                        <input type="email" class="form-control @error('t_form_pi_diri_sendiri.pi_email_pengguna') is-invalid @enderror"
-                            id="pi_email_pengguna" name="t_form_pi_diri_sendiri[pi_email_pengguna]"
-                            value="{{ old('t_form_pi_diri_sendiri.pi_email_pengguna') }}">
-                        @error('t_form_pi_diri_sendiri.pi_email_pengguna')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="pi_upload_nik_pengguna">Upload Foto Kartu Identitas Pelapor<span class="text-danger">*</span></label>
-                    <small class="text-muted d-block mb-2">
-                        Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.
-                    </small>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input @error('pi_upload_nik_pengguna') is-invalid @enderror"
-                            id="pi_upload_nik_pengguna" name="pi_upload_nik_pengguna" accept="image/*">
-                        <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label>
+                    <div class="form-group">
+                        <label for="pi_upload_nik_pengguna">Upload Foto Kartu Identitas Pelapor<span
+                                class="text-danger">*</span></label>
+                        <small class="text-muted d-block mb-2">
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas
+                            harus tampak jelas dan terang.
+                        </small>
+                        <div class="custom-file">
+                            <input type="file"
+                                class="custom-file-input @error('pi_upload_nik_pengguna') is-invalid @enderror"
+                                id="pi_upload_nik_pengguna" name="pi_upload_nik_pengguna" accept="image/*">
+                            <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label>
+                        </div>
+                        @error('pi_upload_nik_pengguna')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
                     </div>
-                    @error('pi_upload_nik_pengguna')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
+                    <hr>
                 </div>
-                <hr>
-            </div>
 
                 <!-- Form untuk Orang Lain Bagian Admin -->
                 <div id="formOrangLain" style="display: none;">
                     <div class="form-group">
                         <label for="pi_nama_pengguna_penginput">Nama Pelapor <span class="text-danger">*</span></label>
                         <small class="text-muted d-block">Nama lengkap sesuai KTP</small>
-                        <input type="text" class="form-control @error('t_form_pi_orang_lain.pi_nama_pengguna_penginput') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_orang_lain.pi_nama_pengguna_penginput') is-invalid @enderror"
                             id="pi_nama_pengguna_penginput" name="t_form_pi_orang_lain[pi_nama_pengguna_penginput]"
                             value="{{ old('t_form_pi_orang_lain.pi_nama_pengguna_penginput') }}">
                         @error('t_form_pi_orang_lain.pi_nama_pengguna_penginput')
@@ -117,7 +134,8 @@
                     <div class="form-group">
                         <label for="pi_alamat_pengguna_penginput">Alamat Pelapor <span class="text-danger">*</span></label>
                         <small class="text-muted d-block">Alamat lengkap sesuai KTP</small>
-                        <input type="text" class="form-control @error('t_form_pi_orang_lain.pi_alamat_pengguna_penginput') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_orang_lain.pi_alamat_pengguna_penginput') is-invalid @enderror"
                             id="pi_alamat_pengguna_penginput" name="t_form_pi_orang_lain[pi_alamat_pengguna_penginput]"
                             value="{{ old('t_form_pi_orang_lain.pi_alamat_pengguna_penginput') }}">
                         @error('t_form_pi_orang_lain.pi_alamat_pengguna_penginput')
@@ -125,36 +143,43 @@
                         @enderror
                     </div>
                     <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="pi_no_hp_pengguna_penginput">No Hp Pelapor <span class="text-danger">*</span></label>
-                        <small class="text-muted d-block">08xxx xxxx xxxx</small>
-                        <input type="text" class="form-control @error('t_form_pi_orang_lain.pi_no_hp_pengguna_penginput') is-invalid @enderror"
-                            id="pi_no_hp_pengguna_penginput" name="t_form_pi_orang_lain[pi_no_hp_pengguna_penginput]"
-                            value="{{ old('t_form_pi_orang_lain.pi_no_hp_pengguna_penginput') }}">
-                        @error('t_form_pi_orang_lain.pi_no_hp_pengguna_penginput')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <div class="form-group col-md-6">
+                            <label for="pi_no_hp_pengguna_penginput">No Hp Pelapor <span
+                                    class="text-danger">*</span></label>
+                            <small class="text-muted d-block">08xxx xxxx xxxx</small>
+                            <input type="text"
+                                class="form-control @error('t_form_pi_orang_lain.pi_no_hp_pengguna_penginput') is-invalid @enderror"
+                                id="pi_no_hp_pengguna_penginput" name="t_form_pi_orang_lain[pi_no_hp_pengguna_penginput]"
+                                value="{{ old('t_form_pi_orang_lain.pi_no_hp_pengguna_penginput') }}">
+                            @error('t_form_pi_orang_lain.pi_no_hp_pengguna_penginput')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                    <div class="form-group col-md-6">
-                        <label for="pi_email_pengguna_penginput">Email Pelapor <span class="text-danger">*</span></label>
-                        <small class="text-muted d-block">nama_email@gmail.com</small>
-                        <input type="email" class="form-control @error('t_form_pi_orang_lain.pi_email_pengguna_penginput') is-invalid @enderror"
-                            id="pi_email_pengguna_penginput" name="t_form_pi_orang_lain[pi_email_pengguna_penginput]"
-                            value="{{ old('t_form_pi_orang_lain.pi_email_pengguna_penginput') }}">
-                        @error('t_form_pi_orang_lain.pi_email_pengguna_penginput')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
+                        <div class="form-group col-md-6">
+                            <label for="pi_email_pengguna_penginput">Email Pelapor <span
+                                    class="text-danger">*</span></label>
+                            <small class="text-muted d-block">nama_email@gmail.com</small>
+                            <input type="email"
+                                class="form-control @error('t_form_pi_orang_lain.pi_email_pengguna_penginput') is-invalid @enderror"
+                                id="pi_email_pengguna_penginput" name="t_form_pi_orang_lain[pi_email_pengguna_penginput]"
+                                value="{{ old('t_form_pi_orang_lain.pi_email_pengguna_penginput') }}">
+                            @error('t_form_pi_orang_lain.pi_email_pengguna_penginput')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="pi_upload_nik_pengguna">Upload Foto Kartu Identitas Pelapor<span class="text-danger">*</span></label>
+                        <label for="pi_upload_nik_pengguna">Upload Foto Kartu Identitas Pelapor<span
+                                class="text-danger">*</span></label>
                         <small class="text-muted d-block mb-2">
-                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas
+                            harus tampak jelas dan terang.
                         </small>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input @error('pi_upload_nik_pengguna') is-invalid @enderror"
+                            <input type="file"
+                                class="custom-file-input @error('pi_upload_nik_pengguna') is-invalid @enderror"
                                 id="pi_upload_nik_pengguna" name="pi_upload_nik_pengguna" accept="image/*">
                             <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label>
                         </div>
@@ -166,7 +191,8 @@
 
                     <div class="form-group">
                         <label for="pi_nama_pengguna_informasi">Nama Pemohon<span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_orang_lain.pi_nama_pengguna_informasi') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_orang_lain.pi_nama_pengguna_informasi') is-invalid @enderror"
                             id="pi_nama_pengguna_informasi" name="t_form_pi_orang_lain[pi_nama_pengguna_informasi]"
                             value="{{ old('t_form_pi_orang_lain.pi_nama_pengguna_informasi') }}">
                         @error('t_form_pi_orang_lain.pi_nama_pengguna_informasi')
@@ -175,8 +201,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pi_alamat_pengguna_informasi">Alamat Pemohon <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_orang_lain.pi_alamat_pengguna_informasi') is-invalid @enderror"
+                        <label for="pi_alamat_pengguna_informasi">Alamat Pemohon <span
+                                class="text-danger">*</span></label>
+                        <input type="text"
+                            class="form-control @error('t_form_pi_orang_lain.pi_alamat_pengguna_informasi') is-invalid @enderror"
                             id="pi_alamat_pengguna_informasi" name="t_form_pi_orang_lain[pi_alamat_pengguna_informasi]"
                             value="{{ old('t_form_pi_orang_lain.pi_alamat_pengguna_informasi') }}">
                         @error('t_form_pi_orang_lain.pi_alamat_pengguna_informasi')
@@ -186,7 +214,8 @@
                     <div class="row"></div>
                     <div class="form-group col-md-6">
                         <label for="pi_no_hp_pengguna_informasi">No HP Pemohon <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_orang_lain.pi_no_hp_pengguna_informasi') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_orang_lain.pi_no_hp_pengguna_informasi') is-invalid @enderror"
                             id="pi_no_hp_pengguna_informasi" name="t_form_pi_orang_lain[pi_no_hp_pengguna_informasi]"
                             value="{{ old('t_form_pi_orang_lain.pi_no_hp_pengguna_informasi') }}">
                         @error('t_form_pi_orang_lain.pi_no_hp_pengguna_informasi')
@@ -196,7 +225,8 @@
                     <div class="row"></div>
                     <div class="form-group col-md-6">
                         <label for="pi_email_pengguna_informasi">Email Pemohon <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control @error('t_form_pi_orang_lain.pi_email_pengguna_informasi') is-invalid @enderror"
+                        <input type="email"
+                            class="form-control @error('t_form_pi_orang_lain.pi_email_pengguna_informasi') is-invalid @enderror"
                             id="pi_email_pengguna_informasi" name="t_form_pi_orang_lain[pi_email_pengguna_informasi]"
                             value="{{ old('t_form_pi_orang_lain.pi_email_pengguna_informasi') }}">
                         @error('t_form_pi_orang_lain.pi_email_pengguna_informasi')
@@ -205,9 +235,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pi_upload_nik_pengguna_informasi">Upload NIK Pemohon <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control @error('pi_upload_nik_pengguna_informasi') is-invalid @enderror"
-                            id="pi_upload_nik_pengguna_informasi" name="pi_upload_nik_pengguna_informasi" accept="image/*">
+                        <label for="pi_upload_nik_pengguna_informasi">Upload NIK Pemohon <span
+                                class="text-danger">*</span></label>
+                        <input type="file"
+                            class="form-control @error('pi_upload_nik_pengguna_informasi') is-invalid @enderror"
+                            id="pi_upload_nik_pengguna_informasi" name="pi_upload_nik_pengguna_informasi"
+                            accept="image/*">
                         @error('pi_upload_nik_pengguna_informasi')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
@@ -218,17 +251,20 @@
                 <div id="formOrganisasi" style="display: none;">
                     <div class="form-group">
                         <label for="pi_nama_organisasi">Nama Organisasi <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_organisasi.pi_nama_organisasi') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_organisasi.pi_nama_organisasi') is-invalid @enderror"
                             id="pi_nama_organisasi" name="t_form_pi_organisasi[pi_nama_organisasi]"
                             value="{{ old('t_form_pi_organisasi.pi_nama_organisasi') }}">
                         @error('t_form_pi_organisasi.pi_nama_organisasi')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="row">
-                    <div class="form-group col-md-6">
-                        <label for="pi_no_telp_organisasi">No Telepon Organisasi <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_organisasi.pi_no_telp_organisasi') is-invalid @enderror"
+                    {{-- <div class="row"> --}}
+                    <div class="form-group">
+                        <label for="pi_no_telp_organisasi">No Telepon Organisasi <span
+                                class="text-danger">*</span></label>
+                        <input type="text"
+                            class="form-control @error('t_form_pi_organisasi.pi_no_telp_organisasi') is-invalid @enderror"
                             id="pi_no_telp_organisasi" name="t_form_pi_organisasi[pi_no_telp_organisasi]"
                             value="{{ old('t_form_pi_organisasi.pi_no_telp_organisasi') }}">
                         @error('t_form_pi_organisasi.pi_no_telp_organisasi')
@@ -236,19 +272,30 @@
                         @enderror
                     </div>
 
-                    <div class="form-group col-md-6">
-                        <label for="pi_email_atau_medsos_organisasi">Email/Media Sosial Organisasi <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_organisasi.pi_email_atau_medsos_organisasi') is-invalid @enderror"
-                            id="pi_email_atau_medsos_organisasi" name="t_form_pi_organisasi[pi_email_atau_medsos_organisasi]"
+                    <div class="form-group">
+                        <label for="pi_email_atau_medsos_organisasi">Email/Media Sosial Organisasi <span
+                                class="text-danger">*</span></label>
+                        <small class="text-muted d-block mb-2">
+                            Contoh:<br>
+                            • Email: organisasi@google.com, website: organisasi.co<br>
+                            • Email: organisasi@google.com, IG: organisasi_sosial_masyarakat
+                        </small>
+                        <input type="text"
+                            class="form-control @error('t_form_pi_organisasi.pi_email_atau_medsos_organisasi') is-invalid @enderror"
+                            id="pi_email_atau_medsos_organisasi"
+                            name="t_form_pi_organisasi[pi_email_atau_medsos_organisasi]"
                             value="{{ old('t_form_pi_organisasi.pi_email_atau_medsos_organisasi') }}">
                         @error('t_form_pi_organisasi.pi_email_atau_medsos_organisasi')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
-                    </div>
+
+
+
                     <div class="form-group">
                         <label for="pi_nama_narahubung">Nama Narahubung <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_organisasi.pi_nama_narahubung') is-invalid @enderror"
+                        <input type="text"
+                            class="form-control @error('t_form_pi_organisasi.pi_nama_narahubung') is-invalid @enderror"
                             id="pi_nama_narahubung" name="t_form_pi_organisasi[pi_nama_narahubung]"
                             value="{{ old('t_form_pi_organisasi.pi_nama_narahubung') }}">
                         @error('t_form_pi_organisasi.pi_nama_narahubung')
@@ -256,8 +303,10 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="pi_no_telp_narahubung">No Telepon Narahubung <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('t_form_pi_organisasi.pi_no_telp_narahubung') is-invalid @enderror"
+                        <label for="pi_no_telp_narahubung">No Telepon Narahubung <span
+                                class="text-danger">*</span></label>
+                        <input type="text"
+                            class="form-control @error('t_form_pi_organisasi.pi_no_telp_narahubung') is-invalid @enderror"
                             id="pi_no_telp_narahubung" name="t_form_pi_organisasi[pi_no_telp_narahubung]"
                             value="{{ old('t_form_pi_organisasi.pi_no_telp_narahubung') }}">
                         @error('t_form_pi_organisasi.pi_no_telp_narahubung')
@@ -265,30 +314,42 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="pi_identitas_narahubung">Upload Identitas Narahubung <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control @error('pi_identitas_narahubung') is-invalid @enderror"
-                            id="pi_identitas_narahubung" name="pi_identitas_narahubung" accept="image/*">
+                        <label for="pi_identitas_narahubung">Upload Foto Kartu Identitas Narahubung<span
+                                class="text-danger">*</span></label>
+                        <small class="text-muted d-block mb-2">
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas
+                            harus tampak jelas dan terang.
+                        </small>
+                        <div class="custom-file">
+                            <input type="file"
+                                class="custom-file-input @error('pi_identitas_narahubung') is-invalid @enderror"
+                                id="pi_identitas_narahubung" name="pi_identitas_narahubung" accept="image/*">
+                            <label class="custom-file-label" for="pi_identitas_narahubung">Pilih file (PNG, JPG)</label>
+                        </div>
                         @error('pi_identitas_narahubung')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
+
                 </div>
 
                 <!-- Form umum untuk semua kategori -->
                 <div class="form-group">
-                    <label for="pi_informasi_yang_dibutuhkan">Informasi yang Dibutuhkan <span class="text-danger">*</span></label>
+                    <label for="pi_informasi_yang_dibutuhkan">Informasi yang Dibutuhkan <span
+                            class="text-danger">*</span></label>
                     <textarea class="form-control @error('t_permohonan_informasi.pi_informasi_yang_dibutuhkan') is-invalid @enderror"
-                        id="pi_informasi_yang_dibutuhkan" name="t_permohonan_informasi[pi_informasi_yang_dibutuhkan]"
-                        required rows="4">{{ old('t_permohonan_informasi.pi_informasi_yang_dibutuhkan') }}</textarea>
+                        id="pi_informasi_yang_dibutuhkan" name="t_permohonan_informasi[pi_informasi_yang_dibutuhkan]" required
+                        rows="4">{{ old('t_permohonan_informasi.pi_informasi_yang_dibutuhkan') }}</textarea>
                     @error('t_permohonan_informasi.pi_informasi_yang_dibutuhkan')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="pi_alasan_permohonan_informasi">Alasan Permohonan Informasi <span class="text-danger">*</span></label>
+                    <label for="pi_alasan_permohonan_informasi">Alasan Permohonan Informasi <span
+                            class="text-danger">*</span></label>
                     <textarea class="form-control @error('t_permohonan_informasi.pi_alasan_permohonan_informasi') is-invalid @enderror"
-                        id="pi_alasan_permohonan_informasi" name="t_permohonan_informasi[pi_alasan_permohonan_informasi]"
-                        required rows="4">{{ old('t_permohonan_informasi.pi_alasan_permohonan_informasi') }}</textarea>
+                        id="pi_alasan_permohonan_informasi" name="t_permohonan_informasi[pi_alasan_permohonan_informasi]" required
+                        rows="4">{{ old('t_permohonan_informasi.pi_alasan_permohonan_informasi') }}</textarea>
                     @error('t_permohonan_informasi.pi_alasan_permohonan_informasi')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
@@ -296,21 +357,25 @@
                 <div class="form-group">
                     <label>Sumber Informasi <span class="text-danger">*</span></label>
                     <div class="form-check">
-                        <input class="form-check-input @error('t_permohonan_informasi.pi_sumber_informasi') is-invalid @enderror"
+                        <input
+                            class="form-check-input @error('t_permohonan_informasi.pi_sumber_informasi') is-invalid @enderror"
                             type="radio" id="sumber_1" name="t_permohonan_informasi[pi_sumber_informasi]"
                             value="Pertanyaan Langsung Pemohon"
-                            {{ old('t_permohonan_informasi.pi_sumber_informasi') == 'Pertanyaan Langsung Pemohon' ? 'checked' : '' }} required>
+                            {{ old('t_permohonan_informasi.pi_sumber_informasi') == 'Pertanyaan Langsung Pemohon' ? 'checked' : '' }}
+                            required>
                         <label class="form-check-label" for="sumber_1">Pertanyaan Langsung Pemohon</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input @error('t_permohonan_informasi.pi_sumber_informasi') is-invalid @enderror"
+                        <input
+                            class="form-check-input @error('t_permohonan_informasi.pi_sumber_informasi') is-invalid @enderror"
                             type="radio" id="sumber_2" name="t_permohonan_informasi[pi_sumber_informasi]"
                             value="Website / Media Sosial Milik Polinema"
                             {{ old('t_permohonan_informasi.pi_sumber_informasi') == 'Website / Media Sosial Milik Polinema' ? 'checked' : '' }}>
                         <label class="form-check-label" for="sumber_2">Website / Media Sosial Milik Polinema</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input @error('t_permohonan_informasi.pi_sumber_informasi') is-invalid @enderror"
+                        <input
+                            class="form-check-input @error('t_permohonan_informasi.pi_sumber_informasi') is-invalid @enderror"
                             type="radio" id="sumber_3" name="t_permohonan_informasi[pi_sumber_informasi]"
                             value="Website / Media Sosial Bukan Milik Polinema"
                             {{ old('t_permohonan_informasi.pi_sumber_informasi') == 'Website / Media Sosial Bukan Milik Polinema' ? 'checked' : '' }}>
@@ -321,8 +386,10 @@
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="pi_alamat_sumber_informasi">Alamat Sumber Informasi <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('t_permohonan_informasi.pi_alamat_sumber_informasi') is-invalid @enderror"
+                    <label for="pi_alamat_sumber_informasi">Alamat Sumber Informasi <span
+                            class="text-danger">*</span></label>
+                    <input type="text"
+                        class="form-control @error('t_permohonan_informasi.pi_alamat_sumber_informasi') is-invalid @enderror"
                         id="pi_alamat_sumber_informasi" name="t_permohonan_informasi[pi_alamat_sumber_informasi]"
                         value="{{ old('t_permohonan_informasi.pi_alamat_sumber_informasi') }}" required>
                     @error('t_permohonan_informasi.pi_alamat_sumber_informasi')
@@ -330,40 +397,45 @@
                     @enderror
                 </div>
 
-                {{-- <div class="form-group">
+                
+                <div class="form-group">
                     <label for="pi_bukti_aduan">Upload Bukti Aduan <span class="text-danger">*</span></label>
                     <input type="file" class="form-control @error('pi_bukti_aduan') is-invalid @enderror"
                         id="pi_bukti_aduan" name="pi_bukti_aduan" accept="file/*">
                     @error('pi_bukti_aduan')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
-                </div> --}}
+                </div>
                 <div class="alert alert-info mt-3 mb-4">
-                    <p class="mb-0"><strong>Catatan:</strong> Dengan mengajukan laporan ini, Anda menyatakan bahwa informasi yang diberikan adalah benar dan Anda bersedia memberikan keterangan lebih lanjut jika diperlukan.</p>
+                    <p class="mb-0"><strong>Catatan:</strong> Dengan mengajukan laporan ini, Anda menyatakan bahwa
+                        informasi yang diberikan adalah benar dan Anda bersedia memberikan keterangan lebih lanjut jika
+                        diperlukan.</p>
                 </div>
 
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="persetujuan" required>
-                        <label class="custom-control-label" for="persetujuan">Saya menyatakan bahwa informasi yang saya berikan adalah benar dan dapat dipertanggungjawabkan</label>
+                        <label class="custom-control-label" for="persetujuan">Saya menyatakan bahwa informasi yang saya
+                            berikan adalah benar dan dapat dipertanggungjawabkan</label>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success" id="btnSubmit" disabled>Ajukan Permohonan Informasi</button>
+                <button type="submit" class="btn btn-success" id="btnSubmit" disabled>Ajukan Permohonan
+                    Informasi</button>
             </form>
         </div>
     </div>
 
     @push('js')
         <script>
-            $(document).ready(function () {
+            $(document).ready(function() {
                 // Tampilkan form yang sesuai saat halaman di-load berdasarkan nilai yang tersimpan
                 const savedValue = "{{ old('t_permohonan_informasi.pi_kategori_pemohon') }}";
                 if (savedValue) {
                     showFormBasedOnSelection(savedValue);
                 }
 
-                $('#pi_kategori_pemohon').change(function () {
+                $('#pi_kategori_pemohon').change(function() {
                     const selectedValue = $(this).val();
                     showFormBasedOnSelection(selectedValue);
                 });
@@ -379,7 +451,8 @@
                     if (selectedValue === 'Orang Lain') {
                         $('#formOrangLain').show();
                         $('#formOrangLain input:not([type="file"])').prop('required', true);
-                        $('#pi_upload_nik_pengguna_penginput, #pi_upload_nik_pengguna_informasi').prop('required', true);
+                        $('#pi_upload_nik_pengguna_penginput, #pi_upload_nik_pengguna_informasi').prop('required',
+                        true);
                     } else if (selectedValue === 'Organisasi') {
                         $('#formOrganisasi').show();
                         $('#formOrganisasi input:not([type="file"])').prop('required', true);
@@ -392,17 +465,17 @@
                 }
 
                 $('#persetujuan').change(function() {
-                    if($(this).is(':checked')) {
+                    if ($(this).is(':checked')) {
                         $('#btnSubmit').prop('disabled', false);
                     } else {
                         $('#btnSubmit').prop('disabled', true);
                     }
                 });
 
-                $('.custom-file-input').on('change', function () {
-                const fileName = $(this).val().split('\\').pop();
-                $(this).next('.custom-file-label').addClass("selected").html(fileName);
-            });
+                $('.custom-file-input').on('change', function() {
+                    const fileName = $(this).val().split('\\').pop();
+                    $(this).next('.custom-file-label').addClass("selected").html(fileName);
+                });
             });
         </script>
     @endpush
