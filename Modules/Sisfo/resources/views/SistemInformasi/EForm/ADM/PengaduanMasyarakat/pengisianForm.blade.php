@@ -30,7 +30,8 @@
                 <h4 class="mb-3">Data Pelapor</h4>
 
                 <div class="form-group">
-                    <label for="pm_nama_tanpa_gelar">Nama Lengkap Pelapor (Tanpa Gelar)<span class="text-danger">*</span></label>
+                    <label for="pm_nama_tanpa_gelar">Nama Lengkap Pelapor<span class="text-danger">*</span></label>
+                    <small class="text-muted d-block">Tanpa Gelar</small>
                     <input type="text" class="form-control @error('t_pengaduan_masyarakat.pm_nama_tanpa_gelar') is-invalid @enderror"
                         id="pm_nama_tanpa_gelar" name="t_pengaduan_masyarakat[pm_nama_tanpa_gelar]"
                         value="{{ old('t_pengaduan_masyarakat.pm_nama_tanpa_gelar') }}">
@@ -38,8 +39,8 @@
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
-
-                <div class="form-group">
+                <div class="row">
+                <div class="form-group col-md-6">
                     <label for="pm_no_hp_pengguna">Nomor HP Pelapor<span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('t_pengaduan_masyarakat.pm_no_hp_pengguna') is-invalid @enderror"
                         id="pm_no_hp_pengguna" name="t_pengaduan_masyarakat[pm_no_hp_pengguna]"
@@ -49,7 +50,7 @@
                     @enderror
                 </div>
 
-                <div class="form-group">
+                <div class="form-group col-md-6">
                     <label for="pm_email_pengguna">Email Pelapor<span class="text-danger">*</span></label>
                     <input type="email" class="form-control @error('t_pengaduan_masyarakat.pm_email_pengguna') is-invalid @enderror"
                         id="pm_email_pengguna" name="t_pengaduan_masyarakat[pm_email_pengguna]"
@@ -58,25 +59,27 @@
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
+            </div>
 
                 <div class="form-group">
-                    <label for="pm_nik_pengguna">Upload NIK Pelapor <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('t_pengaduan_masyarakat.pm_nik_pengguna') is-invalid @enderror"
-                        id="pm_nik_pengguna" name="t_pengaduan_masyarakat[pm_nik_pengguna]"
-                        value="{{ old('t_pengaduan_masyarakat.pm_nik_pengguna') }}">
+                    <label for="pm_nik_pengguna">Upload Foto Kartu Identitas Pelapor <span class="text-danger">*</span></label>
+                    <small class="text-muted d-block mb-2">
+                        Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pelapor. Semua data pada kartu identitas
+                        harus tampak jelas dan terang.
+                    </small>
+                    <div class="custom-file">
+                        <input type="file"
+                            class="custom-file-input @error('t_pengaduan_masyarakat.pm_nik_pengguna') is-invalid @enderror"
+                            id="pm_nik_pengguna"
+                            name="t_pengaduan_masyarakat[pm_nik_pengguna]"
+                            accept="image/*">
+                        <label class="custom-file-label" for="pm_nik_pengguna">Pilih file (PNG, JPG)</label>
+                    </div>
                     @error('t_pengaduan_masyarakat.pm_nik_pengguna')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
-
-                <div class="form-group">
-                    <label for="pm_upload_nik_pengguna">Upload KTP/Identitas Pelapor <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control @error('pm_upload_nik_pengguna') is-invalid @enderror"
-                        id="pm_upload_nik_pengguna" name="pm_upload_nik_pengguna" accept="image/*">
-                    @error('pm_upload_nik_pengguna')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                </div>
+                <hr>
 
                 <!-- Data Pengaduan -->
                 <h4 class="mb-3 mt-4">Detail Pengaduan</h4>
@@ -206,17 +209,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="pm_bukti_pendukung">Bukti Pendukung <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control @error('pm_bukti_pendukung') is-invalid @enderror"
-                        id="pm_bukti_pendukung" name="pm_bukti_pendukung">
-                    <small class="form-text text-muted">
-                        Format yang diizinkan:
-                        <br>- Dokumen: PDF, DOC, DOCX
-                        <br>- Gambar: JPG, JPEG, PNG, SVG
-                        <br>- Video: MP4, AVI, MOV, WMV, 3GP
-                        <br>- Audio/Rekaman: MP3, WAV, OGG, M4A
-                        <br>Maksimal 100MB.
-                    </small>
+                    <label for="pm_bukti_pendukung">Upload Bukti Pendukung <span class="text-danger">*</span></label>
+                    <small class="text-muted d-block mb-2">maks. 100mb</small>
+                    <div class="custom-file">
+                        <input type="file"
+                            class="custom-file-input @error('pm_bukti_pendukung') is-invalid @enderror"
+                            id="pm_bukti_pendukung" name="pm_bukti_pendukung">
+                        <label class="custom-file-label" for="pm_bukti_pendukung">Pilih file (PDF, Gambar, mp4, dll)</label>
+                    </div>
+
                     @error('pm_bukti_pendukung')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
@@ -234,8 +235,12 @@
 
                 <div class="form-group">
                     <label for="pm_bukti_aduan">Upload Bukti Aduan <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control @error('pm_bukti_aduan') is-invalid @enderror"
-                        id="pm_bukti_aduan" name="pm_bukti_aduan" accept="file/*">
+                    <div class="custom-file">
+                        <input type="file"
+                            class="custom-file-input @error('pm_bukti_aduan') is-invalid @enderror"
+                            id="pm_bukti_aduan" name="pm_bukti_aduan">
+                        <label class="custom-file-label" for="pm_bukti_aduan">Pilih file (PDF, Gambar, dll)</label>
+                    </div>
                     @error('pm_bukti_aduan')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
@@ -267,6 +272,10 @@
                     } else {
                         $('#btnSubmit').prop('disabled', true);
                     }
+                });
+                $('.custom-file-input').on('change', function() {
+                    const fileName = $(this).val().split('\\').pop();
+                    $(this).next('.custom-file-label').addClass("selected").html(fileName);
                 });
             });
         </script>
