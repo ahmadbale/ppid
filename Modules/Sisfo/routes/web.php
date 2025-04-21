@@ -2,40 +2,42 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Sisfo\App\Http\Controllers\AuthController;
-use  Modules\Sisfo\App\Http\Controllers\ProfileController;
-use Modules\Sisfo\App\Http\Controllers\SummernoteController;
-use  Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
-use  Modules\Sisfo\App\Http\Controllers\DashboardSARController;
-use  Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
-use  Modules\Sisfo\App\Http\Controllers\HakAkses\HakAksesController;
-use  Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
-use  Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
-use  Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
-use  Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\DetailMediaDinamisController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
+use Modules\Sisfo\App\Http\Controllers\ProfileController;
+use Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
+use Modules\Sisfo\App\Http\Controllers\DashboardSARController;
+use Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
+use Modules\Sisfo\App\Http\Controllers\HakAkses\HakAksesController;
+use Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
+use Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
+use Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\DetailMediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\ManagePengguna\LevelController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
+use Modules\Sisfo\App\Http\Controllers\SummernoteController;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
-use  Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,9 +67,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboardMPU', [DashboardMPUController::class, 'index'])->middleware('authorize:MPU');
     Route::get('/dashboardVFR', [DashboardVerifikatorController::class, 'index'])->middleware('authorize:VFR');
 
-    Route::get('/getHakAksesData/{param1}/{param2?}', [HakAksesController::class, 'edit'])->middleware('authorize:SAR');
-    Route::get('/HakAkses', [HakAksesController::class, 'index'])->middleware('authorize:SAR');
-    Route::post('/updateData', [HakAksesController::class, 'update'])->middleware('authorize:SAR');
+    Route::group(['prefix' => 'HakAkses', 'middleware' => 'authorize:SAR'], function () {
+        Route::get('/', [HakAksesController::class, 'index']);
+        Route::get('/addData', [HakAksesController::class, 'addData']);
+        Route::post('/createData', [HakAksesController::class, 'createData']);
+        Route::get('/getHakAksesData/{param1}/{param2?}', [HakAksesController::class, 'editData']);
+        Route::post('/updateData', [HakAksesController::class, 'updateData']);
+    });    
 
     Route::get('/session', [AuthController::class, 'getData']);
     Route::get('/js/summernote.js', [SummernoteController::class, 'getSummernoteJS']);
@@ -79,27 +85,28 @@ Route::middleware('auth')->group(function () {
         Route::put('/update_password/{id}', [ProfileController::class, 'update_password']);
     });
 
-    Route::group(['prefix' => 'adminweb/menu-management', 'middleware' => 'authorize:ADM'], function () {
-        Route::get('/', [MenuManagementController::class, 'index'])->middleware('permission:view');;
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('menu-management'), 'middleware' => 'authorize:ADM,SAR'], function () {
+        Route::get('/', [MenuManagementController::class, 'index'])->middleware('permission:view');
         Route::get('/menu-item', [MenuManagementController::class, 'menu-item']);
         Route::post('/list', [MenuManagementController::class, 'list']);
-        Route::post('/store', [MenuManagementController::class, 'store'])->middleware('permission:create');;
+        Route::post('/store', [MenuManagementController::class, 'store'])->middleware('permission:create');
         Route::get('/{id}/edit', [MenuManagementController::class, 'edit']);
-        Route::put('/{id}/update', [MenuManagementController::class, 'update'])->middleware('permission:update');;
-        Route::delete('/{id}/delete', [MenuManagementController::class, 'delete'])->middleware('permission:delete');;
+        Route::put('/{id}/update', [MenuManagementController::class, 'update'])->middleware('permission:update');
+        Route::delete('/{id}/delete', [MenuManagementController::class, 'delete'])->middleware('permission:delete');
         Route::get('/{id}/detail_menu', [MenuManagementController::class, 'detail_menu']);
         Route::post('/reorder', [MenuManagementController::class, 'reorder']); // New route for drag-drop reordering
+        Route::get('/get-parent-menus/{levelId}', [MenuManagementController::class, 'getParentMenus']);
     });
     Route::group(['prefix' => 'adminweb/kategori-footer', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [KategoriFooterController::class, 'index']);
+        Route::get('/', [KategoriFooterController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [KategoriFooterController::class, 'getData']);
         Route::get('/addData', [KategoriFooterController::class, 'addData']);
-        Route::post('/createData', [KategoriFooterController::class, 'createData']);
+        Route::post('/createData', [KategoriFooterController::class, 'createData'])->middleware('permission:create');
         Route::get('/editData/{id}', [KategoriFooterController::class, 'editData']);
-        Route::post('/updateData/{id}', [KategoriFooterController::class, 'updateData']);
+        Route::post('/updateData/{id}', [KategoriFooterController::class, 'updateData'])->middleware('permission:update');
         Route::get('/detailData/{id}', [KategoriFooterController::class, 'detailData']);
         Route::get('/deleteData/{id}', [KategoriFooterController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [KategoriFooterController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [KategoriFooterController::class, 'deleteData'])->middleware('permission:delete');
     });
     Route::group(['prefix' => 'adminweb/footer', 'middleware' => 'authorize:ADM'], function () {
         Route::get('/', [FooterController::class, 'index']);
@@ -134,17 +141,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/deleteData/{id}', [AksesCepatController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [AksesCepatController::class, 'deleteData']);
     });
-    Route::group(['prefix' => 'adminweb/pintasan-lainnya', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [PintasanLainnyaController::class, 'index']);
-        Route::get('/getData', [PintasanLainnyaController::class, 'getData']);
-        Route::get('/addData', [PintasanLainnyaController::class, 'addData']);
-        Route::post('/createData', [PintasanLainnyaController::class, 'createData']);
-        Route::get('/editData/{id}', [PintasanLainnyaController::class, 'editData']);
-        Route::post('/updateData/{id}', [PintasanLainnyaController::class, 'updateData']);
-        Route::get('/detailData/{id}', [PintasanLainnyaController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [PintasanLainnyaController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [PintasanLainnyaController::class, 'deleteData']);
-    });
     Route::group(['prefix' => 'adminweb/berita-dinamis', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [BeritaDinamisController::class, 'index']);
         Route::get('/getData', [BeritaDinamisController::class, 'getData']);
@@ -156,7 +152,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/deleteData/{id}', [BeritaDinamisController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [BeritaDinamisController::class, 'deleteData']);
     });
-  Route::group(['prefix' => 'adminweb/berita', 'middleware' => ['authorize:ADM']], function () {
+    Route::group(['prefix' => 'adminweb/berita', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [BeritaController::class, 'index']);
         Route::get('/getData', [BeritaController::class, 'getData']);
         Route::get('/addData', [BeritaController::class, 'addData']);
@@ -180,7 +176,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/deleteData/{id}', [MediaDinamisController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [MediaDinamisController::class, 'deleteData']);
     });
-       Route::group(['prefix' => 'adminweb/media-detail', 'middleware' => ['authorize:ADM']], function () {
+    Route::group(['prefix' => 'adminweb/media-detail', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [DetailMediaDinamisController::class, 'index']);
         Route::get('/getData', [DetailMediaDinamisController::class, 'getData']);
         Route::get('/addData', [DetailMediaDinamisController::class, 'addData']);
@@ -192,6 +188,77 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteData/{id}', [DetailMediaDinamisController::class, 'deleteData']);
     });
 
+    Route::group(['prefix' => 'adminweb/informasipublik/lhkpn-tahun', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [LhkpnController::class, 'index']);
+        Route::get('/getData', [LhkpnController::class, 'getData']);
+        Route::get('/addData', [LhkpnController::class, 'addData']);
+        Route::post('/createData', [LhkpnController::class, 'createData']);
+        Route::get('/editData/{id}', [LhkpnController::class, 'editData']);
+        Route::post('/updateData/{id}', [LhkpnController::class, 'updateData']);
+        Route::get('/detailData/{id}', [LhkpnController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [LhkpnController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [LhkpnController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/detail-lhkpn', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [DetailLhkpnController::class, 'index']);
+        Route::get('/getData', [DetailLhkpnController::class, 'getData']);
+        Route::get('/addData', [DetailLhkpnController::class, 'addData']);
+        Route::post('/createData', [DetailLhkpnController::class, 'createData']);
+        Route::get('/editData/{id}', [DetailLhkpnController::class, 'editData']);
+        Route::post('/updateData/{id}', [DetailLhkpnController::class, 'updateData']);
+        Route::get('/detailData/{id}', [DetailLhkpnController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
+    });
+    
+
+   Route::group(['prefix' => 'adminweb/pintasan-lainnya', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [PintasanLainnyaController::class, 'index']);
+        Route::get('/getData', [PintasanLainnyaController::class, 'getData']);
+        Route::get('/addData', [PintasanLainnyaController::class, 'addData']);
+        Route::post('/createData', [PintasanLainnyaController::class, 'createData']);
+        Route::get('/editData/{id}', [PintasanLainnyaController::class, 'editData']);
+        Route::post('/updateData/{id}', [PintasanLainnyaController::class, 'updateData']);
+        Route::get('/detailData/{id}', [PintasanLainnyaController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [PintasanLainnyaController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [PintasanLainnyaController::class, 'deleteData']);
+    });
+
+
+Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [RegulasiDinamisController::class, 'index']);
+        Route::get('/getData', [RegulasiDinamisController::class, 'getData']);
+        Route::get('/addData', [RegulasiDinamisController::class, 'addData']);
+        Route::post('/createData', [RegulasiDinamisController::class, 'createData']);
+        Route::get('/editData/{id}', [RegulasiDinamisController::class, 'editData']);
+        Route::post('/updateData/{id}', [RegulasiDinamisController::class, 'updateData']);
+        Route::get('/detailData/{id}', [RegulasiDinamisController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [RegulasiDinamisController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [RegulasiDinamisController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/regulasi', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [RegulasiController::class, 'index']);
+        Route::get('/getData', [RegulasiController::class, 'getData']);
+        Route::get('/addData', [RegulasiController::class, 'addData']);
+        Route::post('/createData', [RegulasiController::class, 'createData']);
+        Route::get('/editData/{id}', [RegulasiController::class, 'editData']);
+        Route::post('/updateData/{id}', [RegulasiController::class, 'updateData']);
+        Route::get('/detailData/{id}', [RegulasiController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [RegulasiController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [RegulasiController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/kategori-regulasi', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [KategoriRegulasiController::class, 'index']);
+        Route::get('/getData', [KategoriRegulasiController::class, 'getData']);
+        Route::get('/addData', [KategoriRegulasiController::class, 'addData']);
+        Route::post('/createData', [KategoriRegulasiController::class, 'createData']);
+        Route::get('/editData/{id}', [KategoriRegulasiController::class, 'editData']);
+        Route::post('/updateData/{id}', [KategoriRegulasiController::class, 'updateData']);
+        Route::get('/detailData/{id}', [KategoriRegulasiController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
+    });
+
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PermohonanInformasi', 'middleware' => ['authorize:RPN']], function () {
         Route::get('/', [PermohonanInformasiController::class, 'index']);
         Route::get('/getData', [PermohonanInformasiController::class, 'getData']);
@@ -199,11 +266,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/createData', [PermohonanInformasiController::class, 'createData']);
     });
 
-    Route::group(['prefix' => 'SistemInformasi/EForm/ADM/PermohonanInformasi', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [PermohonanInformasiController::class, 'index']);
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('permohonan-informasi-admin')], function () {
+        Route::get('/', [PermohonanInformasiController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [PermohonanInformasiController::class, 'getData']);
         Route::get('/addData', [PermohonanInformasiController::class, 'addData']);
-        Route::post('/createData', [PermohonanInformasiController::class, 'createData']);
+        Route::post('/createData', [PermohonanInformasiController::class, 'createData'])->middleware('permission:create');
     });
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PernyataanKeberatan', 'middleware' => ['authorize:RPN']], function () {
@@ -226,7 +293,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/addData', [PengaduanMasyarakatController::class, 'addData']);
         Route::post('/createData', [PengaduanMasyarakatController::class, 'createData']);
     });
-    
+
     Route::group(['prefix' => 'SistemInformasi/EForm/ADM/PengaduanMasyarakat', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [PengaduanMasyarakatController::class, 'index']);
         Route::get('/getData', [PengaduanMasyarakatController::class, 'getData']);
@@ -240,7 +307,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/addData', [WBSController::class, 'addData']);
         Route::post('/createData', [WBSController::class, 'createData']);
     });
-    
+
     Route::group(['prefix' => 'SistemInformasi/EForm/ADM/WBS', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [WBSController::class, 'index']);
         Route::get('/getData', [WBSController::class, 'getData']);
@@ -254,7 +321,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/addData', [PermohonanPerawatanController::class, 'addData']);
         Route::post('/createData', [PermohonanPerawatanController::class, 'createData']);
     });
-    
+
     Route::group(['prefix' => 'SistemInformasi/EForm/ADM/PermohonanPerawatan', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [PermohonanPerawatanController::class, 'index']);
         Route::get('/getData', [PermohonanPerawatanController::class, 'getData']);
@@ -283,7 +350,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteData/{id}', [TimelineController::class, 'deleteData']);
     });
 
-    Route::group(['prefix' => 'SistemInformasi/KetentuanPelaporan', 'middleware' => ['authorize:ADM']], function () {
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('ketentuan-pelaporan')], function () {
         Route::get('/', [KetentuanPelaporanController::class, 'index']);
         Route::get('/getData', [KetentuanPelaporanController::class, 'getData']);
         Route::get('/addData', [KetentuanPelaporanController::class, 'addData']);
@@ -297,16 +364,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/removeImage', [KetentuanPelaporanController::class, 'removeImage']);
     });
 
-    Route::group(['prefix' => 'SistemInformasi/KategoriForm', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [KategoriFormController::class, 'index']);
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('kategori-form')], function () {
+        Route::get('/', [KategoriFormController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [KategoriFormController::class, 'getData']);
         Route::get('/addData', [KategoriFormController::class, 'addData']);
-        Route::post('/createData', [KategoriFormController::class, 'createData']);
+        Route::post('/createData', [KategoriFormController::class, 'createData'])->middleware('permission:create');
         Route::get('/editData/{id}', [KategoriFormController::class, 'editData']);
-        Route::post('/updateData/{id}', [KategoriFormController::class, 'updateData']);
+        Route::post('/updateData/{id}', [KategoriFormController::class, 'updateData'])->middleware('permission:update');
         Route::get('/detailData/{id}', [KategoriFormController::class, 'detailData']);
         Route::get('/deleteData/{id}', [KategoriFormController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [KategoriFormController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [KategoriFormController::class, 'deleteData'])->middleware('permission:delete');
     });
 
     Route::group(['prefix' => 'AdminWeb/PengumumanDinamis', 'middleware' => ['authorize:ADM']], function () {
@@ -335,60 +402,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/removeImage', [PengumumanController::class, 'removeImage']);
     });
 
-    Route::group(['prefix' => 'adminweb/informasipublik/lhkpn-tahun', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [LhkpnController::class, 'index']);
-        Route::get('/getData', [LhkpnController::class, 'getData']);
-        Route::get('/addData', [LhkpnController::class, 'addData']);
-        Route::post('/createData', [LhkpnController::class, 'createData']);
-        Route::get('/editData/{id}', [LhkpnController::class, 'editData']);
-        Route::post('/updateData/{id}', [LhkpnController::class, 'updateData']);
-        Route::get('/detailData/{id}', [LhkpnController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [LhkpnController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [LhkpnController::class, 'deleteData']);
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('management-level')], function () {
+        Route::get('/', [LevelController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [LevelController::class, 'getData']);
+        Route::get('/addData', [LevelController::class, 'addData']);
+        Route::post('/createData', [LevelController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [LevelController::class, 'editData']);
+        Route::post('/updateData/{id}', [LevelController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [LevelController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [LevelController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [LevelController::class, 'deleteData'])->middleware('permission:delete');
     });
-    Route::group(['prefix' => 'adminweb/informasipublik/detail-lhkpn', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [DetailLhkpnController::class, 'index']);
-        Route::get('/getData', [DetailLhkpnController::class, 'getData']);
-        Route::get('/addData', [DetailLhkpnController::class, 'addData']);
-        Route::post('/createData', [DetailLhkpnController::class, 'createData']);
-        Route::get('/editData/{id}', [DetailLhkpnController::class, 'editData']);
-        Route::post('/updateData/{id}', [DetailLhkpnController::class, 'updateData']);
-        Route::get('/detailData/{id}', [DetailLhkpnController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [DetailLhkpnController::class, 'deleteData']);
-    });
-    Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [RegulasiDinamisController::class, 'index']);
-        Route::get('/getData', [RegulasiDinamisController::class, 'getData']);
-        Route::get('/addData', [RegulasiDinamisController::class, 'addData']);
-        Route::post('/createData', [RegulasiDinamisController::class, 'createData']);
-        Route::get('/editData/{id}', [RegulasiDinamisController::class, 'editData']);
-        Route::post('/updateData/{id}', [RegulasiDinamisController::class, 'updateData']);
-        Route::get('/detailData/{id}', [RegulasiDinamisController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [RegulasiDinamisController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [RegulasiDinamisController::class, 'deleteData']);
-    });
-    Route::group(['prefix' => 'adminweb/informasipublik/kategori-regulasi', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [KategoriRegulasiController::class, 'index']);
-        Route::get('/getData', [KategoriRegulasiController::class, 'getData']);
-        Route::get('/addData', [KategoriRegulasiController::class, 'addData']);
-        Route::post('/createData', [KategoriRegulasiController::class, 'createData']);
-        Route::get('/editData/{id}', [KategoriRegulasiController::class, 'editData']);
-        Route::post('/updateData/{id}', [KategoriRegulasiController::class, 'updateData']);
-        Route::get('/detailData/{id}', [KategoriRegulasiController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
-    });
-    Route::group(['prefix' => 'adminweb/informasipublik/regulasi', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [RegulasiController::class, 'index']);
-        Route::get('/getData', [RegulasiController::class, 'getData']);
-        Route::get('/addData', [RegulasiController::class, 'addData']);
-        Route::post('/createData', [RegulasiController::class, 'createData']);
-        Route::get('/editData/{id}', [RegulasiController::class, 'editData']);
-        Route::post('/updateData/{id}', [RegulasiController::class, 'updateData']);
-        Route::get('/detailData/{id}', [RegulasiController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [RegulasiController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [RegulasiController::class, 'deleteData']);
-    });
-
 });
