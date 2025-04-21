@@ -266,11 +266,11 @@ Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middlewa
         Route::post('/createData', [PermohonanInformasiController::class, 'createData']);
     });
 
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('permohonan-informasi-admin')], function () {
-        Route::get('/', [PermohonanInformasiController::class, 'index'])->middleware('permission:view');
+    Route::group(['prefix' => 'SistemInformasi/EForm/ADM/PermohonanInformasi', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [PermohonanInformasiController::class, 'index']);
         Route::get('/getData', [PermohonanInformasiController::class, 'getData']);
         Route::get('/addData', [PermohonanInformasiController::class, 'addData']);
-        Route::post('/createData', [PermohonanInformasiController::class, 'createData'])->middleware('permission:create');
+        Route::post('/createData', [PermohonanInformasiController::class, 'createData']);
     });
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PernyataanKeberatan', 'middleware' => ['authorize:RPN']], function () {
