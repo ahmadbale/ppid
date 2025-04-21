@@ -6,10 +6,12 @@
             <h3 class="card-title">Pengaturan Hak Akses</h3>
             <div class="card-tools">
                 <button type="button" class="btn btn-primary btn-sm" id="btn-save-all">
-                    <i class="fas fa-save"></i> Simpan Semua Perubahan (Tombol Perubahan Pengaturan Hak Akses Per User)
+                    <i class="fas fa-save"></i> Simpan Semua Perubahan
                 </button>
             </div>
         </div>
+
+        <div class="card">
         <div class="card-body">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible">
@@ -70,21 +72,23 @@
                                 <form id="formHakAksesLevel">
                                     @csrf
                                     <input type="hidden" id="levelKode" name="level_kode">
-                                    <table class="table table-bordered">
-                                        <thead>
+                                    <div class="table-responsive">
+                                    <table class="table table-responsive-stack table-bordered">
+                                        <thead class="text-center">
                                             <tr>
-                                                <th>Menu Utama</th>
-                                                <th>Sub Menu</th>
-                                                <th class="text-center">Tampil Menu</th>
-                                                <th class="text-center">Lihat</th>
-                                                <th class="text-center">Tambah</th>
-                                                <th class="text-center">Ubah</th>
-                                                <th class="text-center">Hapus</th>
+                                                {{-- <th>Menu Utama</th>
+                                                <th>Sub Menu</th> --}}
+                                                <th>Tampil Menu</th>
+                                                <th>Lihat</th>
+                                                <th>Tambah</th>
+                                                <th>Ubah</th>
+                                                <th>Hapus</th>
                                             </tr>
                                         </thead>
                                         <tbody id="menuList">
                                         </tbody>
                                     </table>
+                                </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
