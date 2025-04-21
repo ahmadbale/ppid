@@ -63,7 +63,7 @@ class AksesCepatController extends Controller
     public function addData()
     {
         $kategoriAkses = KategoriAksesModel::where('mka_judul_kategori', 'Akses Menu Cepat')
-            ->where('kategori_akses_id', '=', 2)
+            ->where('kategori_akses_id', '=', 1)
             ->where('isDeleted', 0)
             ->first();
         if (!$kategoriAkses) {
@@ -92,7 +92,6 @@ class AksesCepatController extends Controller
 
     public function editData($id)
     {
-        try {
             $aksesCepat = AksesCepatModel::detailData($id);
             $kategoriAkses = KategoriAksesModel::where('mka_judul_kategori', 'Akses Menu Cepat')->first();
 
@@ -100,17 +99,15 @@ class AksesCepatController extends Controller
                 'aksesCepat' => $aksesCepat,
                 'kategoriAkses' => $kategoriAkses
             ]);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Terjadi kesalahan saat mengambil data');
-        }
     }
 
     public function updateData(Request $request, $id)
     {
         try {
+            AksesCepatModel::validasiData($request);
             $result = AksesCepatModel::updateData($request, $id);
             return $this->jsonSuccess(
-                $result['data'] ?? null,
+                $result['data'] ?? null, 
                 $result['message'] ?? 'Akses Cepat berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -122,30 +119,22 @@ class AksesCepatController extends Controller
 
     public function detailData($id)
     {
-        try {
             $aksesCepat = AksesCepatModel::detailData($id);
 
             return view('sisfo::AdminWeb/AksesCepat.detail', [
                 'aksesCepat' => $aksesCepat,
                 'title' => 'Detail Akses Cepat'
             ]);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Terjadi kesalahan saat mengambil detail');
-        }
     }
 
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            try {
                 $aksesCepat = AksesCepatModel::detailData($id);
 
                 return view('sisfo::AdminWeb/AksesCepat.delete', [
                     'aksesCepat' => $aksesCepat
                 ]);
-            } catch (\Exception $e) {
-                return $this->jsonError($e, 'Terjadi kesalahan saat mengambil data');
-            }
         }
 
         try {
