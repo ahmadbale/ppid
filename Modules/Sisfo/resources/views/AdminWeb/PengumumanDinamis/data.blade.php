@@ -17,7 +17,7 @@
         @forelse($pengumumanDinamis as $key => $item)
         <tr>
             <td table-data-label="Nomor" class="text-center">{{ ($pengumumanDinamis->currentPage() - 1) * $pengumumanDinamis->perPage() + $key + 1 }}</td>
-            <td table-data-label="Nama Submenu" class="text-center">{{ $item->pd_nama_submenu }}</td>
+            <td table-data-label="Nama Submenu" class="text-start">{{ $item->pd_nama_submenu }}</td>
             <td table-data-label="Aksi" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("AdminWeb/PengumumanDinamis/editData/{$item->pengumuman_dinamis_id}") }}')">
                     <i class="fas fa-edit"></i> Edit

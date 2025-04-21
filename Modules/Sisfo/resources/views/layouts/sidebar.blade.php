@@ -42,8 +42,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['level', 'user']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['level', 'user']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-user-cog"></i>
                             <p> Manage Pengguna
                                 <i class="right fas fa-angle-left"></i>
@@ -66,8 +66,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </ul>
                     </li>
                     <li class="nav-header">Sistem Informasi</li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['PermohonanInformasi', 'PernyataanKeberatan', 'PengaduanMasyarakat', 'WBS', 'PermohonanPerawatan']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['PermohonanInformasi', 'PernyataanKeberatan', 'PengaduanMasyarakat', 'WBS', 'PermohonanPerawatan']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-file-signature"></i>
                             <p> E-Form
                                 <i class="right fas fa-angle-left"></i>
@@ -113,8 +113,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                     </li>
                     <li class="nav-header">Manajemen Website</li>
                     <!-- Menu Utama -->
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['KategoriForm', 'Timeline', 'KetentuanPelaporan']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['KategoriForm', 'Timeline', 'KetentuanPelaporan']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-question-circle"></i>
                             <p> Pengaturan E-Form
                                 <i class="right fas fa-angle-left"></i>
@@ -158,8 +158,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['kategori-footer', 'footer']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['kategori-footer', 'footer']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-columns"></i>
                             <p> Footer
                                 <i class="right fas fa-angle-left"></i>
@@ -182,8 +182,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-bolt"></i>
                             <p> Pintasan & AksesCepat
                                 <i class="right fas fa-angle-left"></i>
@@ -213,8 +213,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['berita-dinamis', 'berita']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['berita-dinamis', 'berita']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-newspaper"></i>
                             <p> Berita
                                 <i class="right fas fa-angle-left"></i>
@@ -237,8 +237,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-bullhorn"></i>
                             <p> Pengumuman
                                 <i class="right fas fa-angle-left"></i>
@@ -261,8 +261,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item {{ in_array($activeMenu, ['media-dinamis', 'media-detail']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['media-dinamis', 'media-detail']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-photo-video"></i>
                             <p> Media Dinamis
                                 <i class="right fas fa-angle-left"></i>
@@ -286,7 +286,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-cog"></i>
                             <p> Data LHKPN
@@ -309,7 +309,32 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 </a>
                             </li>
                         </ul>
+                    </li> --}}
+                    <li class="nav-item {{ in_array($activeMenu, ['Lhkpn Tahun', 'detail-lhkpn']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['Lhkpn Tahun', 'detail-lhkpn']) ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p> Data LHKPN
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ url('/adminweb/informasipublik/lhkpn-tahun') }}"
+                                   class="nav-link {{ $activeMenu == 'Lhkpn Tahun' ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Tahun Lhkpn</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/adminweb/informasipublik/detail-lhkpn') }}"
+                                   class="nav-link {{ $activeMenu == 'detail-lhkpn' ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Detail Lhkpn</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
+
                     <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="nav-icon fas fa-cog"></i>
@@ -538,6 +563,17 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                 window.location.href = "{{ url('logout/') }}";
             }
         });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const activeMenu = document.querySelector('.nav-link.active');
+        if (activeMenu) {
+            // Scroll container .nav-sidebar biar menu aktif kelihatan di tengah
+            const sidebar = document.querySelector('.nav-sidebar');
+            if (sidebar && activeMenu.offsetTop > sidebar.offsetHeight) {
+                sidebar.scrollTop = activeMenu.offsetTop - sidebar.offsetHeight / 2;
+            }
+        }
     });
 </script>
 
