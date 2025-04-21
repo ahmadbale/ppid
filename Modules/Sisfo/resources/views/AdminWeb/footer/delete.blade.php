@@ -22,6 +22,10 @@
           <td>{{ $footer->f_judul_footer }}</td>
         </tr>
         <tr>
+          <th>Judul Footer</th>
+          <td>{{ $footer->f_judul_footer }}</td>
+        </tr>
+        <tr>
           <th>URL Footer</th>
           <td>
               @if($footer->f_url_footer)
@@ -34,15 +38,15 @@
         <tr>
           <th>Ikon Footer</th>
           <td>
-              @if($footer->f_icon_footer)
-                  <img src="{{ asset('storage/footer_icons/' . $footer->f_icon_footer) }}" 
-                       alt="{{ $footer->f_judul_footer }}" 
-                       style="max-width: 100px; max-height: 100px;">
-                  <br>
-                  <small>{{ $footer->f_icon_footer }}</small>
-              @else
-                  Tidak ada ikon
-              @endif
+            @if($footer->f_icon_footer)
+            <img src="{{ asset('storage/footer_icons/' . basename($footer->f_icon_footer)) }}" 
+                 alt="{{ $footer->f_judul_footer }}" 
+                 style="max-width: 100px; max-height: 100px;">
+            <br>
+            <small>{{ basename($footer->f_icon_footer) }}</small>
+        @else
+            Tidak ada ikon
+        @endif
           </td>
         </tr>
       </table>

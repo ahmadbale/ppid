@@ -12,25 +12,28 @@
             <label for="fk_m_kategori_akses">Kategori Akses Cepat</label>
             <input type="hidden" name="t_akses_cepat[fk_m_kategori_akses]" value="{{ $kategoriAkses->kategori_akses_id }}">
             <input type="text" class="form-control" value="{{ $kategoriAkses->mka_judul_kategori }}" readonly>
+            <div class="invalid-feedback" id="error-fk_m_kategori_akses"></div>
         </div>
 
         <div class="form-group">
             <label for="ac_judul">Judul Akses Cepat <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="ac_judul" name="t_akses_cepat[ac_judul]" maxlength="100">
+            <input type="text" class="form-control" id="ac_judul" name="t_akses_cepat[ac_judul]" required maxlength="100">
             <div class="invalid-feedback" id="error-ac_judul"></div>
         </div>
 
         <div class="form-group">
             <label for="ac_url">URL Akses Cepat <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" maxlength="100" 
+            <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" required maxlength="100" 
                 placeholder="https://contoh.com">
             <div class="invalid-feedback" id="error-ac_url"></div>
+            <small class="form-text text-muted">Masukkan URL lengkap dengan http:// atau https://</small>
         </div>
 
         <div class="form-group">
             <label for="ac_static_icon">Icon Statis Akses Cepat <span class="text-danger">*</span></label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" accept="image/*">
+                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" 
+                    accept="image/*" required>
                 <label class="custom-file-label" for="ac_static_icon">Pilih file</label>
             </div>
             <div class="invalid-feedback" id="error-ac_static_icon"></div>
@@ -43,7 +46,8 @@
         <div class="form-group">
             <label for="ac_animation_icon">Icon Hover Akses Cepat</label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" accept="image/*">
+                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" 
+                    accept="image/*">
                 <label class="custom-file-label" for="ac_animation_icon">Pilih file</label>
             </div>
             <div class="invalid-feedback" id="error-ac_animation_icon"></div>
@@ -59,7 +63,6 @@
         <button type="submit" class="btn btn-primary" id="btn-save">Simpan</button>
     </div>
 </form>
-
 <script>
     $(document).ready(function () {
         // Hapus error ketika input berubah
@@ -141,37 +144,6 @@
             const formData = new FormData(this);
             const button = $('#btn-save');
             
-            // Validasi client-side
-            let isValid = true;
-            if ($('#ac_judul').val().trim() === '') {
-                $('#ac_judul').addClass('is-invalid');
-                $('#error-ac_judul').html('Judul Akses Cepat wajib diisi.');
-                isValid = false;
-            }
-            
-            const acUrl = $('#ac_url').val().trim();
-            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
-            if (!urlPattern.test(acUrl)) {
-                $('#ac_url').addClass('is-invalid');
-                $('#error-ac_url').html('URL Akses Cepat tidak valid.');
-                isValid = false;
-            }
-            
-            if ($('#ac_static_icon')[0].files.length === 0) {
-                $('#ac_static_icon').addClass('is-invalid');
-                $('#error-ac_static_icon').html('Icon Statis Akses Cepat wajib dipilih.');
-                isValid = false;
-            }
-            
-            if (!isValid) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validasi Gagal',
-                    text: 'Mohon periksa kembali input Anda'
-                });
-                return;
-            }
-            
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
             
@@ -192,11 +164,27 @@
                             text: response.message
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: response.message || 'Terjadi kesalahan saat menyimpan data'
-                        });
+                        if (response.errors) {
+                            // Tampilkan pesan error pada masing-masing field
+                            $.each(response.errors, function(key, value) {
+                                // Hapus prefix 't_akses_cepat.' dari key
+                                const cleanKey = key.replace('t_akses_cepat.', '');
+                                $(`#${cleanKey}`).addClass('is-invalid');
+                                $(`#${cleanKey}_error`).html(value[0]);
+                            });
+                            
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validasi Gagal',
+                                text: 'Mohon periksa kembali input Anda'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message || 'Terjadi kesalahan saat menyimpan data'
+                            });
+                        }
                     }
                 },
                 error: function(xhr) {

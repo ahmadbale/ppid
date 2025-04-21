@@ -6,7 +6,6 @@ use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -31,18 +30,13 @@ class AksesCepatModel extends Model
          return $this->belongsTo(KategoriAksesModel::class, 'fk_m_kategori_akses', 'kategori_akses_id');
      }
 
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
-       // Konstanta untuk path folder icon
-       const STATIC_ICON_PATH = 'akses_cepat_static_icons';
-       const ANIMATION_ICON_PATH = 'akses_cepat_animation_icons';
-   
-
-
-    public static function selectData($perPage = null, $search = '', $kategoriAksesId = null)
+     public static function selectData($perPage = null, $search = '', $kategoriAksesId = null)
     {
         $query = self::with('kategoriAkses')
             ->where('isDeleted', 0);
@@ -61,145 +55,123 @@ class AksesCepatModel extends Model
     }
 
     public static function createData($request)
-    {
-        try {
-            DB::beginTransaction();
+{
+    $iconStatic = self::uploadFile(
+        $request->file('t_akses_cepat.ac_static_icon'), 
+        'akses_cepat_static_icons'
+    );
+    $iconAnim = self::uploadFile($request->file('t_akses_cepat.ac_animation_icon'), 'akses_cepat_animation_icons');
 
-            // Validasi input
-            self::validasiData($request);
+    try {
+        DB::beginTransaction();
 
-            // Persiapan data
-            $data = $request->t_akses_cepat;
+        $data = $request->t_akses_cepat;
 
-            // Proses upload static icon
-            if ($request->hasFile('t_akses_cepat.ac_static_icon')) {
-                $staticIconPath = $request->file('t_akses_cepat.ac_static_icon')->store(self::STATIC_ICON_PATH, 'public');
-                $data['ac_static_icon'] = basename($staticIconPath);
-            }
-
-            // Proses upload animation icon
-            if ($request->hasFile('t_akses_cepat.ac_animation_icon')) {
-                $animationIconPath = $request->file('t_akses_cepat.ac_animation_icon')->store(self::ANIMATION_ICON_PATH, 'public');
-                $data['ac_animation_icon'] = basename($animationIconPath);
-            }
-
-            // Buat record
-            $aksesCepat = self::create($data);
-
-            // Catat log transaksi
-            TransactionModel::createData(
-                'CREATED',
-                $aksesCepat->akses_cepat_id,
-                $aksesCepat->ac_judul
-            );
-
-            DB::commit();
-
-            return self::responFormatSukses($aksesCepat, 'Akses Cepat berhasil dibuat');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return self::responFormatError($e, 'Gagal membuat Akses Cepat');
+        if ($iconStatic) {
+            $data['ac_static_icon'] = $iconStatic;
         }
-    }
-
-    public static function updateData($request, $id)
-    {
-        try {
-            DB::beginTransaction();
-
-            // Validasi input
-            self::validasiData($request, $id);
-
-            // Cari record
-            $aksesCepat = self::findOrFail($id);
-
-            // Persiapan data
-            $data = $request->t_akses_cepat;
-
-            // Proses upload static icon
-            if ($request->hasFile('t_akses_cepat.ac_static_icon')) {
-                // Hapus static icon lama jika ada
-                if ($aksesCepat->ac_static_icon) {
-                    self::deleteIconFile($aksesCepat->ac_static_icon, self::STATIC_ICON_PATH);
-                }
-
-                // Upload static icon baru
-                $staticIconPath = $request->file('t_akses_cepat.ac_static_icon')->store(self::STATIC_ICON_PATH, 'public');
-                $data['ac_static_icon'] = basename($staticIconPath);
-            }
-
-            // Proses upload animation icon
-            if ($request->hasFile('t_akses_cepat.ac_animation_icon')) {
-                // Hapus animation icon lama jika ada
-                if ($aksesCepat->ac_animation_icon) {
-                    self::deleteIconFile($aksesCepat->ac_animation_icon, self::ANIMATION_ICON_PATH);
-                }
-
-                // Upload animation icon baru
-                $animationIconPath = $request->file('t_akses_cepat.ac_animation_icon')->store(self::ANIMATION_ICON_PATH, 'public');
-                $data['ac_animation_icon'] = basename($animationIconPath);
-            }
-
-            // Update record
-            $aksesCepat->update($data);
-
-            // Catat log transaksi
-            TransactionModel::createData(
-                'UPDATED',
-                $aksesCepat->akses_cepat_id,
-                $aksesCepat->ac_judul
-            );
-
-            DB::commit();
-
-            return self::responFormatSukses($aksesCepat, 'Akses Cepat berhasil diperbarui');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return self::responFormatError($e, 'Gagal memperbarui Akses Cepat');
+        if ($iconAnim) {
+            $data['ac_animation_icon'] = $iconAnim;
         }
+
+       $aksesCepat = self::create($data);
+
+        TransactionModel::createData(
+            'CREATED',
+           $aksesCepat->akses_cepat_id,
+           $aksesCepat->ac_judul
+        );
+
+        $result = self::responFormatSukses($aksesCepat, 'Data Akses Cepat berhasil dibuat');
+        DB::commit(); 
+        return $result;
+
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        self::removeFile($iconStatic);
+        self::removeFile($iconAnim);
+        return self::responValidatorError($e);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        self::removeFile($iconStatic);
+        self::removeFile($iconAnim);
+        return self::responFormatError($e, 'Gagal membuat Akses Cepat');
     }
+}
+
+
+public static function updateData($request, $id)
+{
+    $iconStatic = self::uploadFile(
+        $request->file('t_akses_cepat.ac_static_icon'), 
+        'akses_cepat_static_icons'
+    );
+    $iconAnim = self::uploadFile($request->file('t_akses_cepat.ac_animation_icon'), 'akses_cepat_animation_icons');
+
+    try {
+        DB::beginTransaction();
+
+        $aksesCepat = self::findOrFail($id);
+        $data = $request->t_akses_cepat;
+
+        if ($iconStatic) {
+            self::removeFile($aksesCepat->ac_static_icon);
+            $data['ac_static_icon'] = $iconStatic;
+        }
+
+        if ($iconAnim) {
+            self::removeFile($aksesCepat->ac_animation_icon);
+            $data['ac_animation_icon'] = $iconAnim;
+        }
+
+       $aksesCepat->update($data);
+
+        TransactionModel::createData('UPDATED',$aksesCepat->akses_cepat_id,$aksesCepat->ac_judul);
+
+        $result = self::responFormatSukses($aksesCepat, 'Data Akses Cepat berhasil diperbarui');
+        DB::commit(); 
+        return $result;
+
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        self::removeFile($iconStatic);
+        self::removeFile($iconAnim);
+        return self::responValidatorError($e);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        self::removeFile($iconStatic);
+        self::removeFile($iconAnim);
+        return self::responFormatError($e, 'Gagal memperbarui Akses Cepat');
+    }
+}
+
 
     public static function deleteData($id)
     {
         try {
             DB::beginTransaction();
 
-            // Cari record
-            $aksesCepat = self::findOrFail($id);
+           $aksesCepat = self::findOrFail($id);
 
             // Hapus file icon jika ada
-            if ($aksesCepat->ac_static_icon) {
-                self::deleteIconFile($aksesCepat->ac_static_icon, self::STATIC_ICON_PATH);
-            }
+            self::removeFile($aksesCepat->ac_static_icon);
+            self::removeFile($aksesCepat->ac_animation_icon);
 
-            if ($aksesCepat->ac_animation_icon) {
-                self::deleteIconFile($aksesCepat->ac_animation_icon, self::ANIMATION_ICON_PATH);
-            }
+           $aksesCepat->delete();
 
-            // Soft delete
-            $aksesCepat->delete();
-
-            // Catat log transaksi
-            TransactionModel::createData(
-                'DELETED',
-                $aksesCepat->akses_cepat_id,
-                $aksesCepat->ac_judul
-            );
+            TransactionModel::createData('DELETED',$aksesCepat->akses_cepat_id,$aksesCepat->ac_judul);
 
             DB::commit();
-
-            return self::responFormatSukses($aksesCepat, 'Akses Cepat berhasil dihapus');
+            return self::responFormatSukses($aksesCepat, 'Data Akses Cepat berhasil dihapus');
         } catch (\Exception $e) {
             DB::rollBack();
             return self::responFormatError($e, 'Gagal menghapus Akses Cepat');
         }
     }
-
     public static function detailData($id)
     {
         return self::with('kategoriAkses')->findOrFail($id);
     }
-
     public static function validasiData($request, $id = null)
     {
         // Aturan validasi dasar
@@ -212,7 +184,7 @@ class AksesCepatModel extends Model
         // Jika create baru atau update dengan file baru
         if ($id === null) {
             // Untuk create baru
-            $rules['t_akses_cepat.ac_static_icon'] = 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2500';
+            $rules['t_akses_cepat.ac_static_icon'] = 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2500';
             $rules['t_akses_cepat.ac_animation_icon'] = 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2500';
         } else {
             // Untuk update
@@ -249,22 +221,5 @@ class AksesCepatModel extends Model
         }
 
         return true;
-    }
-
-    /**
-     * Helper  untuk menghapus file ikon
-     */
-    private static function deleteIconFile($filename, $path)
-    {
-        try {
-            $fullPath = $path . '/' . $filename;
-            if (Storage::disk('public')->exists($fullPath)) {
-                Storage::disk('public')->delete($fullPath);
-                return true;
-            }
-            return false;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 }

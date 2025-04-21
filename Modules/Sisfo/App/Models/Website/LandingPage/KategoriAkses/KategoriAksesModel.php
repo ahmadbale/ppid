@@ -63,8 +63,8 @@ class KategoriAksesModel extends Model
                       return [
                           'id' => $akses->akses_cepat_id,
                           'judul' => $akses->ac_judul,
-                          'static_icon' => $akses->ac_static_icon ? asset('storage/' . AksesCepatModel::STATIC_ICON_PATH . '/' . $akses->ac_static_icon) : null,
-                          'animation_icon' => $akses->ac_animation_icon ? asset('storage/' . AksesCepatModel::ANIMATION_ICON_PATH . '/' . $akses->ac_animation_icon) : null,
+                          'static_icon' => $akses->ac_static_icon ? asset('storage/' . $akses->ac_static_icon) : null,
+                          'animation_icon' => $akses->ac_animation_icon ? asset('storage/' . $akses->ac_animation_icon) : null,
                           'url' => $akses->ac_url
                       ];
                   });
