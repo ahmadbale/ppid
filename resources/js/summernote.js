@@ -95,12 +95,12 @@ function tentukanKonteks() {
     let konteks = '';
     const path = window.location.pathname;
     
-    if (path.includes('/Modules/Sisfo/SistemInformasi/KetentuanPelaporan')) {
-        konteks = '/Modules/Sisfo/SistemInformasi/KetentuanPelaporan';
-    } else if (path.includes('/Modules/Sisfo/AdminWeb/Pengumuman')) {
-        konteks = '/Modules/Sisfo/AdminWeb/Pengumuman';
-    } else if (path.includes('/Modules/Sisfo/adminweb/berita')) {
-        konteks = '/Modules/Sisfo/adminweb/berita';
+    if (path.includes('/SistemInformasi/KetentuanPelaporan')) {
+        konteks = '/SistemInformasi/KetentuanPelaporan';
+    } else if (path.includes('/AdminWeb/Pengumuman')) {
+        konteks = '/AdminWeb/Pengumuman';
+    } else if (path.includes('/adminweb/berita')) {
+        konteks = '/adminweb/berita';
     }
     
     return konteks;
