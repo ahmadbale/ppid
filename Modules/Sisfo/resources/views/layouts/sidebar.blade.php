@@ -411,7 +411,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 <span class="badge badge-danger notification-badge">{{ $totalNotifikasiVFR }}</span>
                             @endif
                         </a>
-                    </li> 
+                    </li>
                     <li class="nav-item">
                         <a href="{{ url('/daftarPermohonan') }}"
                             class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
