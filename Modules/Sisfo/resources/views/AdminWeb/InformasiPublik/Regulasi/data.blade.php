@@ -3,34 +3,32 @@
          Showing {{ $regulasi->firstItem() }} to {{ $regulasi->lastItem() }} of {{ $regulasi->total() }} results
      </div>
  </div>
- 
+
  <div class="table-responsive">
  <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
-
      <thead class="text-center">
          <tr>
-             <th >Nomor</th>
-             <th >Kategori Regulasi</th>
-             <th >Judul</th>
-             <th >Tipe</th>
-             <th >Aksi</th>
+             <th width='5%'>Nomor</th>
+             <th width='30%'>Kategori Regulasi</th>
+             <th width='30%'>Judul</th>
+             <th width='5%'>Tipe</th>
+             <th width='30%'>Aksi</th>
          </tr>
      </thead>
      <tbody>
          @forelse($regulasi as $key => $item)
          <tr>
              <td table-data-label="Nomor" class="text-center">{{ ($regulasi->currentPage() - 1) * $regulasi->perPage() + $key + 1 }}</td>
-             <td table-data-label="Kategori" class="text-center">{{ $item->KategoriRegulasi->kr_nama_kategori }}</td>
-             <td table-data-label="Judul" class="text-center">{{ $item->reg_judul }}</td>
-             <td table-data-label="Tipe" class="text-center">{{ $item->tipe }}</td>
-             <td table-data-label="Aksi" class="text-center">
+             <td table-data-label="Kategori" class="text-start">{{ $item->KategoriRegulasi->kr_nama_kategori }}</td>
+             <td table-data-label="Judul" class="text-start">{{ $item->reg_judul }}</td>
+             <td table-data-label="Tipe" class="text-center">
                  @if($item->reg_tipe_dokumen == 'file')
                      <span class="badge badge-primary">File</span>
                  @else
                      <span class="badge badge-info">Link</span>
                  @endif
              </td>
-             <td>
+             <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/regulasi/editData/{$item->regulasi_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>
