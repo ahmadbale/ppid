@@ -105,7 +105,7 @@ class MediaDinamisController extends Controller
     {
             $mediaDinamis = MediaDinamisModel::detailData($id);
             
-            return view("AdminWeb/MediaDinamis.detail", [
+            return view("sisfo::AdminWeb/MediaDinamis.detail", [
                 'mediaDinamis' => $mediaDinamis,
                 'title' => 'Detail Media Dinamis'
             ]);
