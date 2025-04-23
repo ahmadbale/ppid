@@ -91,13 +91,8 @@ class RegulasiDinamisModel extends Model
             DB::beginTransaction();
             
             $regulasiDinamis = self::findOrFail($id);
+            $regulasiDinamis->delete();
             
-            $regulasiDinamis->update([
-                'isDeleted' => 1,
-                'deleted_at' => now(),
-                'deleted_by' => auth()->user()->id ?? null
-            ]);
-
             TransactionModel::createData(
                 'DELETED',
                 $regulasiDinamis->regulasi_dinamis_id,
