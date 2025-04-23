@@ -207,10 +207,6 @@ class KategoriAksesModel extends Model
 
           DB::beginTransaction();
 
-          // Soft delete
-          $saveData->isDeleted = 1;
-          $saveData->deleted_at = now();
-          $saveData->save();
           $saveData->delete();
 
           // Catat log transaksi
