@@ -60,6 +60,9 @@
         @include('sisfo::layouts.footer')
     </div>
 
+    {{-- chart --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- jQuery -->
     <script src="{{ asset('/modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
     <!-- Bootstrap 4 -->
@@ -86,7 +89,8 @@
     <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
     <!-- modules/sisfo/AdminLTE App -->
     <script src="{{ asset('/modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
-
+    {{-- flatpicker --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- jQuery -->
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
     <!-- Bootstrap 4 -->
@@ -137,6 +141,7 @@
     @stack('js'){}
     </script>
 
+    
     <!-- Summernote JS -->
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
