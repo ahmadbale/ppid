@@ -12,6 +12,9 @@
       <label for="fk_m_kategori_footer">Kategori Footer <span class="text-danger">*</span></label>
       <select class="form-control" id="fk_m_kategori_footer" name="t_footer[fk_m_kategori_footer]">
         <option value="">Pilih Kategori Footer</option>
+        @foreach($kategoriFooters as $kategori)
+           <option value="{{ $kategori->kategori_footer_id }}">{{ $kategori->kt_footer_nama }}</option>
+         @endforeach
       </select>
       <div class="invalid-feedback" id="fk_m_kategori_footer_error"></div>
 

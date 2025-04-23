@@ -210,6 +210,13 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                     <p>Pintasan Lainnya</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/adminweb/DetailPintasanLainnya') }}"
+                                    class="nav-link {{ $activeMenu == 'DetailPintasanLainnya' ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Detail Pintasan Lainnya</p>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item {{ in_array($activeMenu, ['berita-dinamis', 'berita']) ? 'menu-open' : '' }}">
