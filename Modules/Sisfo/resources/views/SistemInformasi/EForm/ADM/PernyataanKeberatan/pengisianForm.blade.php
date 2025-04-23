@@ -373,5 +373,4 @@
         });
     </script>
     @endpush
-    
 @endsection

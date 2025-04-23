@@ -364,16 +364,16 @@ Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middlewa
         Route::post('/removeImage', [KetentuanPelaporanController::class, 'removeImage']);
     });
 
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('kategori-form')], function () {
-        Route::get('/', [KategoriFormController::class, 'index'])->middleware('permission:view');
+    Route::group(['prefix' => 'SistemInformasi/KategoriForm', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [KategoriFormController::class, 'index']);
         Route::get('/getData', [KategoriFormController::class, 'getData']);
         Route::get('/addData', [KategoriFormController::class, 'addData']);
-        Route::post('/createData', [KategoriFormController::class, 'createData'])->middleware('permission:create');
+        Route::post('/createData', [KategoriFormController::class, 'createData']);
         Route::get('/editData/{id}', [KategoriFormController::class, 'editData']);
-        Route::post('/updateData/{id}', [KategoriFormController::class, 'updateData'])->middleware('permission:update');
+        Route::post('/updateData/{id}', [KategoriFormController::class, 'updateData']);
         Route::get('/detailData/{id}', [KategoriFormController::class, 'detailData']);
         Route::get('/deleteData/{id}', [KategoriFormController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [KategoriFormController::class, 'deleteData'])->middleware('permission:delete');
+        Route::delete('/deleteData/{id}', [KategoriFormController::class, 'deleteData']);
     });
 
     Route::group(['prefix' => 'AdminWeb/PengumumanDinamis', 'middleware' => ['authorize:ADM']], function () {

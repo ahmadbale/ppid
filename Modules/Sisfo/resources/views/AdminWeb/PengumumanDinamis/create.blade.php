@@ -3,9 +3,9 @@
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
-  </div>
+</div>
   
-  <div class="modal-body">
+<div class="modal-body">
     <form id="formCreatePengumumanDinamis" action="{{ url('AdminWeb/PengumumanDinamis/createData') }}" method="POST">
       @csrf
   
@@ -16,101 +16,120 @@
         <small class="form-text text-muted">Contoh: Pengumuman Penerimaan, Pengumuman Kelulusan, dll.</small>
       </div>
     </form>
-  </div>
+</div>
   
-  <div class="modal-footer">
+<div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
     <button type="button" class="btn btn-success" id="btnSubmitForm">
       <i class="fas fa-save mr-1"></i> Simpan
     </button>
-  </div>
+</div>
   
-  <script>
-    $(document).ready(function () {
-      // Hapus error ketika input berubah
-      $(document).on('input change', 'input, select, textarea', function() {
-        $(this).removeClass('is-invalid');
-        const errorId = `#${$(this).attr('id')}_error`;
-        $(errorId).html('');
-      });
+<script>
+  $(document).ready(function () {
+    // Hapus error ketika input berubah
+    $(document).on('input change', 'input, select, textarea', function() {
+      $(this).removeClass('is-invalid');
+      const errorId = `#${$(this).attr('id')}_error`;
+      $(errorId).html('');
+    });
   
-      // Handle submit form
-      $('#btnSubmitForm').on('click', function() {
-        // Reset semua error
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').html('');
-        
-        const form = $('#formCreatePengumumanDinamis');
-        const formData = new FormData(form[0]);
-        const button = $(this);
-        
-        // Tampilkan loading state pada tombol submit
-        button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-        
-        $.ajax({
-          url: form.attr('action'),
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          },
-          success: function(response) {
-            if (response.success) {
-              $('#myModal').modal('hide');
-              
-              // Perbaikan: Gunakan fungsi loadPengumumanDinamisData() untuk memuat ulang data
-              reloadTable();
+    // Handle submit form
+    $('#btnSubmitForm').on('click', function() {
+      // Reset semua error
+      $('.is-invalid').removeClass('is-invalid');
+      $('.invalid-feedback').html('');
+      
+      const form = $('#formCreatePengumumanDinamis');
+      const formData = new FormData(form[0]);
+      const button = $(this);
+      
+      // Validasi input sebelum submit
+      let isValid = true;
+      const namaSubmenu = $('#pd_nama_submenu').val().trim();
+      if (namaSubmenu === '') {
+        isValid = false;
+        $('#pd_nama_submenu').addClass('is-invalid');
+        $('#pd_nama_submenu_error').html('Nama Submenu Pengumuman wajib diisi.');
+      }
+  
+      // Jika form tidak valid, hentikan proses submit
+      if (!isValid) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Mohon periksa kembali input Anda'
+        });
+        return;
+      }
+  
+      // Tampilkan loading state pada tombol submit
+      button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+  
+      $.ajax({
+        url: form.attr('action'),
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+          if (response.success) {
+            $('#myModal').modal('hide');
+            
+            // Perbaikan: Gunakan fungsi loadPengumumanDinamisData() untuk memuat ulang data
+            reloadTable();
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil',
+              text: response.message
+            });
+          } else {
+            if (response.errors) {
+              // Tampilkan pesan error pada masing-masing field
+              $.each(response.errors, function(key, value) {
+                // Untuk m_pengumuman_dinamis fields
+                if (key.startsWith('m_pengumuman_dinamis.')) {
+                  const fieldName = key.replace('m_pengumuman_dinamis.', '');
+                  $(`#${fieldName}`).addClass('is-invalid');
+                  $(`#${fieldName}_error`).html(value[0]);
+                } else {
+                  // Untuk field biasa
+                  $(`#${key}`).addClass('is-invalid');
+                  $(`#${key}_error`).html(value[0]);
+                }
+              });
               
               Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: response.message
+                icon: 'error',
+                title: 'Validasi Gagal',
+                text: 'Mohon periksa kembali input Anda'
               });
             } else {
-              if (response.errors) {
-                // Tampilkan pesan error pada masing-masing field
-                $.each(response.errors, function(key, value) {
-                  // Untuk m_pengumuman_dinamis fields
-                  if (key.startsWith('m_pengumuman_dinamis.')) {
-                    const fieldName = key.replace('m_pengumuman_dinamis.', '');
-                    $(`#${fieldName}`).addClass('is-invalid');
-                    $(`#${fieldName}_error`).html(value[0]);
-                  } else {
-                    // Untuk field biasa
-                    $(`#${key}`).addClass('is-invalid');
-                    $(`#${key}_error`).html(value[0]);
-                  }
-                });
-                
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Validasi Gagal',
-                  text: 'Mohon periksa kembali input Anda'
-                });
-              } else {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Gagal',
-                  text: response.message || 'Terjadi kesalahan saat menyimpan data'
-                });
-              }
+              Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: response.message || 'Terjadi kesalahan saat menyimpan data'
+              });
             }
-          },
-          error: function(xhr) {
-            console.error('Error:', xhr);
-            Swal.fire({
-              icon: 'error',
-              title: 'Gagal',
-              text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
-            });
-          },
-          complete: function() {
-            // Kembalikan tombol submit ke keadaan semula
-            button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
           }
-        });
+        },
+        error: function(xhr) {
+          console.error('Error:', xhr);
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+          });
+        },
+        complete: function() {
+          // Kembalikan tombol submit ke keadaan semula
+          button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
+        }
       });
     });
-  </script>
+  });
+</script>
