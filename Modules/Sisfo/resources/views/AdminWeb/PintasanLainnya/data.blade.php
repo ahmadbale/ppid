@@ -19,7 +19,9 @@
           @forelse($pintasanLainnya as $key => $item)
           <tr>
               <td table-data-label="Nomor" class="text-center">{{ ($pintasanLainnya->currentPage() - 1) * $pintasanLainnya->perPage() + $key + 1 }}</td>
+              <td table-data-label="Kategori Akses" class="text-center">{{ $item->kategoriAkses->mka_judul_kategori ?? 'Kategori Tidak Tersedia' }}</td>
               <td table-data-label="Pintasan Lainnya" class="text-center">{{ $item->tpl_nama_kategori }}</td>
+
               <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/pintasan-lainnya/editData/{$item->pintasan_lainnya_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
