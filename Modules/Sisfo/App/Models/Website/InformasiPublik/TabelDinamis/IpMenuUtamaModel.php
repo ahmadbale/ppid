@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Models\Website\InformasiPublik\TabelDinamis;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
 
-use App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
-class IpSubMenu extends Model
+class IpMenuUtama extends Model
 {
     use TraitsModel;
 
-    protected $table = 't_ip_sub_menu';
-    protected $primaryKey = 'ip_sub_menu_id';
+    protected $table = 't_ip_menu_utama';
+    protected $primaryKey = 'ip_menu_utama_id';
     protected $fillable = [
-        'fk_t_ip_sub_menu_utama',
-        'nama_ip_sm',
-        'dokumen_ip_sm'
+        'fk_t_ip_dinamis_tabel',
+        'nama_ip_mu',
+        'dokumen_ip_mu'
     ];
 
-    public function IpSubMenuUtana()
+    public function IpDinamisTabel()
     {
-        return $this->belongsTo(IpSubMenuUtama::class, 'fk_t_ip_sub_menu_utama', 'ip_sub_menu_id');
+        return $this->belongsTo(IpDinamisTabel::class, 'fk_t_ip_dinamis_tabel', 'ip_dinamis_tabel_id');
     }
 
     public function __construct(array $attributes = [])

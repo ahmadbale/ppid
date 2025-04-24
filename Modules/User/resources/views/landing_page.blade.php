@@ -115,50 +115,60 @@
         </div>
     </section>
 
-     {{-- Stats section --}}
-    {{-- <section class="statistik-section py-5" x-data="statistikCounter">
-        <div class="container">
-            <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
-            <p class="info-text">Dalam periode <strong>2023/2024</strong> telah melayani sebanyak:</p>
+    {{-- Stats section --}}
+<section class="statistik-section py-5">
+    <div class="container">
+        <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
+        
+        @if(!empty($statisticData['periode']))
+            <p class="info-text">Dalam periode <strong>{{ $statisticData['periode']['tahun'] }}</strong> telah melayani sebanyak:</p>
             <div class="statistik-row">
                 <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[0]"></h3>
-                    <p>Pengajuan Permohonan</p>
+                    <h3 class="counter">{{ $statisticData['periode']['pengajuan_total'] }}</h3>
+                    <p>Total Pengajuan</p>
                 </div>
                 <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[1]"></h3>
-                    <p>Permohonan Diterima</p>
+                    <h3 class="counter">{{ $statisticData['periode']['pengajuan_diterima'] }}</h3>
+                    <p>Pengajuan Diterima</p>
                 </div>
                 <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[2]"></h3>
-                    <p>Permohonan Ditolak</p>
+                    <h3 class="counter">{{ $statisticData['periode']['pengajuan_ditolak'] }}</h3>
+                    <p>Pengajuan Ditolak</p>
                 </div>
             </div>
-            <p class="info-text">Dengan kasus sebanyak:</p>
-            <div class="statistik-row">
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[3]"></h3>
-                    <p>Permohonan Informasi</p>
+
+            @if(!empty($statisticData['jenis_kasus']))
+                <p class="info-text">Dengan kasus sebanyak:</p>
+                <div class="statistik-row">
+                    <div class="statistik-item">
+                        <h3 class="counter">{{ $statisticData['jenis_kasus']['permohonan_informasi'] }}</h3>
+                        <p>Permohonan Informasi</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter">{{ $statisticData['jenis_kasus']['aduan_masyarakat'] }}</h3>
+                        <p>Aduan Masyarakat</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter">{{ $statisticData['jenis_kasus']['pernyataan_keberatan'] }}</h3>
+                        <p>Pernyataan Keberatan</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter">{{ $statisticData['jenis_kasus']['whistle_blowing_system'] }}</h3>
+                        <p>Whistle Blowing System (WBS)</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter">{{ $statisticData['jenis_kasus']['permohonan_pemeliharaan'] }}</h3>
+                        <p>Pemeliharaan Sarana Prasarana</p>
+                    </div>
                 </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[4]"></h3>
-                    <p>Aduan Masyarakat</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[5]"></h3>
-                    <p>Pernyataan Keberatan</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[6]"></h3>
-                    <p>Whistle Blowing System (WBS)</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[7]"></h3>
-                    <p>Pemeliharaan Sarana Prasarana</p>
-                </div>
+            @endif
+        @else
+            <div class="text-center text-white">
+                <p>Data statistik belum tersedia</p>
             </div>
-        </div>
-    </section> --}}
+        @endif
+    </div>
+</section>
 
      {{-- DOKUMENTASI --}}
      <section class="dokumentasi-section py-3 py-md-5">
