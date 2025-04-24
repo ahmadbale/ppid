@@ -1,44 +1,45 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Http\Controllers\AuthController;
 use Modules\Sisfo\App\Http\Controllers\ProfileController;
+use Modules\Sisfo\App\Http\Controllers\SummernoteController;
 use Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
 use Modules\Sisfo\App\Http\Controllers\DashboardSARController;
 use Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
 use Modules\Sisfo\App\Http\Controllers\HakAkses\HakAksesController;
 use Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
 use Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
+use Modules\Sisfo\App\Http\Controllers\ManagePengguna\LevelController;
 use Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
+use App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\DetailMediaDinamisController;
-use Modules\Sisfo\App\Http\Controllers\ManagePengguna\LevelController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
-use Modules\Sisfo\App\Http\Controllers\SummernoteController;
-use Modules\Sisfo\App\Models\Website\WebMenuModel;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\DetailPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\DetailPintasanLainnyaController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 
 
 /*
@@ -269,6 +270,17 @@ Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middlewa
         Route::get('/detailData/{id}', [KategoriRegulasiController::class, 'detailData']);
         Route::get('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/IpDinamisTabel', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [IpDinamisTabelController::class, 'index']);
+        Route::get('/getData', [IpDinamisTabelController::class, 'getData']);
+        Route::get('/addData', [IpDinamisTabelController::class, 'addData']);
+        Route::post('/createData', [IpDinamisTabelController::class, 'createData']);
+        Route::get('/editData/{id}', [IpDinamisTabelController::class, 'editData']);
+        Route::post('/updateData/{id}', [IpDinamisTabelController::class, 'updateData']);
+        Route::get('/detailData/{id}', [IpDinamisTabelController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
     });
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PermohonanInformasi', 'middleware' => ['authorize:RPN']], function () {

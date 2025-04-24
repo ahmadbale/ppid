@@ -347,6 +347,23 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 </a>
                             </li>
                         </ul>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cog"></i>
+                                <p> Tabel Dinamis
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('/adminweb/informasipublik/IpDinamisTabel') }}"
+                                        class="nav-link {{ $activeMenu == 'IpDinamisTabel' ? 'active' : '' }}">
+                                        <i class="fas fa-tasks nav-icon"></i>
+                                        <p>IpDinamis Tabel</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </li>
                     </li>
 
