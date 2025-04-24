@@ -30,9 +30,9 @@
       <label for="dl_file_lhkpn">File LHKPN (PDF) <span class="text-danger">*</span></label>
       <div class="custom-file">
         <input type="file" class="custom-file-input" id="dl_file_lhkpn" name="dl_file_lhkpn" accept=".pdf">
+        <div class="invalid-feedback" id="dl_file_lhkpn_error"></div>
         <label class="custom-file-label" for="dl_file_lhkpn">Pilih file</label>
       </div>
-      <div class="invalid-feedback" id="dl_file_lhkpn_error"></div>
       <small class="form-text text-muted">Ukuran maksimal file 2.5MB dengan format PDF.</small>
     </div>
   </form>
@@ -60,11 +60,76 @@
       $(errorId).html('');
     });
 
-    // Handle submit form
-    $('#btnSubmitForm').on('click', function() {
+    // Fungsi validasi formulir
+    function validateLhkpnForm() {
       // Reset semua error
       $('.is-invalid').removeClass('is-invalid');
       $('.invalid-feedback').html('');
+      
+      let isValid = true;
+      
+      // Validasi Tahun LHKPN
+      const tahunLhkpn = $('#fk_m_lhkpn').val();
+      if (!tahunLhkpn) {
+        $('#fk_m_lhkpn').addClass('is-invalid');
+        $('#fk_m_lhkpn_error').html('Tahun LHKPN wajib dipilih');
+        isValid = false;
+      }
+      
+      // Validasi Nama Karyawan
+      const namaKaryawan = $('#dl_nama_karyawan').val().trim();
+      if (!namaKaryawan) {
+        $('#dl_nama_karyawan').addClass('is-invalid');
+        $('#dl_nama_karyawan_error').html('Nama Karyawan wajib diisi');
+        isValid = false;
+      } else if (namaKaryawan.length < 3) {
+        $('#dl_nama_karyawan').addClass('is-invalid');
+        $('#dl_nama_karyawan_error').html('Nama Karyawan minimal 3 karakter');
+        isValid = false;
+      } else if (namaKaryawan.length > 100) {
+        $('#dl_nama_karyawan').addClass('is-invalid');
+        $('#dl_nama_karyawan_error').html('Nama Karyawan maksimal 100 karakter');
+        isValid = false;
+      }
+      
+      // Validasi File LHKPN
+      const fileLhkpn = $('#dl_file_lhkpn')[0].files[0];
+      if (!fileLhkpn) {
+        $('#dl_file_lhkpn').addClass('is-invalid');
+        $('#dl_file_lhkpn_error').html('File LHKPN wajib diunggah');
+        isValid = false;
+      } else {
+        // Validasi tipe file
+        const fileType = fileLhkpn.type;
+        if (fileType !== 'application/pdf') {
+          $('#dl_file_lhkpn').addClass('is-invalid');
+          $('#dl_file_lhkpn_error').html('File harus dalam format PDF');
+          isValid = false;
+        }
+        
+        // Validasi ukuran file (2.5MB = 2.5 * 1024 * 1024 bytes)
+        const maxSize = 2.5 * 1024 * 1024;
+        if (fileLhkpn.size > maxSize) {
+          $('#dl_file_lhkpn').addClass('is-invalid');
+          $('#dl_file_lhkpn_error').html('Ukuran file tidak boleh melebihi 2.5MB');
+          isValid = false;
+        }
+      }
+      
+      return isValid;
+    }
+
+    // Handle submit form
+    $('#btnSubmitForm').on('click', function() {
+      // Jalankan validasi client-side
+      if (!validateLhkpnForm()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Mohon periksa kembali input Anda.'
+        });
+        return;
+      }
       
       const form = $('#formCreateDetailLhkpn');
       const formData = new FormData(form[0]);
@@ -84,41 +149,22 @@
             $('#myModal').modal('hide');
             
             // Reload tabel
-            reloadTable();
+            if (typeof reloadTable === 'function') {
+              reloadTable();
+            }
             
             Swal.fire({
               icon: 'success',
               title: 'Berhasil',
-              text: response.message
+              text: response.message || 'Data berhasil disimpan'
             });
           } else {
-            if (response.errors) {
-              // Tampilkan pesan error pada masing-masing field
-              $.each(response.errors, function(key, value) {
-                // Handle nested objects (t_detail_lhkpn)
-                if (key.startsWith('t_detail_lhkpn.')) {
-                  const fieldName = key.replace('t_detail_lhkpn.', '');
-                  $(`#${fieldName}`).addClass('is-invalid');
-                  $(`#${fieldName}_error`).html(value[0]);
-                } else {
-                  // Untuk field biasa
-                  $(`#${key}`).addClass('is-invalid');
-                  $(`#${key}_error`).html(value[0]);
-                }
-              });
-              
-              Swal.fire({
-                icon: 'error',
-                title: 'Validasi Gagal',
-                text: 'Mohon periksa kembali input Anda'
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: response.message || 'Terjadi kesalahan saat menyimpan data'
-              });
-            }
+            // Handle error umum
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal',
+              text: response.message || 'Terjadi kesalahan saat menyimpan data'
+            });
           }
         },
         error: function(xhr) {

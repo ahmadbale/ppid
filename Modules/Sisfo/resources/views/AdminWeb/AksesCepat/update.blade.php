@@ -1,4 +1,3 @@
-
 <div class="modal-header">
     <h5 class="modal-title">Edit Akses Cepat</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -19,17 +18,18 @@
         <div class="form-group">
             <label for="ac_judul">Judul Akses Cepat <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="ac_judul" name="t_akses_cepat[ac_judul]" 
-                   required maxlength="100" value="{{ $aksesCepat->ac_judul }}">
+                   maxlength="100" value="{{ $aksesCepat->ac_judul }}">
             <div class="invalid-feedback" id="ac_judul_error"></div>
         </div>
 
         <div class="form-group">
             <label for="ac_url">URL Akses Cepat <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" 
-                   required maxlength="100" placeholder="https://contoh.com" value="{{ $aksesCepat->ac_url }}">
+                   maxlength="100" placeholder="https://contoh.com" value="{{ $aksesCepat->ac_url }}">
             <div class="invalid-feedback" id="ac_url_error"></div>
             <small class="form-text text-muted">Masukkan URL lengkap dengan http:// atau https://</small>
         </div>
+
         <div class="form-group">
             <label for="ac_static_icon">Ikon Statis Akses Cepat</label>
             <div class="custom-file">
@@ -40,7 +40,7 @@
             </div>
         
             @if($aksesCepat->ac_static_icon)
-                <div class="mt-2">
+                <div class="mt-2" id="current-static-image">
                     <img src="{{ asset('storage/akses_cepat_static_icons/' . basename($aksesCepat->ac_static_icon)) }}" 
                          alt="{{ $aksesCepat->ac_judul }}" 
                          style="max-width: 100px; max-height: 100px;">
@@ -53,11 +53,15 @@
                     </small>
                 </div>
             @endif
+            
+            <div id="static-image-preview" class="mt-2 d-none">
+                <p>Ikon statis baru:</p>
+                <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
+            </div>
         
             <div class="invalid-feedback" id="ac_static_icon_error"></div>
             <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG. Ukuran maksimal: 2.5MB.</small>
         </div>
-        
         
         <div class="form-group">
             <label for="ac_animation_icon">Ikon Hover Akses Cepat</label>
@@ -69,7 +73,7 @@
             </div>
         
             @if($aksesCepat->ac_animation_icon)
-                <div class="mt-2">
+                <div class="mt-2" id="current-animation-image">
                     <img src="{{ asset('storage/akses_cepat_animation_icons/' . basename($aksesCepat->ac_animation_icon)) }}" 
                          alt="{{ $aksesCepat->ac_judul }}" 
                          style="max-width: 100px; max-height: 100px;">
@@ -82,6 +86,11 @@
                     </small>
                 </div>
             @endif
+            
+            <div id="animation-image-preview" class="mt-2 d-none">
+                <p>Icon animasi baru:</p>
+                <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
+            </div>
         
             <div class="invalid-feedback" id="ac_animation_icon_error"></div>
             <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG, GIF. Ukuran maksimal: 2.5MB.</small>
@@ -100,7 +109,7 @@
         // Hapus error ketika input berubah
         $(document).on('input change', 'input, select, textarea', function() {
             $(this).removeClass('is-invalid');
-            const errorId = `#${$(this).attr('name').replace('t_akses_cepat[', '').replace(']', '')}_error`;
+            const errorId = `#${$(this).attr('id')}_error`;
             $(errorId).html('');
         });
 
@@ -175,6 +184,63 @@
             const form = $(this);
             const formData = new FormData(this);
             const button = $('#btn-update');
+            
+            // Validasi client-side
+            let isValid = true;
+            
+            // Validasi judul
+            if ($('#ac_judul').val().trim() === '') {
+                $('#ac_judul').addClass('is-invalid');
+                $('#ac_judul_error').html('Judul Akses Cepat wajib diisi.');
+                isValid = false;
+            }
+            
+            // Validasi URL
+            const acUrl = $('#ac_url').val().trim();
+            if (acUrl === '') {
+                $('#ac_url').addClass('is-invalid');
+                $('#ac_url_error').html('URL Akses Cepat wajib diisi.');
+                isValid = false;
+            } else {
+                // Validasi format URL
+                const urlPattern = /^(https?:\/\/)([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/;
+                if (!urlPattern.test(acUrl)) {
+                    $('#ac_url').addClass('is-invalid');
+                    $('#ac_url_error').html('URL Akses Cepat tidak valid. Pastikan dimulai dengan http:// atau https://');
+                    isValid = false;
+                }
+            }
+            
+            // Validasi format gambar statis jika dipilih
+            if ($('#ac_static_icon')[0].files.length > 0) {
+                const file = $('#ac_static_icon')[0].files[0];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
+                if (!allowedTypes.includes(file.type)) {
+                    $('#ac_static_icon').addClass('is-invalid');
+                    $('#ac_static_icon_error').html('Hanya format JPG, JPEG, PNG, SVG, GIF yang diterima.');
+                    isValid = false;
+                }
+            }
+            
+            // Validasi format gambar animasi jika dipilih
+            if ($('#ac_animation_icon')[0].files.length > 0) {
+                const file = $('#ac_animation_icon')[0].files[0];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
+                if (!allowedTypes.includes(file.type)) {
+                    $('#ac_animation_icon').addClass('is-invalid');
+                    $('#ac_animation_icon_error').html('Hanya format JPG, JPEG, PNG, SVG, GIF yang diterima.');
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Mohon periksa kembali input Anda'
+                });
+                return;
+            }
             
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Memperbarui...').attr('disabled', true);
