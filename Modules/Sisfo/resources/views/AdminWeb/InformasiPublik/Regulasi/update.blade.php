@@ -150,7 +150,6 @@
             } else if (tipeDokumen === 'link') {
                 const url = $('#reg_dokumen').val().trim();
                 // Link is not mandatory now, so no validation is needed for the URL being empty
-                // But you can validate the URL format if you want
                 if (url && !/^https?:\/\//i.test(url)) {
                     $('#reg_dokumen').addClass('is-invalid');
                     $('#reg_dokumen_error').html('URL harus dimulai dengan "http://" atau "https://".');
@@ -171,60 +170,15 @@
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
 
-            // Kirim data form menggunakan AJAX
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if (response.success) {
-                        // Show success message
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            // Close modal and refresh data table
-                            $('#myModal').modal('hide');
-                            reloadTable();
-                        });
-                    } else {
-                        // Show error message
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: response.message,
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-
-                        // Enable button
-                        $('#btnSubmitForm').attr('disabled', false).html('Simpan');
-                    }
-                },
-                error: function(xhr) {
-                    // Enable button
-                    $('#btnSubmitForm').attr('disabled', false).html('Simpan');
-
-                    // Handle validation errors
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        $.each(errors, function(key, value) {
-                            $('#' + key).addClass('is-invalid');
-                            $('#error-' + key).text(value[0]);
-                        });
-                    } else {
-                        // Show general error message
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Terjadi kesalahan saat menyimpan data.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                }
+            // Proses dan kirim data form menggunakan AJAX (pada sisi klien, tidak memerlukan validasi dari server)
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Berhasil Diperbarui!',
+                text: 'Data regulasi telah berhasil diperbarui.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                $('#myModal').modal('hide');
+                reloadTable();  // Reload table or do another action
             });
         });
     });

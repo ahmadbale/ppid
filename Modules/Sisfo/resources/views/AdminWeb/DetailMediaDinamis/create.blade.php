@@ -44,11 +44,11 @@
             <label for="media_file">File Media <span class="text-danger">*</span></label>
             <div class="custom-file">
                 <input type="file" class="custom-file-input" id="media_file" name="media_file">
+                <div class="invalid-feedback" id="media_file_error"></div>
                 <label class="custom-file-label" for="media_file">Pilih file</label>
             </div>
             <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, GIF, SVG, WEBP, PDF. Maks
                 2.5MB</small>
-            <div class="invalid-feedback" id="media_file_error"></div>
         </div>
 
         <div class="form-group" id="linkUrlDiv" style="display: none;">
