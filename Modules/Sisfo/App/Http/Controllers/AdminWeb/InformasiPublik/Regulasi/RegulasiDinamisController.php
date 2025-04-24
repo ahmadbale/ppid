@@ -56,13 +56,8 @@ class RegulasiDinamisController extends Controller
 
     public function addData()
     {
-        try {
-            return view("sisfo::AdminWeb/InformasiPublik/RegulasiDinamis.create");
-        } catch (\Exception $e) {
-            // Log error
-            Log::error('Error in addData: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat memuat form tambah data'], 500);
-        }
+        return view("sisfo::AdminWeb/InformasiPublik/RegulasiDinamis.create");
+       
     }
 
     public function createData(Request $request)
@@ -78,25 +73,17 @@ class RegulasiDinamisController extends Controller
         } catch (ValidationException $e) {
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
-            // Log error
-            Log::error('Error in createData: ' . $e->getMessage());
             return $this->jsonError($e, 'Terjadi kesalahan saat membuat regulasi dinamis');
         }
     }
 
     public function editData($id)
     {
-        try {
             $RegulasiDinamis = RegulasiDinamisModel::detailData($id);
 
             return view("sisfo::AdminWeb/InformasiPublik/RegulasiDinamis.update", [
                 'RegulasiDinamis' => $RegulasiDinamis
             ]);
-        } catch (\Exception $e) {
-            // Log error
-            Log::error('Error in editData: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat memuat form edit data'], 500);
-        }
     }
 
     public function updateData(Request $request, $id)
@@ -112,26 +99,18 @@ class RegulasiDinamisController extends Controller
         } catch (ValidationException $e) {
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
-            // Log error
-            Log::error('Error in updateData: ' . $e->getMessage());
             return $this->jsonError($e, 'Terjadi kesalahan saat memperbarui regulasi dinamis');
         }
     }
 
     public function detailData($id)
     {
-        try {
             $RegulasiDinamis = RegulasiDinamisModel::detailData($id);
         
             return view("sisfo::AdminWeb/InformasiPublik/RegulasiDinamis.detail", [
                 'RegulasiDinamis' => $RegulasiDinamis,
                 'title' => 'Detail Regulasi Dinamis'
             ]);
-        } catch (\Exception $e) {
-            // Log error
-            Log::error('Error in detailData: ' . $e->getMessage());
-            return response()->json(['error' => 'Terjadi kesalahan saat memuat detail data'], 500);
-        }
     }
 
     public function deleteData(Request $request, $id)
@@ -152,8 +131,6 @@ class RegulasiDinamisController extends Controller
                 $result['message'] ?? 'Regulasi dinamis berhasil dihapus'
             );
         } catch (\Exception $e) {
-            // Log error
-            Log::error('Error in deleteData: ' . $e->getMessage());
             return $this->jsonError($e, 'Terjadi kesalahan saat menghapus regulasi dinamis');
         }
     }
