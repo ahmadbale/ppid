@@ -31,8 +31,8 @@
       <input type="url" class="form-control" id="f_url_footer" 
              name="t_footer[f_url_footer]" 
              maxlength="100" 
-             placeholder="Contoh: https://www.example.com"
              pattern="https?://.+">
+      <span>Contoh: https://www.example.com</span>
       <div class="invalid-feedback" id="f_url_footer_error"></div>
   </div>
 
@@ -117,14 +117,21 @@
     $('#f_icon_footer').addClass('is-invalid');
     $('#f_icon_footer_error').html('File ikon footer wajib dipilih.');
     isValid = false;
-  } else {
+} else {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp'];
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
     if (!allowedTypes.includes(file.type)) {
-      $('#f_icon_footer').addClass('is-invalid');
-      $('#f_icon_footer_error').html('Hanya file gambar yang diizinkan (JPG, PNG, GIF, SVG, WebP).');
-      isValid = false;
+        $('#f_icon_footer').addClass('is-invalid');
+        $('#f_icon_footer_error').html('Hanya file gambar yang diizinkan (JPG, PNG, GIF, SVG, WebP).');
+        isValid = false;
+    } else if (file.size > maxSize) {
+        $('#f_icon_footer').addClass('is-invalid');
+        $('#f_icon_footer_error').html('Ukuran file tidak boleh lebih dari 2MB.');
+        isValid = false;
     }
-  }
+}
+
 
   return isValid;
 }
