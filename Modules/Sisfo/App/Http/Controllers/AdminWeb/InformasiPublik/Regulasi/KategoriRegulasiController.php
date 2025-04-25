@@ -128,6 +128,13 @@ class KategoriRegulasiController extends Controller
         
         try {
             $result = KategoriRegulasiModel::deleteData($id);
+              // Penting: Periksa apakah result memiliki status success=false
+            if (isset($result['success']) && $result['success'] === false) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Gagal menghapus Kategori Regulasi'
+            ]);
+        }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

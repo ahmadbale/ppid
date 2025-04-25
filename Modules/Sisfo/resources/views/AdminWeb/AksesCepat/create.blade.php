@@ -12,6 +12,7 @@
             <label for="fk_m_kategori_akses">Kategori Akses Cepat</label>
             <input type="hidden" name="t_akses_cepat[fk_m_kategori_akses]" value="{{ $kategoriAkses->kategori_akses_id }}">
             <input type="text" class="form-control" value="{{ $kategoriAkses->mka_judul_kategori }}" readonly>
+            <div class="invalid-feedback" id="error-fk_m_kategori_akses"></div>
         </div>
 
         <div class="form-group">
@@ -25,15 +26,17 @@
             <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" maxlength="100" 
                 placeholder="https://contoh.com">
             <div class="invalid-feedback" id="error-ac_url"></div>
+            <small class="form-text text-muted">Masukkan URL lengkap dengan http:// atau https://</small>
         </div>
 
         <div class="form-group">
             <label for="ac_static_icon">Icon Statis Akses Cepat <span class="text-danger">*</span></label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" accept="image/*">
+                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" 
+                    accept="image/*">
+                <div class="invalid-feedback" id="error-ac_static_icon"></div>
                 <label class="custom-file-label" for="ac_static_icon">Pilih file</label>
             </div>
-            <div class="invalid-feedback" id="error-ac_static_icon"></div>
             <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG, GIF. Ukuran maksimal: 2.5MB.</small>
             <div id="static-image-preview" class="mt-2 d-none">
                 <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
@@ -43,10 +46,11 @@
         <div class="form-group">
             <label for="ac_animation_icon">Icon Hover Akses Cepat</label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" accept="image/*">
+                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" 
+                    accept="image/*">
+                <div class="invalid-feedback" id="error-ac_animation_icon"></div>
                 <label class="custom-file-label" for="ac_animation_icon">Pilih file</label>
             </div>
-            <div class="invalid-feedback" id="error-ac_animation_icon"></div>
             <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG, GIF. Ukuran maksimal: 2.5MB.</small>
             <div id="animation-image-preview" class="mt-2 d-none">
                 <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
@@ -59,13 +63,12 @@
         <button type="submit" class="btn btn-primary" id="btn-save">Simpan</button>
     </div>
 </form>
-
 <script>
     $(document).ready(function () {
         // Hapus error ketika input berubah
         $(document).on('input change', 'input, select, textarea', function() {
             $(this).removeClass('is-invalid');
-            const errorId = `#${$(this).attr('name').replace('t_akses_cepat[', '').replace(']', '')}_error`;
+            const errorId = `#error-${$(this).attr('id')}`;
             $(errorId).html('');
         });
 
@@ -150,16 +153,30 @@
             }
             
             const acUrl = $('#ac_url').val().trim();
-            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
-            if (!urlPattern.test(acUrl)) {
+            if (acUrl === '') {
                 $('#ac_url').addClass('is-invalid');
-                $('#error-ac_url').html('URL Akses Cepat tidak valid.');
+                $('#error-ac_url').html('URL Akses Cepat wajib diisi.');
                 isValid = false;
+            } else {
+                // Validasi format URL
+                const urlPattern = /^(https?:\/\/)([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/;
+                if (!urlPattern.test(acUrl)) {
+                    $('#ac_url').addClass('is-invalid');
+                    $('#error-ac_url').html('URL Akses Cepat tidak valid. Pastikan dimulai dengan http:// atau https://');
+                    isValid = false;
+                }
             }
+
             
             if ($('#ac_static_icon')[0].files.length === 0) {
                 $('#ac_static_icon').addClass('is-invalid');
                 $('#error-ac_static_icon').html('Icon Statis Akses Cepat wajib dipilih.');
+                isValid = false;
+            }
+
+            if ($('#ac_animation_icon')[0].files.length === 0) {
+                $('#ac_animation_icon').addClass('is-invalid');
+                $('#error-ac_animation_icon').html('Icon Animasi Akses Cepat wajib dipilih.');
                 isValid = false;
             }
             
@@ -192,11 +209,27 @@
                             text: response.message
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: response.message || 'Terjadi kesalahan saat menyimpan data'
-                        });
+                        if (response.errors) {
+                            // Tampilkan pesan error pada masing-masing field
+                            $.each(response.errors, function(key, value) {
+                                // Hapus prefix 't_akses_cepat.' dari key
+                                const cleanKey = key.replace('t_akses_cepat.', '');
+                                $(`#${cleanKey}`).addClass('is-invalid');
+                                $(`#error-${cleanKey}`).html(value[0]);
+                            });
+                            
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validasi Gagal',
+                                text: 'Mohon periksa kembali input Anda'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message || 'Terjadi kesalahan saat menyimpan data'
+                            });
+                        }
                     }
                 },
                 error: function(xhr) {
@@ -208,7 +241,7 @@
                 },
                 complete: function() {
                     // Kembalikan tombol submit ke keadaan semula
-                    button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
+                    button.html('Simpan').attr('disabled', false);
                 }
             });
         });

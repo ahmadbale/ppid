@@ -26,15 +26,20 @@
       <div class="invalid-feedback" id="dl_nama_karyawan_error"></div>
     </div>
 
-    <div class="form-group">
-      <label for="lhkpn_file">File LHKPN (PDF) <span class="text-danger">*</span></label>
-      <div class="custom-file">
-        <input type="file" class="custom-file-input" id="lhkpn_file" name="lhkpn_file" accept=".pdf">
-        <label class="custom-file-label" for="lhkpn_file">Pilih file</label>
-      </div>
-      <div class="invalid-feedback" id="lhkpn_file_error"></div>
-      <small class="form-text text-muted">Ukuran maksimal file 2.5MB dengan format PDF.</small>
-    </div>
+    
+<div class="form-group">
+  <label for="dl_file_lhkpn">File LHKPN (PDF) <span class="text-danger">*</span></label>
+  <div class="custom-file">
+      <input type="file" 
+             class="custom-file-input" 
+             id="dl_file_lhkpn" 
+             name="dl_file_lhkpn" 
+             accept=".pdf">
+      <label class="custom-file-label" for="dl_file_lhkpn">Pilih file</label>
+      <div class="invalid-feedback" id="dl_file_lhkpn_error"></div>
+  </div>
+  <small class="form-text text-muted">Ukuran maksimal file 2.5MB dengan format PDF.</small>
+</div>
   </form>
 </div>
 
@@ -46,154 +51,140 @@
 </div>
 
 <script>
- $(document).ready(function () {
-   // Custom file input
-   $('input[type="file"]').on('change', function() {
-     var fileName = $(this).val().split('\\').pop();
-     $(this).next('.custom-file-label').html(fileName || 'Pilih file');
-   });
+  $(document).ready(function () {
+    // Custom file input
+    $('input[type="file"]').on('change', function() {
+      var fileName = $(this).val().split('\\').pop();
+      $(this).next('.custom-file-label').html(fileName || 'Pilih file');
+    });
 
-   // Hapus error ketika input berubah
-   $(document).on('input change', 'input, select, textarea', function() {
-     $(this).removeClass('is-invalid');
-     const errorId = `#${$(this).attr('id')}_error`;
-     $(errorId).html('');
-   });
+    // Hapus error ketika input berubah
+    $(document).on('input change', 'input, select, textarea', function() {
+      $(this).removeClass('is-invalid');
+      const errorId = `#${$(this).attr('id')}_error`;
+      $(errorId).html('');
+    });
 
-   // Validasi form sebelum submit
-   function validateForm() {
-     let isValid = true;
+    // Fungsi validasi formulir
+    function validateLhkpnForm() {
+      // Reset semua error
+      $('.is-invalid').removeClass('is-invalid');
+      $('.invalid-feedback').html('');
+      
+      let isValid = true;
+      
+      // Validasi Tahun LHKPN
+      const tahunLhkpn = $('#fk_m_lhkpn').val();
+      if (!tahunLhkpn) {
+        $('#fk_m_lhkpn').addClass('is-invalid');
+        $('#fk_m_lhkpn_error').html('Tahun LHKPN wajib dipilih');
+        isValid = false;
+      }
+      
+      // Validasi Nama Karyawan
+      const namaKaryawan = $('#dl_nama_karyawan').val().trim();
+      if (!namaKaryawan) {
+        $('#dl_nama_karyawan').addClass('is-invalid');
+        $('#dl_nama_karyawan_error').html('Nama Karyawan wajib diisi');
+        isValid = false;
+      } else if (namaKaryawan.length < 3) {
+        $('#dl_nama_karyawan').addClass('is-invalid');
+        $('#dl_nama_karyawan_error').html('Nama Karyawan minimal 3 karakter');
+        isValid = false;
+      } else if (namaKaryawan.length > 100) {
+        $('#dl_nama_karyawan').addClass('is-invalid');
+        $('#dl_nama_karyawan_error').html('Nama Karyawan maksimal 100 karakter');
+        isValid = false;
+      }
+      
+      // Validasi File LHKPN
+      const fileLhkpn = $('#dl_file_lhkpn')[0].files[0];
+      if (!fileLhkpn) {
+        $('#dl_file_lhkpn').addClass('is-invalid');
+        $('#dl_file_lhkpn_error').html('File LHKPN wajib diunggah');
+        isValid = false;
+      } else {
+        // Validasi tipe file
+        const fileType = fileLhkpn.type;
+        if (fileType !== 'application/pdf') {
+          $('#dl_file_lhkpn').addClass('is-invalid');
+          $('#dl_file_lhkpn_error').html('File harus dalam format PDF');
+          isValid = false;
+        }
+        
+        // Validasi ukuran file (2.5MB = 2.5 * 1024 * 1024 bytes)
+        const maxSize = 2.5 * 1024 * 1024;
+        if (fileLhkpn.size > maxSize) {
+          $('#dl_file_lhkpn').addClass('is-invalid');
+          $('#dl_file_lhkpn_error').html('Ukuran file tidak boleh melebihi 2.5MB');
+          isValid = false;
+        }
+      }
+      
+      return isValid;
+    }
 
-     // Reset error messages
-     $('.is-invalid').removeClass('is-invalid');
-     $('.invalid-feedback').html('');
-
-     // Validasi Tahun LHKPN
-     if ($('#fk_m_lhkpn').val() === "") {
-       $('#fk_m_lhkpn').addClass('is-invalid');
-       $('#fk_m_lhkpn_error').html('Tahun LHKPN wajib dipilih.');
-       isValid = false;
-     }
-
-     // Validasi Nama Karyawan
-     if ($('#dl_nama_karyawan').val().trim() === "") {
-       $('#dl_nama_karyawan').addClass('is-invalid');
-       $('#dl_nama_karyawan_error').html('Nama karyawan wajib diisi.');
-       isValid = false;
-     }
-
-     // Validasi File LHKPN
-     const fileInput = $('#lhkpn_file')[0];
-     if (fileInput.files.length === 0) {
-       $('#lhkpn_file').addClass('is-invalid');
-       $('#lhkpn_file_error').html('File LHKPN wajib diunggah.');
-       isValid = false;
-     } else {
-       const file = fileInput.files[0];
-       const fileSize = file.size / 1024 / 1024; // Convert to MB
-       const fileExtension = file.name.split('.').pop().toLowerCase();
-       
-       if (fileExtension !== 'pdf') {
-         $('#lhkpn_file').addClass('is-invalid');
-         $('#lhkpn_file_error').html('Hanya file PDF yang diperbolehkan.');
-         isValid = false;
-       } else if (fileSize > 2.5) {
-         $('#lhkpn_file').addClass('is-invalid');
-         $('#lhkpn_file_error').html('Ukuran file tidak boleh lebih dari 2.5MB.');
-         isValid = false;
-       }
-     }
-
-     return isValid;
-   }
-
-   // Handle submit form
-   $('#btnSubmitForm').on('click', function() {
-     // Validasi form sebelum melanjutkan
-     if (!validateForm()) {
-       Swal.fire({
-         icon: 'error',
-         title: 'Validasi Gagal',
-         text: 'Mohon periksa kembali input Anda.'
-       });
-       return;
-     }
-
-     // Reset semua error
-     $('.is-invalid').removeClass('is-invalid');
-     $('.invalid-feedback').html('');
-     
-     const form = $('#formCreateDetailLhkpn');
-     const formData = new FormData(form[0]);
-     const button = $(this);
-
-     // Tampilkan loading state pada tombol submit
-     button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-
-     $.ajax({
-       url: form.attr('action'),
-       type: 'POST',
-       data: formData,
-       processData: false,
-       contentType: false,
-       headers: {
-         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-       },
-       success: function(response) {
-         if (response.success) {
-           $('#myModal').modal('hide');
-           
-           // Reload tabel
-           reloadTable();
-           
-           Swal.fire({
-             icon: 'success',
-             title: 'Berhasil',
-             text: response.message
-           });
-         } else {
-           if (response.errors) {
-             // Tampilkan pesan error pada masing-masing field
-             $.each(response.errors, function(key, value) {
-               // Handle nested objects (t_detail_lhkpn)
-               if (key.startsWith('t_detail_lhkpn.')) {
-                 const fieldName = key.replace('t_detail_lhkpn.', '');
-                 $(`#${fieldName}`).addClass('is-invalid');
-                 $(`#${fieldName}_error`).html(value[0]);
-               } else {
-                 // Untuk field biasa
-                 $(`#${key}`).addClass('is-invalid');
-                 $(`#${key}_error`).html(value[0]);
-               }
-             });
-
-             Swal.fire({
-               icon: 'error',
-               title: 'Validasi Gagal',
-               text: 'Mohon periksa kembali input Anda'
-             });
-           } else {
-             Swal.fire({
-               icon: 'error',
-               title: 'Gagal',
-               text: response.message || 'Terjadi kesalahan saat menyimpan data'
-             });
-           }
-         }
-       },
-       error: function(xhr) {
-         console.error('Error:', xhr);
-         Swal.fire({
-           icon: 'error',
-           title: 'Gagal',
-           text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
-         });
-       },
-       complete: function() {
-         // Kembalikan tombol submit ke keadaan semula
-         button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
-       }
-     });
-   });
- });
+    // Handle submit form
+    $('#btnSubmitForm').on('click', function() {
+      // Jalankan validasi client-side
+      if (!validateLhkpnForm()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validasi Gagal',
+          text: 'Mohon periksa kembali input Anda.'
+        });
+        return;
+      }
+      
+      const form = $('#formCreateDetailLhkpn');
+      const formData = new FormData(form[0]);
+      const button = $(this);
+      
+      // Tampilkan loading state pada tombol submit
+      button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+      
+      $.ajax({
+        url: form.attr('action'),
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          if (response.success) {
+            $('#myModal').modal('hide');
+            
+            // Reload tabel
+            if (typeof reloadTable === 'function') {
+              reloadTable();
+            }
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil',
+              text: response.message || 'Data berhasil disimpan'
+            });
+          } else {
+            // Handle error umum
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal',
+              text: response.message || 'Terjadi kesalahan saat menyimpan data'
+            });
+          }
+        },
+        error: function(xhr) {
+          console.error('Error:', xhr);
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+          });
+        },
+        complete: function() {
+          // Kembalikan tombol submit ke keadaan semula
+          button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
+        }
+      });
+    });
+  });
 </script>

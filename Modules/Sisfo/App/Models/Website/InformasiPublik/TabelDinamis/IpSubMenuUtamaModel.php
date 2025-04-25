@@ -1,20 +1,26 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Website\LandingPage;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
-class MenuPintasanModel extends Model
+class IpSubMenuUtama extends Model
 {
     use TraitsModel;
 
-    protected $table = 't_menu_pintasan_lainnya';
-    protected $primaryKey = 'menu_pintasan_id';
+    protected $table = 't_ip_sub_menu_utama';
+    protected $primaryKey = 'ip_sub_menu_utama_id';
     protected $fillable = [
-        'mpl_judul',
-        'mpl_url'
+        'fk_ip_menu_utama',
+        'nama_ip_smu',
+        'dokumen_ip_smu'
     ];
+
+    public function IpMenuUtama()
+    {
+        return $this->belongsTo(IpMenuUtama::class, 'fk_t_ip_menu_utama', 'ip_menu_utama_id');
+    }
 
     public function __construct(array $attributes = [])
     {

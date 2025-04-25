@@ -25,7 +25,7 @@ class HakAksesController extends Controller
             'title' => 'Pengaturan Hak Akses'
         ];
 
-        $activeMenu = 'pengaturanhakakses';
+        $activeMenu = 'HakAkses';
 
         // Mengambil data dari model
         $result = HakAksesModel::selectData();

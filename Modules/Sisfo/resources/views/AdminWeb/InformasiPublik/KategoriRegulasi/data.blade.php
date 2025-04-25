@@ -8,21 +8,19 @@
  <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
      <thead class="text-center">
          <tr>
-             <th >Nomor</th>
-             <th >Regulasi Dinamis</th>
-             <th >Kode Kategori</th>
-             <th >Nama Kategori Regulasi</th>
-             <th >Aksi</th>
+             <th width='5%'>Nomor</th>
+             <th width='10%'>Kode Kategori</th>
+             <th width='40%'>Nama Kategori Regulasi</th>
+             <th width='20%'>Aksi</th>
          </tr>
      </thead>
      <tbody>
          @forelse($kategoriRegulasi as $key => $item)
          <tr>
-             <td>{{ ($kategoriRegulasi->currentPage() - 1) * $kategoriRegulasi->perPage() + $key + 1 }}</td>
-             <td>{{ $item->RegulasiDinamis->rd_judul_reg_dinamis ?? 'Tidak ada' }}</td>
-             <td>{{ $item->kr_kategori_reg_kode }}</td>
-             <td>{{ $item->kr_nama_kategori }}</td>
-             <td>
+             <td table-data-label="Nomor" class="text-center">{{ ($kategoriRegulasi->currentPage() - 1) * $kategoriRegulasi->perPage() + $key + 1 }}</td>
+             <td table-data-label="Kode" class="text-center">{{ $item->kr_kategori_reg_kode }}</td>
+             <td table-data-label="Kategori" class="text-start">{{ $item->kr_nama_kategori }}</td>
+             <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/kategori-regulasi/editData/{$item->kategori_reg_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>

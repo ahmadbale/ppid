@@ -24,6 +24,52 @@ class KategoriFormModel extends Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
+   // Select API
+   public static function getDataTimeline()
+   {
+       $kategoriList = DB::table('m_kategori_form')
+           ->where('isDeleted', 0)
+           ->orderBy('kategori_form_id', 'asc')
+           ->get();
+   
+       $result = $kategoriList->map(function ($kategori) {
+           // Ambil semua timeline dari kategori ini
+           $timelines = DB::table('t_timeline')
+               ->where('fk_m_kategori_form', $kategori->kategori_form_id)
+               ->where('isDeleted', 0)
+               ->get()
+               ->map(function ($timeline) {
+                   // Ambil langkah-langkah dari timeline ini
+                   $langkahs = DB::table('t_langkah_timeline')
+                       ->where('fk_t_timeline', $timeline->timeline_id)
+                       ->where('isDeleted', 0)
+                       ->get()
+                       ->map(function ($langkah) {
+                           return [
+                               'id' => $langkah->langkah_timeline_id,
+                               'deskripsi' => $langkah->langkah_timeline
+                           ];
+                       });
+   
+                   return [
+                       'id' => $timeline->timeline_id,
+                       'judul' => $timeline->judul_timeline,
+                       'file' => $timeline->timeline_file ? asset('storage/' . $timeline->timeline_file) : null,
+                       'langkah' => $langkahs
+                   ];
+               });
+   
+           return [
+               'kategori_id' => $kategori->kategori_form_id,
+               'nama_kategori' => $kategori->kf_nama,
+               'timeline' => $timelines
+           ];
+       });
+   
+       return $result->toArray();
+   }
+   
+   
 
     public static function selectData($perPage = null, $search = '')
     {

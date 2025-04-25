@@ -11,7 +11,7 @@
 
     <div class="form-group">
       <label for="kt_footer_kode">Kode Kategori Footer <span class="text-danger">*</span></label>
-      <input type="text" class="form-control" id="kt_footer_kode" name="m_kategori_footer[kt_footer_kode]" maxlength="20">
+      <input type="text" class="form-control" id="kt_footer_kode" name="m_kategori_footer[kt_footer_kode]" maxlength="5">
       <div class="invalid-feedback" id="kt_footer_kode_error"></div>
     </div>
 

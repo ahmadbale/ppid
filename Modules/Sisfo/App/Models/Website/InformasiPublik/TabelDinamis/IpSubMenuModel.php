@@ -1,24 +1,27 @@
 <?php
 
-namespace Modules\Sisfo\App\Models\Website\LandingPage;
+namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
-class GalerigambarModel extends Model
+class IpSubMenu extends Model
 {
     use TraitsModel;
 
-    protected $table = ' t_galeri_gambar';
-    protected $primaryKey = 'galeri_gambar_id';
+    protected $table = 't_ip_sub_menu';
+    protected $primaryKey = 'ip_sub_menu_id';
     protected $fillable = [
-        'fk_m_geleri_dinamis',
-        'gg_gambar_galeri'
+        'fk_t_ip_sub_menu_utama',
+        'nama_ip_sm',
+        'dokumen_ip_sm'
     ];
-    public function GaleriDinamis()
+
+    public function IpSubMenuUtana()
     {
-        return $this->belongsTo(GaleriDinamisModel::class, 'fk_m_geleri_dinamis', 'galeri_dinamis_id');
+        return $this->belongsTo(IpSubMenuUtama::class, 'fk_t_ip_sub_menu_utama', 'ip_sub_menu_id');
     }
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

@@ -106,126 +106,126 @@
 
         // Handle submit form with client-side validation
         $('#btnSubmitForm').on('click', function() {
-            // Reset semua error
-            $('.is-invalid').removeClass('is-invalid');
-            $('.invalid-feedback').html('');
+    // Reset validation states
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').html('');
 
-            // Ambil nilai input
-            const regulasiDinamis = $('#fk_t_kategori_regulasi').val().trim();
-            const judulRegulasi = $('#reg_judul').val().trim();
-            const sinopsis = $('#reg_sinopsis').val().trim();
-            const tipeDokumen = $('#reg_tipe_dokumen').val();
-            const form = $('#formUpdateRegulasi');
-            const formData = new FormData(form[0]);
-            const button = $(this);
+    // Get form values
+    const form = $('#formUpdateRegulasi')[0];
+    const formData = new FormData(form);
+    const button = $(this);
 
-            // Validasi client-side
-            let isValid = true;
+    // Client-side validation rules
+    const validationRules = {
+        'fk_t_kategori_regulasi': {
+            required: true,
+            message: 'Kategori Regulasi wajib dipilih'
+        },
+        'reg_judul': {
+            required: true,
+            minLength: 3,
+            maxLength: 255,
+            message: 'Judul Regulasi wajib diisi (3-255 karakter)'
+        },
+        'reg_sinopsis': {
+            required: true,
+            minLength: 10,
+            message: 'Sinopsis wajib diisi (minimal 10 karakter)'
+        },
+        'reg_tipe_dokumen': {
+            required: true,
+            message: 'Tipe dokumen wajib dipilih'
+        }
+    };
 
-            // Validasi Regulasi Dinamis
-            if (regulasiDinamis === '') {
-                $('#fk_t_kategori_regulasi').addClass('is-invalid');
-                $('#fk_t_kategori_regulasi_error').html('Kategori Regulasi wajib dipilih.');
+    // Validation function
+    const validateField = (fieldName, value) => {
+        const rules = validationRules[fieldName];
+        if (!rules) return true;
+
+        if (rules.required && !value) {
+            $(`#${fieldName}`).addClass('is-invalid');
+            $(`#${fieldName}_error`).html(rules.message);
+            return false;
+        }
+
+        if (rules.minLength && value.length < rules.minLength) {
+            $(`#${fieldName}`).addClass('is-invalid');
+            $(`#${fieldName}_error`).html(`Minimal ${rules.minLength} karakter`);
+            return false;
+        }
+
+        if (rules.maxLength && value.length > rules.maxLength) {
+            $(`#${fieldName}`).addClass('is-invalid');
+            $(`#${fieldName}_error`).html(`Maksimal ${rules.maxLength} karakter`);
+            return false;
+        }
+
+        return true;
+    };
+
+    // Perform validation
+    let isValid = true;
+
+    // Validate regular fields
+    Object.keys(validationRules).forEach(fieldName => {
+        const value = $(`#${fieldName}`).val()?.trim();
+        if (!validateField(fieldName, value)) {
+            isValid = false;
+        }
+    });
+
+    // Special validation for document type
+    const tipeDokumen = $('#reg_tipe_dokumen').val();
+    if (tipeDokumen === 'file') {
+        const file = $('#reg_dokumen_file')[0].files[0];
+        if (file) {
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(file.type)) {
+                $('#reg_dokumen_file').addClass('is-invalid');
+                $('#reg_dokumen_file_error').html('Format file harus PDF, DOC, atau DOCX');
                 isValid = false;
             }
-
-            // Validasi Judul Regulasi
-            if (judulRegulasi === '') {
-                $('#reg_judul').addClass('is-invalid');
-                $('#reg_judul_error').html('Judul Regulasi wajib diisi.');
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                $('#reg_dokumen_file').addClass('is-invalid');
+                $('#reg_dokumen_file_error').html('Ukuran file maksimal 5MB');
                 isValid = false;
             }
+        }
+    } else if (tipeDokumen === 'link') {
+        const url = $('#reg_dokumen').val().trim();
+        if (url && !/^https?:\/\//i.test(url)) {
+            $('#reg_dokumen').addClass('is-invalid');
+            $('#reg_dokumen_error').html('URL harus dimulai dengan "http://" atau "https://"');
+            isValid = false;
+        }
+    }
 
-            // Validasi Sinopsis
-            if (sinopsis === '') {
-                $('#reg_sinopsis').addClass('is-invalid');
-                $('#reg_sinopsis_error').html('Sinopsis wajib diisi.');
-                isValid = false;
-            }
-
-            // Validasi Tipe Dokumen dan terkait file/link
-            if (tipeDokumen === 'file') {
-                const file = $('#reg_dokumen_file')[0].files[0];
-                // File is not mandatory now, so no validation is needed for the file being empty
-            } else if (tipeDokumen === 'link') {
-                const url = $('#reg_dokumen').val().trim();
-                // Link is not mandatory now, so no validation is needed for the URL being empty
-                // But you can validate the URL format if you want
-                if (url && !/^https?:\/\//i.test(url)) {
-                    $('#reg_dokumen').addClass('is-invalid');
-                    $('#reg_dokumen_error').html('URL harus dimulai dengan "http://" atau "https://".');
-                    isValid = false;
-                }
-            }
-
-            // Jika validasi gagal, tampilkan pesan error dan batalkan pengiriman form
-            if (!isValid) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validasi Gagal',
-                    text: 'Mohon periksa kembali input Anda.'
-                });
-                return;
-            }
-
-            // Tampilkan loading state pada tombol submit
-            button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-
-            // Kirim data form menggunakan AJAX
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if (response.success) {
-                        // Show success message
-                        Swal.fire({
-                            title: 'Berhasil!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            // Close modal and refresh data table
-                            $('#myModal').modal('hide');
-                            reloadTable();
-                        });
-                    } else {
-                        // Show error message
-                        Swal.fire({
-                            title: 'Gagal!',
-                            text: response.message,
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-
-                        // Enable button
-                        $('#btnSubmitForm').attr('disabled', false).html('Simpan');
-                    }
-                },
-                error: function(xhr) {
-                    // Enable button
-                    $('#btnSubmitForm').attr('disabled', false).html('Simpan');
-
-                    // Handle validation errors
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        $.each(errors, function(key, value) {
-                            $('#' + key).addClass('is-invalid');
-                            $('#error-' + key).text(value[0]);
-                        });
-                    } else {
-                        // Show general error message
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Terjadi kesalahan saat menyimpan data.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                }
-            });
+    // Show error message if validation fails
+    if (!isValid) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Validasi Gagal',
+            text: 'Mohon periksa kembali input Anda.'
         });
+        return false;
+    }
+
+    // Show loading state
+    button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+
+    // Submit form if validation passes
+    Swal.fire({
+        icon: 'success',
+        title: 'Data Berhasil Diperbarui!',
+        text: 'Data regulasi telah berhasil diperbarui.',
+        confirmButtonText: 'OK'
+    }).then(() => {
+        $('#myModal').modal('hide');
+        reloadTable();
+    });
+});
     });
 </script>

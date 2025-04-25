@@ -17,17 +17,17 @@
     <tbody>
         @forelse($kategoriAkses as $key => $item)
         <tr>
-            <td>{{ ($kategoriAkses->currentPage() - 1) * $kategoriAkses->perPage() + $key + 1 }}</td>
-            <td>{{ $item->mka_judul_kategori }}</td>
-            <td>
+            <td table-data-label="Nomor" class="text-center">{{ ($kategoriAkses->currentPage() - 1) * $kategoriAkses->perPage() + $key + 1 }}</td>
+            <td table-data-label="Judul Kategori" class="text-center">{{ $item->mka_judul_kategori }}</td>
+            <td table-data-label="Aksi" class="text-center">
                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/kategori-akses/editData/{$item->kategori_akses_id}") }}')">
                     <i class="fas fa-edit"></i> Edit
                 </button>
                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/kategori-akses/detailData/{$item->kategori_akses_id}") }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/kategori-akses/deleteData/{$item->kategori_akses_id}") }}')">
-                    <i class="fas fa-trash"></i> Hapus
+                {{-- <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/kategori-akses/deleteData/{$item->kategori_akses_id}") }}')">
+                    <i class="fas fa-trash"></i> Hapus --}}
                 </button>
             </td>
         </tr>

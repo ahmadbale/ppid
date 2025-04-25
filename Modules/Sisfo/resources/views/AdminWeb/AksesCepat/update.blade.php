@@ -27,57 +27,75 @@
             <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" 
                    maxlength="100" placeholder="https://contoh.com" value="{{ $aksesCepat->ac_url }}">
             <div class="invalid-feedback" id="ac_url_error"></div>
+            <small class="form-text text-muted">Masukkan URL lengkap dengan http:// atau https://</small>
         </div>
 
         <div class="form-group">
-            <label for="ac_static_icon">Icon Statis Akses Cepat</label>
+            <label for="ac_static_icon">Ikon Statis Akses Cepat</label>
             <div class="custom-file">
                 <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" accept="image/*">
                 <label class="custom-file-label" for="ac_static_icon">
-                    {{ $aksesCepat->ac_static_icon ? $aksesCepat->ac_static_icon : 'Pilih file' }}
+                    {{ $aksesCepat->ac_static_icon ? basename($aksesCepat->ac_static_icon) : 'Pilih file gambar' }}
                 </label>
             </div>
-            <div class="invalid-feedback" id="ac_static_icon_error"></div>
-            <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG. Ukuran maksimal: 2.5MB.</small>
-            
+        
             @if($aksesCepat->ac_static_icon)
-            <div id="current-static-image" class="mt-2">
-                <p>Icon statis saat ini:</p>
-                <img src="{{ asset('storage/' . $aksesCepat::STATIC_ICON_PATH . '/' . $aksesCepat->ac_static_icon) }}" 
-                     alt="Current Static Icon" class="img-thumbnail" style="height: 100px;">
-            </div>
+                <div class="mt-2" id="current-static-image">
+                    <img src="{{ asset('storage/akses_cepat_static_icons/' . basename($aksesCepat->ac_static_icon)) }}" 
+                         alt="{{ $aksesCepat->ac_judul }}" 
+                         style="max-width: 100px; max-height: 100px;">
+                    <br>
+                    <small class="text-muted">
+                        Ikon saat ini:
+                        <a href="{{ asset('storage/akses_cepat_static_icons/' . basename($aksesCepat->ac_static_icon)) }}" target="_blank">
+                            {{ basename($aksesCepat->ac_static_icon) }}
+                        </a>
+                    </small>
+                </div>
             @endif
             
             <div id="static-image-preview" class="mt-2 d-none">
-                <p>Icon statis baru:</p>
+                <p>Ikon statis baru:</p>
                 <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
             </div>
+        
+            <div class="invalid-feedback" id="ac_static_icon_error"></div>
+            <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG. Ukuran maksimal: 2.5MB.</small>
         </div>
-
+        
         <div class="form-group">
-            <label for="ac_animation_icon">Icon Hover Akses Cepat</label>
+            <label for="ac_animation_icon">Ikon Hover Akses Cepat</label>
             <div class="custom-file">
                 <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" accept="image/*">
                 <label class="custom-file-label" for="ac_animation_icon">
-                    {{ $aksesCepat->ac_animation_icon ? $aksesCepat->ac_animation_icon : 'Pilih file' }}
+                    {{ $aksesCepat->ac_animation_icon ? basename($aksesCepat->ac_animation_icon) : 'Pilih file gambar' }}
                 </label>
             </div>
-            <div class="invalid-feedback" id="ac_animation_icon_error"></div>
-            <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG, GIF. Ukuran maksimal: 2.5MB.</small>
-            
+        
             @if($aksesCepat->ac_animation_icon)
-            <div id="current-animation-image" class="mt-2">
-                <p>Icon animasi saat ini:</p>
-                <img src="{{ asset('storage/' . $aksesCepat::ANIMATION_ICON_PATH . '/' . $aksesCepat->ac_animation_icon) }}" 
-                     alt="Current Animation Icon" class="img-thumbnail" style="height: 100px;">
-            </div>
+                <div class="mt-2" id="current-animation-image">
+                    <img src="{{ asset('storage/akses_cepat_animation_icons/' . basename($aksesCepat->ac_animation_icon)) }}" 
+                         alt="{{ $aksesCepat->ac_judul }}" 
+                         style="max-width: 100px; max-height: 100px;">
+                    <br>
+                    <small class="text-muted">
+                        Icon animasi saat ini:
+                        <a href="{{ asset('storage/akses_cepat_animation_icons/' . basename($aksesCepat->ac_animation_icon)) }}" target="_blank">
+                            {{ basename($aksesCepat->ac_animation_icon) }}
+                        </a>
+                    </small>
+                </div>
             @endif
             
             <div id="animation-image-preview" class="mt-2 d-none">
                 <p>Icon animasi baru:</p>
                 <img src="" alt="Preview" class="img-thumbnail" style="height: 100px;">
             </div>
+        
+            <div class="invalid-feedback" id="ac_animation_icon_error"></div>
+            <small class="form-text text-muted">Format yang didukung: JPG, JPEG, PNG, SVG, GIF. Ukuran maksimal: 2.5MB.</small>
         </div>
+        
     </div>
 
     <div class="modal-footer">
@@ -91,7 +109,7 @@
         // Hapus error ketika input berubah
         $(document).on('input change', 'input, select, textarea', function() {
             $(this).removeClass('is-invalid');
-            const errorId = `#${$(this).attr('name').replace('t_akses_cepat[', '').replace(']', '')}_error`;
+            const errorId = `#${$(this).attr('id')}_error`;
             $(errorId).html('');
         });
 
@@ -109,7 +127,9 @@
             const file = input[0].files[0];
             if (file) {
                 const fileSizeMB = file.size / (1024 * 1024);
-                $(labelSelector).text(file.name + ' (' + fileSizeMB.toFixed(2) + ' MB)');
+                $(labelSelector).text(
+                    file.name + ' (' + fileSizeMB.toFixed(2) + ' MB)'
+                );
                 
                 if (fileSizeMB > 2.5) {
                     Swal.fire({
@@ -167,43 +187,52 @@
             
             // Validasi client-side
             let isValid = true;
+            
+            // Validasi judul
             if ($('#ac_judul').val().trim() === '') {
                 $('#ac_judul').addClass('is-invalid');
                 $('#ac_judul_error').html('Judul Akses Cepat wajib diisi.');
                 isValid = false;
             }
             
+            // Validasi URL
             const acUrl = $('#ac_url').val().trim();
-            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*$/;
-            if (!urlPattern.test(acUrl)) {
+            if (acUrl === '') {
                 $('#ac_url').addClass('is-invalid');
-                $('#ac_url_error').html('URL Akses Cepat tidak valid.');
+                $('#ac_url_error').html('URL Akses Cepat wajib diisi.');
                 isValid = false;
+            } else {
+                // Validasi format URL
+                const urlPattern = /^(https?:\/\/)([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/;
+                if (!urlPattern.test(acUrl)) {
+                    $('#ac_url').addClass('is-invalid');
+                    $('#ac_url_error').html('URL Akses Cepat tidak valid. Pastikan dimulai dengan http:// atau https://');
+                    isValid = false;
+                }
             }
             
-            // Icon statis dan animasi tidak wajib diisi
+            // Validasi format gambar statis jika dipilih
             if ($('#ac_static_icon')[0].files.length > 0) {
-                // Check if file selected, proceed to validation
                 const file = $('#ac_static_icon')[0].files[0];
-                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
                 if (!allowedTypes.includes(file.type)) {
                     $('#ac_static_icon').addClass('is-invalid');
-                    $('#ac_static_icon_error').html('Hanya format JPG, PNG, GIF, SVG yang diterima.');
+                    $('#ac_static_icon_error').html('Hanya format JPG, JPEG, PNG, SVG, GIF yang diterima.');
                     isValid = false;
                 }
             }
-
+            
+            // Validasi format gambar animasi jika dipilih
             if ($('#ac_animation_icon')[0].files.length > 0) {
-                // Check if file selected, proceed to validation
                 const file = $('#ac_animation_icon')[0].files[0];
-                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
                 if (!allowedTypes.includes(file.type)) {
                     $('#ac_animation_icon').addClass('is-invalid');
-                    $('#ac_animation_icon_error').html('Hanya format JPG, PNG, GIF, SVG yang diterima.');
+                    $('#ac_animation_icon_error').html('Hanya format JPG, JPEG, PNG, SVG, GIF yang diterima.');
                     isValid = false;
                 }
             }
-
+            
             if (!isValid) {
                 Swal.fire({
                     icon: 'error',
@@ -234,7 +263,9 @@
                         });
                     } else {
                         if (response.errors) {
+                            // Tampilkan pesan error pada masing-masing field
                             $.each(response.errors, function(key, value) {
+                                // Hapus prefix 't_akses_cepat.' dari key
                                 const cleanKey = key.replace('t_akses_cepat.', '');
                                 $(`#${cleanKey}`).addClass('is-invalid');
                                 $(`#${cleanKey}_error`).html(value[0]);
@@ -262,6 +293,7 @@
                     });
                 },
                 complete: function() {
+                    // Kembalikan tombol submit ke keadaan semula
                     button.html('<i class="fas fa-save mr-1"></i> Perbarui').attr('disabled', false);
                 }
             });
