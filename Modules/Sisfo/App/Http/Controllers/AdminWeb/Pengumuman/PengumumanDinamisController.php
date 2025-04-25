@@ -148,6 +148,14 @@ class PengumumanDinamisController extends Controller
             }
             
             $result = PengumumanDinamisModel::deleteData($id);
+            // tambahan
+            // Penting: Periksa apakah result memiliki status success=false
+            if (isset($result['success']) && $result['success'] === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Gagal menghapus pintasan lainnya'
+                ]);
+            }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

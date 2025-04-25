@@ -158,6 +158,16 @@ class PengumumanDinamisModel extends Model
             DB::beginTransaction();
             
             $pengumumanDinamis = self::findOrFail($id);
+            // tambahan untuk chek
+               // Check if Pengumuman dinamis is being used in Pengumuman
+            $isUsed = PengumumanModel::where('fk_m_pengumuman_dinamis', $id)
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, Kategori Pengumuman masih digunakan di tempat lain');
+            }
             
             $pengumumanDinamis->delete();
 
