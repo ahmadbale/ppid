@@ -76,13 +76,13 @@
                                     <table class="table table-responsive-stack table-bordered">
                                         <thead class="text-center">
                                             <tr>
-                                                {{-- <th>Menu Utama</th>
-                                                <th>Sub Menu</th> --}}
-                                                <th>Tampil Menu</th>
-                                                <th>Lihat</th>
-                                                <th>Tambah</th>
-                                                <th>Ubah</th>
-                                                <th>Hapus</th>
+                                                <th>Menu Utama</th>
+                                                <th>Sub Menu</th>
+                                                <th class="text-center">Tampil Menu</th>
+                                                <th class="text-center">Lihat</th>
+                                                <th class="text-center">Tambah</th>
+                                                <th class="text-center">Ubah</th>
+                                                <th class="text-center">Hapus</th>
                                             </tr>
                                         </thead>
                                         <tbody id="menuList">
