@@ -15,6 +15,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
@@ -75,6 +76,7 @@ Route::prefix('public')->group(function () {
     Route::get('/public/getFooterItemById/{id}', [ApiFooterController::class, 'getFooterItemById']);
     Route::get('getDashboardStatistics', [ApiDashboardStatisticsController::class, 'getDashboardStatistics']);
     Route::get('getDataTimeline', [ApiTimelineController::class, 'getDataTimeline']);
+    Route::get('getDataKententuanPelaporan', [ApiKetentuanPelaporanController::class, 'getDataKententuanPelaporan']);
     Route::get('getDataRegulasi', [ApiRegulasiController::class, 'getDataRegulasi']);
 
 });
