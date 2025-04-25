@@ -142,240 +142,191 @@
 </div>
 
 <script>
-// Definisikan fungsi validateInput di luar fungsi ready
-function validateInput(element) {
-    const value = element.value.trim();
-    
-    if (value.length > 255) {
-        $('#' + element.id + '_error').html('Deskripsi terlalu panjang (maksimal 255 karakter)');
-    } else {
-        $('#' + element.id + '_error').html('');
-    }
-}
-
-$(document).ready(function() {
-    // Setup AJAX CSRF Token
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    // Custom file input label
-    $(".custom-file-input").on("change", function() {
-        var fileName = $(this).val().split("\\").pop();
-        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-        
-        // Preview thumbnail if file is selected
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#thumbnail-preview').html(`
-                    <img src="${e.target.result}" class="img-fluid rounded shadow-sm" 
-                         style="max-height: 150px; object-fit: cover;">
-                `);
-            }
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    // Validasi semua field sebelum submit
-    function validateForm() {
-        let isValid = true;
-        
-        // Reset error messages
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback, .error-message').html('');
-        
-        // Validasi kategori
-        const kategori = $('#fk_m_berita_dinamis').val();
-        if (!kategori) {
-            $('#fk_m_berita_dinamis').addClass('is-invalid');
-            $('#fk_m_berita_dinamis_error').html('Kategori berita wajib dipilih');
-            isValid = false;
-        }
-        
-        // Validasi judul
-        const judul = $('#berita_judul').val().trim();
-        if (!judul) {
-            $('#berita_judul').addClass('is-invalid');
-            $('#berita_judul_error').html('Judul berita wajib diisi');
-            isValid = false;
-        } else if (judul.length > 140) {
-            $('#berita_judul').addClass('is-invalid');
-            $('#berita_judul_error').html('Judul berita maksimal 140 karakter');
-            isValid = false;
-        }
-        
-        // Validasi status
-        const status = $('input[name="t_berita[status_berita]"]:checked').val();
-        if (!status) {
-            $('#status_berita_error').html('Status berita wajib dipilih');
-            isValid = false;
-        }
-        
-        // Validasi deskripsi thumbnail
-        const thumbnailDesc = $('#berita_thumbnail_deskripsi').val().trim();
-        if (thumbnailDesc.length > 255) {
-            $('#berita_thumbnail_deskripsi_error').html('Deskripsi thumbnail maksimal 255 karakter');
-            isValid = false;
-        }
-        
-        // Validasi konten berita (Summernote)
-        const summernoteContent = $('#berita_deskripsi').summernote('code');
-        if (!summernoteContent || summernoteContent === '' || summernoteContent === '<p><br></p>' || summernoteContent === '<p>Tulis konten berita di sini...</p>') {
-            $('#berita_deskripsi').next('.note-editor').addClass('is-invalid');
-            $('#berita_deskripsi_error').html('Konten berita wajib diisi');
-            isValid = false;
-        }
-        
-        return isValid;
-    }
-
-    // Form submission
-    $('#btnSubmitForm').on('click', function() {
-        // Validasi form
-        if (!validateForm()) {
-            // Scroll to first error
-            const firstError = $('.is-invalid:first');
-            if (firstError.length) {
-                $('.modal-body').animate({
-                    scrollTop: firstError.offset().top - 200
-                }, 500);
-            }
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Validasi Gagal',
-                text: 'Mohon periksa kembali input Anda'
-            });
-            
-            return false;
-        }
-        
-        // Prepare form data
-        const form = $('#formCreateBerita');
-        const formData = new FormData(form[0]);
-        const button = $(this);
-        
-        // Perbaikan untuk summernote content
-        let summernoteContent = $('#berita_deskripsi').summernote('code');
-        
-        // Pastikan konten tidak kosong atau default
-        if (summernoteContent === '<p>Tulis konten berita di sini...</p>') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Konten Kosong',
-                text: 'Mohon isi konten berita terlebih dahulu'
-            });
-            return false;
-        }
-            
-        // Update Summernote content
-        formData.set('t_berita[berita_deskripsi]', summernoteContent);
-
-        // Disable submit button and show loading
-        button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-
-        $.ajax({
-            url: '{{ url("adminweb/berita/createData") }}', // Perbaikan kapitalisasi URL
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response.success) {
-                    // Close modal and reload table
-                    $('#myModal').modal('hide');
-                    loadBeritaData(1, '');
-
-                    // Show success message
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.message
-                    });
-                } else {
-                    // Handle validation errors
-                    if (response.errors) {
-                        $.each(response.errors, function(key, value) {
-                            const fieldName = key.replace('t_berita.', '');
-                            
-                            // Penanganan khusus untuk berita_deskripsi
-                            if (fieldName === 'berita_deskripsi') {
-                                $('#berita_deskripsi').next('.note-editor').addClass('is-invalid');
-                                $('#berita_deskripsi_error').html(value[0]);
-                            } else {
-                                $(`#${fieldName}`).addClass('is-invalid');
-                                $(`#${fieldName}_error`).html(value[0]);
-                            }
-                        });
-
-                        // Scroll to first error
-                        const firstError = $('.is-invalid:first');
-                        if (firstError.length) {
-                            $('.modal-body').animate({
-                                scrollTop: firstError.offset().top - 200
-                            }, 500);
-                        }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validasi Gagal',
-                            text: 'Mohon periksa kembali input Anda'
-                        });
-                    }
-                }
+    $(document).ready(function() {
+        // Validation rules
+        const validationRules = {
+            'fk_m_berita_dinamis': {
+                required: true,
+                message: 'Kategori berita wajib dipilih'
             },
-            error: function(xhr) {
-                console.error("Error Response:", xhr.responseText);
+            'berita_judul': {
+                required: true,
+                minLength: 3,
+                maxLength: 140,
+                message: 'Judul berita wajib diisi (3-140 karakter)'
+            },
+            'status_berita': {
+                required: true,
+                message: 'Status berita wajib dipilih'
+            },
+            'berita_thumbnail_deskripsi': {
+                maxLength: 255,
+                message: 'Deskripsi thumbnail maksimal 255 karakter'
+            },
+            'berita_deskripsi': {
+                required: true,
+                minLength: 10,
+                message: 'Konten berita wajib diisi (minimal 10 karakter)'
+            }
+        };
+    
+        // Validation function
+        const validateField = (fieldName, value) => {
+            const rules = validationRules[fieldName];
+            if (!rules) return true;
+    
+            if (rules.required && !value) {
+                showError(fieldName, rules.message);
+                return false;
+            }
+    
+            if (rules.minLength && value.length < rules.minLength) {
+                showError(fieldName, `Minimal ${rules.minLength} karakter`);
+                return false;
+            }
+    
+            if (rules.maxLength && value.length > rules.maxLength) {
+                showError(fieldName, `Maksimal ${rules.maxLength} karakter`);
+                return false;
+            }
+    
+            return true;
+        };
+    
+        // Show error message
+        const showError = (fieldName, message) => {
+            $(`#${fieldName}`).addClass('is-invalid');
+            $(`#${fieldName}_error`).html(message);
+            
+            // Special handling for Summernote
+            if (fieldName === 'berita_deskripsi') {
+                $('#berita_deskripsi').next('.note-editor').addClass('is-invalid');
+            }
+        };
+    
+        // Reset validation states
+        const resetValidation = () => {
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback, .error-message').html('');
+            $('.note-editor').removeClass('is-invalid');
+        };
+    
+        // Real-time validation
+        $('#berita_judul').on('input', function() {
+            validateField('berita_judul', $(this).val().trim());
+        });
+    
+        $('#fk_m_berita_dinamis').on('change', function() {
+            validateField('fk_m_berita_dinamis', $(this).val());
+        });
+    
+        $('#berita_thumbnail_deskripsi').on('input', function() {
+            validateField('berita_thumbnail_deskripsi', $(this).val().trim());
+        });
+    
+        $('input[name="t_berita[status_berita]"]').on('change', function() {
+            validateField('status_berita', $('input[name="t_berita[status_berita]"]:checked').val());
+        });
+    
+        // File validation
+        $('#berita_thumbnail').on('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    showError('berita_thumbnail', 'Format file harus JPG, PNG, atau GIF');
+                    this.value = '';
+                    return false;
+                }
+    
+                // Validate file size (2.5MB)
+                if (file.size > 2.5 * 1024 * 1024) {
+                    showError('berita_thumbnail', 'Ukuran file maksimal 2.5MB');
+                    this.value = '';
+                    return false;
+                }
+            }
+        });
+    
+        // Form submission handler
+        $('#btnSubmitForm').on('click', function() {
+            resetValidation();
+            let isValid = true;
+    
+            // Validate all fields
+            Object.keys(validationRules).forEach(fieldName => {
+                let value;
                 
-                // Coba parse response jika JSON
-                try {
-                    const errorResponse = JSON.parse(xhr.responseText);
-                    if (errorResponse.errors) {
-                        $.each(errorResponse.errors, function(key, value) {
-                            const fieldName = key.replace('t_berita.', '');
-                            $(`#${fieldName}`).addClass('is-invalid');
-                            $(`#${fieldName}_error`).html(value[0]);
+                if (fieldName === 'status_berita') {
+                    value = $('input[name="t_berita[status_berita]"]:checked').val();
+                } else if (fieldName === 'berita_deskripsi') {
+                    value = $('#berita_deskripsi').summernote('code').replace(/<[^>]*>/g, '').trim();
+                } else {
+                    value = $(`#${fieldName}`).val()?.trim();
+                }
+    
+                if (!validateField(fieldName, value)) {
+                    isValid = false;
+                }
+            });
+    
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Mohon periksa kembali input Anda'
+                });
+    
+                // Scroll to first error
+                const firstError = $('.is-invalid:first');
+                if (firstError.length) {
+                    $('.modal-body').animate({
+                        scrollTop: firstError.offset().top - 200
+                    }, 500);
+                }
+                return false;
+            }
+    
+            // If validation passes, submit the form
+            submitForm($(this));
+        });
+    
+        // Form submission function
+        const submitForm = (button) => {
+            const form = $('#formCreateBerita');
+            const formData = new FormData(form[0]);
+    
+            button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+    
+            $.ajax({
+                url: '{{ url("adminweb/berita/createData") }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#myModal').modal('hide');
+                        loadBeritaData(1, '');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response.message
                         });
                     }
-                } catch (e) {
-                    // Jika bukan JSON, tampilkan error umum
+                },
+                error: function(xhr) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
-                        text: 'Terjadi kesalahan saat menyimpan data: ' + xhr.responseText
+                        text: 'Terjadi kesalahan saat menyimpan data'
                     });
+                },
+                complete: function() {
+                    button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
                 }
-            },
-            complete: function() {
-                // Restore submit button
-                button.html('<i class="fas fa-save mr-1"></i> Simpan').attr('disabled', false);
-            }
-        });
+            });
+        };
     });
-
-    // Tambahkan validasi on input untuk field wajib
-    $('#berita_judul').on('input', function() {
-        if ($(this).val().trim()) {
-            $(this).removeClass('is-invalid');
-            $('#berita_judul_error').html('');
-        }
-    });
-    
-    $('#fk_m_berita_dinamis').on('change', function() {
-        if ($(this).val()) {
-            $(this).removeClass('is-invalid');
-            $('#fk_m_berita_dinamis_error').html('');
-        }
-    });
-    
-    $('input[name="t_berita[status_berita]"]').on('change', function() {
-        $('#status_berita_error').html('');
-    });
-    
-    // Tambahkan CSS untuk validasi error pada summernote
-    $('<style>.note-editor.is-invalid {border: 1px solid #dc3545 !important;}</style>').appendTo('head');
-});
-</script>
+    </script>

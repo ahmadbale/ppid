@@ -46,9 +46,13 @@
         <div class="form-group" id="fileUploadDiv">
             <label for="reg_dokumen_file">File Dokumen <span class="text-danger">*</span></label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="reg_dokumen_file" name="reg_dokumen_file">
-                <div class="invalid-feedback" id="reg_dokumen_file_error"></div>
+                <input type="file" 
+                       class="custom-file-input" 
+                       id="reg_dokumen_file" 
+                       name="reg_dokumen_file"
+                       accept=".pdf,.doc,.docx">
                 <label class="custom-file-label" for="reg_dokumen_file">Pilih file</label>
+                <div class="invalid-feedback" id="reg_dokumen_file_error"></div>
             </div>
             <small class="form-text text-muted">Format yang diizinkan: PDF, DOC, DOCX. Ukuran maksimal: 5MB</small>
         </div>

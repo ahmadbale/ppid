@@ -175,15 +175,15 @@ public static function deleteData($id)
 
         $kategoriFooter = self::findOrFail($id);
 
-        // Periksa apakah ada footer yang terkait dengan kategori ini
-        $footerTerkait = FooterModel::where('fk_m_kategori_footer', $kategoriFooter->kategori_footer_id)
-            ->where('isDeleted', 0)
-            ->count();
+        // Check if Kategori Footer is being used footer
+        $isUsed = FooterModel::where('fk_m_kategori_footer', $id)
+        ->where('isDeleted', 0)
+        ->exists();
 
-        // Jika masih ada footer terkait, lempar exception
-        if ($footerTerkait > 0) {
-            throw new \Exception('Masih terdapat footer aktif yang terkait');
-        }
+    if ($isUsed) {
+        DB::rollBack();
+        throw new \Exception('Maaf,  Kategori Footer masih digunakan di tempat lain');
+    }
 
         $kategoriFooter->delete();
 

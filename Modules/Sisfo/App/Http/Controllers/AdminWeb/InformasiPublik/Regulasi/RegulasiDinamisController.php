@@ -115,7 +115,7 @@ class RegulasiDinamisController extends Controller
 
     public function deleteData(Request $request, $id)
     {
-        try {
+        
             if ($request->isMethod('get')) {
                 $RegulasiDinamis = RegulasiDinamisModel::detailData($id);
                 
@@ -123,8 +123,15 @@ class RegulasiDinamisController extends Controller
                     'RegulasiDinamis' => $RegulasiDinamis
                 ]);
             }
-            
+         try {
             $result = RegulasiDinamisModel::deleteData($id);
+             // Penting: Periksa apakah result memiliki status success=false
+        if (isset($result['success']) && $result['success'] === false) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Gagal menghapus Regulasi  Dinamis'
+            ]);
+        }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

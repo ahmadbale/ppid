@@ -104,6 +104,15 @@ class KategoriRegulasiModel extends Model
             DB::beginTransaction();
 
             $kategoriRegulasi = self::findOrFail($id);
+            // Check if regulasi dinamis use kategori regulasi
+            $isUsed = RegulasiModel::where('fk_t_kategori_regulasi', $id)
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, Kategori regulasi masih digunakan di tempat lain');
+            }
 
             $kategoriRegulasi->delete();
 

@@ -26,15 +26,20 @@
       <div class="invalid-feedback" id="dl_nama_karyawan_error"></div>
     </div>
 
-    <div class="form-group">
-      <label for="dl_file_lhkpn">File LHKPN (PDF) <span class="text-danger">*</span></label>
-      <div class="custom-file">
-        <input type="file" class="custom-file-input" id="dl_file_lhkpn" name="dl_file_lhkpn" accept=".pdf">
-        <div class="invalid-feedback" id="dl_file_lhkpn_error"></div>
-        <label class="custom-file-label" for="dl_file_lhkpn">Pilih file</label>
-      </div>
-      <small class="form-text text-muted">Ukuran maksimal file 2.5MB dengan format PDF.</small>
-    </div>
+    
+<div class="form-group">
+  <label for="dl_file_lhkpn">File LHKPN (PDF) <span class="text-danger">*</span></label>
+  <div class="custom-file">
+      <input type="file" 
+             class="custom-file-input" 
+             id="dl_file_lhkpn" 
+             name="dl_file_lhkpn" 
+             accept=".pdf">
+      <label class="custom-file-label" for="dl_file_lhkpn">Pilih file</label>
+      <div class="invalid-feedback" id="dl_file_lhkpn_error"></div>
+  </div>
+  <small class="form-text text-muted">Ukuran maksimal file 2.5MB dengan format PDF.</small>
+</div>
   </form>
 </div>
 
