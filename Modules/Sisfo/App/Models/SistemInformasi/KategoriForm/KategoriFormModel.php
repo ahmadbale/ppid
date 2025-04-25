@@ -24,13 +24,13 @@ class KategoriFormModel extends Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
-   // Select API
+   // Select API timeline
    public static function getDataTimeline()
    {
        $kategoriList = DB::table('m_kategori_form')
-           ->where('isDeleted', 0)
-           ->orderBy('kategori_form_id', 'asc')
-           ->get();
+       ->where('isDeleted', 0)
+       ->orderBy('kategori_form_id', 'asc')
+       ->get();
    
        $result = $kategoriList->map(function ($kategori) {
            // Ambil semua timeline dari kategori ini
@@ -60,15 +60,37 @@ class KategoriFormModel extends Model
                });
    
            return [
-               'kategori_id' => $kategori->kategori_form_id,
-               'nama_kategori' => $kategori->kf_nama,
+               'kategori_form_id' => $kategori->kategori_form_id,
+               'nama_kategori_form' => $kategori->kf_nama,
                'timeline' => $timelines
            ];
        });
    
        return $result->toArray();
    }
-   
+   // ketentuan pelaporan 
+   public static function getDataKententuanPelaporan()
+{
+    $kategoriList = DB::table('m_kategori_form')
+        ->where('isDeleted', 0)
+        ->orderBy('kategori_form_id')
+        ->get();
+
+    $result = $kategoriList->map(function ($kategori) {
+        $ketentuanPelaporan = DB::table('m_ketentuan_pelaporan')
+            ->where('fk_m_kategori_form', $kategori->kategori_form_id)
+            ->where('isDeleted', 0)
+            ->select('ketentuan_pelaporan_id', 'kp_judul', 'kp_konten')
+            ->get();
+
+        return [
+            'kategori' => $kategori,
+            'ketentuan_pelaporan' => $ketentuanPelaporan
+        ];
+    });
+
+    return $result;
+}
    
 
     public static function selectData($perPage = null, $search = '')
