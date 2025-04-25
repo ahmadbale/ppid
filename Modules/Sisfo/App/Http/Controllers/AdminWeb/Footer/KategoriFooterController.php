@@ -125,10 +125,13 @@ class KategoriFooterController extends Controller
         try {
             $result = KategoriFooterModel::deleteData($id);
             
-            // Periksa apakah operasi berhasil
-            if ($result['success'] === false) {
-                return $this->jsonError(new \Exception($result['message']), $result['message']);
-            }
+         // Penting: Periksa apakah result memiliki status success=false
+        if (isset($result['success']) && $result['success'] === false) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Gagal menghapus Kategori Footer'
+            ]);
+        }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

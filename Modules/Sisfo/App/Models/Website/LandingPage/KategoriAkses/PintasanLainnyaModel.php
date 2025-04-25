@@ -42,18 +42,18 @@ class PintasanLainnyaModel extends Model
     public static function selectData($perPage = null, $search = '')
     {
         $query = self::query()
-            ->with('kategoriAkses') 
+            ->with('kategoriAkses')
             ->where('isDeleted', 0);
-    
+
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('tpl_nama_kategori', 'like', "%{$search}%")
-                  ->orWhereHas('kategoriAkses', function($sq) use ($search) {
-                      $sq->where('mka_judul_kategori', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('kategoriAkses', function ($sq) use ($search) {
+                        $sq->where('mka_judul_kategori', 'like', "%{$search}%");
+                    });
             });
         }
-    
+
         return self::paginateResults($query, $perPage);
     }
 
@@ -111,7 +111,15 @@ class PintasanLainnyaModel extends Model
             DB::beginTransaction();
 
             $pintasanLainnya = self::findOrFail($id);
+            // Check if pintasan lainnya is being used in detail_pintasan_lainnya
+            $isUsed = DetailPintasanLainnyaModel::where('fk_pintasan_lainnya', $id)
+                ->where('isDeleted', 0)
+                ->exists();
 
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, pintasan lainnya masih digunakan di tempat lain');
+            }
             $pintasanLainnya->delete();
 
             TransactionModel::createData(
