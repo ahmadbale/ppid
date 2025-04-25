@@ -84,8 +84,11 @@ class HomeController extends Controller
     {
         $result = [];
         foreach ($data as $item) {
+            $kategoriJudul = $item['kategori_judul'] ?? 'Pintasan Lainnya';
+            
             foreach ($item['pintasan'] as $pintasan) {
                 $result[] = [
+                    'kategori_judul' => $kategoriJudul,
                     'title' => $pintasan['nama_kategori'],
                     'menu' => array_map(function ($detail) {
                         return [
