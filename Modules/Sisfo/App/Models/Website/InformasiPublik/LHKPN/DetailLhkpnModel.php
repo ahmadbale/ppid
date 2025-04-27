@@ -57,14 +57,26 @@ class DetailLhkpnModel extends Model
         );
         try {
             DB::beginTransaction();
-
+    
             $data = $request->t_detail_lhkpn;
-              // Jika file diupload
-              if ($lhkpnFile) {
+            
+            // Cek apakah nama karyawan sudah ada di tahun yang sama
+            $isUsed = self::where('dl_nama_karyawan', $data['dl_nama_karyawan'])
+                ->where('fk_m_lhkpn', $data['fk_m_lhkpn'])
+                ->where('isDeleted', 0)
+                ->exists();
+    
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, nama karyawan sudah ada pada tahun LHKPN yang sama');
+            }
+    
+            // Jika file diupload
+            if ($lhkpnFile) {
                 $data['dl_file_lhkpn'] = $lhkpnFile;
             }
             $detailLhkpn = self::create($data);
-
+    
             // Catat log transaksi
             TransactionModel::createData(
                 'CREATED',
@@ -72,10 +84,10 @@ class DetailLhkpnModel extends Model
                 $detailLhkpn->dl_nama_karyawan
             );
             $result = self::responFormatSukses($detailLhkpn, 'Detail LHKPN berhasil dibuat');
-
+    
             DB::commit();
             return $result;
-
+    
         } catch (ValidationException $e) {
             DB::rollBack();
             self::removeFile($lhkpnFile);
@@ -83,10 +95,10 @@ class DetailLhkpnModel extends Model
         } catch (\Exception $e) {
             DB::rollBack();
             self::removeFile($lhkpnFile);
-            return self::responFormatError($e, 'Gagal membuat detail LHKPN ');
+            return self::responFormatError($e, 'Gagal membuat detail LHKPN');
         }
     }
-
+    
     public static function updateData($request, $id)
     {
         $lhkpnFile = self::uploadFile(
@@ -95,11 +107,24 @@ class DetailLhkpnModel extends Model
         );
         try {
             DB::beginTransaction();
-            
+    
             $detailLhkpn = self::findOrFail($id);
             $data = $request->t_detail_lhkpn;
-             // Jika file diupload
-             if ($lhkpnFile) {
+            
+            // Cek apakah nama karyawan sudah ada di tahun yang sama, kecuali record saat ini
+            $isUsed = self::where('dl_nama_karyawan', $data['dl_nama_karyawan'])
+                ->where('fk_m_lhkpn', $data['fk_m_lhkpn'])
+                ->where('detail_lhkpn_id', '!=', $id)
+                ->where('isDeleted', 0)
+                ->exists();
+    
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, nama karyawan sudah ada pada tahun LHKPN yang sama');
+            }
+    
+            // Jika file diupload
+            if ($lhkpnFile) {
                 // Hapus file lama jika ada
                 if ($detailLhkpn->dl_file_lhkpn) {
                     self::removeFile($detailLhkpn->dl_file_lhkpn);
@@ -107,8 +132,8 @@ class DetailLhkpnModel extends Model
     
                 $data['dl_file_lhkpn'] = $lhkpnFile;
             }
-            $detailLhkpn ->update($data);
-
+            $detailLhkpn->update($data);
+    
             // Catat log transaksi
             TransactionModel::createData(
                 'UPDATED',
@@ -116,10 +141,10 @@ class DetailLhkpnModel extends Model
                 $detailLhkpn->dl_nama_karyawan
             );
             $result = self::responFormatSukses($detailLhkpn, 'Detail LHKPN berhasil diperbarui');
-
+    
             DB::commit();
             return $result;
-
+    
         } catch (ValidationException $e) {
             DB::rollBack();
             self::removeFile($lhkpnFile);
@@ -127,7 +152,7 @@ class DetailLhkpnModel extends Model
         } catch (\Exception $e) {
             DB::rollBack();
             self::removeFile($lhkpnFile);
-            return self::responFormatError($e, 'Gagal memperbarui detail LHKPN ');
+            return self::responFormatError($e, 'Gagal memperbarui detail LHKPN');
         }
     }
 
