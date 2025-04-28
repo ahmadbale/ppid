@@ -9,8 +9,8 @@
     <div class="modal-body">
         <div class="form-group">
             <label for="bd_nama_submenu">Nama Submenu <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="bd_nama_submenu" name="bd_nama_submenu" required maxlength="100">
-            <div class="invalid-feedback" id="error-bd_nama_submenu"></div>
+            <input type="text" class="form-control" id="bd_nama_submenu" name="bd_nama_submenu" maxlength="100">
+            <div class="invalid-feedback" id="bd_nama_submenu_error"></div>
         </div>
     </div>
 
@@ -25,6 +25,7 @@
         // Hapus error ketika input berubah
         $(document).on('input change', 'input, select, textarea', function () {
             $(this).removeClass('is-invalid');
+            // const errorId = `#error-${$(this).attr('id')}`;
             const errorId = `#${$(this).attr('id')}_error`;
             $(errorId).html('');
         });
@@ -49,11 +50,11 @@
             // Validasi Nama Submenu
             if (namaSubmenu === '') {
                 $('#bd_nama_submenu').addClass('is-invalid');
-                $('#error-bd_nama_submenu').html('Nama Submenu wajib diisi.');
+                $('#bd_nama_submenu_error').html('Nama Submenu wajib diisi.');
                 isValid = false;
             } else if (namaSubmenu.length > 100) {
                 $('#bd_nama_submenu').addClass('is-invalid');
-                $('#error-bd_nama_submenu').html('Maksimal 100 karakter.');
+                $('#bd_nama_submenu_error').html('Maksimal 100 karakter.');
                 isValid = false;
             }
 
