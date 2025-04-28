@@ -36,6 +36,7 @@
 
         <div class="form-group">
             <label for="reg_tipe_dokumen">Tipe Dokumen <span class="text-danger">*</span></label>
+
             <select class="form-control" id="reg_tipe_dokumen" name="t_regulasi[reg_tipe_dokumen]">
                 <option value="file">File</option>
                 <option value="link">Link</option>
@@ -45,6 +46,7 @@
 
         <div class="form-group" id="fileUploadDiv">
             <label for="reg_dokumen_file">File Dokumen <span class="text-danger">*</span></label>
+            <small class="form-text text-muted">Format yang diizinkan: PDF, DOC, DOCX. Ukuran maksimal: 2MB</small>
             <div class="custom-file">
                 <input type="file" 
                        class="custom-file-input" 
@@ -54,6 +56,7 @@
                 <label class="custom-file-label" for="reg_dokumen_file">Pilih file</label>
                 <div class="invalid-feedback" id="reg_dokumen_file_error"></div>
             </div>
+
             <small class="form-text text-muted">Format yang diizinkan: PDF, DOC, DOCX. Ukuran maksimal: 5MB</small>
         </div>
 
@@ -126,28 +129,36 @@
                 isValid = false;
             }
 
-            // Validasi Judul Regulasi
             if (judulRegulasi === '') {
                 $('#reg_judul').addClass('is-invalid');
                 $('#reg_judul_error').html('Judul Regulasi wajib diisi.');
                 isValid = false;
             }
 
-            // Validasi Sinopsis
             if (sinopsis === '') {
                 $('#reg_sinopsis').addClass('is-invalid');
                 $('#reg_sinopsis_error').html('Sinopsis wajib diisi.');
                 isValid = false;
             }
 
-            // Validasi Tipe Dokumen dan terkait file/link
             if (tipeDokumen === 'file') {
                 const file = $('#reg_dokumen_file')[0].files[0];
                 if (!file) {
                     $('#reg_dokumen_file').addClass('is-invalid');
                     $('#reg_dokumen_file_error').html('File Dokumen wajib dipilih.');
                     isValid = false;
+                } else {
+                    const maxFileSize = 2.0 * 1024 * 1024;
+                    if (file.size > maxFileSize) {
+                        isValid = false;
+                        $('#reg_dokumen_file').addClass('is-invalid');
+                        $('#reg_dokumen_file_error').html('Ukuran file lebih dari 2MB.');
+                        // Reset file input dan label
+                        $('#reg_dokumen_file').val('');
+                        $('.custom-file-label').html('Pilih file');
+                    }
                 }
+
             } else if (tipeDokumen === 'link') {
                 const url = $('#reg_dokumen').val().trim();
                 if (url === '') {

@@ -19,7 +19,7 @@
          <tr>
              <td table-data-label="Nomor" class="text-center">{{ ($lhkpn->currentPage() - 1) * $lhkpn->perPage() + $key + 1 }}</td>
              <td table-data-label="Tahun" class="text-center">{{ $item->lhkpn_tahun }}</td>
-             <td table-data-label="Judul" class="text-center">{{ $item->lhkpn_judul_informasi }}</td>
+             <td table-data-label="Judul" class="text-start">{{ $item->lhkpn_judul_informasi }}</td>
              <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/lhkpn-tahun/editData/{$item->lhkpn_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
