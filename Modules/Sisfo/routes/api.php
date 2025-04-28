@@ -76,7 +76,7 @@ Route::prefix('public')->group(function () {
     Route::get('/public/getFooterItemById/{id}', [ApiFooterController::class, 'getFooterItemById']);
     Route::get('getDashboardStatistics', [ApiDashboardStatisticsController::class, 'getDashboardStatistics']);
     Route::get('getDataTimeline', [ApiTimelineController::class, 'getDataTimeline']);
-    Route::get('getDataKententuanPelaporan', [ApiKetentuanPelaporanController::class, 'getDataKententuanPelaporan']);
+    Route::get('getDataKetentuanPelaporan', [ApiKetentuanPelaporanController::class, 'getDataKetentuanPelaporan']);
     Route::get('getDataRegulasi', [ApiRegulasiController::class, 'getDataRegulasi']);
 
 });
