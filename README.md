@@ -1,87 +1,90 @@
-📚 Sistem Informasi PPID Polinema
-🚀 Project Pengembangan Layanan Informasi Publik
-Selamat datang di repository Sistem Informasi PPID Polinema, sebuah sistem informasi modern untuk mendukung layanan keterbukaan informasi publik di Politeknik Negeri Malang.
-Proyek ini bertujuan untuk memberikan akses informasi yang lebih mudah, transparan, dan efisien kepada masyarakat umum, sesuai dengan prinsip keterbukaan informasi publik.
+# 📚 Sistem Informasi PPID Polinema
 
-💡 Tim Pengembang:
+## 🚀 Project Pengembangan Layanan Informasi Publik
 
-Nama	Role
-🎨 Adelia Syaharani Hermawan	Frontend Developer
-🎨 Ahmad Iqbal Firmansyah	Frontend Developer
-🛠️ M. Isroqi Gelby Firmansyah	Backend Developer
-🛠️ Solikhin	Backend Developer
-🎯 Tujuan Proyek
+Selamat datang di repository **Sistem Informasi PPID Polinema**, sebuah sistem informasi modern untuk mendukung layanan keterbukaan informasi publik di **Politeknik Negeri Malang**.  
+Proyek ini bertujuan untuk memberikan akses informasi yang lebih **mudah**, **transparan**, dan **efisien** kepada masyarakat umum, sesuai dengan prinsip keterbukaan informasi publik.
+
+---
+
+## 👨‍💻 Tim Pengembang
+
+| Nama | Role |
+|:----|:-----|
+| 🎨 Adelia Syaharani Hermawan | Frontend Developer |
+| 🎨 Ahmad Iqbal Firmansyah | Frontend Developer |
+| 🛠️ M. Isroqi Gelby Firmansyah | Backend Developer |
+| 🛠️ Solikhin | Backend Developer |
+
+---
+
+## 🎯 Tujuan Proyek
+
 Membangun sistem informasi yang mempermudah masyarakat dalam:
 
-Mengakses berbagai jenis informasi publik.
+- Mengakses berbagai jenis informasi publik.
+- Mengajukan permohonan informasi.
+- Menyampaikan keberatan atau pengaduan terkait informasi publik.
+- Memantau transparansi dan akuntabilitas layanan informasi publik di lingkungan Polinema.
 
-Mengajukan permohonan informasi.
+---
 
-Menyampaikan keberatan atau pengaduan terkait informasi publik.
+## ✨ Fitur Utama
 
-Memantau transparansi dan akuntabilitas layanan informasi publik di lingkungan Polinema.
-
-✨ Fitur Utama
-📄 Permohonan Informasi Publik
+### 📄 Permohonan Informasi Publik
 Masyarakat dapat dengan mudah mengajukan permintaan akses terhadap informasi yang dibutuhkan.
 
-📝 Pengajuan Keberatan
+### 📝 Pengajuan Keberatan
 Pengguna dapat mengajukan keberatan resmi jika permohonan informasi ditolak atau tidak ditindaklanjuti.
 
-📢 Pengaduan WBS dan Masyarakat
+### 📢 Pengaduan WBS dan Masyarakat
 Menyediakan kanal bagi masyarakat dan whistleblower untuk menyampaikan pengaduan terkait pelanggaran keterbukaan informasi.
 
-📂 Download Dokumen Publik
-Akses langsung terhadap dokumen-dokumen publik yang tersedia secara resmi.
+### 📂 Download Dokumen Publik
+Pengguna dapat mengakses dan mengunduh berbagai dokumen publik yang tersedia.
 
-🔐 Login & Registrasi
-Sistem login aman untuk pengguna umum dan admin, dengan fitur pendaftaran mandiri.
+### 🔐 Login & Registrasi
+Fitur login aman untuk pengguna umum maupun admin, dilengkapi dengan sistem registrasi mandiri.
 
-📊 Dashboard Admin & Sistem Informasi
-Admin dapat mengelola data informasi, permohonan, keberatan, dan laporan pengaduan melalui dashboard yang interaktif.
+### 📊 Dashboard Admin & Sistem Informasi
+Admin dapat memonitor dan mengelola data permohonan, keberatan, pengaduan, serta informasi publik melalui dashboard.
 
-🗂️ Kategori Informasi
-Sistem ini menyediakan berbagai jenis informasi sesuai kategori:
+### 🗂️ Kategori Informasi
 
-Informasi Berkala: Informasi yang secara rutin diperbaharui dan dipublikasikan.
+- **Informasi Berkala**  
+  Informasi yang wajib disediakan dan diperbaharui secara rutin.
 
-Informasi Setiap Saat: Informasi yang dapat diakses kapan saja atas permintaan.
+- **Informasi Setiap Saat**  
+  Informasi yang tersedia setiap saat dan dapat diakses berdasarkan permintaan.
 
-Informasi Serta Merta: Informasi yang harus segera diumumkan terkait keadaan darurat atau situasi tertentu.
+- **Informasi Serta Merta**  
+  Informasi yang harus diumumkan segera karena berkaitan dengan keselamatan atau kepentingan publik.
 
-Informasi Dikecualikan: Informasi yang tidak dapat diakses publik dengan alasan tertentu sesuai regulasi.
+- **Informasi Dikecualikan**  
+  Informasi yang tidak dapat diakses publik sesuai ketentuan perundang-undangan.
 
-🛠️ Teknologi yang Digunakan
-🌐 Web Development
-Laravel
-Framework PHP untuk pengembangan backend dan API secara efisien.
+---
 
-Bootstrap
-Framework CSS untuk membangun tampilan web yang responsif dan modern.
+## 🛠️ Teknologi yang Digunakan
 
-Alpine.js
-Library ringan untuk interaktivitas front-end yang reaktif.
+- **Laravel** — Backend development.
+- **Bootstrap** — Frontend styling.
+- **Alpine.js** — Frontend interaktivitas ringan.
+- **MySQL** — Database management.
 
-💾 Database
-MySQL
-Sistem manajemen database relasional untuk menyimpan data informasi publik, permohonan, dan pengaduan.
+---
 
-🔧 Tools Pendukung
-Figma
-Untuk perancangan dan prototyping desain antarmuka pengguna.
+## 🔧 Tools Pendukung
 
-Postman
-Untuk pengujian API dan integrasi backend.
+- **Figma** — Desain dan prototyping UI/UX.
+- **Postman** — API testing.
+- **GitHub** — Version control dan kolaborasi.
+- **Google Drive & Google Docs** — Dokumentasi dan penyimpanan cloud.
+- **Notion** — Manajemen tugas dan koordinasi tim.
 
-GitHub
-Untuk version control dan kolaborasi pengembangan.
+---
 
-Google Drive & Google Docs
-Untuk penyimpanan cloud, dokumentasi, dan koordinasi tim pengembang.
+## 📬 Catatan
 
-Notion
-Untuk manajemen tugas, pencatatan ide, dan kolaborasi project secara real-time.
-
-📬 Catatan
-Sistem ini masih dalam tahap pengembangan aktif.
-Kontribusi, saran, dan masukan dari pengguna sangat kami hargai untuk penyempurnaan lebih lanjut. 🚀
+Sistem ini masih dalam tahap pengembangan aktif.  
+Kontribusi, ide, dan masukan dari pengguna sangat kami apresiasi untuk pengembangan ke depannya! 🚀
