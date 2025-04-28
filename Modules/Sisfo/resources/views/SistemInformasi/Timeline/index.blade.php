@@ -1,4 +1,4 @@
-{{-- @extends('sisfo::layouts.template')
+@extends('sisfo::layouts.template')
 
 @section('content')
   <div class="card card-outline card-primary">
@@ -120,9 +120,9 @@
       loadTimelineData(currentPage, search);
     }
   </script>
-@endpush --}}
+@endpush
 
-
+{{-- 
 @extends('sisfo::layouts.template')
 
 @section('content')
@@ -245,4 +245,4 @@
       loadKategoriFormData(currentPage, search);
     }
   </script>
-@endpush
+@endpush --}}

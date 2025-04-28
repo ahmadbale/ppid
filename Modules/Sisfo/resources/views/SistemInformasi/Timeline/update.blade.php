@@ -9,7 +9,7 @@
 
 <div class="modal-body">
     <form id="formUpdateTimeline" action="{{ url('SistemInformasi/Timeline/updateData/' . $timeline->timeline_id) }}"
-        method="POST">
+        method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="alert alert-info mt-3">
@@ -34,6 +34,33 @@
             <input type="text" class="form-control" id="judul_timeline" name="t_timeline[judul_timeline]" maxlength="255"
                 value="{{ $timeline->judul_timeline }}">
             <div class="invalid-feedback" id="judul_timeline_error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="timeline_file">File Timeline (PDF) <span class="text-muted">(Opsional)</span></label>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="timeline_file" name="timeline_file" accept=".pdf">
+                <label class="custom-file-label" for="timeline_file">
+                    @if($timeline->timeline_file)
+                        {{ $timeline->timeline_file }} (Ganti file)
+                    @else
+                        Pilih file PDF (maks 5 MB)
+                    @endif
+                </label>
+            </div>
+            <div class="invalid-feedback" id="timeline_file_error"></div>
+            <small class="form-text text-muted">
+                Hanya file PDF dengan ukuran maksimal 5 MB. 
+            </small>
+            
+            @if($timeline->timeline_file)
+            <div class="mt-2">
+                <p class="mb-1">File saat ini:</p>
+                <a href="{{ Storage::url($timeline->timeline_file) }}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-file-pdf"></i> Lihat Dokumen
+                </a>
+            </div>
+            @endif
         </div>
 
         <div class="mt-4 mb-3">
@@ -85,6 +112,12 @@
 
 <script>
     $(document).ready(function () {
+        // Tambahan untuk custom file input
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).siblings('.custom-file-label').addClass('selected').html(fileName || 'Pilih file PDF (maks. 5 MB)');
+        });
+
         let currentLangkahCount = parseInt($('#jumlah_langkah_timeline').val());
         // Array untuk menyimpan indeks yang dihapus
         let deletedLangkahIndices = [];
