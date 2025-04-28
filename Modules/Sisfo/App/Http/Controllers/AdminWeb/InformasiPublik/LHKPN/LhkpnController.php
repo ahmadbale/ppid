@@ -124,6 +124,13 @@ class LhkpnController extends Controller
         
         try {
             $result = LhkpnModel::deleteData($id);
+             // Penting: Periksa apakah result memiliki status success=false
+             if (isset($result['success']) && $result['success'] === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Gagal menghapus LHKPN Tahun'
+                ]);
+            }
             
             return $this->jsonSuccess(
                 $result['data'] ?? null, 

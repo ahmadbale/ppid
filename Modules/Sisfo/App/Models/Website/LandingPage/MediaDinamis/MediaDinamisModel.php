@@ -262,12 +262,14 @@ class MediaDinamisModel extends Model
     
             $mediaDinamis = self::findOrFail($id);
     
-            $mediaTerkait = DetailMediaDinamisModel::where('fk_m_media_dinamis', $id)
+            // Check if Media dinamis being used in Detail Media Dinamis
+            $isUsed = DetailMediaDinamisModel::where('fk_m_media_dinamis', $id)
                 ->where('isDeleted', 0)
-                ->count();
-    
-            if ($mediaTerkait > 0) {
-                throw new \Exception('Masih terdapat footer aktif yang terkait');
+                ->exists();
+
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, Media Dinamis masih digunakan di tempat lain');
             }
     
             $mediaDinamis->delete();
@@ -283,7 +285,7 @@ class MediaDinamisModel extends Model
             return self::responFormatSukses($mediaDinamis, 'Media dinamis berhasil dihapus');
         } catch (\Exception $e) {
             DB::rollBack();
-            return self::responFormatError($e, $e->getMessage());
+            return self::responFormatError($e,  'Gagal menghapus Media Dinamis');
         }
     }
 

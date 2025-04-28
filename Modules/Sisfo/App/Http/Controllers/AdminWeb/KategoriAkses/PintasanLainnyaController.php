@@ -12,14 +12,14 @@ use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\PintasanLainnyaMo
 class PintasanLainnyaController extends Controller
 {
     use TraitsController;
-     
+
     public $breadcrumb = 'Pengaturan Pintasan Lainnya';
     public $pagename = 'AdminWeb/PintasanLainnya';
 
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $search = $request->query('search', '');
-     
+
         $breadcrumb = (object) [
             'title' => 'Pengaturan Pintasan Lainnya',
             'list' => ['Home', 'Pengaturan Pintasan Lainnya']
@@ -29,12 +29,12 @@ class PintasanLainnyaController extends Controller
         ];
 
         $activeMenu = 'pintasan-lainnya';
-         // Ambil data kategori akses untuk filter
-         $kategoriAkses = KategoriAksesModel::where('isDeleted', 0)->get();
+        // Ambil data kategori akses untuk filter
+        $kategoriAkses = KategoriAksesModel::where('isDeleted', 0)->get();
 
         $pintasanLainnya = PintasanLainnyaModel::selectData(10, $search);
 
-        return view("sisfo::AdminWeb/PintasanLainnya.index",[
+        return view("sisfo::AdminWeb/PintasanLainnya.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -48,27 +48,25 @@ class PintasanLainnyaController extends Controller
     {
         $search = $request->query('search', '');
         $pintasanLainnya = PintasanLainnyaModel::selectData(10, $search);
-        
+
         if ($request->ajax()) {
             return view('sisfo::AdminWeb/PintasanLainnya.data', compact('pintasanLainnya', 'search'))->render();
         }
-        
+
         return redirect()->route('pintasan-lainnya.index');
     }
 
     public function addData()
     {
-        // Perbaikan: menggunakan kategori_akses_id bukan id dan quoting string dengan benar
-        $kategoriAkses = KategoriAksesModel::where('mka_judul_kategori', '=', 'Pintasan Lainnya')
-            ->where('kategori_akses_id', '=', 2)
+        $kategoriAkses = KategoriAksesModel::where('kategori_akses_id', 2)
             ->where('isDeleted', 0)
             ->first();
-    
+
         if (!$kategoriAkses) {
             // Fallback untuk mendapatkan Kategori Akses yang tersedia jika yang spesifik tidak ditemukan
             $kategoriAkses = KategoriAksesModel::where('isDeleted', 0)->first();
         }
-    
+
         return view('sisfo::AdminWeb/PintasanLainnya.create', compact('kategoriAkses'));
     }
 
@@ -79,7 +77,7 @@ class PintasanLainnyaController extends Controller
             $result = PintasanLainnyaModel::createData($request);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Pintasan lainnya berhasil dibuat'
             );
         } catch (ValidationException $e) {
@@ -105,7 +103,7 @@ class PintasanLainnyaController extends Controller
             $result = PintasanLainnyaModel::updateData($request, $id);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Pintasan lainnya berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -118,7 +116,7 @@ class PintasanLainnyaController extends Controller
     public function detailData($id)
     {
         $pintasanLainnya = PintasanLainnyaModel::detailData($id);
-        
+
         return view("sisfo::AdminWeb/PintasanLainnya.detail", [
             'pintasanLainnya' => $pintasanLainnya,
             'title' => 'Detail Pintasan Lainnya'
@@ -129,17 +127,25 @@ class PintasanLainnyaController extends Controller
     {
         if ($request->isMethod('get')) {
             $pintasanLainnya = PintasanLainnyaModel::detailData($id);
-            
+
             return view("sisfo::AdminWeb/PintasanLainnya.delete", [
                 'pintasanLainnya' => $pintasanLainnya
             ]);
         }
-        
+
         try {
             $result = PintasanLainnyaModel::deleteData($id);
-            
+
+            // Penting: Periksa apakah result memiliki status success=false
+            if (isset($result['success']) && $result['success'] === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Gagal menghapus pintasan lainnya'
+                ]);
+            }
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Pintasan lainnya berhasil dihapus'
             );
         } catch (\Exception $e) {

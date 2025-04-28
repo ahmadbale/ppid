@@ -74,7 +74,10 @@
      <!-- Akses Menu Cepat -->
      <section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
         <div class="container text-center" style="margin: 50px auto;">
-            <h3 class="title-section">Akses Menu Cepat</h3>
+            {{-- <h3 class="title-section">Akses Menu Cepat</h3> --}}
+            <h3 class="title-section">
+                {{ $aksesCepatMenus[0]['title'] ?? 'Akses Menu Cepat' }}
+            </h3>
             <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
             <div class="row justify-content-center mt-4">
                 <div class="menu-container">
@@ -115,50 +118,61 @@
         </div>
     </section>
 
-     {{-- Stats section --}}
-    {{-- <section class="statistik-section py-5" x-data="statistikCounter">
-        <div class="container">
-            <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
-            <p class="info-text">Dalam periode <strong>2023/2024</strong> telah melayani sebanyak:</p>
+    {{-- Stats section --}}
+{{-- Stats section --}}
+<section class="statistik-section py-5" x-data="statistikCounter">
+    <div class="container">
+        <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
+        
+        @if(!empty($statisticData['periode']))
+            <p class="info-text">Dalam periode <strong>{{ $statisticData['periode']['tahun'] }}</strong> telah melayani sebanyak:</p>
             <div class="statistik-row">
                 <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[0]"></h3>
-                    <p>Pengajuan Permohonan</p>
+                    <h3 class="counter" x-text="counts[0]" x-init="targets[0] = {{ $statisticData['periode']['pengajuan_total'] }}">0</h3>
+                    <p>Total Pengajuan</p>
                 </div>
                 <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[1]"></h3>
-                    <p>Permohonan Diterima</p>
+                    <h3 class="counter" x-text="counts[1]" x-init="targets[1] = {{ $statisticData['periode']['pengajuan_diterima'] }}">0</h3>
+                    <p>Pengajuan Diterima</p>
                 </div>
                 <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[2]"></h3>
-                    <p>Permohonan Ditolak</p>
+                    <h3 class="counter" x-text="counts[2]" x-init="targets[2] = {{ $statisticData['periode']['pengajuan_ditolak'] }}">0</h3>
+                    <p>Pengajuan Ditolak</p>
                 </div>
             </div>
-            <p class="info-text">Dengan kasus sebanyak:</p>
-            <div class="statistik-row">
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[3]"></h3>
-                    <p>Permohonan Informasi</p>
+
+            @if(!empty($statisticData['jenis_kasus']))
+                <p class="info-text">Dengan kasus sebanyak:</p>
+                <div class="statistik-row">
+                    <div class="statistik-item">
+                        <h3 class="counter" x-text="counts[3]" x-init="targets[3] = {{ $statisticData['jenis_kasus']['permohonan_informasi'] }}">0</h3>
+                        <p>Permohonan Informasi</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter" x-text="counts[4]" x-init="targets[4] = {{ $statisticData['jenis_kasus']['aduan_masyarakat'] }}">0</h3>
+                        <p>Aduan Masyarakat</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter" x-text="counts[5]" x-init="targets[5] = {{ $statisticData['jenis_kasus']['pernyataan_keberatan'] }}">0</h3>
+                        <p>Pernyataan Keberatan</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter" x-text="counts[6]" x-init="targets[6] = {{ $statisticData['jenis_kasus']['whistle_blowing_system'] }}">0</h3>
+                        <p>Whistle Blowing System (WBS)</p>
+                    </div>
+                    <div class="statistik-item">
+                        <h3 class="counter" x-text="counts[7]" x-init="targets[7] = {{ $statisticData['jenis_kasus']['permohonan_pemeliharaan'] }}">0</h3>
+                        <p>Pemeliharaan Sarana Prasarana</p>
+                    </div>
                 </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[4]"></h3>
-                    <p>Aduan Masyarakat</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[5]"></h3>
-                    <p>Pernyataan Keberatan</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[6]"></h3>
-                    <p>Whistle Blowing System (WBS)</p>
-                </div>
-                <div class="statistik-item">
-                    <h3 class="counter" x-text="counts[7]"></h3>
-                    <p>Pemeliharaan Sarana Prasarana</p>
-                </div>
+            @endif
+        @else
+            <div class="text-center text-white">
+                <p>Data statistik belum tersedia</p>
             </div>
-        </div>
-    </section> --}}
+        @endif
+    </div>
+</section>
 
      {{-- DOKUMENTASI --}}
      <section class="dokumentasi-section py-3 py-md-5">
@@ -356,8 +370,8 @@
 
     {{-- Pintasan Lainnya --}}
     <section class="pintasan py-5">
-        <h3 class="title-section-pintasan fw-bold text-white text-left px-5" >
-            Pintasan Lainnya <i class="bi bi-link-45deg"></i>
+        <h3 class="title-section-pintasan fw-bold text-white text-left px-5">
+            {{ $pintasanMenus[0]['kategori_judul'] ?? 'Pintasan Lainnya' }}  <i class="bi bi-link-45deg"></i>
         </h3>
         <div class="row mt-4 px-5 text-center">
             @if (!empty($pintasanMenus))

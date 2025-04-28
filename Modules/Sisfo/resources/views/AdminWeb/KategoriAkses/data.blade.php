@@ -26,8 +26,8 @@
                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/kategori-akses/detailData/{$item->kategori_akses_id}") }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/kategori-akses/deleteData/{$item->kategori_akses_id}") }}')">
-                    <i class="fas fa-trash"></i> Hapus
+                {{-- <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/kategori-akses/deleteData/{$item->kategori_akses_id}") }}')">
+                    <i class="fas fa-trash"></i> Hapus --}}
                 </button>
             </td>
         </tr>

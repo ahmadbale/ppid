@@ -19,7 +19,7 @@
          @forelse($detailPintasanLainnya as $key => $item)
          <tr>
              <td table-data-label="No" class="text-center">{{ ($detailPintasanLainnya->currentPage() - 1) * $detailPintasanLainnya->perPage() + $key + 1 }}</td>
-             <td table-data-label="Kategori Pintasan" class="text-center">{{ $item->pintasanLainnya->tpl_nama_kategori ?? 'N/A' }}</td>
+             <td table-data-label="Kategori Pintasan" class="text-center">{{ $item->pintasanLainnya->tpl_nama_kategori ?? 'Kategori Tidak Tersedia' }}</td>
              <td table-data-label="Judul Pintasan" class="text-center">{{ $item->dpl_judul }}</td>
              <td table-data-label="URL" class="text-truncate" style="max-width: 200px;">
                 <a href="{{ $item->dpl_url }}" target="_blank">{{ $item->dpl_url }}</a>

@@ -27,23 +27,37 @@
     </div>
 
     <div class="form-group">
-      <label for="f_url_footer">URL Footer</label>
+      <label for="f_url_footer">URL Footer<span class="text-danger">*</span></label>
       <input type="url" class="form-control" id="f_url_footer" 
              name="t_footer[f_url_footer]" 
              maxlength="100" 
-             placeholder="Contoh: https://www.example.com"
              pattern="https?://.+">
+      <span>Contoh: https://www.example.com</span>
       <div class="invalid-feedback" id="f_url_footer_error"></div>
   </div>
 
-    <div class="form-group">
-      <label for="f_icon_footer">Ikon Footer</label>
-      <div class="custom-file">
-        <input type="file" class="custom-file-input" id="f_icon_footer" name="f_icon_footer" accept="image/*">
+  <div class="form-group">
+    <label for="f_icon_footer">
+        Ikon Footer 
+        <small class="text-muted">(Opsional)</small>
+    </label>
+    <div class="custom-file">
+        <input type="file" 
+               class="custom-file-input" 
+               id="f_icon_footer" 
+               name="f_icon_footer" 
+               accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml,image/webp">
         <label class="custom-file-label" for="f_icon_footer">Pilih file gambar</label>
         <div class="invalid-feedback" id="f_icon_footer_error"></div>
-      </div>
+        <small class="form-text text-muted">
+            * File opsional
+            <br>
+            * Hanya file: jpeg, png, jpg, gif, svg, atau webp
+            <br>
+            * Maksimal 2MB
+        </small>
     </div>
+</div>
   </form>
 </div>
 
@@ -112,19 +126,26 @@
     }
   }
 
-  // Validasi file (wajib diisi)
-  if (!file) {
-    $('#f_icon_footer').addClass('is-invalid');
-    $('#f_icon_footer_error').html('File ikon footer wajib dipilih.');
-    isValid = false;
-  } else {
+  // Validasi file (Opsional)
+  // if (!file) {
+  //   $('#f_icon_footer').addClass('is-invalid');
+  //   $('#f_icon_footer_error').html('File ikon footer wajib dipilih.');
+  //   isValid = false;
+  if (file) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp'];
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
     if (!allowedTypes.includes(file.type)) {
-      $('#f_icon_footer').addClass('is-invalid');
-      $('#f_icon_footer_error').html('Hanya file gambar yang diizinkan (JPG, PNG, GIF, SVG, WebP).');
-      isValid = false;
+        $('#f_icon_footer').addClass('is-invalid');
+        $('#f_icon_footer_error').html('Hanya file gambar yang diizinkan (JPG, PNG, GIF, SVG, WebP).');
+        isValid = false;
+    } else if (file.size > maxSize) {
+        $('#f_icon_footer').addClass('is-invalid');
+        $('#f_icon_footer_error').html('Ukuran file tidak boleh lebih dari 2MB.');
+        isValid = false;
     }
-  }
+}
+
 
   return isValid;
 }

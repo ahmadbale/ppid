@@ -48,10 +48,16 @@
             <label for="reg_dokumen_file">File Dokumen <span class="text-danger">*</span></label>
             <small class="form-text text-muted">Format yang diizinkan: PDF, DOC, DOCX. Ukuran maksimal: 2MB</small>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="reg_dokumen_file" name="reg_dokumen_file">
+                <input type="file" 
+                       class="custom-file-input" 
+                       id="reg_dokumen_file" 
+                       name="reg_dokumen_file"
+                       accept=".pdf,.doc,.docx">
                 <label class="custom-file-label" for="reg_dokumen_file">Pilih file</label>
+                <div class="invalid-feedback" id="reg_dokumen_file_error"></div>
             </div>
-            <div class="invalid-feedback" id="reg_dokumen_file_error"></div>
+
+            <small class="form-text text-muted">Format yang diizinkan: PDF, DOC, DOCX. Ukuran maksimal: 5MB</small>
         </div>
 
         <div class="form-group" id="linkUrlDiv" style="display: none;">
@@ -158,6 +164,10 @@
                 if (url === '') {
                     $('#reg_dokumen').addClass('is-invalid');
                     $('#reg_dokumen_error').html('URL Dokumen wajib diisi.');
+                    isValid = false;
+                } else if (!/^https?:\/\//i.test(url)) {
+                    $('#reg_dokumen').addClass('is-invalid');
+                    $('#reg_dokumen_error').html('URL harus dimulai dengan "http://" atau "https://".');
                     isValid = false;
                 }
             }

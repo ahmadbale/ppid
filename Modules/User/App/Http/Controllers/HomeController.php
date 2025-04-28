@@ -37,6 +37,9 @@ class HomeController extends Controller
             $mediaInformasiPublikResponse = Http::get('http://ppid-polinema.test/api/public/getDataMediaInformasiPublik');
             $mediaInformasiPublikMenus = $this->fetchMediaInformasiPublikData($mediaInformasiPublikResponse);
 
+            $statisticResponse = Http::get('http://ppid-polinema.test/api/public/getDashboardStatistics');
+            $statisticData = $this->fetchStatisticData($statisticResponse);
+
             return view('user::landing_page', compact(
                 'pintasanMenus',
                 'aksesCepatMenus',
@@ -44,7 +47,8 @@ class HomeController extends Controller
                 'beritaMenus',
                 'heroSectionMenus',
                 'dokumentasiMenus',
-                'mediaInformasiPublikMenus'
+                'mediaInformasiPublikMenus',
+                'statisticData' 
             ));
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
@@ -59,6 +63,7 @@ class HomeController extends Controller
                 'heroSectionMenus' => [],
                 'dokumentasiMenus' => [],
                 'mediaInformasiPublikMenus' => [],
+                'statisticData' => []
             ]);
         }
     }
@@ -79,8 +84,11 @@ class HomeController extends Controller
     {
         $result = [];
         foreach ($data as $item) {
+            $kategoriJudul = $item['kategori_judul'] ?? 'Pintasan Lainnya';
+            
             foreach ($item['pintasan'] as $pintasan) {
                 $result[] = [
+                    'kategori_judul' => $kategoriJudul,
                     'title' => $pintasan['nama_kategori'],
                     'menu' => array_map(function ($detail) {
                         return [
@@ -279,4 +287,52 @@ class HomeController extends Controller
         }
         return $result;
     }
+
+    // Tambahkan method baru untuk fetch dan process data statistik
+    private function fetchStatisticData($response)
+    {
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Statistik Dashboard gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
+            ]);
+            return [];
+        }
+
+        return $this->processStatisticData($response->json('data'));
+    }
+
+    private function processStatisticData($data) 
+    {
+        $result = [];
+        try {
+            if (isset($data['periode']) && isset($data['jenis_kasus'])) {
+                $result = [
+                    'periode' => [
+                        'tahun' => $data['periode']['tahun'],
+                        'pengajuan_total' => $data['periode']['pengajuan_total'],
+                        'pengajuan_diterima' => $data['periode']['pengajuan_diterima'],
+                        'pengajuan_ditolak' => $data['periode']['pengajuan_ditolak']
+                    ],
+                    'jenis_kasus' => [
+                        'permohonan_informasi' => $data['jenis_kasus']['permohonan_informasi'],
+                        'whistle_blowing_system' => $data['jenis_kasus']['whistle_blowing_system'],
+                        'pernyataan_keberatan' => $data['jenis_kasus']['pernyataan_keberatan'],
+                        'aduan_masyarakat' => $data['jenis_kasus']['aduan_masyarakat'],
+                        'permohonan_pemeliharaan' => $data['jenis_kasus']['permohonan_pemeliharaan']
+                    ]
+                ];
+            }
+            
+            Log::info('Data statistik berhasil diproses', ['result' => $result]);
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Error saat memproses data statistik', [
+                'message' => $e->getMessage(),
+                'data' => $data
+            ]);
+            return [];
+        }
+    }
+
+    
 }

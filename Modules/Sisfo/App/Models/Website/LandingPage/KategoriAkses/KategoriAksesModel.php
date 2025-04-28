@@ -44,7 +44,7 @@ class KategoriAksesModel extends Model
               'mka_judul_kategori'
           ])
           ->where('isDeleted', 0)
-          ->where('mka_judul_kategori', 'Akses Menu Cepat')
+          ->where('kategori_akses_id', 1)
           ->get()
           ->map(function ($kategori) {
               // Ambil Akses Cepat untuk kategori ini
@@ -87,7 +87,7 @@ class KategoriAksesModel extends Model
               'mka_judul_kategori'
           ])
           ->where('isDeleted', 0)
-          ->where('mka_judul_kategori', 'Pintasan Lainnya')
+          ->where('kategori_akses_id', 2)
           ->get()
           ->map(function ($kategori) {
               // Ambil Pintasan Lainnya untuk kategori ini
@@ -156,17 +156,17 @@ class KategoriAksesModel extends Model
 
           DB::beginTransaction();
           $data = $request->m_kategori_akses;
-          $saveData = self::create($data);
+           $kategoriAkses = self::create($data);
 
           TransactionModel::createData(
               'CREATED',
-              $saveData->kategori_akses_id,
-              $saveData->mka_judul_kategori
+               $kategoriAkses->kategori_akses_id,
+               $kategoriAkses->mka_judul_kategori
           );
 
           DB::commit();
 
-          return self::responFormatSukses($saveData, 'Kategori Akses berhasil dibuat');
+          return self::responFormatSukses( $kategoriAkses, 'Kategori Akses berhasil dibuat');
       } catch (\Exception $e) {
           DB::rollBack();
           Log::error('Create Data Model Error: ' . $e->getMessage());
@@ -178,21 +178,21 @@ class KategoriAksesModel extends Model
   {
       try {
           DB::beginTransaction();
-          $saveData = self::findOrFail($id);
+           $kategoriAkses = self::findOrFail($id);
           
           $data = $request->m_kategori_akses;
-          $saveData->update($data);
+           $kategoriAkses->update($data);
 
           // Catat log transaksi
           TransactionModel::createData(
               'UPDATED',
-              $saveData->kategori_akses_id,
-              $saveData->mka_judul_kategori
+               $kategoriAkses->kategori_akses_id,
+               $kategoriAkses->mka_judul_kategori
           );
 
           DB::commit();
 
-          return self::responFormatSukses($saveData, 'Kategori Akses berhasil diperbarui');
+          return self::responFormatSukses( $kategoriAkses, 'Kategori Akses berhasil diperbarui');
       } catch (\Exception $e) {
           DB::rollBack();
           return self::responFormatError($e, 'Gagal memperbarui Kategori Akses');
@@ -202,23 +202,21 @@ class KategoriAksesModel extends Model
   public static function deleteData($id)
   {
       try {
-          // Cari record
-          $saveData = self::findOrFail($id);
+        DB::beginTransaction();
+           $kategoriAkses = self::findOrFail($id);
 
-          DB::beginTransaction();
-
-          $saveData->delete();
+           $kategoriAkses->delete();
 
           // Catat log transaksi
           TransactionModel::createData(
               'DELETED',
-              $saveData->kategori_akses_id,
-              $saveData->mka_judul_kategori
+               $kategoriAkses->kategori_akses_id,
+               $kategoriAkses->mka_judul_kategori
           );
 
           DB::commit();
 
-          return self::responFormatSukses($saveData, 'Kategori Akses berhasil dihapus');
+          return self::responFormatSukses( $kategoriAkses, 'Kategori Akses berhasil dihapus');
       } catch (\Exception $e) {
           DB::rollBack();
           return self::responFormatError($e, 'Gagal menghapus Kategori Akses');

@@ -276,6 +276,15 @@ class LhkpnModel extends Model
             DB::beginTransaction();
             
             $lhkpn = self::findOrFail($id);
+                 // Check if lhkpn is being used in detail lhkpn
+            $isUsed = DetailLhkpnModel::where('fk_m_lhkpn', $id)
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, LHKPN Tahun masih digunakan di tempat lain');
+            }
             
             $lhkpn->delete();
 

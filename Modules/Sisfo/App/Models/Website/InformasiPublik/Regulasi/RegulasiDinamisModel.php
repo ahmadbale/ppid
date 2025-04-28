@@ -23,7 +23,71 @@ class RegulasiDinamisModel extends Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
-
+    
+    public static function getDataRegulasi()
+{
+    $arr_data = self::query()
+        ->from('m_regulasi_dinamis')
+        ->select([
+            'regulasi_dinamis_id',
+            'rd_judul_reg_dinamis'
+        ])
+        ->where('isDeleted', 0)
+        ->get()
+        ->map(function ($regulasi_dinamis) {
+            // Get categories for this regulasi dinamis
+            $kategori_regulasi = DB::table('t_kategori_regulasi')
+                ->select([
+                    'kategori_reg_id',
+                    'kr_kategori_reg_kode',
+                    'kr_nama_kategori'
+                ])
+                ->where('fk_regulasi_dinamis', $regulasi_dinamis->regulasi_dinamis_id)
+                ->where('isDeleted', 0)
+                ->get()
+                ->map(function ($kategori) {
+                    // Get regulasi items for this category
+                    $regulasi_items = DB::table('t_regulasi')
+                        ->select([
+                            'regulasi_id',
+                            'reg_judul',
+                            'reg_tipe_dokumen',
+                            'reg_dokumen'
+                        ])
+                        ->where('fk_t_kategori_regulasi', $kategori->kategori_reg_id)
+                        ->where('isDeleted', 0)
+                        ->get()
+                        ->map(function ($regulasi) {
+                            $dokumen_url = $regulasi->reg_tipe_dokumen === 'file' 
+                                ? asset('storage/' . $regulasi->reg_dokumen) 
+                                : $regulasi->reg_dokumen;
+                            
+                            return [
+                                'id' => $regulasi->regulasi_id,
+                                'judul' => $regulasi->reg_judul,
+                                'tipe_dokumen' => $regulasi->reg_tipe_dokumen,
+                                'dokumen' => $dokumen_url
+                            ];
+                        });
+                    
+                    return [
+                        'kategori_id' => $kategori->kategori_reg_id,
+                        'kategori_kode' => $kategori->kr_kategori_reg_kode,
+                        'kategori_nama' => $kategori->kr_nama_kategori,
+                        'regulasi_list' => $regulasi_items
+                    ];
+                });
+            
+            return [
+                'regulasi_dinamis_id' => $regulasi_dinamis->regulasi_dinamis_id,
+                'judul_regulasi' => $regulasi_dinamis->rd_judul_reg_dinamis,
+                'kategori_regulasi' => $kategori_regulasi
+            ];
+        })
+        ->toArray();
+    
+    return $arr_data;
+}
     public static function selectData($perPage = null, $search = '')
     {
         $query = self::query()
@@ -91,6 +155,15 @@ class RegulasiDinamisModel extends Model
             DB::beginTransaction();
             
             $regulasiDinamis = self::findOrFail($id);
+                 // Check if regulasi dinamis use kategori regulasi
+            $isUsed = KategoriRegulasiModel::where('fk_regulasi_dinamis', $id)
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($isUsed) {
+                DB::rollBack();
+                throw new \Exception('Maaf, Regulasi Dinamis masih digunakan di tempat lain');
+            }
             $regulasiDinamis->delete();
             
             TransactionModel::createData(
