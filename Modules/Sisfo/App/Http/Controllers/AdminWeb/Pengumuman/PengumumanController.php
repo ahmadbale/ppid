@@ -49,11 +49,11 @@ class PengumumanController extends Controller
     {
         $search = $request->query('search', '');
         $pengumuman = PengumumanModel::selectData(10, $search);
-        
+
         if ($request->ajax()) {
             return view('sisfo::AdminWeb/Pengumuman.data', compact('pengumuman', 'search'))->render();
         }
-        
+
         return redirect()->route('pengumuman.index');
     }
 
@@ -73,7 +73,7 @@ class PengumumanController extends Controller
             $result = PengumumanModel::createData($request);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Pengumuman berhasil dibuat'
             );
         } catch (ValidationException $e) {
@@ -101,7 +101,7 @@ class PengumumanController extends Controller
             $result = PengumumanModel::updateData($request, $id);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Pengumuman berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -114,7 +114,7 @@ class PengumumanController extends Controller
     public function detailData($id)
     {
         $pengumuman = PengumumanModel::detailData($id);
-        
+
         return view("sisfo::AdminWeb/Pengumuman.detail", [
             'pengumuman' => $pengumuman,
             'title' => 'Detail Pengumuman'
@@ -125,17 +125,17 @@ class PengumumanController extends Controller
     {
         if ($request->isMethod('get')) {
             $pengumuman = PengumumanModel::detailData($id);
-            
+
             return view("sisfo::AdminWeb/Pengumuman.delete", [
                 'pengumuman' => $pengumuman
             ]);
         }
-        
+
         try {
             $result = PengumumanModel::deleteData($id);
-            
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Pengumuman berhasil dihapus'
             );
         } catch (\Exception $e) {
@@ -151,20 +151,20 @@ class PengumumanController extends Controller
             ]);
 
             $file = $request->file('image');
-            
+
             if (!$file) {
                 return $this->jsonError(
-                    new \Exception('Tidak ada file yang diunggah'), 
-                    '', 
+                    new \Exception('Tidak ada file yang diunggah'),
+                    '',
                     400
                 );
             }
 
             $fileName = 'pengumuman/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
             $file->storeAs('public', $fileName);
-            
+
             return $this->jsonSuccess(
-                ['url' => asset('storage/' . $fileName)], 
+                ['url' => asset('storage/' . $fileName)],
                 'Gambar berhasil diunggah'
             );
         } catch (ValidationException $e) {
@@ -180,29 +180,29 @@ class PengumumanController extends Controller
             $request->validate([
                 'url' => 'required|string'
             ]);
-            
+
             $imageUrl = $request->input('url');
-            
+
             // Extract filename dari full URL
             $pathInfo = parse_url($imageUrl);
             $path = $pathInfo['path'] ?? '';
             $storagePath = str_replace('/storage/', '', $path);
-            
+
             if (!empty($storagePath)) {
                 // Logika untuk menghapus file
                 $filePath = storage_path('app/public/' . $storagePath);
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
-                
+
                 return $this->jsonSuccess(
-                    null, 
+                    null,
                     'Gambar berhasil dihapus'
                 );
             } else {
                 return $this->jsonError(
-                    new \Exception('Path gambar tidak valid'), 
-                    '', 
+                    new \Exception('Path gambar tidak valid'),
+                    '',
                     400
                 );
             }

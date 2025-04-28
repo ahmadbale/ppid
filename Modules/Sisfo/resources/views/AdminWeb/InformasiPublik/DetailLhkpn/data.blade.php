@@ -19,7 +19,7 @@
          <tr>
              <td table-data-label="Nomor" class="text-center">{{ ($detailLhkpn->currentPage() - 1) * $detailLhkpn->perPage() + $key + 1 }}</td>
              <td table-data-label="Tahun" class="text-center">{{ $item->lhkpn->lhkpn_tahun }}</td>
-             <td table-data-label="Nama Karyawan" class="text-center">{{ $item->dl_nama_karyawan }}</td>
+             <td table-data-label="Nama Karyawan" class="text-start">{{ $item->dl_nama_karyawan }}</td>
              {{-- <td table-data-label="Nomor" class="text-center">{{ $item->lhkpn->lhkpn_judul_informasi }}</td> --}}
              <td table-data-label="Aksi" class="text-center">
                  <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/detail-lhkpn/detailData/{$item->detail_lhkpn_id}") }}')">
