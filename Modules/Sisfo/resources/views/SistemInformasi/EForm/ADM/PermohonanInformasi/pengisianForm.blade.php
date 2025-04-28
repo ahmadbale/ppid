@@ -75,16 +75,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pi_upload_nik_pengguna">Upload Foto Kartu Identitas Pelapor<span
-                                class="text-danger">*</span></label>
+                        <label for="pi_upload_nik_pengguna">
+                            Upload Foto Kartu Identitas Pelapor <span class="text-danger">*</span>
+                        </label>
                         <small class="text-muted d-block mb-2">
-                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas
-                            harus tampak jelas dan terang.
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pelapor. Semua data pada kartu identitas harus tampak jelas dan terang.
                         </small>
-                        <div class="form-group">
-                            <input type="file" class="form-control" id="pi_upload_nik_pengguna"
-                                name="pi_upload_nik_pengguna" accept="image/*">
-                            {{-- <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label> --}}
+                        <small class="text-muted d-block mb-1">Maks. 2mb</small>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="pi_upload_nik_pengguna" name="pi_upload_nik_pengguna" accept="image/*">
+                            <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label>
                         </div>
                         <div class="invalid-feedback" id="f_pi_upload_nik_pengguna_error"></div>
                     </div>
@@ -133,20 +133,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pi_upload_nik_pengguna">Upload Foto Kartu Identitas Pelapor<span
-                                class="text-danger">*</span></label>
+                        <label for="pi_upload_nik_pengguna">
+                            Upload Foto Kartu Identitas Pelapor <span class="text-danger">*</span>
+                        </label>
                         <small class="text-muted d-block mb-2">
-                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas
-                            harus tampak jelas dan terang.
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.
                         </small>
-                        <div class="form-group">
-                            <input type="file" class="form-control" id="pi_upload_nik_pengguna"
-                                name="pi_upload_nik_pengguna" accept="image/*">
-                            {{-- <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label> --}}
+                        <small class="text-muted d-block mb-1">Maks. 2mb</small>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="pi_upload_nik_pengguna" name="pi_upload_nik_pengguna" accept="image/*">
+                            <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label>
                         </div>
                         <div class="invalid-feedback" id="f_pi_upload_nik_pengguna_error"></div>
                     </div>
-
 
                     <div class="form-group">
                         <label for="pi_nama_pengguna_informasi">Nama Pemohon<span class="text-danger">*</span></label>
@@ -180,10 +179,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="pi_upload_nik_pengguna_informasi">Upload NIK Pemohon <span
-                                class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="pi_upload_nik_pengguna_informasi"
-                            name="pi_upload_nik_pengguna_informasi" accept="image/*">
+                        <label for="pi_upload_nik_pengguna_informasi">
+                            Upload Foto Kartu Identitas Pemohon <span class="text-danger">*</span>
+                        </label>
+                        <small class="text-muted d-block mb-2">
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor) pemohon. Semua data pada kartu identitas harus tampak jelas dan terang.
+                        </small>
+                        <small class="text-muted d-block mb-1">Maks. 2mb</small>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="pi_upload_nik_pengguna_informasi" name="pi_upload_nik_pengguna_informasi" accept="image/*">
+                            <label class="custom-file-label" for="pi_upload_nik_pengguna_informasi">Pilih file (PNG, JPG)</label>
+                        </div>
                         <div class="invalid-feedback" id="f_pi_upload_nik_pengguna_informasi_error"></div>
                     </div>
                 </div>
@@ -231,11 +237,19 @@
                             value="{{ old('t_form_pi_organisasi.pi_no_telp_narahubung') }}">
                         <div class="invalid-feedback" id="f_pi_no_telp_narahubung_error"></div>
                     </div>
+
                     <div class="form-group">
-                        <label for="pi_identitas_narahubung">Upload Identitas Narahubung <span
-                                class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="pi_identitas_narahubung"
-                            name="pi_identitas_narahubung" accept="image/*">
+                        <label for="pi_identitas_narahubung">
+                            Upload Foto Kartu Identitas Narahubung <span class="text-danger">*</span>
+                        </label>
+                        <small class="text-muted d-block mb-2">
+                            Silakan scan / foto kartu identitas (KTP/SIM/Paspor). Semua data pada kartu identitas harus tampak jelas dan terang.
+                        </small>
+                        <small class="text-muted d-block mb-1">Maks. 2mb</small>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="pi_identitas_narahubung" name="pi_identitas_narahubung" accept="image/*">
+                            <label class="custom-file-label" for="pi_upload_nik_pengguna">Pilih file (PNG, JPG)</label>
+                        </div>
                         <div class="invalid-feedback" id="f_pi_identitas_narahubung_error"></div>
                     </div>
                 </div>
@@ -290,15 +304,22 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="pi_bukti_aduan">Upload Bukti Aduan <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control" id="pi_bukti_aduan" name="pi_bukti_aduan"
-                        accept="file/*">
+                    <label for="pi_bukti_aduan">
+                        Upload Bukti Aduan <span class="text-danger">*</span>
+                    </label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="pi_bukti_aduan" name="pi_bukti_aduan" accept="application/pdf,image/*">
+                        <label class="custom-file-label" for="pi_bukti_aduan">Pilih file (Maks.2mb)</label>
+                    </div>
                     <div class="invalid-feedback" id="f_pi_bukti_aduan_error"></div>
                 </div>
+
                 <div class="alert alert-info mt-3 mb-4">
-                    <p class="mb-0"><strong>Catatan:</strong> Dengan mengajukan laporan ini, Anda menyatakan bahwa
-                        informasi yang diberikan adalah benar dan Anda bersedia memberikan keterangan lebih lanjut jika
-                        diperlukan.</p>
+                    <p class="mb-0">
+                        <strong>Catatan:</strong> Dengan mengajukan laporan ini, Anda menyatakan bahwa
+                        informasi yang diberikan adalah benar dan Anda bersedia memberikan keterangan
+                        lebih lanjut jika diperlukan.
+                    </p>
                 </div>
 
                 <div class="form-group">

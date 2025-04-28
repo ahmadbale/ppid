@@ -8,10 +8,10 @@
             <h3 class="card-title">{{ $page->title }}</h3>
           </div>
           <div class="col-md-6 text-right">
-            <button onclick="modalAction('{{ url('adminweb/informasipublik/kategori-regulasi/addData') }}')" 
+            <button onclick="modalAction('{{ url('adminweb/informasipublik/kategori-regulasi/addData') }}')"
                     class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah
-            </button>   
+            </button>
           </div>
         </div>
       </div>
@@ -19,8 +19,8 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <form id="searchForm" class="d-flex">
-              <input type="text" name="search" class="form-control" 
-                     placeholder="Cari nama kategori atau regulasi dinamis" 
+              <input type="text" name="search" class="form-control"
+                     placeholder="Cari nama regulasi dinamis"
                      value="{{ $search ?? '' }}">
               <button type="submit" class="btn btn-primary ml-2">
                 <i class="fas fa-search"></i>
@@ -32,7 +32,7 @@
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
-    
+
         @if (session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
@@ -42,7 +42,7 @@
         </div>
       </div>
   </div>
-  
+
   <!-- Modal for CRUD operations -->
   <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg" role="document">
@@ -79,7 +79,7 @@
         loadKategoriRegulasiData(page, search);
       });
     });
-    
+
     function loadKategoriRegulasiData(page, search) {
       $.ajax({
         url: '{{ url("adminweb/informasipublik/kategori-regulasi/getData") }}',
@@ -96,11 +96,11 @@
         }
       });
     }
-    
+
     function modalAction(url) {
       $('#myModal .modal-content').html('<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Loading...</p></div>');
       $('#myModal').modal('show');
-      
+
       $.ajax({
         url: url,
         type: 'GET',
@@ -112,7 +112,7 @@
         }
       });
     }
-    
+
     function reloadTable() {
       var currentPage = $('.pagination .active .page-link').text();
       currentPage = currentPage || 1;

@@ -12,26 +12,26 @@ use Modules\Sisfo\App\Models\Website\LandingPage\KategoriAkses\DetailPintasanLai
 class DetailPintasanLainnyaController extends Controller
 {
      use TraitsController;
-     
+
      public $breadcrumb = 'Pengaturan Detail Pintasan Lainnya';
      public $pagename = 'AdminWeb/DetailPintasanLainnya';
-     
+
      public function index(Request $request)
      {
           $search = $request->query('seacrh', '');
-          
+
           $breadcrumb = (object) [
            'title' => 'Pengaturan Detail Pintasan Lainnya',
            'list' => ['Home', 'Pengaturan Detail Pintasan Lainnya']
-               
+
           ];
           $page = (object) [
-           'title' => 'Daftar Detail Pintasan Lainnta'
+           'title' => 'Daftar Detail Pintasan Lainnya'
           ];
           $activeMenu = 'DetailPintasanLainnya';
-          
+
           $pintasanLainnya = PintasanLainnyaModel::where('isDeleted', 0)->get();
-          
+
           $detailPintasanLainnya = DetailPintasanLainnyaModel :: selectData(10, $search);
 
           return view ("sisfo::AdminWeb/DetailPintasanLainnya.index",[
@@ -40,8 +40,8 @@ class DetailPintasanLainnyaController extends Controller
                'activeMenu' => $activeMenu,
                'pintasanLainnya' => $pintasanLainnya,
                'detailPintasanLainnya' => $detailPintasanLainnya,
-               'search' => $search  
-          ]);   
+               'search' => $search
+          ]);
      }
      public function getData(Request $request)
      {
@@ -51,7 +51,7 @@ class DetailPintasanLainnyaController extends Controller
           return view('sisfo::AdminWeb/DetailPintasanLainnya.data', compact('detailPintasanLainnya', 'search'))->render();
       }
       return redirect()->route('DetailPintasanLainnya.index');
-          
+
      }
      public function addData()
      {
@@ -63,9 +63,9 @@ class DetailPintasanLainnyaController extends Controller
          try {
              DetailPintasanLainnyaModel::validasiData($request);
              $result = DetailPintasanLainnyaModel::createData($request);
- 
+
              return $this->jsonSuccess(
-                 $result['data'] ?? null, 
+                 $result['data'] ?? null,
                  $result['message'] ?? 'detail pintasan lainnya berhasil dibuat'
              );
          } catch (ValidationException $e) {
@@ -78,7 +78,7 @@ class DetailPintasanLainnyaController extends Controller
      {
          $detailPintasanLainnya = DetailPintasanLainnyaModel::detailData($id);
          $pintasanLainnya = PintasanLainnyaModel::where('isDeleted', 0)->get();
- 
+
          return view("sisfo::AdminWeb/DetailPintasanLainnya.update", [
              'detailPintasanLainnya' => $detailPintasanLainnya,
              'pintasanLainnya' => $pintasanLainnya
@@ -91,7 +91,7 @@ class DetailPintasanLainnyaController extends Controller
             $result = DetailPintasanLainnyaModel::updateData($request, $id);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Detail pintasan lainnya berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -103,7 +103,7 @@ class DetailPintasanLainnyaController extends Controller
     public function detailData($id)
     {
         $detailPintasanLainnya = DetailPintasanLainnyaModel::detailData($id);
-        
+
         return view("sisfo::AdminWeb/DetailPintasanLainnya.detail", [
             'detailPintasanLainnya' => $detailPintasanLainnya,
             'title' => 'Detail Pintasan Lainnya'
@@ -113,17 +113,17 @@ class DetailPintasanLainnyaController extends Controller
     {
         if ($request->isMethod('get')) {
             $detailPintasanLainnya = DetailPintasanLainnyaModel::detailData($id);
-            
+
             return view("sisfo::AdminWeb/DetailPintasanLainnya.delete", [
                 'detailPintasanLainnya' => $detailPintasanLainnya
             ]);
         }
-        
+
         try {
             $result = DetailPintasanLainnyaModel::deleteData($id);
-            
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Detail pintasan lainnya berhasil dihapus'
             );
         } catch (\Exception $e) {

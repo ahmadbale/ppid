@@ -1,14 +1,13 @@
 <div class="modal-header">
-  <h5 class="modal-title">Tambah Detail LHKPN Baru</h5>
-  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
+    <h5 class="modal-title">Tambah Detail LHKPN Baru</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 
 <div class="modal-body">
   <form id="formCreateDetailLhkpn" action="{{ url('adminweb/informasipublik/detail-lhkpn/createData') }}" method="POST" enctype="multipart/form-data">
     @csrf
-
     <div class="form-group">
       <label for="fk_m_lhkpn">Tahun LHKPN <span class="text-danger">*</span></label>
       <select class="form-control" id="fk_m_lhkpn" name="t_detail_lhkpn[fk_m_lhkpn]">
@@ -44,27 +43,30 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-  <button type="button" class="btn btn-success" id="btnSubmitForm">
-    <i class="fas fa-save mr-1"></i> Simpan
-  </button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+    <button type="button" class="btn btn-success" id="btnSubmitForm">
+        <i class="fas fa-save mr-1"></i> Simpan
+    </button>
 </div>
 
 <script>
-  $(document).ready(function () {
-    // Custom file input
-    $('input[type="file"]').on('change', function() {
-      var fileName = $(this).val().split('\\').pop();
-      $(this).next('.custom-file-label').html(fileName || 'Pilih file');
-    });
+    $(document).ready(function() {
+        // Custom file input
+        $('input[type="file"]').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName || 'Pilih file');
+        });
 
-    // Hapus error ketika input berubah
-    $(document).on('input change', 'input, select, textarea', function() {
-      $(this).removeClass('is-invalid');
-      const errorId = `#${$(this).attr('id')}_error`;
-      $(errorId).html('');
-    });
+        // Hapus error ketika input berubah
+        $(document).on('input change', 'input, select, textarea', function() {
+            $(this).removeClass('is-invalid');
+            const errorId = `#${$(this).attr('id')}_error`;
+            $(errorId).html('');
+        });
+.
+        //$('#btnSubmitForm').on('click', function() {
 
+            
     // Fungsi validasi formulir
     function validateLhkpnForm() {
       // Reset semua error
@@ -186,5 +188,4 @@
         }
       });
     });
-  });
 </script>
