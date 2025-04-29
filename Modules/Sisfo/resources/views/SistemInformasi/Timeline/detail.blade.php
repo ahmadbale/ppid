@@ -19,6 +19,17 @@
           <th>Judul Timeline</th>
           <td>{{ $timeline->judul_timeline }}</td>
         </tr>
+        @if($timeline->timeline_file)
+        <tr>
+          <th>File Timeline</th>
+          <td>
+            <a href="{{ Storage::url($timeline->timeline_file) }}" target="_blank" class="btn btn-sm btn-primary">
+              <i class="fas fa-file-pdf mr-1"></i> Lihat Dokumen
+            </a>
+            <small class="ml-2 text-muted">{{ $timeline->timeline_file }}</small>
+          </td>
+        </tr>
+        @endif
         <tr>
           <th>Tanggal Dibuat</th>
           <td>{{ date('d-m-Y H:i:s', strtotime($timeline->created_at)) }}</td>
