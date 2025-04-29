@@ -6,7 +6,7 @@
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <form id="searchForm" class="d-flex">
-                        <input type="text" name="search" class="form-control" placeholder="Cari judul atau kategori footer"
+                        <input type="text" name="search" class="form-control" placeholder="Cari judul footer"
                             value="{{ $search ?? '' }}">
                         <button type="submit" class="btn btn-primary ml-2">
                             <i class="fas fa-search"></i>

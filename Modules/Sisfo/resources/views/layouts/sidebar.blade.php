@@ -182,8 +182,8 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya']) ? 'active' : '' }}">
+                    <li class="nav-item {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya', 'DetailPintasanLainnya']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya', 'DetailPintasanLainnya']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-bolt"></i>
                             <p> Pintasan & AksesCepat
                                 <i class="right fas fa-angle-left"></i>
@@ -213,7 +213,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('/adminweb/DetailPintasanLainnya') }}"
-                                    class="nav-link {{ $activeMenu == 'DetailPintasanLainnya' ? 'active' : '' }}">
+                                    class="nav-link nav-link-tree {{ $activeMenu == 'DetailPintasanLainnya' ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Detail Pintasan Lainnya</p>
                                 </a>
@@ -245,7 +245,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </ul>
                     </li>
                     <li class="nav-item {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link nav-link-tree {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'active' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'active' : '' }}">
                             <i class="nav-icon fas fa-bullhorn"></i>
                             <p> Pengumuman
                                 <i class="right fas fa-angle-left"></i>
@@ -407,7 +407,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                             <p>Daftar Pertanyaan</p>
                         </a>
                     </li>
-                    
+
                 @elseif (Auth::user()->level->level_kode == 'VFR')
                     <li class="nav-header">Menu Umum</li>
                     <li class="nav-item">

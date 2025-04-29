@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\User\App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\PermohonanController;
 use Modules\User\App\Http\Controllers\InformasiPublikController;
+use Modules\User\App\Http\Controllers\InformasiDikecualikanController;
 use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
@@ -97,7 +98,6 @@ Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumu
 Route::get('/lhkpn', [LhkpnController::class, 'index'])->name('lhkpn');
 
 
-
 // Page Dinamis with
 Route::get('/content-dinamis', function () {
     return view('user::content');
@@ -122,9 +122,11 @@ Route::get('/register', function () {
 
 
 Route::prefix('informasi-publik')->group(function () {
-    Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
-    Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
-    Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
+    Route::get('/daftar', [InformasiPublikController::class, 'index'])->name('informasi-publik.daftar');
+    Route::get('/dikecualikan', [InformasiDikecualikanController::class, 'index'])->name('informasi-publik.dikecualikan');
+    // Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
+    // Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
+    // Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
 });
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');

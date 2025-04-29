@@ -10,8 +10,8 @@
             <tr>
                 <th>Nomor</th>
                 <th>Judul Informasi Akses Cepat</th>
-                <th>Icon Akses Cepat</th>
-                <th>Icon Animasi Akses Cepat</th>
+                <th>Icon</th>
+                <th>Icon Animasi</th>
                 <th>Aksi</th>
             </tr>
         </thead>

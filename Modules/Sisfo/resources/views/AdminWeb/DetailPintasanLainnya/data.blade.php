@@ -9,10 +9,10 @@
      <thead class="text-center">
          <tr>
              <th width="5%">No</th>
-             <th width="20%">Kategori Pintasan</th>
-             <th width="30%">Judul Pintasan</th>
+             <th width="20%">Kategori</th>
+             <th width="20%">Judul </th>
              <th width="25%">URL</th>
-             <th width="20%">Aksi</th>
+             <th width="30%">Aksi</th>
          </tr>
      </thead>
      <tbody>
