@@ -6,7 +6,7 @@
    </div>
    
    <div class="modal-body">
-     <form id="formUpdateIpDinamisTabel" action="{{ url('adminweb/informasipublik/IpDinamisTabel/updateData/' . $IpDinamisTabel->ip_dinamis_tabel_id) }}" method="POST">
+     <form id="formUpdateIpDinamisTabel" action="{{ url('adminweb/informasipublik/ipdinamis-tabel/updateData/' . $IpDinamisTabel->ip_dinamis_tabel_id) }}" method="POST">
        @csrf
    
        <div class="form-group">

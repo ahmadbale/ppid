@@ -6,19 +6,20 @@ use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\PublicMenuController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiRegulasiController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
+use Modules\Sisfo\App\Http\Controllers\Api\Auth\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiRegulasiController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +42,7 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::post('logout', [ApiAuthController::class, 'logout']);
         Route::get('user', [ApiAuthController::class, 'getData']);
-
+        Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
         // Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
         Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         Route::get('footerData', [ApiFooterController::class, 'getDataFooter']);
@@ -51,6 +52,7 @@ Route::prefix('auth')->group(function () {
         // Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         // Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
         Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
+        Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
     });
 });
 
