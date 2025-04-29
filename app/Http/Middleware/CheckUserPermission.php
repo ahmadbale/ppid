@@ -2,12 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use Modules\Sisfo\App\Models\HakAkses\HakAksesModel;
+use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Models\Website\WebMenuUrlModel;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CheckUserPermission
@@ -19,11 +20,43 @@ class CheckUserPermission
         }
 
         $user = Auth::user();
-        $levelKode = $user->level->level_kode;
-        $levelId = $user->fk_m_level;
+        $userId = $user->user_id;
+        
+        // Ambil active hak akses dari session
+        $activeHakAksesId = session('active_hak_akses_id');
+        
+        // Jika tidak ada active hak akses, cari yang pertama
+        if (!$activeHakAksesId) {
+            $hakAkses = DB::table('set_user_hak_akses')
+                ->join('m_hak_akses', 'set_user_hak_akses.fk_m_hak_akses', '=', 'm_hak_akses.hak_akses_id')
+                ->where('set_user_hak_akses.fk_m_user', $userId)
+                ->where('set_user_hak_akses.isDeleted', 0)
+                ->where('m_hak_akses.isDeleted', 0)
+                ->first();
+                
+            if ($hakAkses) {
+                session(['active_hak_akses_id' => $hakAkses->hak_akses_id]);
+                $activeHakAksesId = $hakAkses->hak_akses_id;
+            } else {
+                return redirect('pilih-level')->with('error', 'Anda belum memiliki level akses');
+            }
+        }
+        
+        // Ambil informasi hak akses
+        $hakAkses = DB::table('m_hak_akses')
+            ->where('hak_akses_id', $activeHakAksesId)
+            ->where('isDeleted', 0)
+            ->first();
+            
+        if (!$hakAkses) {
+            return redirect('pilih-level')->with('error', 'Anda belum memilih level akses');
+        }
+        
+        $hakAksesKode = $hakAkses->hak_akses_kode;
+        $hakAksesId = $hakAkses->hak_akses_id;
 
         // Super Admin selalu punya akses penuh
-        if ($levelKode === 'SAR') {
+        if ($hakAksesKode === 'SAR') {
             return $next($request);
         }
 
@@ -43,7 +76,7 @@ class CheckUserPermission
         $menu = WebMenuModel::whereHas('WebMenuGlobal', function($query) use ($menuUrl) {
             $query->where('fk_web_menu_url', $menuUrl->web_menu_url_id);
         })
-        ->where('fk_m_level', $levelId)
+        ->where('fk_m_hak_akses', $hakAksesId)
         ->where('wm_status_menu', 'aktif')
         ->where('isDeleted', 0)
         ->first();
@@ -54,14 +87,14 @@ class CheckUserPermission
         }
 
         // Cek hak akses
-        $hakAkses = HakAksesModel::where('ha_pengakses', $user->user_id)
+        $userHakAkses = SetHakAksesModel::where('ha_pengakses', $userId)
             ->where('fk_web_menu', $menu->web_menu_id)
             ->first();
 
         // Buat prefix untuk kolom hak akses
         $hakField = 'ha_' . $permission;
 
-        if (!$hakAkses || $hakAkses->$hakField != 1) {
+        if (!$userHakAkses || $userHakAkses->$hakField != 1) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,

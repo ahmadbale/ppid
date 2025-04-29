@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriPintasanLainnyaUrl = WebMenuModel::getDynamicMenuUrl('kategori-pintasan-lainnya');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Tambah Pintasan Lainnya Baru</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
   </div>
   
   <div class="modal-body">
-    <form id="formCreatePintasanLainnya" action="{{ url('adminweb/pintasan-lainnya/createData') }}" method="POST">
+    <form id="formCreatePintasanLainnya" action="{{ url($kategoriPintasanLainnyaUrl . '/createData') }}" method="POST">
       @csrf
       <div class="form-group">
         <label for="fk_m_kategori_akses">Kategori Akses</label>

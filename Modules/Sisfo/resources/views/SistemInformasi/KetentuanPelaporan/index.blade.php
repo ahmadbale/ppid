@@ -1,6 +1,6 @@
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  use Modules\Sisfo\App\Models\HakAkses\HakAksesModel;
+  use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
   $ketentuanPelaporanUrl = WebMenuModel::getDynamicMenuUrl('ketentuan-pelaporan');
 @endphp
 @extends('sisfo::layouts.template')
@@ -16,8 +16,8 @@
             <div class="card-tools">
               <!-- Perbaikan bagian tombol tambah -->
               @if(
-                Auth::user()->level->level_kode === 'SAR' ||
-                HakAksesModel::cekHakAkses(Auth::user()->user_id, $ketentuanPelaporanUrl, 'create')
+                Auth::user()->level->hak_akses_kode === 'SAR' ||
+                SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $ketentuanPelaporanUrl, 'create')
               )
                 <button onclick="modalAction('{{ url($ketentuanPelaporanUrl . '/addData') }}')" class="btn btn-sm btn-success">
                   <i class="fas fa-plus"></i> Tambah

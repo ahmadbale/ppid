@@ -1,34 +1,51 @@
+@php
+    use Modules\Sisfo\App\Models\Website\WebMenuModel;
+    use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+    $kategoriMediaUrl = WebMenuModel::getDynamicMenuUrl('kategori-media');
+@endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
      <div class="showing-text">
          Showing {{ $mediaDinamis->firstItem() }} to {{ $mediaDinamis->lastItem() }} of {{ $mediaDinamis->total() }} results
      </div>
  </div>
-
- <div class="table-responsive">
- <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
-     <thead class="text-center">
+ 
+ <table class="table table-bordered table-striped table-hover table-sm">
+     <thead>
          <tr>
-             <th >Nomor</th>
-             <th >Kategori Media</th>
-             <th >Aksi</th>
+             <th width="10%">Nomor</th>
+             <th width="60%">Kategori Media</th>
+             <th width="30%">Aksi</th>
          </tr>
      </thead>
      <tbody>
          @forelse($mediaDinamis as $key => $item)
          <tr>
-             <td table-data-label="Nomor" class="text-center">{{ ($mediaDinamis->currentPage() - 1) * $mediaDinamis->perPage() + $key + 1 }}</td>
-             <td table-data-label="Kategori Media" class="text-center">{{ $item->md_kategori_media }}</td>
-             <td table-data-label="Aksi" class="text-center">
-                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/media-dinamis/editData/{$item->media_dinamis_id}") }}')">
-                     <i class="fas fa-edit"></i> Edit
-                 </button>
-                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/media-dinamis/detailData/{$item->media_dinamis_id}") }}')">
-                     <i class="fas fa-eye"></i> Detail
-                 </button>
-                 <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/media-dinamis/deleteData/{$item->media_dinamis_id}") }}')">
-                     <i class="fas fa-trash"></i> Hapus
-                 </button>
-             </td>
+             <td>{{ ($mediaDinamis->currentPage() - 1) * $mediaDinamis->perPage() + $key + 1 }}</td>
+             <td>{{ $item->md_kategori_media }}</td>
+             <td>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriMediaUrl, 'update')
+                )
+                    <button class="btn btn-sm btn-warning"
+                        onclick="modalAction('{{ url($kategoriMediaUrl . '/editData/' . $item->media_dinamis_id) }}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                @endif
+                <button class="btn btn-sm btn-info"
+                    onclick="modalAction('{{ url($kategoriMediaUrl . '/detailData/' . $item->media_dinamis_id) }}')">
+                    <i class="fas fa-eye"></i> Detail
+                </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriMediaUrl, 'delete')
+                )
+                    <button class="btn btn-sm btn-danger"
+                        onclick="modalAction('{{ url($kategoriMediaUrl . '/deleteData/' . $item->media_dinamis_id) }}')">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                @endif
+            </td>
          </tr>
          @empty
          <tr>
@@ -43,8 +60,7 @@
          @endforelse
      </tbody>
  </table>
- </div>
-
+ 
  <div class="mt-3">
      {{ $mediaDinamis->appends(['search' => $search])->links() }}
  </div>

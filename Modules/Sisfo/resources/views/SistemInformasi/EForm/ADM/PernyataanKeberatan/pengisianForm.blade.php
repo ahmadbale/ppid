@@ -1,10 +1,14 @@
 <!-- pengisian form halaman admin -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $pernyataanKeberatanAdminUrl = WebMenuModel::getDynamicMenuUrl('pernyataan-keberatan-admin');
+@endphp
 @extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PernyataanKeberatan') }}" class="btn btn-secondary">
+                <a href="{{ url($pernyataanKeberatanAdminUrl) }}" class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -12,7 +16,7 @@
         </div>
         <div class="card-body">
 
-            <form id="permohonanForm"  action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PernyataanKeberatan/createData') }}" method="POST"
+            <form id="permohonanForm"  action="{{ url($pernyataanKeberatanAdminUrl . '/createData') }}" method="POST"
                 enctype="multipart/form-data" novalidate>
                 @csrf
                 <div class="form-group">

@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $detailPengumumanUrl = WebMenuModel::getDynamicMenuUrl('detail-pengumuman');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Konfirmasi Hapus Pengumuman</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -11,24 +15,27 @@
     </div>
     
     <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Informasi Pengumumn</h5>
+        </div>
         <div class="card-body">
             <table class="table table-borderless">
                 <tr>
                     <th width="200">Kategori Pengumuman</th>
-                    <td>{{ $pengumuman->PengumumanDinamis->pd_nama_submenu ?? '-' }}</td>
+                    <td>{{ $detailPengumuman->PengumumanDinamis->pd_nama_submenu ?? '-' }}</td>
                 </tr>
                 <tr>
                     <th>Judul Pengumuman</th>
-                    <td>{{ $pengumuman->peg_judul ?? '-' }}</td>
+                    <td>{{ $detailPengumuman->peg_judul ?? '-' }}</td>
                 </tr>
                 <tr>
                     <th>Tipe Konten</th>
                     <td>
-                        @if($pengumuman->UploadPengumuman->up_type == 'link')
+                        @if($detailPengumuman->UploadPengumuman->up_type == 'link')
                             <span class="badge badge-info">Link</span>
-                        @elseif($pengumuman->UploadPengumuman->up_type == 'file')
+                        @elseif($detailPengumuman->UploadPengumuman->up_type == 'file')
                             <span class="badge badge-primary">File</span>
-                        @elseif($pengumuman->UploadPengumuman->up_type == 'konten')
+                        @elseif($detailPengumuman->UploadPengumuman->up_type == 'konten')
                             <span class="badge badge-success">Konten</span>
                         @else
                             -
@@ -38,7 +45,7 @@
                 <tr>
                     <th>Status</th>
                     <td>
-                        @if($pengumuman->status_pengumuman == 'aktif')
+                        @if($detailPengumuman->status_pengumuman == 'aktif')
                             <span class="badge badge-success">Aktif</span>
                         @else
                             <span class="badge badge-danger">Tidak Aktif</span>
@@ -47,13 +54,69 @@
                 </tr>
                 <tr>
                     <th>Tanggal Dibuat</th>
-                    <td>{{ date('d-m-Y H:i:s', strtotime($pengumuman->created_at)) }}</td>
+                    <td>{{ date('d-m-Y H:i:s', strtotime($detailPengumuman->created_at)) }}</td>
                 </tr>
                 <tr>
                     <th>Dibuat Oleh</th>
-                    <td>{{ $pengumuman->created_by }}</td>
+                    <td>{{ $detailPengumuman->created_by }}</td>
                 </tr>
+                @if($detailPengumuman->updated_by)
+                    <tr>
+                        <th>Terakhir Diperbarui</th>
+                        <td>{{ date('d-m-Y H:i:s', strtotime($detailPengumuman->updated_at)) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Diperbarui Oleh</th>
+                        <td>{{ $detailPengumuman->updated_by }}</td>
+                    </tr>
+                @endif
             </table>
+        </div>
+    </div>
+
+    @if($detailPengumuman->UploadPengumuman->up_thumbnail)
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Thumbnail</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ asset('storage/' . $detailPengumuman->UploadPengumuman->up_thumbnail) }}"
+                    class="img-fluid max-height-300" alt="Thumbnail Pengumuman">
+            </div>
+        </div>
+    @endif
+
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="card-title">Detail Konten</h5>
+        </div>
+        <div class="card-body">
+            @if($detailPengumuman->UploadPengumuman->up_type == 'link')
+                <h6>URL Tujuan:</h6>
+                <div class="mb-3">
+                    <a href="{{ $detailPengumuman->UploadPengumuman->up_value }}" target="_blank" class="btn btn-info">
+                        <i class="fas fa-external-link-alt mr-1"></i>
+                        {{ $detailPengumuman->UploadPengumuman->up_value }}
+                    </a>
+                </div>
+            @elseif($detailPengumuman->UploadPengumuman->up_type == 'file')
+                <div class="mb-3">
+                    <a href="{{ asset('storage/' . $detailPengumuman->UploadPengumuman->up_value) }}" target="_blank"
+                        class="btn btn-info">
+                        <i class="fas fa-file-download mr-1"></i> Lihat File
+                    </a>
+                    <span class="ml-2 text-muted">{{ basename($detailPengumuman->UploadPengumuman->up_value) }}</span>
+                </div>
+            @elseif($detailPengumuman->UploadPengumuman->up_type == 'konten')
+
+                {!! $detailPengumuman->UploadPengumuman->up_konten !!}
+
+            @else
+                <div class="alert alert-info">
+                    Tidak ada detail konten yang tersedia.
+                </div>
+            @endif
         </div>
     </div>
 
@@ -67,7 +130,7 @@
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
     <button type="button" class="btn btn-danger" id="confirmDeleteButton" 
-        onclick="confirmDelete('{{ url('AdminWeb/Pengumuman/deleteData/'.$pengumuman->pengumuman_id) }}')">
+    onclick="confirmDelete('{{ url( $detailPengumumanUrl . '/deleteData/' . $detailPengumuman->pengumuman_id) }}')">
         <i class="fas fa-trash mr-1"></i> Hapus
     </button>
 </div>

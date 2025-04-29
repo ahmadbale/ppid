@@ -1,4 +1,8 @@
 <!-- views/SistemInformasi/Timeline/update.blade.php -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $timelineUrl = WebMenuModel::getDynamicMenuUrl('timeline');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Ubah Timeline</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -7,7 +11,7 @@
 </div>
 
 <div class="modal-body">
-    <form id="formUpdateTimeline" action="{{ url('SistemInformasi/Timeline/updateData/' . $timeline->timeline_id) }}"
+    <form id="formUpdateTimeline" action="{{ url($timelineUrl . '/updateData/' . $timeline->timeline_id) }}"
         method="POST" enctype="multipart/form-data">
         @csrf
 

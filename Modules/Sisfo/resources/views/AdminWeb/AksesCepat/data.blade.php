@@ -1,74 +1,87 @@
+@php
+    use Modules\Sisfo\App\Models\Website\WebMenuModel;
+    use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+    $detailAksesCepatUrl = WebMenuModel::getDynamicMenuUrl('detail-akses-cepat');
+@endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
     <div class="showing-text">
-        Showing {{$aksesCepat->firstItem()}} to {{$aksesCepat->lastItem()}} of {{$aksesCepat->total()}} results
+        Showing {{$aksesCepat->firstItem() }} to {{$aksesCepat->lastItem() }} of {{$aksesCepat->total() }} results
     </div>
 </div>
-
-<div class="table-responsive">
-    <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
-        <thead class="text-center">
-            <tr>
-                <th>Nomor</th>
-                <th>Judul Informasi Akses Cepat</th>
-                <th>Icon</th>
-                <th>Icon Animasi</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($aksesCepat as $key => $item)
-            <tr>
-                <td table-data-label="Nomor" class="text-center">
-                    {{ ($aksesCepat->currentPage() - 1) * $aksesCepat->perPage() + $key + 1 }}
-                </td>
-                <td table-data-label="Judul Informasi Akses Cepat" class="text-center">
-                    {{ $item->ac_judul }}
-                </td>
-                <td table-data-label="Icon Akses Cepat" class="text-center">
-                    @if($item->ac_static_icon)
-                        <img src="{{ asset('storage/akses_cepat_static_icons/' . basename($item->ac_static_icon)) }}"
-                             alt="Static Icon" class="img-thumbnail" style="max-height: 50px;">
-                    @else
-                        -
-                    @endif
-                </td>
-                <td table-data-label="Icon Animasi Akses Cepat" class="text-center">
-                    @if($item->ac_animation_icon)
-                        <img src="{{ asset('storage/akses_cepat_animation_icons/' . basename($item->ac_animation_icon)) }}"
-                             alt="Animation Icon" class="img-thumbnail" style="max-height: 50px;">
-                    @else
-                        -
-                    @endif
-                </td>
-                <td table-data-label="Aksi" class="text-center">
-                    <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/akses-cepat/editData/{$item->akses_cepat_id}") }}')">
+<div class="table-responsive"></div>
+<table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
+    <thead class="text-center">
+        <tr>
+            <th width="5%">Nomor</th>
+            <th width="20%">Judul Informasi Akses Cepat</th>
+            <th width="20%">Icon Akses Cepat</th>
+            <th width="20%">Icon Animasi Akses Cepat</th>
+            <th width="15%">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($aksesCepat as $key => $item)
+        <tr>
+            <td table-data-label>{{ ($aksesCepat->currentPage() - 1) *$aksesCepat->perPage() + $key + 1 }}</td>
+           
+            <td>{{ $item->ac_judul }}</td>
+            <td>
+                @if($item->ac_static_icon)
+                    <img src="{{ asset('storage/akses_cepat_static_icons/' . basename($item->ac_static_icon)) }}"
+                         alt="Static Icon" class="img-thumbnail" style="max-height: 50px;">
+                @else
+                 -
+                @endif
+            </td>
+            <td>
+                @if($item->ac_animation_icon)
+                    <img src="{{ asset('storage/akses_cepat_animation_icons/' . basename($item->ac_animation_icon)) }}" 
+                         alt="Animation Icon" class="img-thumbnail" style="max-height: 50px;">
+                @else
+                -
+                @endif
+            </td>
+            <td>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $detailAksesCepatUrl, 'update')
+                )
+                    <button class="btn btn-sm btn-warning"
+                        onclick="modalAction('{{ url($detailAksesCepatUrl . '/editData/' . $item->akses_cepat_id) }}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/akses-cepat/detailData/{$item->akses_cepat_id}") }}')">
-                        <i class="fas fa-eye"></i> Detail
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/akses-cepat/deleteData/{$item->akses_cepat_id}") }}')">
+                @endif
+                <button class="btn btn-sm btn-info"
+                    onclick="modalAction('{{ url($detailAksesCepatUrl . '/detailData/' . $item->akses_cepat_id) }}')">
+                    <i class="fas fa-eye"></i> Detail
+                </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $detailAksesCepatUrl, 'delete')
+                )
+                    <button class="btn btn-sm btn-danger"
+                        onclick="modalAction('{{ url($detailAksesCepatUrl . '/deleteData/' . $item->akses_cepat_id) }}')">
                         <i class="fas fa-trash"></i> Hapus
                     </button>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="5" class="text-center">
-                    @if(!empty($search))
-                        Tidak ada data yang cocok dengan pencarian "{{ $search }}"
-                    @else
-                        Tidak ada data
-                    @endif
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+                @endif
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="4" class="text-center">
+                @if(!empty($search))
+                    Tidak ada data yang cocok dengan pencarian "{{ $search }}"
+                @else
+                    Tidak ada data
+                @endif
+            </td>
+        </tr>
+        @endforelse
+    </tbody>
+</table>
 
 <div class="mt-3">
-    {{$aksesCepat->appends(['search' => $search])->links()}}
+    {{$aksesCepat->appends(['search' => $search])->links() }}
 </div>
 
 @push('css')

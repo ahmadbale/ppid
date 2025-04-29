@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriPengumumanUrl = WebMenuModel::getDynamicMenuUrl('kategori-pengumuman');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Tambah Pengumuman Dinamis Baru</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
 </div>
   
 <div class="modal-body">
-    <form id="formCreatePengumumanDinamis" action="{{ url('AdminWeb/PengumumanDinamis/createData') }}" method="POST">
+    <form id="formCreatePengumumanDinamis" action="{{ url($kategoriPengumumanUrl . '/createData') }}" method="POST">
       @csrf
   
       <div class="form-group">

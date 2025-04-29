@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $detailAksesCepatUrl = WebMenuModel::getDynamicMenuUrl('detail-akses-cepat');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Edit Akses Cepat</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -5,7 +9,7 @@
     </button>
 </div>
 
-<form id="form-update-akses-cepat" action="{{ url("adminweb/akses-cepat/updateData/{$aksesCepat->akses_cepat_id}") }}" method="POST" enctype="multipart/form-data">
+<form id="form-update-akses-cepat" action="{{ url($detailAksesCepatUrl . '/updateData/' . $aksesCepat->akses_cepat_id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="modal-body">
         <div class="form-group">

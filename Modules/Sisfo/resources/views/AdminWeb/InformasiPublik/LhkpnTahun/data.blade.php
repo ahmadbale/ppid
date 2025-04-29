@@ -1,12 +1,16 @@
+@php
+    use Modules\Sisfo\App\Models\Website\WebMenuModel;
+    use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+    $kategoriTahunLHKPNUrl = WebMenuModel::getDynamicMenuUrl('kategori-tahun-lhkpn');
+@endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
      <div class="showing-text">
          Showing {{ $lhkpn->firstItem() }} to {{ $lhkpn->lastItem() }} of {{ $lhkpn->total() }} results
      </div>
  </div>
-
- <div class="table-responsive">
- <table class="table table-responsive-stack table-bordered table-striped table-hover table-sm">
-     <thead class="text-center">
+ 
+ <table class="table table-bordered table-striped table-hover table-sm">
+     <thead>
          <tr>
              <th width="5%">Nomor</th>
              <th width="15%">Tahun</th>
@@ -17,20 +21,33 @@
      <tbody>
          @forelse($lhkpn as $key => $item)
          <tr>
-             <td table-data-label="Nomor" class="text-center">{{ ($lhkpn->currentPage() - 1) * $lhkpn->perPage() + $key + 1 }}</td>
-             <td table-data-label="Tahun" class="text-center">{{ $item->lhkpn_tahun }}</td>
-             <td table-data-label="Judul" class="text-start">{{ $item->lhkpn_judul_informasi }}</td>
-             <td table-data-label="Aksi" class="text-center">
-                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/lhkpn-tahun/editData/{$item->lhkpn_id}") }}')">
-                     <i class="fas fa-edit"></i> Edit
-                 </button>
-                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/lhkpn-tahun/detailData/{$item->lhkpn_id}") }}')">
-                     <i class="fas fa-eye"></i> Detail
-                 </button>
-                 <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/informasipublik/lhkpn-tahun/deleteData/{$item->lhkpn_id}") }}')">
-                     <i class="fas fa-trash"></i> Hapus
-                 </button>
-             </td>
+             <td>{{ ($lhkpn->currentPage() - 1) * $lhkpn->perPage() + $key + 1 }}</td>
+             <td>{{ $item->lhkpn_tahun }}</td>
+             <td>{{ $item->lhkpn_judul_informasi }}</td>
+             <td>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriTahunLHKPNUrl, 'update')
+                )
+                    <button class="btn btn-sm btn-warning"
+                        onclick="modalAction('{{ url($kategoriTahunLHKPNUrl . '/editData/' . $item->lhkpn_id) }}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                @endif
+                <button class="btn btn-sm btn-info"
+                    onclick="modalAction('{{ url($kategoriTahunLHKPNUrl . '/detailData/' . $item->lhkpn_id) }}')">
+                    <i class="fas fa-eye"></i> Detail
+                </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriTahunLHKPNUrl, 'delete')
+                )
+                    <button class="btn btn-sm btn-danger"
+                        onclick="modalAction('{{ url($kategoriTahunLHKPNUrl . '/deleteData/' . $item->lhkpn_id) }}')">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                @endif
+            </td>
          </tr>
          @empty
          <tr>
@@ -45,8 +62,7 @@
          @endforelse
      </tbody>
  </table>
-</div>
-
+ 
  <div class="mt-3">
      {{ $lhkpn->appends(['search' => $search])->links() }}
  </div>
