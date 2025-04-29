@@ -100,19 +100,20 @@ class WebMenuModel extends Model
 
     public static function getDataMenu()
     {
-        // Sesuaikan dengan struktur baru
+        // Ambil level dengan kode 'RPN' dan aplikasi dengan key 'app ppid'
         $arr_data = self::query()
             ->select([
                 'web_menu_id',
                 'wm_parent_id',
                 'wm_urutan_menu',
                 'wm_menu_nama',
+                'fk_m_level',
                 'fk_web_menu_global'
             ])
             ->where('fk_m_level', function ($query) {
                 $query->select('level_id')
                     ->from('m_level')
-                    ->where('level_kode', 'RPN')
+                    ->where('level_kode', 'RPN')  // Filter berdasarkan level kode 'RPN'
                     ->limit(1);
             })
             ->where('wm_status_menu', 'aktif')
@@ -120,21 +121,39 @@ class WebMenuModel extends Model
             ->orderBy('wm_urutan_menu')
             ->get()
             ->map(function ($menu) {
-                // Dapatkan nama menu dari web_menu_global jika wm_menu_nama kosong
+                // Ambil nama menu dari WebMenuGlobal atau WebMenuUrl jika wm_menu_nama kosong
                 $menuName = $menu->wm_menu_nama ?: ($menu->WebMenuGlobal ? $menu->WebMenuGlobal->wmg_nama_default : null);
-                // Dapatkan URL dari relasi
-                $menuUrl = $menu->WebMenuUrl ? $menu->WebMenuUrl->wmu_nama : null;
-
+    
+                // Ambil URL dari WebMenuUrl
+                $menuUrl = $menu->WebMenuGlobal && $menu->WebMenuGlobal->WebMenuUrl ? 
+                            $menu->WebMenuGlobal->WebMenuUrl->wmu_nama : null;
+    
+                // Cari submenu berdasarkan parent_id
+                $submenu = self::query()
+                    ->where('wm_parent_id', $menu->web_menu_id)
+                    ->where('wm_status_menu', 'aktif')
+                    ->where('isDeleted', 0)
+                    ->orderBy('wm_urutan_menu')
+                    ->get()
+                    ->map(function ($submenuItem) {
+                        return [
+                            'wm_menu_nama' => $submenuItem->wm_menu_nama,
+                            'wm_menu_url' => $submenuItem->WebMenuUrl ? $submenuItem->WebMenuUrl->wmu_nama : null
+                        ];
+                    });
+    
                 return [
                     'id' => $menu->web_menu_id,
                     'wm_parent_id' => $menu->wm_parent_id,
                     'wm_urutan_menu' => $menu->wm_urutan_menu,
                     'wm_menu_nama' => $menuName,
-                    'wm_menu_url' => $menuUrl
+                    'wm_menu_url' => $menuUrl,
+                    'children' => $submenu
                 ];
             })->toArray();
+    
         return $arr_data;
-    }
+    }    
 
     public static function selectBeritaPengumuman()
     {
@@ -203,6 +222,7 @@ class WebMenuModel extends Model
         ];
     }
 
+
     public static function createData($request)
     {
         DB::beginTransaction();
@@ -236,19 +256,30 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // Cek apakah sudah ada menu dengan URL yang sama pada level lain
+            $webMenuGlobal = null;
+            $finalMenuName = $menuName;
+
+            // Cek URL dan kategori menu
             if ($menuUrl) {
                 // Cari WebMenuGlobal dengan URL yang sama
                 $webMenuGlobal = WebMenuGlobalModel::where('fk_web_menu_url', $menuUrl)
                     ->where('isDeleted', 0)
                     ->first();
 
-                if (!$webMenuGlobal) {
+                if ($webMenuGlobal) {
+                    // Jika nama sama dengan nama default, set wm_menu_nama menjadi null
+                    if ($menuName == $webMenuGlobal->wmg_nama_default) {
+                        $finalMenuName = null;
+                    }
+                } else {
                     // Buat WebMenuGlobal baru jika belum ada
                     $webMenuGlobal = WebMenuGlobalModel::create([
                         'fk_web_menu_url' => $menuUrl,
                         'wmg_nama_default' => $menuName
                     ]);
+
+                    // Untuk global menu baru, set wm_menu_nama menjadi null
+                    $finalMenuName = null;
                 }
 
                 // Cek apakah sudah ada menu dengan WebMenuGlobal ini dan level yang dipilih
@@ -267,19 +298,33 @@ class WebMenuModel extends Model
                 // Set WebMenuGlobal ID
                 $data['fk_web_menu_global'] = $webMenuGlobal->web_menu_global_id;
             } else {
-                // Jika tidak ada URL, buat WebMenuGlobal baru untuk nama menu
-                $webMenuGlobal = WebMenuGlobalModel::create([
-                    'fk_web_menu_url' => null,
-                    'wmg_nama_default' => $menuName
-                ]);
+                // Untuk menu yang tidak memiliki URL (grup menu)
+                // Cari webMenuGlobal yang sudah ada dengan nama yang sama dan tanpa URL
+                $webMenuGlobal = WebMenuGlobalModel::whereNull('fk_web_menu_url')
+                    ->where('wmg_nama_default', $menuName)
+                    ->where('isDeleted', 0)
+                    ->first();
+
+                if (!$webMenuGlobal) {
+                    // Jika belum ada, buat WebMenuGlobal baru untuk nama menu
+                    $webMenuGlobal = WebMenuGlobalModel::create([
+                        'fk_web_menu_url' => null,
+                        'wmg_nama_default' => $menuName
+                    ]);
+                }
 
                 $data['fk_web_menu_global'] = $webMenuGlobal->web_menu_global_id;
+                $finalMenuName = null; // Untuk grup menu, gunakan nama default dari global
             }
 
             // Tambahkan urutan menu
             $data['wm_urutan_menu'] = self::where('wm_parent_id', $data['wm_parent_id'] ?? null)
+                ->where('fk_m_level', $levelId)
                 ->where('isDeleted', 0)
                 ->count() + 1;
+
+            // Set nama menu final
+            $data['wm_menu_nama'] = $finalMenuName;
 
             // Buat menu baru
             $saveData = self::create($data);
@@ -336,11 +381,17 @@ class WebMenuModel extends Model
             $newLevelId = $data['fk_m_level'] ?? $oldLevelId;
             $menuName = $data['wm_menu_nama'];
             $menuUrl = $data['fk_web_menu_url'] ?? null;
+            $finalMenuName = $menuName;
 
             // Jika level berubah
             if ($oldLevelId != $newLevelId) {
                 // Cek apakah menu dengan nama yang sama sudah ada di level tujuan
-                $existingMenu = self::where('wm_menu_nama', $menuName)
+                $existingMenu = self::where(function ($query) use ($menuName) {
+                    $query->where('wm_menu_nama', $menuName)
+                        ->orWhereHas('WebMenuGlobal', function ($q) use ($menuName) {
+                            $q->where('wmg_nama_default', $menuName);
+                        });
+                })
                     ->where('fk_m_level', $newLevelId)
                     ->where('web_menu_id', '!=', $id)
                     ->where('isDeleted', 0)
@@ -357,29 +408,60 @@ class WebMenuModel extends Model
                 $saveData->fk_m_level = $newLevelId;
             }
 
-            // Jika URL berubah
-            if ($menuUrl && $menuUrl != ($saveData->WebMenuGlobal->fk_web_menu_url ?? null)) {
-                // Cari WebMenuGlobal yang sesuai dengan URL baru
-                $webMenuGlobal = WebMenuGlobalModel::where('fk_web_menu_url', $menuUrl)
-                    ->where('isDeleted', 0)
-                    ->first();
+            // Jika URL berubah atau null
+            if ($menuUrl !== ($saveData->WebMenuGlobal->fk_web_menu_url ?? null)) {
+                if ($menuUrl) {
+                    // Cari WebMenuGlobal yang sesuai dengan URL baru
+                    $webMenuGlobal = WebMenuGlobalModel::where('fk_web_menu_url', $menuUrl)
+                        ->where('isDeleted', 0)
+                        ->first();
 
-                if (!$webMenuGlobal) {
-                    // Buat baru jika belum ada
-                    $webMenuGlobal = WebMenuGlobalModel::create([
-                        'fk_web_menu_url' => $menuUrl,
-                        'wmg_nama_default' => $menuName
-                    ]);
+                    if ($webMenuGlobal) {
+                        // Jika nama menu sama dengan nama default, set nama menu menjadi null
+                        if ($menuName == $webMenuGlobal->wmg_nama_default) {
+                            $finalMenuName = null;
+                        }
+                    } else {
+                        // Buat WebMenuGlobal baru jika belum ada
+                        $webMenuGlobal = WebMenuGlobalModel::create([
+                            'fk_web_menu_url' => $menuUrl,
+                            'wmg_nama_default' => $menuName
+                        ]);
+                        $finalMenuName = null; // Untuk menu global baru, pakai wmg_nama_default
+                    }
+                } else {
+                    // Untuk menu yang tidak memiliki URL (grup menu)
+                    // Cari webMenuGlobal yang sudah ada dengan nama yang sama dan tanpa URL
+                    $webMenuGlobal = WebMenuGlobalModel::whereNull('fk_web_menu_url')
+                        ->where('wmg_nama_default', $menuName)
+                        ->where('isDeleted', 0)
+                        ->first();
+
+                    if (!$webMenuGlobal) {
+                        // Jika belum ada, buat WebMenuGlobal baru untuk nama menu
+                        $webMenuGlobal = WebMenuGlobalModel::create([
+                            'fk_web_menu_url' => null,
+                            'wmg_nama_default' => $menuName
+                        ]);
+                    }
+
+                    $finalMenuName = null; // Untuk grup menu, gunakan nama default dari global
                 }
 
                 // Update referensi ke WebMenuGlobal
                 $saveData->fk_web_menu_global = $webMenuGlobal->web_menu_global_id;
+            } else {
+                // Jika URL tidak berubah, tapi nama menu berubah
+                $currentWebMenuGlobal = $saveData->WebMenuGlobal;
+                if ($currentWebMenuGlobal && $menuName == $currentWebMenuGlobal->wmg_nama_default) {
+                    $finalMenuName = null;
+                }
             }
 
             // Update data menu
-            $saveData->wm_menu_nama = $menuName;
+            $saveData->wm_menu_nama = $finalMenuName;
             $saveData->wm_status_menu = $data['wm_status_menu'];
-            $saveData->wm_parent_id = $data['wm_parent_id'] ?? null;
+            $saveData->wm_parent_id = !empty($data['wm_parent_id']) ? $data['wm_parent_id'] : null;
             $saveData->save();
 
             TransactionModel::createData(
@@ -468,7 +550,7 @@ class WebMenuModel extends Model
             'web_menu.wm_menu_nama' => 'required|string|max:60',
             'web_menu.wm_parent_id' => 'nullable|exists:web_menu,web_menu_id',
             'web_menu.wm_status_menu' => 'required|in:aktif,nonaktif',
-            'web_menu.fk_web_menu_url' => 'nullable|exists:web_menu_url,web_menu_url_id',
+            'web_menu.fk_web_menu_url' => 'nullable', // Hilangkan validasi exists agar dapat menerima null
             'web_menu.fk_m_level' => 'required|exists:m_level,level_id',
         ];
 
@@ -478,12 +560,22 @@ class WebMenuModel extends Model
             'web_menu.wm_parent_id.exists' => 'Parent menu tidak valid',
             'web_menu.wm_status_menu.required' => 'Status menu wajib diisi',
             'web_menu.wm_status_menu.in' => 'Status menu harus aktif atau nonaktif',
-            'web_menu.fk_web_menu_url.exists' => 'URL menu tidak valid',
             'web_menu.fk_m_level.required' => 'Level menu wajib dipilih',
             'web_menu.fk_m_level.exists' => 'Level menu tidak valid',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
+        // Tambahkan validasi khusus untuk URL menu jika ada
+        $validator->after(function ($validator) use ($request) {
+            if (!empty($request->web_menu['fk_web_menu_url'])) {
+                $url = $request->web_menu['fk_web_menu_url'];
+                $menuUrl = WebMenuUrlModel::find($url);
+                if (!$menuUrl) {
+                    $validator->errors()->add('web_menu.fk_web_menu_url', 'URL menu tidak valid');
+                }
+            }
+        });
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
@@ -495,11 +587,23 @@ class WebMenuModel extends Model
     public static function getParentMenusByLevel($levelId)
     {
         // Dapatkan menu-menu untuk level tertentu
-        return self::where('fk_m_level', $levelId)
+        $parentMenus = self::where('fk_m_level', $levelId)
             ->whereNull('wm_parent_id')
             ->where('isDeleted', 0)
             ->where('wm_status_menu', 'aktif')
-            ->get();
+            ->with('WebMenuGlobal') // Tambahkan relasi untuk mendapatkan nama default
+            ->get()
+            ->map(function ($menu) {
+                // Dapatkan nama yang tepat untuk menu
+                $menuName = $menu->wm_menu_nama ?: ($menu->WebMenuGlobal ? $menu->WebMenuGlobal->wmg_nama_default : 'Menu');
+
+                return [
+                    'web_menu_id' => $menu->web_menu_id,
+                    'wm_menu_nama' => $menuName
+                ];
+            });
+
+        return $parentMenus;
     }
 
     public static function getMenusWithChildren()

@@ -68,6 +68,13 @@ class DetailLhkpnController extends Controller
 
             DetailLhkpnModel::validasiData($request);
             $result = DetailLhkpnModel::createData($request);
+               // Penting: Periksa apakah result memiliki status success=false
+               if (isset($result['success']) && $result['success'] === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Gagal menghapus LHKPN Tahun'
+                ]);
+            }
 
             return $this->jsonSuccess(
                 $result['data'] ?? null,
@@ -96,7 +103,13 @@ class DetailLhkpnController extends Controller
         try {
             DetailLhkpnModel::validasiData($request, $id);
             $result = DetailLhkpnModel::updateData($request, $id);
-
+               // Penting: Periksa apakah result memiliki status success=false
+               if (isset($result['success']) && $result['success'] === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Gagal menghapus LHKPN Tahun'
+                ]);
+            }
             return $this->jsonSuccess(
                 $result['data'] ?? null,
                 $result['message'] ?? 'Detail LHKPN berhasil diperbarui'

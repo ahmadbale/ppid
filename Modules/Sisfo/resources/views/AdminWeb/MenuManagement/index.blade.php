@@ -74,7 +74,7 @@
                                         <div class="dd nestable-{{ $kode }}" data-jenis="{{ $kode }}">
                                             <ol class="dd-list">
                                                 @foreach($menusByJenis[$kode]['menus'] as $menu)
-                                                    @include('adminweb.MenuManagement.menu-item', ['menu' => $menu, 'kode' => $kode])
+                                                    @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu, 'kode' => $kode])
                                                 @endforeach
                                             </ol>
                                         </div>
@@ -450,7 +450,9 @@
                 // Reset dropdown
                 targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
 
-                // Dapatkan URL dinamis menggunakan fungsi yang sama dengan reorder
+                if (!levelId) return; // Jika level tidak dipilih, hentikan
+
+                // Dapatkan URL dinamis untuk mengambil parent menu berdasarkan level
                 const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
 
                 // Lakukan request AJAX untuk mendapatkan parent menu berdasarkan level
@@ -459,12 +461,16 @@
                     method: 'GET',
                     success: function(response) {
                         if (response.success && response.parentMenus) {
+                            // Filter menu berdasarkan level yang dipilih
                             response.parentMenus.forEach(function(menu) {
-                                targetSelect.append(`
-                                    <option value="${menu.web_menu_id}" data-level="${levelId}">
-                                        ${menu.wm_menu_nama}
-                                    </option>
-                                `);
+                                // Pastikan untuk menghindari duplikasi dalam dropdown
+                                if (!targetSelect.find(`option[value="${menu.web_menu_id}"]`).length) {
+                                    targetSelect.append(`
+                                        <option value="${menu.web_menu_id}" data-level="${levelId}">
+                                            ${menu.wm_menu_nama}
+                                        </option>
+                                    `);
+                                }
                             });
                         }
                     },
@@ -473,6 +479,7 @@
                     }
                 });
             }
+
 
             // Event listener untuk perubahan dropdown Hak Akses pada form tambah
             $('#add_jenis_menu').on('change', function () {
