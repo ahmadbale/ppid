@@ -7,28 +7,31 @@
 
 <div class="modal-body">
     <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Informasi Pengumumn</h5>
+        </div>
         <div class="card-body">
             <table class="table table-borderless">
                 <tr>
                     <th width="200">Kategori Pengumuman</th>
-                    <td>{{ $pengumuman->PengumumanDinamis->pd_nama_submenu ?? '-' }}</td>
+                    <td>{{ $detailPengumuman->PengumumanDinamis->pd_nama_submenu ?? '-' }}</td>
                 </tr>
                 <tr>
                     <th>Judul Pengumuman</th>
-                    <td>{{ $pengumuman->peg_judul ?? '-' }}</td>
+                    <td>{{ $detailPengumuman->peg_judul ?? '-' }}</td>
                 </tr>
                 <tr>
                     <th>Slug</th>
-                    <td>{{ $pengumuman->peg_slug }}</td>
+                    <td>{{ $detailPengumuman->peg_slug }}</td>
                 </tr>
                 <tr>
                     <th>Tipe Konten</th>
                     <td>
-                        @if($pengumuman->UploadPengumuman->up_type == 'link')
+                        @if($detailPengumuman->UploadPengumuman->up_type == 'link')
                             <span class="badge badge-info">Link</span>
-                        @elseif($pengumuman->UploadPengumuman->up_type == 'file')
+                        @elseif($detailPengumuman->UploadPengumuman->up_type == 'file')
                             <span class="badge badge-primary">File</span>
-                        @elseif($pengumuman->UploadPengumuman->up_type == 'konten')
+                        @elseif($detailPengumuman->UploadPengumuman->up_type == 'konten')
                             <span class="badge badge-success">Konten</span>
                         @else
                             -
@@ -38,7 +41,7 @@
                 <tr>
                     <th>Status</th>
                     <td>
-                        @if($pengumuman->status_pengumuman == 'aktif')
+                        @if($detailPengumuman->status_pengumuman == 'aktif')
                             <span class="badge badge-success">Aktif</span>
                         @else
                             <span class="badge badge-danger">Tidak Aktif</span>
@@ -47,66 +50,64 @@
                 </tr>
                 <tr>
                     <th>Tanggal Dibuat</th>
-                    <td>{{ date('d-m-Y H:i:s', strtotime($pengumuman->created_at)) }}</td>
+                    <td>{{ date('d-m-Y H:i:s', strtotime($detailPengumuman->created_at)) }}</td>
                 </tr>
                 <tr>
                     <th>Dibuat Oleh</th>
-                    <td>{{ $pengumuman->created_by }}</td>
+                    <td>{{ $detailPengumuman->created_by }}</td>
                 </tr>
-                @if($pengumuman->updated_by)
-                <tr>
-                    <th>Terakhir Diperbarui</th>
-                    <td>{{ date('d-m-Y H:i:s', strtotime($pengumuman->updated_at)) }}</td>
-                </tr>
-                <tr>
-                    <th>Diperbarui Oleh</th>
-                    <td>{{ $pengumuman->updated_by }}</td>
-                </tr>
+                @if($detailPengumuman->updated_by)
+                    <tr>
+                        <th>Terakhir Diperbarui</th>
+                        <td>{{ date('d-m-Y H:i:s', strtotime($detailPengumuman->updated_at)) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Diperbarui Oleh</th>
+                        <td>{{ $detailPengumuman->updated_by }}</td>
+                    </tr>
                 @endif
             </table>
         </div>
     </div>
+
+    @if($detailPengumuman->UploadPengumuman->up_thumbnail)
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Thumbnail</h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ asset('storage/' . $detailPengumuman->UploadPengumuman->up_thumbnail) }}"
+                    class="img-fluid max-height-300" alt="Thumbnail Pengumuman">
+            </div>
+        </div>
+    @endif
 
     <div class="card mt-3">
         <div class="card-header">
             <h5 class="card-title">Detail Konten</h5>
         </div>
         <div class="card-body">
-            @if($pengumuman->UploadPengumuman->up_type == 'link')
+            @if($detailPengumuman->UploadPengumuman->up_type == 'link')
                 <h6>URL Tujuan:</h6>
                 <div class="mb-3">
-                    <a href="{{ $pengumuman->UploadPengumuman->up_value }}" target="_blank" class="btn btn-info">
-                        <i class="fas fa-external-link-alt mr-1"></i> 
-                        {{ $pengumuman->UploadPengumuman->up_value }}
+                    <a href="{{ $detailPengumuman->UploadPengumuman->up_value }}" target="_blank" class="btn btn-info">
+                        <i class="fas fa-external-link-alt mr-1"></i>
+                        {{ $detailPengumuman->UploadPengumuman->up_value }}
                     </a>
                 </div>
-            @elseif($pengumuman->UploadPengumuman->up_type == 'file')
-                @if($pengumuman->UploadPengumuman->up_thumbnail)
-                <h6>Thumbnail:</h6>
+            @elseif($detailPengumuman->UploadPengumuman->up_type == 'file')
                 <div class="mb-3">
-                    <img src="{{ asset('storage/' . $pengumuman->UploadPengumuman->up_thumbnail) }}" class="img-thumbnail" style="max-height: 200px;">
-                </div>
-                @endif
-
-                <h6>File:</h6>
-                <div class="mb-3">
-                    <a href="{{ asset('storage/' . $pengumuman->UploadPengumuman->up_value) }}" target="_blank" class="btn btn-info">
+                    <a href="{{ asset('storage/' . $detailPengumuman->UploadPengumuman->up_value) }}" target="_blank"
+                        class="btn btn-info">
                         <i class="fas fa-file-download mr-1"></i> Lihat File
                     </a>
-                    <span class="ml-2 text-muted">{{ basename($pengumuman->UploadPengumuman->up_value) }}</span>
+                    <span class="ml-2 text-muted">{{ basename($detailPengumuman->UploadPengumuman->up_value) }}</span>
                 </div>
-            @elseif($pengumuman->UploadPengumuman->up_type == 'konten')
-                @if($pengumuman->UploadPengumuman->up_thumbnail)
-                <h6>Thumbnail:</h6>
-                <div class="mb-3">
-                    <img src="{{ asset('storage/' . $pengumuman->UploadPengumuman->up_thumbnail) }}" class="img-thumbnail" style="max-height: 200px;">
-                </div>
-                @endif
+            @elseif($detailPengumuman->UploadPengumuman->up_type == 'konten')
 
-                <h6>Konten:</h6>
-                <div class="content-preview border p-3 rounded">
-                    {!! $pengumuman->UploadPengumuman->up_konten !!}
-                </div>
+                {!! $detailPengumuman->UploadPengumuman->up_konten !!}
+
             @else
                 <div class="alert alert-info">
                     Tidak ada detail konten yang tersedia.
@@ -126,6 +127,7 @@
         overflow-y: auto;
         background-color: #fff;
     }
+
     .content-preview img {
         max-width: 100%;
         height: auto;

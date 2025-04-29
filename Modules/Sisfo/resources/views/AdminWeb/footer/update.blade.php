@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $detailFooterUrl = WebMenuModel::getDynamicMenuUrl('detail-footer');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Ubah Footer</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
 </div>
 
 <div class="modal-body">
-    <form id="formUpdateFooter" action="{{ url('adminweb/footer/updateData/' . $footer->footer_id) }}" method="POST"
+    <form id="formUpdateFooter" action="{{ url($detailFooterUrl . '/updateData/' . $footer->footer_id) }}" method="POST"
         enctype="multipart/form-data">
         @csrf
 

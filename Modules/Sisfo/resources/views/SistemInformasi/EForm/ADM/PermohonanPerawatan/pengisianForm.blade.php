@@ -1,9 +1,13 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $permohonanPerawatanAdminUrl = WebMenuModel::getDynamicMenuUrl('permohonan-sarana-dan-prasarana-admin');
+@endphp
 @extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanPerawatan') }}"
+                <a href="{{ url($permohonanPerawatanAdminUrl) }}"
                     class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
@@ -13,7 +17,7 @@
         <div class="card-body">
 
             <form id="permohonanForm"
-                action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanPerawatan/createData') }}"
+                action="{{ url($permohonanPerawatanAdminUrl . '/createData') }}"
                 method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
 

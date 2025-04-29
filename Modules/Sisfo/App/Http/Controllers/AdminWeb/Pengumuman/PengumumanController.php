@@ -7,6 +7,7 @@ use Modules\Sisfo\App\Models\Website\Publikasi\Pengumuman\PengumumanDinamisModel
 use Modules\Sisfo\App\Models\Website\Publikasi\Pengumuman\PengumumanModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -33,13 +34,13 @@ class PengumumanController extends Controller
         $activeMenu = 'Pengumuman';
 
         // Gunakan pagination dan pencarian
-        $pengumuman = PengumumanModel::selectData(10, $search);
+        $detailPengumuman = PengumumanModel::selectData(10, $search);
 
         return view("sisfo::AdminWeb/Pengumuman.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
-            'pengumuman' => $pengumuman,
+            'detailPengumuman' => $detailPengumuman,
             'search' => $search
         ]);
     }
@@ -48,13 +49,13 @@ class PengumumanController extends Controller
     public function getData(Request $request)
     {
         $search = $request->query('search', '');
-        $pengumuman = PengumumanModel::selectData(10, $search);
+        $detailPengumuman = PengumumanModel::selectData(10, $search);
 
         if ($request->ajax()) {
-            return view('sisfo::AdminWeb/Pengumuman.data', compact('pengumuman', 'search'))->render();
+            return view('sisfo::AdminWeb/Pengumuman.data', compact('detailPengumuman', 'search'))->render();
         }
 
-        return redirect()->route('pengumuman.index');
+        return redirect()->route('detail-pengumuman.index');
     }
 
     public function addData()
@@ -85,13 +86,17 @@ class PengumumanController extends Controller
 
     public function editData($id)
     {
-        $kategoriPengumuman = PengumumanDinamisModel::where('isDeleted', 0)->get();
-        $pengumuman = PengumumanModel::detailData($id);
+        try {
+            $kategoriPengumuman = PengumumanDinamisModel::where('isDeleted', 0)->get();
+            $detailPengumuman = PengumumanModel::detailData($id);
 
-        return view("sisfo::AdminWeb/Pengumuman.update", [
-            'kategoriPengumuman' => $kategoriPengumuman,
-            'pengumuman' => $pengumuman
-        ]);
+            return view("sisfo::AdminWeb/Pengumuman.update", [
+                'kategoriPengumuman' => $kategoriPengumuman,
+                'detailPengumuman' => $detailPengumuman
+            ]);
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Gagal mengambil data Pengumuman');
+        }
     }
 
     public function updateData(Request $request, $id)
@@ -113,22 +118,30 @@ class PengumumanController extends Controller
 
     public function detailData($id)
     {
-        $pengumuman = PengumumanModel::detailData($id);
+        try {
+            $detailPengumuman = PengumumanModel::detailData($id);
 
-        return view("sisfo::AdminWeb/Pengumuman.detail", [
-            'pengumuman' => $pengumuman,
-            'title' => 'Detail Pengumuman'
-        ]);
+            return view("sisfo::AdminWeb/Pengumuman.detail", [
+                'detailPengumuman' => $detailPengumuman,
+                'title' => 'Detail Pengumuman'
+            ]);
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Gagal mengambil detail pengumuman');
+        }
     }
 
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            $pengumuman = PengumumanModel::detailData($id);
+            try {
+                $detailPengumuman = PengumumanModel::detailData($id);
 
-            return view("sisfo::AdminWeb/Pengumuman.delete", [
-                'pengumuman' => $pengumuman
-            ]);
+                return view("sisfo::AdminWeb/Pengumuman.delete", [
+                    'detailPengumuman' => $detailPengumuman
+                ]);
+            } catch (\Exception $e) {
+                return $this->jsonError($e, 'Terjadi kesalahan saat mengambil data');
+            }
         }
 
         try {

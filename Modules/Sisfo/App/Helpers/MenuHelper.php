@@ -2,16 +2,21 @@
 
 namespace Modules\Sisfo\App\Helpers;
 
+use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Illuminate\Support\Facades\Auth;
 
 class MenuHelper
 {
-    public static function renderSidebarMenus($levelKode, $activeMenu)
+    public static function renderSidebarMenus($hakAksesKode, $activeMenu)
     {
+        if (empty($hakAksesKode)) {
+            return ''; // Jika kode hak akses kosong, tidak ada menu yang ditampilkan
+        }
+        
         $userId = Auth::user()->user_id;
-        $menus = WebMenuModel::getMenusByLevelWithPermissions($levelKode, $userId);
-        $totalNotifikasi = WebMenuModel::getNotifikasiCount($levelKode);
+        $menus = WebMenuModel::getMenusByLevelWithPermissions($hakAksesKode, $userId);
+        $totalNotifikasi = WebMenuModel::getNotifikasiCount($hakAksesKode);
 
         $menuIcons = [
             'Dashboard' => 'fa-tachometer-alt',
@@ -19,14 +24,14 @@ class MenuHelper
             'Notifikasi' => 'fa-bell',
             'Hak Akses' => 'fa-key',
             'E-Form' => 'fa-folder-open',
-            'Menu Management' => 'fa-tasks'
+            'Menu Management' => 'fa-tasks'     
         ];
 
         $html = '';
 
         // Dashboard dan Profil selalu ada
         $html .= self::generateMenuItem(
-            url('/dashboard' . strtoupper($levelKode)),
+            url('/dashboard' . strtoupper($hakAksesKode)),
             'Dashboard',
             $menuIcons['Dashboard'],
             $activeMenu
@@ -40,12 +45,12 @@ class MenuHelper
         );
 
         // Notifikasi untuk level tertentu
-        if (in_array($levelKode, ['ADM', 'VFR', 'MPU'])) {
+        if (in_array($hakAksesKode, ['ADM', 'VFR', 'MPU'])) {
             $notifUrl = [
                 'ADM' => '/Notifikasi/NotifAdmin',
                 'VFR' => '/notifikasi',
                 'MPU' => '/notifMPU'
-            ][$levelKode];
+            ][$hakAksesKode];
 
             $html .= self::generateNotificationMenuItem(
                 url($notifUrl),
@@ -77,7 +82,7 @@ class MenuHelper
         }
 
         // Menu khusus SAR
-        if ($levelKode == 'SAR') {
+        if ($hakAksesKode == 'SAR') {
             $html .= self::generateMenuItem(
                 url('/HakAkses'),
                 'Pengaturan Hak Akses',
@@ -142,7 +147,7 @@ class MenuHelper
             $html .= "
                 <li class='nav-item'>
                     <a href='" . url($submenuUrl) . "' class='nav-link {$isActive}'>
-                        <i class='fas fa-tasks nav-icon'></i>
+                        <i class='far fa-circle nav-icon'></i>
                         <p>{$submenuName}</p>
                     </a>
                 </li>";

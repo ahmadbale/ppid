@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriTahunLHKPNUrl = WebMenuModel::getDynamicMenuUrl('kategori-tahun-lhkpn');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Tambah Data Tahun Lhkpn </h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
