@@ -7,11 +7,11 @@ use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
 
 class ApiKetentuanPelaporanController extends BaseApiController
 {
-     public function getDataKententuanPelaporan()
+     public function getDataKetentuanPelaporan()
      {
          return $this->execute(
              function() {
-                 $getDataKetentuanPelaporan = KategoriFormModel::getDataKententuanPelaporan();
+                 $getDataKetentuanPelaporan = KategoriFormModel::getDataKetentuanPelaporan();
                  return $getDataKetentuanPelaporan;
              },
              'laman Data Ketentuan Pelaporan'

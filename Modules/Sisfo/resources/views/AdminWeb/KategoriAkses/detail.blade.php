@@ -1,3 +1,5 @@
+<!-- views/AdminWeb/KategoriAkses/detail.blade.php -->
+
 <div class="modal-header bg-primary text-white">
     <h5 class="modal-title">Detail Kategori Akses</h5>
     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">

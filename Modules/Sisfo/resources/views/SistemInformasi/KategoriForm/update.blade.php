@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriFormUrl = WebMenuModel::getDynamicMenuUrl('kategori-form');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Ubah Kategori Form</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
 </div>
 
 <div class="modal-body">
-    <form id="formUpdateKategoriForm" action="{{ url('SistemInformasi/KategoriForm/updateData/' . $kategoriForm->kategori_form_id) }}"
+    <form id="formUpdateKategoriForm" action="{{ url($kategoriFormUrl . '/updateData/' . $kategoriForm->kategori_form_id) }}"
         method="POST">
         @csrf
 
@@ -29,61 +33,36 @@
 <script>
     $(document).ready(function () {
         // Hapus error ketika input berubah
-        $(document).on('input change', 'input, select, textarea', function () {
+        $(document).on('input change', 'input, select, textarea', function() {
             $(this).removeClass('is-invalid');
             const errorId = `#${$(this).attr('id')}_error`;
             $(errorId).html('');
         });
 
         // Handle submit form
-        $('#btnSubmitForm').on('click', function () {
+        $('#btnSubmitForm').on('click', function() {
             // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');
-
+            
             const form = $('#formUpdateKategoriForm');
             const formData = new FormData(form[0]);
             const button = $(this);
-
-            // Validasi client-side
-            let isValid = true;
-            const kategoriNama = $('#kf_nama').val().trim();
-
-            // Validasi Nama Kategori Form
-            if (kategoriNama === '') {
-                $('#kf_nama').addClass('is-invalid');
-                $('#kf_nama_error').html('Nama Kategori Form wajib diisi.');
-                isValid = false;
-            } else if (kategoriNama.length > 255) {
-                $('#kf_nama').addClass('is-invalid');
-                $('#kf_nama_error').html('Maksimal 255 karakter.');
-                isValid = false;
-            }
-
-            // Jika validasi gagal, tampilkan pesan error dan batalkan pengiriman form
-            if (!isValid) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validasi Gagal',
-                    text: 'Mohon periksa kembali input Anda.'
-                });
-                return;
-            }
-
+            
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-
+            
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function (response) {
+                success: function(response) {
                     if (response.success) {
                         $('#myModal').modal('hide');
                         reloadTable();
-
+                        
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
@@ -91,7 +70,8 @@
                         });
                     } else {
                         if (response.errors) {
-                            $.each(response.errors, function (key, value) {
+                            // Tampilkan pesan error pada masing-masing field
+                            $.each(response.errors, function(key, value) {
                                 // Untuk m_kategori_form fields
                                 if (key.startsWith('m_kategori_form.')) {
                                     const fieldName = key.replace('m_kategori_form.', '');
@@ -103,7 +83,7 @@
                                     $(`#${key}_error`).html(value[0]);
                                 }
                             });
-
+                            
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Validasi Gagal',
@@ -118,14 +98,14 @@
                         }
                     }
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
                         text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
                     });
                 },
-                complete: function () {
+                complete: function() {
                     // Kembalikan tombol submit ke keadaan semula
                     button.html('<i class="fas fa-save mr-1"></i> Simpan Perubahan').attr('disabled', false);
                 }

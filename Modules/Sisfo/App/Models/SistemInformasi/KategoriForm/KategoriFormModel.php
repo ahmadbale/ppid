@@ -69,7 +69,7 @@ class KategoriFormModel extends Model
         return $result->toArray();
     }
     // ketentuan pelaporan 
-    public static function getDataKententuanPelaporan()
+    public static function getDataKetentuanPelaporan()
     {
         $kategoriList = DB::table('m_kategori_form')
             ->where('isDeleted', 0)

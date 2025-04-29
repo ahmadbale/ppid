@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Pernyataan Keberatan</title>
+    <title>{{ $title ?? 'Pernyataan Keberatan' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
-
     @include('user::layouts.header')
     @include('user::layouts.navbar')
 
@@ -21,12 +20,13 @@
             <p class="lead">{!! $description !!}</p>
         </div>
     </section>
+
     <section class="content-section my-5 px-4">
         <div class="container">
             <h2 class="text-center mb-2 fw-bold">{{ $titlemekanisme }}</h2>
             <section class="container-fluid">
                 <div class="timeline position-relative mb-5" x-data="{ showItems: [] }">
-                    @foreach ($steps as $index => $step)
+                    @forelse ($steps as $index => $step)
                         <div class="timeline-item {{ $step['position'] }}" x-data="{ show: false }"
                             x-init="setTimeout(() => show = true, {{ $index }} * 200)"
                             x-intersect.once="show = true"
@@ -36,7 +36,11 @@
                                 <p>{{ $step['text'] }}</p>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="text-center">
+                            <p>Tidak ada data langkah-langkah yang tersedia</p>
+                        </div>
+                    @endforelse
                 </div>
             </section>
 

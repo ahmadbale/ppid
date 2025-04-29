@@ -1,4 +1,8 @@
 <!-- views/SistemInformasi/Timeline/create.blade.php -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $timelineUrl = WebMenuModel::getDynamicMenuUrl('timeline');
+@endphp
 <div class="modal-header">
   <h5 class="modal-title">Tambah Timeline Baru</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -7,7 +11,7 @@
 </div>
 
 <div class="modal-body">
-  <form id="formCreateTimeline" action="{{ url('SistemInformasi/Timeline/createData') }}" method="POST" enctype="multipart/form-data">
+  <form id="formCreateTimeline" action="{{ url($timelineUrl . '/createData') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="form-group">
