@@ -1,7 +1,7 @@
 <!-- views/SistemInformasi/Timeline/delete.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  $timelineUrl = WebMenuModel::getDynamicMenuUrl('management-level');
+  $timelineUrl = WebMenuModel::getDynamicMenuUrl('timeline');
 @endphp
 <div class="modal-header">
   <h5 class="modal-title">Konfirmasi Hapus Timeline</h5>

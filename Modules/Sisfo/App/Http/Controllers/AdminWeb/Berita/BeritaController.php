@@ -13,6 +13,9 @@ use Illuminate\Support\Str;
 class BeritaController extends Controller
 {
     use TraitsController;
+    public $breadcrumb = 'Pengaturan Berita';
+    public $pagename = 'AdminWeb/Berita';
+    
     public function index(Request $request)
     {
         $search = $request->query('search', '');
@@ -26,17 +29,17 @@ class BeritaController extends Controller
             'title' => 'Daftar Berita'
         ];
         
-        $activeMenu = 'berita';
+        $activeMenu = 'detailberita';
         
-        $berita = BeritaModel::selectData(10, $search);
-        $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
+        $detailBerita = BeritaModel::selectData(5, $search);
+        $kategoriBerita = BeritaDinamisModel::where('isDeleted', 0)->get();
 
-        return view('sisfo::AdminWeb.Berita.index', [
+        return view('sisfo::AdminWeb/Berita.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
-            'berita' => $berita,
-            'beritaDinamis' => $beritaDinamis,
+            'detailBerita' => $detailBerita,
+            'kategoriBerita' => $kategoriBerita,
             'search' => $search
         ]);
     }
@@ -44,24 +47,27 @@ class BeritaController extends Controller
     public function getData(Request $request)
     {
         $search = $request->query('search', '');
-        $berita = BeritaModel::selectData(10, $search);
+        $detailBerita = BeritaModel::selectData(5, $search);
         
         if ($request->ajax()) {
-            return view('sisfo::AdminWeb.Berita.data', compact('berita', 'search'))->render();
+            return view('sisfo::AdminWeb/Berita.data', compact('detailBerita', 'search'))->render();
         }
         
-        return redirect()->route('berita.index');
+        return redirect()->route('detail-berita.index');
     }
 
     public function addData()
     {
-        $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
-        return view('sisfo::AdminWeb.Berita.create', compact('beritaDinamis'));
+        $kategoriBerita = BeritaDinamisModel::where('isDeleted', 0)->get();
+        return view("sisfo::AdminWeb/Berita.create", [
+            'kategoriBerita' => $kategoriBerita
+        ]);
     }
 
     public function createData(Request $request)
     {
         try {
+            BeritaModel::validasiData($request);
             $result = BeritaModel::createData($request);
             
             return $this->jsonSuccess(
@@ -74,31 +80,16 @@ class BeritaController extends Controller
             return $this->jsonError($e, 'Gagal membuat berita');
         }
     }
-    
-    public function detailData($id)
-    {
-        try {
-            $berita = BeritaModel::with('BeritaDinamis')->findOrFail($id);
-            $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
-            
-            return view('sisfo::AdminWeb.Berita.detail', [
-                'berita' => $berita,
-                'beritaDinamis' => $beritaDinamis
-            ]);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal mengambil detail berita');
-        }
-    }
 
     public function editData($id)
     {
         try {
-            $berita = BeritaModel::findOrFail($id);
-            $beritaDinamis = BeritaDinamisModel::where('isDeleted', 0)->get();
+            $kategoriBerita = BeritaDinamisModel::where('isDeleted', 0)->get();
+            $detailBerita = BeritaModel::detailData($id);
             
-            return view('sisfo::AdminWeb.Berita.update', [
-                'berita' => $berita,
-                'beritaDinamis' => $beritaDinamis
+            return view('sisfo::AdminWeb/Berita.update', [
+                'kategoriBerita' => $kategoriBerita,
+                'detailBerita' => $detailBerita
             ]);
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal mengambil data berita');
@@ -108,6 +99,7 @@ class BeritaController extends Controller
     public function updateData(Request $request, $id)
     {
         try {
+            BeritaModel::validasiData($request);
             $result = BeritaModel::updateData($request, $id);
             
             return $this->jsonSuccess(
@@ -121,14 +113,28 @@ class BeritaController extends Controller
         }
     }
 
+    public function detailData($id)
+    {
+        try {
+            $detailBerita = BeritaModel::detailData($id);
+
+            return view("sisfo::AdminWeb/Berita.detail", [
+                'detailBerita' => $detailBerita,
+                'title' => 'Detail Berita'
+            ]);
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Gagal mengambil detail Berita');
+        }
+    }
+
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             try {
-                $berita = BeritaModel::with('BeritaDinamis')->findOrFail($id);
+                $detailBerita = BeritaModel::detailData($id);
                 
-                return view('sisfo::AdminWeb.Berita.delete', [
-                    'berita' => $berita
+                return view('sisfo::AdminWeb/Berita.delete', [
+                    'detailBerita' => $detailBerita
                 ]);
             } catch (\Exception $e) {
                 return $this->jsonError($e, 'Terjadi kesalahan saat mengambil data');

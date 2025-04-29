@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $regulasiDinamisUrl = WebMenuModel::getDynamicMenuUrl('regulasi-dinamis');
+@endphp
 <div class="modal-header">
   <h5 class="modal-title">Tambah Regulasi Dinamis Baru</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">

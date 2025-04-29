@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriFooterUrl = WebMenuModel::getDynamicMenuUrl('kategori-footer');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Ubah Kategori Footer</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
 </div>
 
 <div class="modal-body">
-    <form id="formUpdateKategoriFooter" action="{{ url('adminweb/kategori-footer/updateData/' . $kategoriFooter->kategori_footer_id) }}"
+    <form id="formUpdateKategoriFooter" action="{{ url($kategoriFooterUrl . '/updateData/' . $kategoriFooter->kategori_footer_id) }}"
         method="POST">
         @csrf
     

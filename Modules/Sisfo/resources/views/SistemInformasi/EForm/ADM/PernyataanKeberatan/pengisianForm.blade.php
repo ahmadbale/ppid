@@ -1,10 +1,14 @@
 <!-- pengisian form halaman admin -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $pernyataanKeberatanAdminUrl = WebMenuModel::getDynamicMenuUrl('pernyataan-keberatan-admin');
+@endphp
 @extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PernyataanKeberatan') }}" class="btn btn-secondary">
+                <a href="{{ url($pernyataanKeberatanAdminUrl) }}" class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -12,7 +16,7 @@
         </div>
         <div class="card-body">
 
-            <form id="permohonanForm"  action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PernyataanKeberatan/createData') }}" method="POST"
+            <form id="permohonanForm"  action="{{ url($pernyataanKeberatanAdminUrl . '/createData') }}" method="POST"
                 enctype="multipart/form-data" novalidate>
                 @csrf
                 <div class="form-group">
@@ -273,72 +277,166 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" id="btnSubmit" disabled>Ajukan Whistle Pernyataan Keberatan</button>
+                <button type="submit" class="btn btn-success" id="btnSubmit" disabled>Ajukan Pernyataan Keberatan</button>
             </form>
         </div>
     </div>
 
     @push('js')
+
     <script>
-        $(document).ready(function () {
-            // Tampilkan form yang sesuai saat halaman di-load berdasarkan nilai yang tersimpan
-            const savedValue = "{{ old('t_pernyataan_keberatan.pk_kategori_pemohon') }}";
-            if (savedValue) {
-                showFormBasedOnSelection(savedValue);
+        $(function() {
+            const form = $('#permohonanForm');
+            const button = $('#btnSubmit');
+            const maxFileSize = 2 * 1024 * 1024;
+            let isSubmitting = false; //biar ga doble submit
+            init();
+
+            function init() {
+                showSavedForm();
+                $('#pk_kategori_pemohon').change(handleCategoryChange);
+                $('#persetujuan').change(toggleSubmitButton);
+                $('.custom-file-input').change(updateFileNameLabel);
+                setupFileInputs();
+                form.off('submit');
+                form.submit(handleFormSubmit);
             }
 
-            $('#pk_kategori_pemohon').change(function () {
+            function showSavedForm() {
+                const savedValue = "{{ old('t_pernyataan_keberatan.pk_kategori_pemohon') }}";
+                if (savedValue) showFormBasedOnSelection(savedValue);
+            }
+
+            function handleCategoryChange() {
                 const selectedValue = $(this).val();
                 showFormBasedOnSelection(selectedValue);
-            });
+            }
 
-            // Fungsi untuk menampilkan form berdasarkan kategori pemohon
             function showFormBasedOnSelection(selectedValue) {
-                // Sembunyikan semua form tambahan dan reset required attributes
-                $('#formDiriSendiri, #formOrangLain').hide();
-                $('#formDiriSendiri input, #formOrangLain input').prop('required', false);
+                const forms = ['#formDiriSendiri', '#formOrangLain'];
+                $(forms.join(',')).hide().find('input').prop('required', false);
 
-                // Tampilkan form sesuai pilihan
-                if (selectedValue === 'Orang Lain') {
-                    $('#formOrangLain').show();
-                    $('#formOrangLain input:not([type="file"])').prop('required', true);
-                    $('#pk_upload_nik_pengguna_penginput').prop('required', true);
-                } else if (selectedValue === 'Diri Sendiri') {
-                    $('#formDiriSendiri').show();
-                    $('#formDiriSendiri input:not([type="file"])').prop('required', true);
+                if (selectedValue === 'Diri Sendiri') {
+                    $('#formDiriSendiri').show().find('input:not([type="file"])').prop('required', true);
                     $('#pk_upload_nik_pengguna').prop('required', true);
+                } else if (selectedValue === 'Orang Lain') {
+                    $('#formOrangLain').show().find('input:not([type="file"])').prop('required', true);
+                    $('#pk_upload_nik_pengguna_penginput, #pk_upload_nik_kuasa_pemohon').prop('required', true);
                 }
             }
 
-            // Toggle tombol submit berdasarkan checkbox persetujuan
-            $('#persetujuan').change(function() {
-                if ($(this).is(':checked')) {
-                    $('#btnSubmit').prop('disabled', false);
-                } else {
-                    $('#btnSubmit').prop('disabled', true);
-                }
-            });
+            function toggleSubmitButton() {
+                button.prop('disabled', !$(this).is(':checked'));
+            }
 
-            // Update nama file di custom file input
-            $('.custom-file-input').on('change', function () {
+            function updateFileNameLabel() {
                 const fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
-            });
+            }
 
-            // Client-side validation saat form disubmit
-            $('#permohonanForm').on('submit', function (e) {
-                let isValid = true;
+            function setupFileInputs() {
+                const fileInputs = [
+                    { input: '#pk_upload_nik_pengguna' },
+                    { input: '#pk_upload_nik_pengguna_penginput' },
+                    { input: '#pk_upload_nik_kuasa_pemohon' },
+                    { input: '#pk_bukti_aduan' }
+                ];
 
-                // Validasi kategori pemohon
-                const kategoriPemohon = $('#pk_kategori_pemohon').val();
-                if (!kategoriPemohon) {
-                    $('#f_pk_kategori_pemohon_error').text('Pilih kategori pemohon').show();
-                    isValid = false;
-                } else {
-                    $('#f_pk_kategori_pemohon_error').hide();
+                fileInputs.forEach(item => {
+                    $(item.input).change(function() {
+                        validateAndUpdateFile($(this));
+                    });
+                });
+            }
+
+            function validateAndUpdateFile(input) {
+                const file = input[0].files[0];
+                if (file) {
+                    const fileSizeMB = file.size / (1024 * 1024);
+
+                    if (fileSizeMB > 2) {
+                        Swal.fire({
+                            title: 'Peringatan!',
+                            text: 'Ukuran file ' + fileSizeMB.toFixed(2) + ' MB melebihi batas 2MB',
+                            icon: 'warning'
+                        });
+                        input.val('');
+                        input.next('.custom-file-label').removeClass('selected').html('Pilih file');
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function handleFormSubmit(e) {
+                e.preventDefault();
+
+                if (isSubmitting) return; // cegah klik submit berulang
+                isSubmitting = true;
+                button.html('<i class="fas fa-spinner fa-spin"></i> Mengirim...').attr('disabled', true);
+
+                let isValid = validateForm();
+
+                if (!isValid) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Gagal',
+                        text: 'Mohon periksa kembali input Anda'
+                    });
+                    return;
                 }
 
-                // Validasi form untuk kategori Diri Sendiri
+                const formData = new FormData(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            handleServerErrors(response.errors);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message || 'Terjadi kesalahan saat mengirim data'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan server. Silakan coba lagi.'
+                        });
+                    },
+                    complete: function() {
+                        button.html('Kirim').attr('disabled', false);
+                        isSubmitting = false;
+                    }
+                });
+            }
+
+            function validateForm() {
+                let isValid = true;
+                const kategoriPemohon = $('#pk_kategori_pemohon').val();
+
+                if (!kategoriPemohon) {
+                    showError('#f_pk_kategori_pemohon_error', 'Pilih kategori pemohon');
+                    isValid = false;
+                } else {
+                    hideError('#f_pk_kategori_pemohon_error');
+                }
+
                 if (kategoriPemohon === 'Diri Sendiri') {
                     isValid &= validateField('#pk_nama_pengguna', '#f_pk_nama_pengguna_error');
                     isValid &= validateField('#pk_alamat_pengguna', '#f_pk_alamat_pengguna_error');
@@ -346,10 +444,7 @@
                     isValid &= validateField('#pk_no_hp_pengguna', '#f_pk_no_hp_pengguna_error');
                     isValid &= validateField('#pk_email_pengguna', '#f_pk_email_pengguna_error');
                     isValid &= validateFile('#pk_upload_nik_pengguna', '#f_pk_upload_nik_pengguna_error');
-                }
-
-                // Validasi form untuk kategori Orang Lain
-                if (kategoriPemohon === 'Orang Lain') {
+                } else if (kategoriPemohon === 'Orang Lain') {
                     isValid &= validateField('#pk_nama_pengguna_penginput', '#f_pk_nama_pengguna_penginput_error');
                     isValid &= validateField('#pk_alamat_pengguna_penginput', '#f_pk_alamat_pengguna_penginput_error');
                     isValid &= validateField('#pk_pekerjaan_pengguna_penginput', '#f_pk_pekerjaan_pengguna_penginput_error');
@@ -364,48 +459,63 @@
                     isValid &= validateFile('#pk_upload_nik_kuasa_pemohon', '#f_pk_upload_nik_kuasa_pemohon_error');
                 }
 
-                // Validasi form umum (semua kategori)
                 isValid &= validateField('#pk_alasan_pengajuan_keberatan', '#f_pk_alasan_pengajuan_keberatan_error');
-                isValid &= validateField('#pk_bukti_aduan', '#f_pk_bukti_aduan_error');
+                isValid &= validateFile('#pk_bukti_aduan', '#f_pk_bukti_aduan_error');
 
-                // Validasi Sumber Informasi
                 if (!$('input[name="t_pernyataan_keberatan[pk_kasus_posisi]"]:checked').length) {
-                    $('#f_pk_kasus_posisi_error').text('Pilih sumber informasi').show();
+                    showError('#f_pk_kasus_posisi_error', 'Pilih sumber informasi');
                     isValid = false;
                 } else {
-                    $('#f_pk_kasus_posisi_error').hide();
+                    hideError('#f_pk_kasus_posisi_error');
                 }
 
-                // Jika validasi gagal, cegah pengiriman form
-                if (!isValid) {
-                    e.preventDefault();
-                }
-            });
+                return !!isValid;
+            }
 
-            // Fungsi validasi untuk field input
             function validateField(fieldSelector, errorSelector) {
-                const fieldValue = $(fieldSelector).val();
-                if (!fieldValue) {
-                    $(errorSelector).text('Field ini wajib diisi').show();
+                const value = $(fieldSelector).val();
+                if (!value) {
+                    showError(errorSelector, 'Field ini wajib diisi');
                     return false;
                 } else {
-                    $(errorSelector).hide();
+                    hideError(errorSelector);
                     return true;
                 }
             }
 
-            // Fungsi validasi untuk input file
             function validateFile(fieldSelector, errorSelector) {
-                const fileValue = $(fieldSelector).val();
-                if (!fileValue) {
-                    $(errorSelector).text('File wajib diunggah').show();
+                const input = $(fieldSelector)[0];
+                const file = input.files[0];
+                if (!file) {
+                    showError(errorSelector, 'File wajib diunggah');
                     return false;
-                } else {
-                    $(errorSelector).hide();
-                    return true;
+                }
+                if (file.size > maxFileSize) {
+                    showError(errorSelector, 'Ukuran file maksimal 2MB');
+                    return false;
+                }
+                hideError(errorSelector);
+                return true;
+            }
+
+            function showError(selector, message) {
+                $(selector).text(message).show();
+            }
+
+            function hideError(selector) {
+                $(selector).hide();
+            }
+
+            function handleServerErrors(errors) {
+                if (errors) {
+                    $.each(errors, function(key, messages) {
+                        const cleanKey = key.replace('t_pernyataan_keberatan.', '');
+                        $(`#${cleanKey}`).addClass('is-invalid');
+                        $(`#error-${cleanKey}`).html(messages[0]);
+                    });
                 }
             }
         });
-    </script>
+        </script>
     @endpush
 @endsection

@@ -1,6 +1,37 @@
 <?php
 use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Helpers\MenuHelper;
+use Illuminate\Support\Facades\DB;
+
+// Ambil user dan aktifkan hak akses
+$user = Auth::user();
+$userId = $user->user_id;
+
+// Ambil hak akses aktif dari session
+$activeHakAksesId = session('active_hak_akses_id');
+
+// Jika tidak ada, cari yang pertama
+if (!$activeHakAksesId) {
+    $hakAkses = DB::table('set_user_hak_akses')
+        ->join('m_hak_akses', 'set_user_hak_akses.fk_m_hak_akses', '=', 'm_hak_akses.hak_akses_id')
+        ->where('set_user_hak_akses.fk_m_user', $userId)
+        ->where('set_user_hak_akses.isDeleted', 0)
+        ->where('m_hak_akses.isDeleted', 0)
+        ->first();
+        
+    if ($hakAkses) {
+        session(['active_hak_akses_id' => $hakAkses->hak_akses_id]);
+        $activeHakAksesId = $hakAkses->hak_akses_id;
+    }
+}
+
+// Ambil informasi hak akses
+$hakAkses = DB::table('m_hak_akses')
+    ->where('hak_akses_id', $activeHakAksesId)
+    ->where('isDeleted', 0)
+    ->first();
+    
+$hakAksesKode = $hakAkses ? $hakAkses->hak_akses_kode : '';
 ?>
 
 <aside class="main-sidebar sidebar-dark-primary pt-4"
@@ -27,503 +58,11 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </button>
                     </div>
                 </div>
-            </div>
-
-
-                <!-- Menu untuk setiap level_kode -->
-                @if (Auth::user()->level->level_kode == 'ADM')
-                    <li class="nav-header">Menu Umum</li>
-                    <li class="nav-item">
-                        <a href="{{ url('/dashboardADM') }}"
-                            class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item {{ in_array($activeMenu, ['level', 'user']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['level', 'user']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user-cog"></i>
-                            <p> Manage Pengguna
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/level') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'level' ? 'active' : '' }} ">
-                                    <i class="nav-icon fas fa-layer-group"></i>
-                                    <p>Level User</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/user') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'user' ? 'active' : '' }}">
-                                    <i class="nav-icon far fa-user"></i>
-                                    <p>Data User</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-header">Sistem Informasi</li>
-                    <li class="nav-item {{ in_array($activeMenu, ['PermohonanInformasi', 'PernyataanKeberatan', 'PengaduanMasyarakat', 'WBS', 'PermohonanPerawatan']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['PermohonanInformasi', 'PernyataanKeberatan', 'PengaduanMasyarakat', 'WBS', 'PermohonanPerawatan']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-signature"></i>
-                            <p> E-Form
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanInformasi') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'PermohonanInformasi' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Permohonan Informasi</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/ADM/PernyataanKeberatan') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'PernyataanKeberatan' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pernyataan Keberatan</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/ADM/PengaduanMasyarakat') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'PengaduanMasyarakat' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pengaduan Masyarakat</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/ADM/WBS') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'WBS' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Whistle Blowing System</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/ADM/PermohonanPerawatan') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Perawatan Sarana</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-header">Manajemen Website</li>
-                    <!-- Menu Utama -->
-                    <li class="nav-item {{ in_array($activeMenu, ['KategoriForm', 'Timeline', 'KetentuanPelaporan']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['KategoriForm', 'Timeline', 'KetentuanPelaporan']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-question-circle"></i>
-                            <p> Pengaturan E-Form
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/KategoriForm') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'KategoriForm' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori Form</p>
-                                </a>
-                            </li>
-                        </ul>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/Timeline') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'Timeline' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Timeline</p>
-                                </a>
-                            </li>
-                        </ul>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/KetentuanPelaporan') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'KetentuanPelaporan' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Ketentuan Pelaporan</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-
-                    <li class="nav-item">
-                        <a href="{{ url('/adminweb/menu-management') }}"
-                            class="nav-link nav-link-tree {{ $activeMenu == 'menumanagement' ? 'active' : '' }}">
-                            <i class="fas fa-tasks nav-icon"></i>
-                            <p>Menu Management</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item {{ in_array($activeMenu, ['kategori-footer', 'footer']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['kategori-footer', 'footer']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-columns"></i>
-                            <p> Footer
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/kategori-footer') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'kategori-footer' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori-Footer</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/footer') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'footer' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Footer</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya', 'DetailPintasanLainnya']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['kategori-akses', 'akses-cepat', 'pintasan-lainnya', 'DetailPintasanLainnya']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-bolt"></i>
-                            <p> Pintasan & AksesCepat
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/kategori-akses') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'kategori-akses' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori-Akses</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/akses-cepat') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'akses-cepat' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Akses Cepat</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/pintasan-lainnya') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'pintasan-lainnya' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pintasan Lainnya</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/DetailPintasanLainnya') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'DetailPintasanLainnya' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Detail Pintasan Lainnya</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {{ in_array($activeMenu, ['berita-dinamis', 'berita']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['berita-dinamis', 'berita']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-newspaper"></i>
-                            <p> Berita
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/berita-dinamis') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'berita-dinamis' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori-Berita</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/berita') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'berita' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Detail Berita</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['PengumumanDinamis', 'Pengumuman']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-bullhorn"></i>
-                            <p> Pengumuman
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/AdminWeb/PengumumanDinamis') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'PengumumanDinamis' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori Pengumuman</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/AdminWeb/Pengumuman') }}"
-                                    class="nav-link nav-link-tree{{ $activeMenu == 'Pengumuman' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Pengumuman</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {{ in_array($activeMenu, ['media-dinamis', 'media-detail']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['media-dinamis', 'media-detail']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-photo-video"></i>
-                            <p> Media Dinamis
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/media-dinamis') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'media-dinamis' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori-Media</p>
-
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/media-detail') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'media-detail' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Data Media Dinamis</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {{ in_array($activeMenu, ['Lhkpn Tahun', 'detail-lhkpn']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['Lhkpn Tahun', 'detail-lhkpn']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p> Data LHKPN
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/informasipublik/lhkpn-tahun') }}"
-                                   class="nav-link nav-link-tree {{ $activeMenu == 'Lhkpn Tahun' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Tahun Lhkpn</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/informasipublik/detail-lhkpn') }}"
-                                   class="nav-link nav-link-tree {{ $activeMenu == 'detail-lhkpn' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Detail Lhkpn</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item {{ in_array($activeMenu, ['regulasi-dinamis', 'kategori-regulasi', 'Regulasi']) ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ in_array($activeMenu, ['regulasi-dinamis', 'kategori-regulasi', 'Regulasi']) ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-gavel"></i>
-                            <p> Data Regulasi
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/informasipublik/regulasi-dinamis') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'regulasi-dinamis' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Regulasi Dinamis</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/informasipublik/kategori-regulasi') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'kategori-regulasi' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Kategori Regulasi</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('/adminweb/informasipublik/regulasi') }}"
-                                    class="nav-link nav-link-tree {{ $activeMenu == 'Regulasi' ? 'active' : '' }}">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Regulasi</p>
-                                </a>
-                            </li>
-                        </ul>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <p> Tabel Dinamis
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/adminweb/informasipublik/IpDinamisTabel') }}"
-                                        class="nav-link {{ $activeMenu == 'IpDinamisTabel' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
-                                        <p>IpDinamis Tabel</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </li>
-                    </li>
-
-                @elseif (Auth::user()->level->level_kode == 'SAR')
-                    <li class="nav-header">Menu Umum</li>
-                    <li class="nav-item">
-                        <a href="{{ url('/dashboardSAR') }}"
-                            class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/HakAkses') }}" class="nav-link {{ $activeMenu == 'HakAkses' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-key"></i>
-                            <p>Hak Akses</p>
-                        </a>
-                    </li>
-
-                @elseif (Auth::user()->level->level_kode == 'MPU')
-                    <li class="nav-header">Menu Umum</li>
-                    <li class="nav-item">
-                        <a href="{{ url('/dashboardMPU') }}"
-                            class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/pengajuanPermohonan') }}"
-                            class="nav-link {{ $activeMenu == 'pengajuan_permohonan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-clipboard-list"></i>
-                            <p>Daftar Permohonan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/pengajuanPertanyaan') }}"
-                            class="nav-link {{ $activeMenu == 'pengajuan_pertanyaan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-question-circle"></i>
-                            <p>Daftar Pertanyaan</p>
-                        </a>
-                    </li>
-
-                @elseif (Auth::user()->level->level_kode == 'VFR')
-                    <li class="nav-header">Menu Umum</li>
-                    <li class="nav-item">
-                        <a href="{{ url('/dashboardVFR') }}"
-                            class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item" style="position: relative;">
-                        <a href="{{ url('/notifikasi') }}"
-                            class="nav-link {{ $activeMenu == 'notifikasi' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-bell"></i>
-                            <p>Notifikasi</p>
-                            @if ($totalNotifikasiVFR > 0)
-                                <span class="badge badge-danger notification-badge">{{ $totalNotifikasiVFR }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/daftarPermohonan') }}"
-                            class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-clipboard-list"></i>
-                            <p>Daftar Permohonan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/daftarPertanyaan') }}"
-                            class="nav-link {{ $activeMenu == 'daftar_pertanyaan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-question-circle"></i>
-                            <p>Daftar Pertanyaan</p>
-                        </a>
-                    </li>
-                @elseif (Auth::user()->level->level_kode == 'RPN')
-                    <li class="nav-header">Menu Umum</li>
-                    <li class="nav-item">
-                        <a href="{{ url('/dashboardRPN') }}"
-                            class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-folder-open"></i>
-                            <p> E-Form
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/RPN/PermohonanInformasi') }}"
-                                    class="nav-link {{ $activeMenu == 'PermohonanInformasi' ? 'active' : '' }}">
-                                    <i class="fas fa-file-alt nav-icon"></i>
-                                    <p>Permohonan Informasi</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/RPN/PernyataanKeberatan') }}"
-                                    class="nav-link {{ $activeMenu == 'PernyataanKeberatan' ? 'active' : '' }}">
-                                    <i class="fas fa-file-alt nav-icon"></i>
-                                    <p>Pernyataan Keberatan</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/RPN/PengaduanMasyarakat') }}"
-                                    class="nav-link {{ $activeMenu == 'PengaduanMasyarakat' ? 'active' : '' }}">
-                                    <i class="fas fa-file-alt nav-icon"></i>
-                                    <p>Pengaduan Masyarakat </p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/RPN/WBS') }}"
-                                    class="nav-link {{ $activeMenu == 'WBS' ? 'active' : '' }}">
-                                    <i class="fas fa-file-alt nav-icon"></i>
-                                    <p>Whistle Blowing System</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url('SistemInformasi/EForm/RPN/PermohonanPerawatan') }}"
-                                    class="nav-link {{ $activeMenu == 'PermohonanPerawatan' ? 'active' : '' }}">
-                                    <i class="fas fa-file-alt nav-icon"></i>
-                                    <p>Permohonan Perawatan Sarana</p>
-                                </a>
-                            </li>
-                        </ul>
-                    <li class="nav-item">
-                        <a href="{{ url('/permohonan') }}"
-                            class="nav-link {{ $activeMenu == 'permohonan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-envelope"></i>
-                            <p>Pengajuan Permohonan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/pertanyaan') }}"
-                            class="nav-link {{ $activeMenu == 'pertanyaan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-comments"></i>
-                            <p>Pengajuan Pertanyaan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/hasilPermohonan') }}"
-                            class="nav-link {{ $activeMenu == 'hasil_permohonan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-scroll"></i>
-                            <p>Hasil Permohonan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/hasilPertanyaan') }}"
-                            class="nav-link {{ $activeMenu == 'hasil_pertanyaan' ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-scroll"></i>
-                            <p>Hasil Pertanyaan</p>
-                        </a>
-                    </li>
-                @endif
+                
+                <!-- Dynamic Menu dari MenuHelper -->
+                {!! MenuHelper::renderSidebarMenus($hakAksesKode, $activeMenu) !!}
+                
+                <!-- Logout Menu (Tetap untuk semua pengguna) -->
                 <li class="nav-header">Logout</li>
                 <li class="nav-item">
                     <a class="nav-link bg-danger" data-widget="logout" id="logout-sidebar" role="button">
@@ -566,8 +105,6 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
             }
         }
     });
-
-
 </script>
 
 <style>
@@ -583,18 +120,56 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
         font-size: 12px;
         font-weight: bold;
     }
+    
     body.sidebar-collapse .sidebar-search {
         display: none !important;
     }
+    
     .sidebar.collapsed .brand-content img {
-    height: 40px; /* Atur lebih kecil saat collapsed */
-    transition: all 0.3s ease;
-}
+        height: 40px; /* Atur lebih kecil saat collapsed */
+        transition: all 0.3s ease;
+    }
 
-.sidebar.collapsed .brand-content h2,
-.sidebar.collapsed .brand-content h6 {
-    display: none; /* Sembunyikan teks */
-    transition: all 0.3s ease;
-}
-
+    .sidebar.collapsed .brand-content h2,
+    .sidebar.collapsed .brand-content h6 {
+        display: none; /* Sembunyikan teks */
+        transition: all 0.3s ease;
+    }
+    
+    /* Additional styles for menu items */
+    .nav-sidebar .nav-item {
+        margin-bottom: 2px;
+    }
+    
+    .nav-sidebar .nav-link {
+        color: #fff;
+        border-radius: 4px;
+    }
+    
+    .nav-sidebar .nav-link.active {
+        background-color: #FFC030;
+        color: #0E1F43;
+    }
+    
+    .nav-sidebar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-treeview {
+        padding-left: 15px;
+    }
+    
+    .nav-treeview .nav-link {
+        padding-left: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .nav-header {
+        color: #FFC030;
+        font-weight: 700;
+        padding: 10px 5px 5px 15px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
 </style>

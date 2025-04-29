@@ -1,9 +1,13 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $permohonanPerawatanAdminUrl = WebMenuModel::getDynamicMenuUrl('permohonan-sarana-dan-prasarana-admin');
+@endphp
 @extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanPerawatan') }}"
+                <a href="{{ url($permohonanPerawatanAdminUrl) }}"
                     class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
@@ -13,12 +17,12 @@
         <div class="card-body">
 
             <form id="permohonanForm"
-                action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PermohonanPerawatan/createData') }}"
+                action="{{ url($permohonanPerawatanAdminUrl . '/createData') }}"
                 method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
 
                 <!-- Data Pelapor -->
-                <h4 class="mb-3">Data Pelapor</h4>
+                <h4 class=" text-muted d-block mb-3">Data Pelapor</h4>
 
                 <div class="form-group">
                     <label for="pp_nama_pengguna">Nama Lengkap Pengusul<span class="text-danger">*</span></label>
@@ -31,9 +35,9 @@
                 <div class="row">
                     <div class="form-group col-md-6">
                         <label for="pp_no_hp_pengguna">Nomor HP Pengusul<span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="pp_no_hp_pengguna"
+                        <input type="text" class="form-control" id="pp_no_hp_pengguna"
                             name="t_permohonan_perawatan[pp_no_hp_pengguna]"
-                            value="{{ old('t_permohonan_perawatan.pp_no_hp_pengguna') }}" maxlength="12">
+                            value="{{ old('t_permohonan_perawatan.pp_no_hp_pengguna') }}" maxlength="13">
                         <div class="invalid-feedback" id="f_pp_no_hp_pengguna_error">Nomor HP Pengusul tidak boleh kosong.
                         </div>
                     </div>
@@ -54,9 +58,10 @@
                         value="{{ old('t_permohonan_perawatan.pp_unit_kerja') }}">
                     <div class="invalid-feedback" id="f_pp_unit_kerja_error">Unit Kerja Pengusul tidak boleh kosong.</div>
                 </div>
+                <hr>
 
                 <!-- Data Permohonan Perawatan Sarana Prasarana -->
-                <h4 class="mb-3 mt-4">Detail Permohonan Perawatan Sarana Prasarana</h4>
+                <h4 class="text-muted d-block mb-3 mt-4">Detail Permohonan Perawatan Sarana Prasarana</h4>
 
                 <div class="form-group">
                     <label for="pp_perawatan_yang_diusulkan">Perawatan Yang Diusulkan<span
@@ -134,12 +139,12 @@
                         Upload Foto Kondisi Saat Ini (Opsional)
                     </label>
                     <small class="text-muted d-block mb-2">
-                        Unggah Foto Kondisi jika diperlukan.
+                        Maksimal 2MB
                     </small>
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" id="pp_foto_kondisi" name="pp_foto_kondisi"
                             accept="file/*">
-                        <label class="custom-file-label" for="pp_foto_kondisi">Pilih foto (Maks. 2mb)</label>
+                        <label class="custom-file-label" for="pp_foto_kondisi">Pilih foto</label>
                     </div>
                 </div>
 
@@ -147,10 +152,11 @@
                     <label for="pi_bukti_aduan">
                         Upload Bukti Aduan <span class="text-danger">*</span>
                     </label>
+                    <small class="text-muted d-block mb-2">Maksimal 2MB</small>
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" id="pp_bukti_aduan" name="pp_bukti_aduan"
                             accept="file/*">
-                        <label class="custom-file-label" for="pp_bukti_aduan">Pilih file (Maks. 2mb)</label>
+                        <label class="custom-file-label" for="pp_bukti_aduan">Pilih file</label>
                     </div>
                     <div class="invalid-feedback" id="f_pp_bukti_aduan_error"></div>
                 </div>
@@ -176,47 +182,184 @@
     </div>
 
     @push('js')
-        <script>
-            $(document).ready(function() {
-                // Enable/disable submit button based on checkbox
-                $('#persetujuan').change(function() {
-                    if ($(this).is(':checked')) {
-                        $('#btnSubmit').prop('disabled', false);
-                    } else {
-                        $('#btnSubmit').prop('disabled', true);
-                    }
+    <script>
+        let isSubmitting = false;
+
+        $(document).ready(function () {
+            setupCheckboxListener();
+            setupFileInputValidation();
+            setupFormSubmission();
+        });
+
+        function setupCheckboxListener() {
+            $('#persetujuan').change(function () {
+                $('#btnSubmit').prop('disabled', !$(this).is(':checked'));
+            });
+        }
+
+        function setupFileInputValidation() {
+            const fileInputs = ['#pp_bukti_aduan', '#pp_foto_kondisi'];
+
+            fileInputs.forEach(selector => {
+                $(selector).change(function () {
+                    const label = $(this).siblings('.custom-file-label');
+                    validateFile($(this), label);
                 });
+            });
+        }
 
-                // Client-side validation for required fields
-                $('#permohonanForm').submit(function(e) {
-                    let isValid = true;
+        function validateFile(input, labelElement) {
+            const file = input[0].files[0];
 
-                    // Check if all required fields are filled
-                    $('#pp_nama_pengguna, #pp_no_hp_pengguna, #pp_email_pengguna, #pp_unit_kerja, #pp_perawatan_yang_diusulkan, #pp_keluhan_kerusakan, #pp_lokasi_perawatan, #pp_bukti_aduan')
-                        .each(function() {
-                            if ($(this).val() === '') {
-                                isValid = false;
-                                $(this).addClass('is-invalid');
-                                $(this).siblings('.invalid-feedback').show();
-                            } else {
-                                $(this).removeClass('is-invalid');
-                                $(this).siblings('.invalid-feedback').hide();
-                            }
+            if (file) {
+                const fileSizeMB = file.size / (1024 * 1024);
+                labelElement.addClass('selected').text(`${file.name} (${fileSizeMB.toFixed(2)} MB)`);
+
+                if (fileSizeMB > 2) {
+                    Swal.fire({
+                        title: 'Peringatan!',
+                        text: `Ukuran file ${fileSizeMB.toFixed(2)} MB melebihi batas 2MB`,
+                        icon: 'warning'
+                    });
+
+                    input.val('');
+                    labelElement.removeClass('selected').text('Pilih file');
+                }
+            }
+        }
+
+        function setupFormSubmission() {
+            const form = $('#permohonanForm');
+            const button = $('#btnSubmit');
+
+            // Cegah double binding
+            form.off('submit').on('submit', function (e) {
+                e.preventDefault();
+
+                if (isSubmitting) return;
+
+                button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+                isSubmitting = true;
+
+                const isValid = validateForm();
+
+                if (!isValid) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Gagal',
+                        text: 'Mohon periksa kembali input Anda.'
+                    });
+
+                    button.html('Submit').attr('disabled', false);
+                    isSubmitting = false;
+                    return;
+                }
+
+                const formData = new FormData(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            handleServerErrors(response.errors);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: response.message || 'Terjadi kesalahan saat menyimpan data.'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Terjadi kesalahan server. Silakan coba lagi.'
                         });
-                    // Check if the length of the phone number is within the limit
-                    const phoneNumber = $('#pp_no_hp_pengguna').val();
-                    if (phoneNumber.length > 12) {
-                        isValid = false;
-                        $('#pp_no_hp_pengguna').addClass('is-invalid');
-                        $('#f_pp_no_hp_pengguna_error').text(
-                            'Nomor HP Pengusul harus terdiri dari maksimal 12 digit.').show();
-                    }
-
-                    if (!isValid) {
-                        e.preventDefault();
+                    },
+                    complete: function () {
+                        button.html('Submit').attr('disabled', false);
+                        isSubmitting = false;
                     }
                 });
             });
-        </script>
+        }
+
+        function validateForm() {
+            let isValid = validateRequiredFields();
+            let isPhoneValid = validatePhoneNumber();
+            return isValid && isPhoneValid;
+        }
+
+        function validateRequiredFields() {
+            let valid = true;
+            const requiredFields = [
+                '#pp_nama_pengguna',
+                '#pp_no_hp_pengguna',
+                '#pp_email_pengguna',
+                '#pp_unit_kerja',
+                '#pp_perawatan_yang_diusulkan',
+                '#pp_keluhan_kerusakan',
+                '#pp_lokasi_perawatan',
+                '#pp_bukti_aduan'
+            ];
+
+            requiredFields.forEach(selector => {
+                const field = $(selector);
+                const value = field.val()?.trim();
+                const feedback = field.siblings('.invalid-feedback');
+
+                if (value === '' || value === undefined) {
+                    field.addClass('is-invalid');
+                    feedback.show();
+                    valid = false;
+                } else {
+                    field.removeClass('is-invalid');
+                    feedback.hide();
+                }
+            });
+
+            return valid;
+        }
+
+        function validatePhoneNumber() {
+            const phoneInput = $('#pp_no_hp_pengguna');
+            const phoneNumber = phoneInput.val().trim();
+
+            if (phoneNumber === '' || phoneNumber.length > 13) {
+                phoneInput.addClass('is-invalid');
+                phoneInput.siblings('.invalid-feedback').text(
+                    phoneNumber === ''
+                        ? 'Nomor HP Pengusul tidak boleh kosong.'
+                        : 'Nomor HP Pengusul harus terdiri dari maksimal 13 digit.'
+                ).show();
+                return false;
+            } else {
+                phoneInput.removeClass('is-invalid');
+                phoneInput.siblings('.invalid-feedback').hide();
+                return true;
+            }
+        }
+
+        function handleServerErrors(errors) {
+            for (const field in errors) {
+                const input = $(`#${field}`);
+                const message = errors[field][0];
+                input.addClass('is-invalid');
+                input.siblings('.invalid-feedback').text(message).show();
+            }
+        }
+    </script>
     @endpush
 @endsection
