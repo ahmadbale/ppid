@@ -2,7 +2,6 @@
 
 namespace Modules\Sisfo\App\Helpers;
 
-use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,8 +22,17 @@ class MenuHelper
             'Profile' => 'fa-user',
             'Notifikasi' => 'fa-bell',
             'Hak Akses' => 'fa-key',
-            'E-Form' => 'fa-folder-open',
-            'Menu Management' => 'fa-tasks'     
+            'E-Form Admin' => 'fa-folder-open',
+            'Menu Management' => 'fa-tasks', 
+            'Management Pengumuman' => 'fa-bullhorn',
+            'Management Berita' => 'fa-newspaper',
+            'Management Footer' => 'fa-columns',
+            'Management LHKPN' => 'fa-file-alt',
+            'Management Akses & Pintasan Cepat' => 'fa-bolt',
+            'Management Form' => 'fa-question-circle',
+            'Management Regulasi' => 'fa-gavel',
+            'Management Pengguna' => 'fa-user-cog',
+            'Management Media' => 'fa-photo-video',
         ];
 
         $html = '';
@@ -68,7 +76,7 @@ class MenuHelper
 
             if ($menu->children->isNotEmpty()) {
                 // Menu dengan submenu
-                $html .= self::generateDropdownMenu($menu, $activeMenu);
+                $html .= self::generateDropdownMenu($menu, $activeMenu, $menuIcons);
             } else {
                 // Menu tanpa submenu - Gunakan URL yang sesuai
                 $menuUrl = $menu->WebMenuUrl ? $menu->WebMenuUrl->wmu_nama : '#';
@@ -122,15 +130,18 @@ class MenuHelper
         </li>";
     }
 
-    private static function generateDropdownMenu($menu, $activeMenu)
+    private static function generateDropdownMenu($menu, $activeMenu, $menuIcons)
     {
         // Ambil nama menu yang akan ditampilkan (bisa alias atau nama asli)
         $menuName = $menu->getDisplayName();
 
+        // Tentukan icon untuk parent menu
+        $parentIcon = isset($menuIcons[$menuName]) ? $menuIcons[$menuName] : 'fa-cog';
+
         $html = "
         <li class='nav-item'>
             <a href='#' class='nav-link'>
-                <i class='nav-icon fas fa-cog'></i>
+                <i class='nav-icon fas {$parentIcon}'></i>
                 <p>{$menuName}
                     <i class='right fas fa-angle-left'></i>
                 </p>
