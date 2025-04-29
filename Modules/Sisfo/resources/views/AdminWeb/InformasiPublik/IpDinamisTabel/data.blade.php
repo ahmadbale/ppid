@@ -10,7 +10,7 @@
          <tr>
              <th>Nomor</th>
              <th>Nama Submenu</th>
-             <th>Judul</th>
+             <th>Judul Informasi</th>
              <th>Aksi</th>
          </tr>
      </thead>
@@ -21,13 +21,13 @@
              <td table-data-label="Nama Submenu" class="text-center">{{ $item->ip_nama_submenu }}</td>
              <td table-data-label="Judul" class="text-center">{{ $item->ip_judul }}</td>
              <td table-data-label="Aksi" class="text-center">
-                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/IpDinamisTabel/editData/{$item->ip_dinamis_tabel_id}") }}')">
+                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/ipdinamis-tabel/editData/{$item->ip_dinamis_tabel_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>
-                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/IpDinamisTabel/detailData/{$item->ip_dinamis_tabel_id}") }}')">
+                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/ipdinamis-tabel/detailData/{$item->ip_dinamis_tabel_id}") }}')">
                      <i class="fas fa-eye"></i> Detail
                  </button>
-                 <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/informasipublik/IpDinamisTabel/deleteData/{$item->ip_dinamis_tabel_id}") }}')">
+                 <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/informasipublik/ipdinamis-tabel/deleteData/{$item->ip_dinamis_tabel_id}") }}')">
                      <i class="fas fa-trash"></i> Hapus
                  </button>
              </td>

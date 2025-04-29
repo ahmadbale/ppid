@@ -347,24 +347,49 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                                 </a>
                             </li>
                         </ul>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-cog"></i>
-                                <p> Tabel Dinamis
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ url('/adminweb/informasipublik/IpDinamisTabel') }}"
-                                        class="nav-link {{ $activeMenu == 'IpDinamisTabel' ? 'active' : '' }}">
-                                        <i class="fas fa-tasks nav-icon"></i>
-                                        <p>IpDinamis Tabel</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
                     </li>
+
+                    <li class="nav-item {{ in_array($activeMenu, ['ipdinamis-konten', 'ipupload-detail-konten']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['ipdinamis-konten', 'ipupload-detail-konten']) ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-scroll"></i>
+                            <p>IP Dinamis Konten
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ url('/adminweb/informasipublik/ipdinamis-konten') }}"
+                                    class="nav-link nav-link-tree {{ $activeMenu == 'ipdinamis-konten' ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Konten Dinamis</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/adminweb/informasipublik/ipupload-detail-konten') }}"
+                                    class="nav-link nav-link-tree {{ $activeMenu == 'ipupload-detail-konten' ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Detail Konten Dinamis</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item {{ in_array($activeMenu, ['ipdinamis-tabel']) ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ in_array($activeMenu, ['ipdinamis-tabel']) ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-book-open"></i>
+                            <p>IP Tabel Dinamis
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ url('/adminweb/informasipublik/ipdinamis-tabel') }}"
+                                    class="nav-link nav-link-tree {{ $activeMenu == 'ipdinamis-tabel' ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Tabel Dinamis</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                 @elseif (Auth::user()->level->level_kode == 'SAR')

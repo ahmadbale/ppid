@@ -52,7 +52,7 @@
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
   <button type="button" class="btn btn-success" id="btnSubmitForm">
-    <i class="fas fa-save mr-1"></i> Simpan
+    <i class="fas fa-save mr-1"></i> Simpan Perubahan
   </button>
 </div>
 

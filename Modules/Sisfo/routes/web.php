@@ -18,6 +18,8 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
@@ -271,7 +273,7 @@ Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middlewa
         Route::get('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData']);
     });
-    Route::group(['prefix' => 'adminweb/informasipublik/IpDinamisTabel', 'middleware' => ['authorize:ADM']], function () {
+    Route::group(['prefix' => 'adminweb/informasipublik/ipdinamis-tabel', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [IpDinamisTabelController::class, 'index']);
         Route::get('/getData', [IpDinamisTabelController::class, 'getData']);
         Route::get('/addData', [IpDinamisTabelController::class, 'addData']);
@@ -281,6 +283,28 @@ Route::group(['prefix' => 'adminweb/informasipublik/regulasi-dinamis', 'middlewa
         Route::get('/detailData/{id}', [IpDinamisTabelController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/ipdinamis-konten', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [IpDinamisKontenController::class, 'index']);
+        Route::get('/getData', [IpDinamisKontenController::class, 'getData']);
+        Route::get('/addData', [IpDinamisKontenController::class, 'addData']);
+        Route::post('/createData', [IpDinamisKontenController::class, 'createData']);
+        Route::get('/editData/{id}', [IpDinamisKontenController::class, 'editData']);
+        Route::post('/updateData/{id}', [IpDinamisKontenController::class, 'updateData']);
+        Route::get('/detailData/{id}', [IpDinamisKontenController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/ipupload-detail-konten', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [IpUploadKontenController::class, 'index']);
+        Route::get('/getData', [IpUploadKontenController::class, 'getData']);
+        Route::get('/addData', [IpUploadKontenController::class, 'addData']);
+        Route::post('/createData', [IpUploadKontenController::class, 'createData']);
+        Route::get('/editData/{id}', [IpUploadKontenController::class, 'editData']);
+        Route::post('/updateData/{id}', [IpUploadKontenController::class, 'updateData']);
+        Route::get('/detailData/{id}', [IpUploadKontenController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
     });
 
     Route::group(['prefix' => 'SistemInformasi/EForm/RPN/PermohonanInformasi', 'middleware' => ['authorize:RPN']], function () {

@@ -8,7 +8,7 @@
             <h3 class="card-title">{{ $page->title }}</h3>
           </div>
           <div class="col-md-6 text-right">
-            <button onclick="modalAction('{{ url('adminweb/informasipublik/ipdinamis-tabel/addData') }}')"
+            <button onclick="modalAction('{{ url('adminweb/informasipublik/ipupload-detail-konten/addData') }}')"
                     class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah
             </button>
@@ -19,8 +19,8 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <form id="searchForm" class="d-flex">
-              <input type="text" name="search" class="form-control" 
-                     placeholder="Cari nama submenu atau judul" 
+              <input type="text" name="search" class="form-control"
+                     placeholder="Cari judul konten"
                      value="{{ $search ?? '' }}">
               <button type="submit" class="btn btn-primary ml-2">
                 <i class="fas fa-search"></i>
@@ -38,7 +38,7 @@
         @endif
 
         <div class="table-responsive" id="table-container">
-          @include('sisfo::AdminWeb.InformasiPublik.IpDinamisTabel.data')
+          @include('sisfo::AdminWeb.InformasiPublik.IpUploadDetailKonten.data')
         </div>
       </div>
   </div>
@@ -64,23 +64,25 @@
 @push('js')
   <script>
     $(document).ready(function() {
+      // Handle search form submission
       $('#searchForm').on('submit', function(e) {
         e.preventDefault();
         var search = $(this).find('input[name="search"]').val();
-        loadIpDinamisTabelData(1, search);
+        loadIpUploadKontenData(1, search);
       });
 
+      // Handle pagination links with delegation
       $(document).on('click', '.pagination a', function(e) {
         e.preventDefault();
         var page = $(this).attr('href').split('page=')[1];
         var search = $('#searchForm input[name="search"]').val();
-        loadIpDinamisTabelData(page, search);
+        loadIpUploadKontenData(page, search);
       });
     });
     
-    function loadIpDinamisTabelData(page, search) {
+    function loadIpUploadKontenData(page, search) {
       $.ajax({
-        url: '{{ url("adminweb/informasipublik/IpDinamisTabel/getData") }}',
+        url: '{{ url("adminweb/informasipublik/ipupload-detail-konten/getData") }}',
         type: 'GET',
         data: {
           page: page,
@@ -115,7 +117,8 @@
       var currentPage = $('.pagination .active .page-link').text();
       currentPage = currentPage || 1;
       var search = $('#searchForm input[name="search"]').val();
-      loadIpDinamisTabelData(currentPage, search);
+      loadIpUploadKontenData(currentPage, search);
     }
   </script>
 @endpush
+```

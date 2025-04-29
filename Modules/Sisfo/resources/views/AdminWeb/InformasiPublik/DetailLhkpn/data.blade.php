@@ -22,12 +22,12 @@
              <td table-data-label="Nama Karyawan" class="text-start">{{ $item->dl_nama_karyawan }}</td>
              {{-- <td table-data-label="Nomor" class="text-center">{{ $item->lhkpn->lhkpn_judul_informasi }}</td> --}}
              <td table-data-label="Aksi" class="text-center">
-                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/detail-lhkpn/detailData/{$item->detail_lhkpn_id}") }}')">
-                     <i class="fas fa-eye"></i> Detail
-                 </button>
                  <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/detail-lhkpn/editData/{$item->detail_lhkpn_id}") }}')">
                      <i class="fas fa-edit"></i> Edit
                  </button>
+                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/detail-lhkpn/detailData/{$item->detail_lhkpn_id}") }}')">
+                    <i class="fas fa-eye"></i> Detail
+                </button>
                  <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/informasipublik/detail-lhkpn/deleteData/{$item->detail_lhkpn_id}") }}')">
                      <i class="fas fa-trash"></i> Hapus
                  </button>
