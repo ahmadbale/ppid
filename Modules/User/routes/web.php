@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\User\App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\PermohonanController;
 use Modules\User\App\Http\Controllers\InformasiPublikController;
+use Modules\User\App\Http\Controllers\InformasiDikecualikanController;
 use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
@@ -37,7 +38,7 @@ Route::group([], function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('beranda');
 
-Route::get('/landing_page', [HomeController::class, 'index']);
+Route::get('/beranda', [HomeController::class, 'index']);
 
 
 // Route::get('/footer', [FooterController::class, 'index']);
@@ -66,17 +67,17 @@ Route::get('/whistle-blowing-system', [TimelineController::class, 'wbs'])->name(
 Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masyarakat'])->name('pengaduan_masyarakat');
 
 // Profil Page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Route::get('/profil', function () {
+Route::get('/profile-ppid', function () {
     return view('user::profil.profil');})->name('profil');
-Route::get('/profil-polinema', function () {
+Route::get('/profile-polinema', function () {
     return view('user::profil.ppolinema');})->name('ppolinema');
-Route::get('/profil/dasar-hukum', function () {
+Route::get('/profile-ppid/dasar-hukum', function () {
     return view('user::profil.dasarhukum');})->name('dasar_hukum');
-Route::get('/profil/maklumat-ppid', function () {
+Route::get('/profile-ppid/maklumat-ppid', function () {
     return view('user::profil.Maklumatppid');})->name('maklumat_ppid');
-Route::get('/profil/struktur-organisasi', function () {
+Route::get('/profile-ppid/struktur-organisasi', function () {
     return view('user::profil.SO');})->name('struktur_organisasi');
-Route::get('/profil/tugas-fungsi', function () {
+Route::get('/profile-ppid/tugas-fungsi', function () {
     return view('user::profil.tugasfungsi');})->name('tugas_fungsi');
 
 
@@ -95,7 +96,6 @@ Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumu
 
 // Informasi Publik ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/lhkpn', [LhkpnController::class, 'index'])->name('lhkpn');
-
 
 
 // Page Dinamis with
@@ -122,9 +122,11 @@ Route::get('/register', function () {
 
 
 Route::prefix('informasi-publik')->group(function () {
-    Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
-    Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
-    Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
+    Route::get('/daftar', [InformasiPublikController::class, 'index'])->name('informasi-publik.daftar');
+    Route::get('/dikecualikan', [InformasiDikecualikanController::class, 'index'])->name('informasi-publik.dikecualikan');
+    // Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
+    // Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
+    // Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
 });
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');

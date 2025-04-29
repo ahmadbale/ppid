@@ -27,6 +27,7 @@ use Modules\Sisfo\App\Helpers\MenuHelper;
                         </button>
                     </div>
                 </div>
+            </div>
 
 
                 <!-- Menu untuk setiap level_kode -->
