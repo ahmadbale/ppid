@@ -78,15 +78,40 @@ class PermohonanInformasiController extends Controller
             PermohonanInformasiModel::validasiData($request);
             $result = PermohonanInformasiModel::createData($request);
 
-            if ($result['success']) {
-                return $this->redirectSuccess("/SistemInformasi/EForm/$folder/PermohonanInformasi", $result['message']);
+            // if ($result['success']) {
+            //     return $this->redirectSuccess("/SistemInformasi/EForm/$folder/PermohonanInformasi", $result['message']);
+            // }
+            if ($request->ajax()) { // << cek kalau request dari AJAX
+                if ($result['success']) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $result['message']
+                    ]);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $result['message']
+                    ]);
+                }
             }
 
             return $this->redirectError($result['message']);
         } catch (ValidationException $e) {
+            if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengajukan permohonan'
+            ]);
+        }
             return $this->redirectValidationError($e);
         } catch (\Exception $e) {
-            return $this->redirectException($e, 'Terjadi kesalahan saat mengajukan permohonan');
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat memproses permohonan'
+                ]);
+            }
+            return $this->redirectException($e, 'Terjadi kesalahan saat memproses permohonan');
         }
     }
 

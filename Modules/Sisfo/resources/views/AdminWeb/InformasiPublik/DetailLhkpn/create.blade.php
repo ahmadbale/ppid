@@ -107,7 +107,6 @@
                 $('#dl_file_lhkpn_error').html('File harus dalam format PDF');
                 isValid = false;
             }
-
             const maxSize = 2.5 * 1024 * 1024;
             if (fileLhkpn.size > maxSize) {
                 $('#dl_file_lhkpn').addClass('is-invalid');

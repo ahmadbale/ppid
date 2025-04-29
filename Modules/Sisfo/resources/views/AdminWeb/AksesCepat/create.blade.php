@@ -23,7 +23,7 @@
 
         <div class="form-group">
             <label for="ac_url">URL Akses Cepat <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" maxlength="100" 
+            <input type="text" class="form-control" id="ac_url" name="t_akses_cepat[ac_url]" maxlength="100"
                 placeholder="https://contoh.com">
             <div class="invalid-feedback" id="error-ac_url"></div>
             <small class="form-text text-muted">Masukkan URL lengkap dengan http:// atau https://</small>
@@ -32,7 +32,7 @@
         <div class="form-group">
             <label for="ac_static_icon">Icon Statis Akses Cepat <span class="text-danger">*</span></label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]" 
+                <input type="file" class="custom-file-input" id="ac_static_icon" name="t_akses_cepat[ac_static_icon]"
                     accept="image/*">
                 <div class="invalid-feedback" id="error-ac_static_icon"></div>
                 <label class="custom-file-label" for="ac_static_icon">Pilih file</label>
@@ -44,9 +44,9 @@
         </div>
 
         <div class="form-group">
-            <label for="ac_animation_icon">Icon Hover Akses Cepat</label>
+            <label for="ac_animation_icon">Icon Hover Akses Cepat <span class="text-danger">*</span></label>
             <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]" 
+                <input type="file" class="custom-file-input" id="ac_animation_icon" name="t_akses_cepat[ac_animation_icon]"
                     accept="image/*">
                 <div class="invalid-feedback" id="error-ac_animation_icon"></div>
                 <label class="custom-file-label" for="ac_animation_icon">Pilih file</label>
@@ -89,14 +89,14 @@
                 $(labelSelector).text(
                     file.name + ' (' + fileSizeMB.toFixed(2) + ' MB)'
                 );
-                
+
                 if (fileSizeMB > 2.5) {
                     Swal.fire({
                         title: 'Peringatan!',
                         text: 'Ukuran file ' + fileSizeMB.toFixed(2) + ' MB melebihi batas 2.5MB',
                         icon: 'warning'
                     });
-                    
+
                     input.val('');
                     $(labelSelector).text('Pilih file');
                     $(previewSelector).addClass('d-none');
@@ -117,8 +117,8 @@
         // Preview static icon
         $('#ac_static_icon').on('change', function() {
             validateAndPreviewFile(
-                $(this), 
-                '#static-image-preview', 
+                $(this),
+                '#static-image-preview',
                 '.custom-file-label[for="ac_static_icon"]'
             );
         });
@@ -126,8 +126,8 @@
         // Preview animation icon
         $('#ac_animation_icon').on('change', function() {
             validateAndPreviewFile(
-                $(this), 
-                '#animation-image-preview', 
+                $(this),
+                '#animation-image-preview',
                 '.custom-file-label[for="ac_animation_icon"]'
             );
         });
@@ -135,15 +135,15 @@
         // Handle submit form
         $('#form-create-akses-cepat').on('submit', function(e) {
             e.preventDefault();
-            
+
             // Reset semua error
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').html('');
-            
+
             const form = $(this);
             const formData = new FormData(this);
             const button = $('#btn-save');
-            
+
             // Validasi client-side
             let isValid = true;
             if ($('#ac_judul').val().trim() === '') {
@@ -151,7 +151,7 @@
                 $('#error-ac_judul').html('Judul Akses Cepat wajib diisi.');
                 isValid = false;
             }
-            
+
             const acUrl = $('#ac_url').val().trim();
             if (acUrl === '') {
                 $('#ac_url').addClass('is-invalid');
@@ -167,7 +167,7 @@
                 }
             }
 
-            
+
             if ($('#ac_static_icon')[0].files.length === 0) {
                 $('#ac_static_icon').addClass('is-invalid');
                 $('#error-ac_static_icon').html('Icon Statis Akses Cepat wajib dipilih.');
@@ -179,7 +179,7 @@
                 $('#error-ac_animation_icon').html('Icon Animasi Akses Cepat wajib dipilih.');
                 isValid = false;
             }
-            
+
             if (!isValid) {
                 Swal.fire({
                     icon: 'error',
@@ -188,10 +188,10 @@
                 });
                 return;
             }
-            
+
             // Tampilkan loading state pada tombol submit
             button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-            
+
             $.ajax({
                 url: form.attr('action'),
                 type: 'POST',
@@ -202,7 +202,7 @@
                     if (response.success) {
                         $('#myModal').modal('hide');
                         reloadTable();
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
@@ -217,7 +217,7 @@
                                 $(`#${cleanKey}`).addClass('is-invalid');
                                 $(`#error-${cleanKey}`).html(value[0]);
                             });
-                            
+
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Validasi Gagal',
