@@ -8,10 +8,10 @@
             <h3 class="card-title">{{ $page->title }}</h3>
           </div>
           <div class="col-md-6 text-right">
-            <button onclick="modalAction('{{ url('adminweb/informasipublik/IpDinamisTabel/addData') }}')" 
+            <button onclick="modalAction('{{ url('adminweb/informasipublik/ipdinamis-tabel/addData') }}')"
                     class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah
-            </button>   
+            </button>
           </div>
         </div>
       </div>

@@ -1,3 +1,8 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+  $pengaduanMasyarakatAdminUrl = WebMenuModel::getDynamicMenuUrl('pengaduan-masyarakat-admin');
+@endphp
 @extends('sisfo::layouts.template')
 @section('content')
 
@@ -114,10 +119,15 @@
 
                             <!-- Kolom Tombol Tambah -->
                             <div class="col-md-6 text-md-right mt-2 mt-md-0">
-                                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PengaduanMasyarakat/addData') }}"
+                                @if(
+                                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $pengaduanMasyarakatAdminUrl, 'create')
+                                )
+                                <a href="{{ url($pengaduanMasyarakatAdminUrl . '/addData') }}"
                                     class="btn btn-sm btn-success d-inline-flex align-items-center">
                                     <i class="fas fa-plus mr-1"></i> Ajukan Permohonan
                                 </a>
+                                @endif
                             </div>
                         </div>
 

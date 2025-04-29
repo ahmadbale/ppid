@@ -89,7 +89,7 @@ class BaseApiController extends Controller
 //         return $this->errorResponse($message, $e->getMessage(), 500);
 //     }
 // }
-protected function execute(callable $action, string $sourceName, string $actionType = self::ACTION_GET): JsonResponse
+protected function execute(callable $action, string $sourceName, string $actionType = self::ACTION_CREATE): JsonResponse
 {
     try {
         $result = $action();
@@ -113,6 +113,7 @@ protected function execute(callable $action, string $sourceName, string $actionT
 /**
  * untuk rute api yang memerlukan autentikasi token (auth:api)
  */
+// GET Data
 protected function executeWithAuthentication(callable $action, string $sourceName, string $actionType = self::ACTION_GET): JsonResponse
 {
     try {
@@ -146,6 +147,41 @@ protected function executeWithAuthentication(callable $action, string $sourceNam
         return $this->errorResponse($message, $e->getMessage(), 500);
     }
 }
+//POST Data/create data 
+protected function executeWithAutCreate(callable $action, string $sourceName, string $actionType = self::ACTION_CREATE): JsonResponse
+{
+    try {
+        if (!JWTAuth::getToken()) {
+            return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, 401);
+        }
+
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, 401);
+        }
+        
+        return $this->execute(
+            function() use ($action, $user) {
+                return $action($user);
+            },
+            $sourceName,
+            $actionType
+        );
+        
+    } catch (TokenExpiredException $e) {
+        return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, 401);
+    } catch (TokenInvalidException $e) {
+        return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
+    } catch (JWTException $e) {
+        $this->logError('JWT Error', $e);
+        return $this->errorResponse(self::AUTH_TOKEN_INVALID, $e->getMessage(), 401);
+    } catch (\Exception $e) {
+        $this->logError('Authentication action error', $e);
+        $message = sprintf($this->messageTemplates[$actionType]['error'], $sourceName);
+        return $this->errorResponse($message, $e->getMessage(), 500);
+    }
+}
+
 
 /**
  * for api routes requiring validation or validating input (login & register)

@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriAksesCepatUrl = WebMenuModel::getDynamicMenuUrl('kategori-akses-cepat');
+@endphp
 <div class="modal-header">
   <h5 class="modal-title">Tambah Kategori Akses</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
 </div>
 
 <div class="modal-body">
-  <form id="formCreateKategoriAkses" action="{{ url('adminweb/kategori-akses/createData') }}" method="POST">
+  <form id="formCreateKategoriAkses" action="{{ url($kategoriAksesCepatUrl . '/createData') }}" method="POST">
       @csrf
 
       <div class="form-group">

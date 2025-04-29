@@ -7,26 +7,39 @@ use Illuminate\Support\Facades\Auth;
 
 class MenuHelper
 {
-    public static function renderSidebarMenus($levelKode, $activeMenu)
+    public static function renderSidebarMenus($hakAksesKode, $activeMenu)
     {
+        if (empty($hakAksesKode)) {
+            return ''; // Jika kode hak akses kosong, tidak ada menu yang ditampilkan
+        }
+        
         $userId = Auth::user()->user_id;
-        $menus = WebMenuModel::getMenusByLevelWithPermissions($levelKode, $userId);
-        $totalNotifikasi = WebMenuModel::getNotifikasiCount($levelKode);
+        $menus = WebMenuModel::getMenusByLevelWithPermissions($hakAksesKode, $userId);
+        $totalNotifikasi = WebMenuModel::getNotifikasiCount($hakAksesKode);
 
         $menuIcons = [
             'Dashboard' => 'fa-tachometer-alt',
             'Profile' => 'fa-user',
             'Notifikasi' => 'fa-bell',
             'Hak Akses' => 'fa-key',
-            'E-Form' => 'fa-folder-open',
-            'Menu Management' => 'fa-tasks'
+            'E-Form Admin' => 'fa-folder-open',
+            'Menu Management' => 'fa-tasks', 
+            'Management Pengumuman' => 'fa-bullhorn',
+            'Management Berita' => 'fa-newspaper',
+            'Management Footer' => 'fa-columns',
+            'Management LHKPN' => 'fa-file-alt',
+            'Management Akses & Pintasan Cepat' => 'fa-bolt',
+            'Management Form' => 'fa-question-circle',
+            'Management Regulasi' => 'fa-gavel',
+            'Management Pengguna' => 'fa-user-cog',
+            'Management Media' => 'fa-photo-video',
         ];
 
         $html = '';
 
         // Dashboard dan Profil selalu ada
         $html .= self::generateMenuItem(
-            url('/dashboard' . strtoupper($levelKode)),
+            url('/dashboard' . strtoupper($hakAksesKode)),
             'Dashboard',
             $menuIcons['Dashboard'],
             $activeMenu
@@ -40,12 +53,12 @@ class MenuHelper
         );
 
         // Notifikasi untuk level tertentu
-        if (in_array($levelKode, ['ADM', 'VFR', 'MPU'])) {
+        if (in_array($hakAksesKode, ['ADM', 'VFR', 'MPU'])) {
             $notifUrl = [
                 'ADM' => '/Notifikasi/NotifAdmin',
                 'VFR' => '/notifikasi',
                 'MPU' => '/notifMPU'
-            ][$levelKode];
+            ][$hakAksesKode];
 
             $html .= self::generateNotificationMenuItem(
                 url($notifUrl),
@@ -63,7 +76,7 @@ class MenuHelper
 
             if ($menu->children->isNotEmpty()) {
                 // Menu dengan submenu
-                $html .= self::generateDropdownMenu($menu, $activeMenu);
+                $html .= self::generateDropdownMenu($menu, $activeMenu, $menuIcons);
             } else {
                 // Menu tanpa submenu - Gunakan URL yang sesuai
                 $menuUrl = $menu->WebMenuUrl ? $menu->WebMenuUrl->wmu_nama : '#';
@@ -77,7 +90,7 @@ class MenuHelper
         }
 
         // Menu khusus SAR
-        if ($levelKode == 'SAR') {
+        if ($hakAksesKode == 'SAR') {
             $html .= self::generateMenuItem(
                 url('/HakAkses'),
                 'Pengaturan Hak Akses',
@@ -117,15 +130,18 @@ class MenuHelper
         </li>";
     }
 
-    private static function generateDropdownMenu($menu, $activeMenu)
+    private static function generateDropdownMenu($menu, $activeMenu, $menuIcons)
     {
         // Ambil nama menu yang akan ditampilkan (bisa alias atau nama asli)
         $menuName = $menu->getDisplayName();
 
+        // Tentukan icon untuk parent menu
+        $parentIcon = isset($menuIcons[$menuName]) ? $menuIcons[$menuName] : 'fa-cog';
+
         $html = "
         <li class='nav-item'>
             <a href='#' class='nav-link'>
-                <i class='nav-icon fas fa-cog'></i>
+                <i class='nav-icon fas {$parentIcon}'></i>
                 <p>{$menuName}
                     <i class='right fas fa-angle-left'></i>
                 </p>
@@ -142,7 +158,7 @@ class MenuHelper
             $html .= "
                 <li class='nav-item'>
                     <a href='" . url($submenuUrl) . "' class='nav-link {$isActive}'>
-                        <i class='fas fa-tasks nav-icon'></i>
+                        <i class='far fa-circle nav-icon'></i>
                         <p>{$submenuName}</p>
                     </a>
                 </li>";

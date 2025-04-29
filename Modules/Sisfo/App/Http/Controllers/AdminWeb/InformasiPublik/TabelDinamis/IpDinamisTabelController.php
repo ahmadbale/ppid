@@ -27,7 +27,7 @@ class IpDinamisTabelController extends Controller
                'title' => 'Daftar IpDinamis Tabel'
           ];
           
-          $activeMenu = 'IpDinamisTabel';
+          $activeMenu = 'ipdinamis-tabel';
 
           $ipDinamisTabel = IpDinamisTabelModel:: selectData(10, $search);
           
@@ -51,7 +51,7 @@ class IpDinamisTabelController extends Controller
              return view('sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.data', compact('ipDinamisTabel', 'search'))->render();
          }
          
-         return redirect()->route('IpDinamisTabel.index');
+         return redirect()->route('ipdinamis-tabel.index');
      }
     
     public function addData()

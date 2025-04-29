@@ -48,7 +48,7 @@
    <div class="modal-footer">
      <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
      <button type="button" class="btn btn-danger" id="confirmDeleteButton"
-       onclick="confirmDelete('{{ url('adminweb/informasipublik/IpDinamisTabel/deleteData/'.$IpDinamisTabel->ip_dinamis_tabel_id) }}')">
+       onclick="confirmDelete('{{ url('adminweb/informasipublik/ipdinamis-tabel/deleteData/'.$IpDinamisTabel->ip_dinamis_tabel_id) }}')">
        <i class="fas fa-trash mr-1"></i> Hapus
      </button>
    </div>

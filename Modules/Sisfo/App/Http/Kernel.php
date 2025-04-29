@@ -65,6 +65,5 @@ class Kernel extends HttpKernel
         'signed' =>  \Modules\Sisfo\App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'permission' =>  \Modules\Sisfo\App\Http\Middleware\CheckUserPermission::class,
     ];
 }
