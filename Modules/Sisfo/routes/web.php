@@ -18,6 +18,8 @@ use Modules\SIsfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
 use Modules\SIsfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
 use Modules\SIsfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
 use Modules\SIsfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController;
 use Modules\SIsfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
 use Modules\SIsfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
 use Modules\SIsfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
@@ -279,6 +281,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData'])->middleware('permission:delete');
     });
 
+
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('permohonan-informasi'), 'middleware' => ['authorize:RPN']], function () {
         Route::get('/', [PermohonanInformasiController::class, 'index']);
         Route::get('/getData', [PermohonanInformasiController::class, 'getData']);
@@ -458,5 +461,28 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [IpDinamisTabelController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
+    });
+
+        Route::group(['prefix' => 'adminweb/informasipublik/ipdinamis-konten', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [IpDinamisKontenController::class, 'index']);
+        Route::get('/getData', [IpDinamisKontenController::class, 'getData']);
+        Route::get('/addData', [IpDinamisKontenController::class, 'addData']);
+        Route::post('/createData', [IpDinamisKontenController::class, 'createData']);
+        Route::get('/editData/{id}', [IpDinamisKontenController::class, 'editData']);
+        Route::post('/updateData/{id}', [IpDinamisKontenController::class, 'updateData']);
+        Route::get('/detailData/{id}', [IpDinamisKontenController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData']);
+    });
+    Route::group(['prefix' => 'adminweb/informasipublik/ipupload-detail-konten', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [IpUploadKontenController::class, 'index']);
+        Route::get('/getData', [IpUploadKontenController::class, 'getData']);
+        Route::get('/addData', [IpUploadKontenController::class, 'addData']);
+        Route::post('/createData', [IpUploadKontenController::class, 'createData']);
+        Route::get('/editData/{id}', [IpUploadKontenController::class, 'editData']);
+        Route::post('/updateData/{id}', [IpUploadKontenController::class, 'updateData']);
+        Route::get('/detailData/{id}', [IpUploadKontenController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
     });
 });
