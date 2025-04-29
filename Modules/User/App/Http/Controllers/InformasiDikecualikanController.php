@@ -15,7 +15,7 @@ class InformasiDikecualikanController extends Controller
         $sharedBy = 'superadmin';
 
         return view('user::informasi-publik.dikecualikan',
-        compact('pdfFile', 'pdfName', 'pdfSize', 'sharedBy')
+        compact('pdfFile', 'pdfName', 'sharedBy')
         );
     }
 }
