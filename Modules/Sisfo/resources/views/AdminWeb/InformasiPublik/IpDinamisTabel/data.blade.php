@@ -1,3 +1,8 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+  $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('dinamis-tabel');
+@endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
      <div class="showing-text">
          Showing {{ $ipDinamisTabel->firstItem() }} to {{ $ipDinamisTabel->lastItem() }} of {{ $ipDinamisTabel->total() }} results
@@ -21,15 +26,28 @@
              <td table-data-label="Nama Submenu" class="text-center">{{ $item->ip_nama_submenu }}</td>
              <td table-data-label="Judul" class="text-center">{{ $item->ip_judul }}</td>
              <td table-data-label="Aksi" class="text-center">
-                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/ipdinamis-tabel/editData/{$item->ip_dinamis_tabel_id}") }}')">
-                     <i class="fas fa-edit"></i> Edit
-                 </button>
-                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/ipdinamis-tabel/detailData/{$item->ip_dinamis_tabel_id}") }}')">
-                     <i class="fas fa-eye"></i> Detail
-                 </button>
-                 <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/informasipublik/ipdinamis-tabel/deleteData/{$item->ip_dinamis_tabel_id}") }}')">
-                     <i class="fas fa-trash"></i> Hapus
-                 </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $IpdinamisTabelUrl, 'update')
+                )
+                    <button class="btn btn-sm btn-warning"
+                        onclick="modalAction('{{ url($IpdinamisTabelUrl . '/editData/' . $item->ip_dinamis_tabel_id) }}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                @endif
+                <button class="btn btn-sm btn-info"
+                    onclick="modalAction('{{ url($IpdinamisTabelUrl . '/detailData/' . $item->ip_dinamis_tabel_id) }}')">
+                    <i class="fas fa-eye"></i> Detail
+                </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $IpdinamisTabelUrl, 'delete')
+                )
+                    <button class="btn btn-sm btn-danger"
+                        onclick="modalAction('{{ url($IpdinamisTabelUrl . '/deleteData/' . $item->ip_dinamis_tabel_id) }}')">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                @endif
              </td>
          </tr>
          @empty

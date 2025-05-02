@@ -14,11 +14,12 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiIpDinamisKontenController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
+use Modules\Sisfo\App\Http\Controllers\Api\Auth\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 
 /*
@@ -80,5 +81,6 @@ Route::prefix('public')->group(function () {
     Route::get('getDataTimeline', [ApiTimelineController::class, 'getDataTimeline']);
     Route::get('getDataKetentuanPelaporan', [ApiKetentuanPelaporanController::class, 'getDataKetentuanPelaporan']);
     Route::get('getDataRegulasi', [ApiRegulasiController::class, 'getDataRegulasi']);
+    Route::get('getDataIPDaftarInformasi', [ApiIpDinamisKontenController::class, 'getDataIPDaftarInformasi']);
 
 });
