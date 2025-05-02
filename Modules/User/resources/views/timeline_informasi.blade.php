@@ -48,7 +48,7 @@
                 </a>
             </section>
 
-            <h2 class="text-center mb-2 fw-bold">Ketentuan Pengajuan Pertanyaan Keberatan Informasi</h2>
+            <h2 class="text-center mb-2 fw-bold">Ketentuan Pengajuan Pertanyaan Permohonan Informasi</h2>
 
             <div class="row align-items-center mb-5">
                 <div class="col-md-8">
