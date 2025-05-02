@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriMediaUrl = WebMenuModel::getDynamicMenuUrl('kategori-media');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Konfirmasi Hapus Media Dinamis</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -42,16 +46,11 @@
              </table>
          </div>
      </div>
-     <div class="alert alert-warning mt-3">
-        <i class="fas fa-info-circle mr-2"></i> <strong>Perhatian:</strong> 
-        Menghapus media dinamis ini mungkin akan memengaruhi data lain yang terkait dengannya. 
-        Pastikan tidak ada data lain yang masih menggunakan media dinamis ini.
-    </div>
  </div>
  <div class="modal-footer">
      <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
      <button type="button" class="btn btn-danger" id="confirmDeleteButton" 
-         onclick="confirmDelete('{{ url('adminweb/media-dinamis/deleteData/'.$mediaDinamis->media_dinamis_id) }}')">
+         onclick="confirmDelete('{{ url($kategoriMediaUrl . '/deleteData/' . $mediaDinamis->media_dinamis_id) }}')">
          <i class="fas fa-trash mr-1"></i> Hapus
      </button>
  </div>

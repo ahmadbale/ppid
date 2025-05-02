@@ -1,4 +1,8 @@
 <!-- views/SistemInformasi/Timeline/create.blade.php -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $timelineUrl = WebMenuModel::getDynamicMenuUrl('timeline');
+@endphp
 <div class="modal-header">
   <h5 class="modal-title">Tambah Timeline Baru</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -7,7 +11,7 @@
 </div>
 
 <div class="modal-body">
-  <form id="formCreateTimeline" action="{{ url('SistemInformasi/Timeline/createData') }}" method="POST">
+  <form id="formCreateTimeline" action="{{ url($timelineUrl . '/createData') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="form-group">
@@ -25,6 +29,16 @@
       <label for="judul_timeline">Judul Timeline <span class="text-danger">*</span></label>
       <input type="text" class="form-control" id="judul_timeline" name="t_timeline[judul_timeline]" maxlength="255">
       <div class="invalid-feedback" id="judul_timeline_error"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="timeline_file">File Timeline (PDF) <span class="text-muted">(Opsional)</span></label>
+      <div class="custom-file">
+        <input type="file" class="custom-file-input" id="timeline_file" name="timeline_file" accept=".pdf">
+        <label class="custom-file-label" for="timeline_file">Pilih file PDF (maks. 5 MB)</label>
+      </div>
+      <div class="invalid-feedback" id="timeline_file_error"></div>
+      <small class="form-text text-muted">Hanya file PDF dengan ukuran maksimal 5 MB</small>
     </div>
 
     <div class="form-group">
@@ -85,6 +99,12 @@
   }
 
   $(document).ready(function () {
+    // Tambahan untuk custom file input
+    $('.custom-file-input').on('change', function() {
+      var fileName = $(this).val().split('\\').pop();
+      $(this).siblings('.custom-file-label').addClass('selected').html(fileName || 'Pilih file PDF (maks. 5 MB)');
+    });
+
     // Handle input event pada field jumlah langkah
     $('#jumlah_langkah_timeline').on('input', function () {
       if ($(this).val() !== '') {

@@ -1,50 +1,66 @@
+@php
+    use Modules\Sisfo\App\Models\Website\WebMenuModel;
+    use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+    $kategoriAksesCepatUrl = WebMenuModel::getDynamicMenuUrl('kategori-akses-cepat');
+@endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
-    <div class="showing-text">
-        Showing {{ $kategoriAkses->firstItem() }} to {{ $kategoriAkses->lastItem() }} of {{ $kategoriAkses->total() }}
-        results
-    </div>
-</div>
-
-<div class="table-responsive">
-<table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
-    <thead class="text-center">
-        <tr>
-            <th>Nomor</th>
-            <th>Judul Kategori</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($kategoriAkses as $key => $item)
-        <tr>
-            <td table-data-label="Nomor" class="text-center">{{ ($kategoriAkses->currentPage() - 1) * $kategoriAkses->perPage() + $key + 1 }}</td>
-            <td table-data-label="Judul Kategori" class="text-center">{{ $item->mka_judul_kategori }}</td>
-            <td table-data-label="Aksi" class="text-center">
-                <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/kategori-akses/editData/{$item->kategori_akses_id}") }}')">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/kategori-akses/detailData/{$item->kategori_akses_id}") }}')">
+     <div class="showing-text">
+         Showing {{ $kategoriAkses->firstItem() }} to {{ $kategoriAkses->lastItem() }} of {{ $kategoriAkses->total() }} results
+     </div>
+ </div>
+ 
+ <table class="table table-bordered table-striped table-hover table-sm">
+     <thead>
+         <tr>
+             <th width="10%">Nomor</th>
+             <th width="60%">Judul Kategori</th>
+             <th width="30%">Aksi</th>
+         </tr>
+     </thead>
+     <tbody>
+         @forelse($kategoriAkses as $key => $item)
+         <tr>
+             <td>{{ ($kategoriAkses->currentPage() - 1) * $kategoriAkses->perPage() + $key + 1 }}</td>
+             <td>{{ $item->mka_judul_kategori }}</td>
+             <td>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriAksesCepatUrl, 'update')
+                )
+                    <button class="btn btn-sm btn-warning"
+                        onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/editData/' . $item->kategori_akses_id) }}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                @endif
+                <button class="btn btn-sm btn-info"
+                    onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/detailData/' . $item->kategori_akses_id) }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
-                {{-- <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/kategori-akses/deleteData/{$item->kategori_akses_id}") }}')">
-                    <i class="fas fa-trash"></i> Hapus --}}
-                </button>
-            </td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="3" class="text-center">
-                @if(!empty($search))
-                    Tidak ada data yang cocok dengan pencarian "{{ $search }}"
-                @else
-                    Tidak ada data
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriAksesCepatUrl, 'delete')
+                )
+                    <button class="btn btn-sm btn-danger"
+                        onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/deleteData/' . $item->kategori_akses_id) }}')">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
                 @endif
             </td>
-        </tr>
-        @endforelse
-    </tbody>
-</table>
-
-<div class="mt-3">
-    {{ $kategoriAkses->appends(['search' => $search])->links() }}
-</div>
+         </tr>
+         @empty
+         <tr>
+             <td colspan="3" class="text-center">
+                 @if(!empty($search))
+                     Tidak ada data yang cocok dengan pencarian "{{ $search }}"
+                 @else
+                     Tidak ada data
+                 @endif
+             </td>
+         </tr>
+         @endforelse
+     </tbody>
+ </table>
+ 
+ <div class="mt-3">
+     {{ $kategoriAkses->appends(['search' => $search])->links() }}
+ </div>

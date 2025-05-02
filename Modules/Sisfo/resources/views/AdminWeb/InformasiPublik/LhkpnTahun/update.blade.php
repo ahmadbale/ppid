@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $kategoriTahunLHKPNUrl = WebMenuModel::getDynamicMenuUrl('kategori-tahun-lhkpn');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Edit Data LHKPN</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
  </div>
  
  <div class="modal-body">
-     <form id="form-update-lhkpn" action="{{ url('adminweb/informasipublik/lhkpn-tahun/updateData/'.$lhkpn->lhkpn_id) }}" method="POST"
+     <form id="form-update-lhkpn" action="{{ url($kategoriTahunLHKPNUrl . '/updateData/' . $lhkpn->lhkpn_id) }}" method="POST"
          enctype="multipart/form-data">
          @csrf
          <input type="hidden" name="lhkpn_id" value="{{ $lhkpn->lhkpn_id }}">

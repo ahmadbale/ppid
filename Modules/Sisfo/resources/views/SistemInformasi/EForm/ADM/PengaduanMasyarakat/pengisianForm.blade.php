@@ -1,17 +1,29 @@
+
+<!-- pengisian form halaman admin -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $pengaduanMasyarakatAdminUrl = WebMenuModel::getDynamicMenuUrl('pengaduan-masyarakat-admin');
+@endphp
+
 @extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
+
                 <a href="{{ url('SistemInformasi/EForm/ADM/PengaduanMasyarakat') }}" class="btn btn-secondary">
+
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
             </div>
             <h3 class="card-title"><strong> E-Form Pengaduan Masyarakat </strong></h3>
         </div>
         <div class="card-body">
-            <form
-                action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/PengaduanMasyarakat/createData') }}"
+
+
+            <form id="permohonanForm"
+                action="{{ url($pengaduanMasyarakatAdminUrl . '/createData') }}"
+
                 method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
 

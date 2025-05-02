@@ -3,18 +3,18 @@
 namespace Modules\Sisfo\App\Http\Controllers\ManagePengguna;
 
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
-use Modules\Sisfo\App\Models\LevelModel;
+use Modules\Sisfo\App\Models\HakAksesModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-class LevelController extends Controller
+class HakAksesController extends Controller
 {
     use TraitsController;
 
     public $breadcrumb = 'Pengaturan Level';
-    public $pagename = 'ManagePengguna';
+    public $pagename = 'ManagePengguna/ManageLevel';
 
     public function index(Request $request)
     {
@@ -29,10 +29,10 @@ class LevelController extends Controller
             'title' => 'Daftar Level'
         ];
 
-        $activeMenu = 'managementlevel';
+        $activeMenu = 'managelevel';
 
         // Gunakan pagination dan pencarian
-        $level = LevelModel::selectData(10, $search);
+        $level = HakAksesModel::selectData(10, $search);
 
         return view("sisfo::ManagePengguna/ManageLevel.index", [
             'breadcrumb' => $breadcrumb,
@@ -47,10 +47,10 @@ class LevelController extends Controller
     public function getData(Request $request)
     {
         $search = $request->query('search', '');
-        $level = LevelModel::selectData(10, $search);
+        $level = HakAksesModel::selectData(10, $search);
 
         if ($request->ajax()) {
-            return view('ManagePengguna/ManageLevel.data', compact('level', 'search'))->render();
+            return view('sisfo::ManagePengguna/ManageLevel.data', compact('level', 'search'))->render();
         }
 
         return redirect()->route('level.index');
@@ -59,7 +59,7 @@ class LevelController extends Controller
     public function addData()
     {
         try {
-            return view("ManagePengguna/ManageLevel.create");
+            return view("sisfo::ManagePengguna/ManageLevel.create");
         } catch (\Exception $e) {
             Log::error('Add Data Error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
@@ -69,8 +69,8 @@ class LevelController extends Controller
     public function createData(Request $request)
     {
         try {
-            LevelModel::validasiData($request);
-            $result = LevelModel::createData($request);
+            HakAksesModel::validasiData($request);
+            $result = HakAksesModel::createData($request);
 
             return $this->jsonSuccess(
                 $result['data'] ?? null,
@@ -85,9 +85,9 @@ class LevelController extends Controller
 
     public function editData($id)
     {
-        $level = LevelModel::detailData($id);
+        $level = HakAksesModel::detailData($id);
 
-        return view("ManagePengguna/ManageLevel.update", [
+        return view("sisfo::ManagePengguna/ManageLevel.update", [
             'level' => $level
         ]);
     }
@@ -95,8 +95,8 @@ class LevelController extends Controller
     public function updateData(Request $request, $id)
     {
         try {
-            LevelModel::validasiData($request);
-            $result = LevelModel::updateData($request, $id);
+            HakAksesModel::validasiData($request);
+            $result = HakAksesModel::updateData($request, $id);
 
             return $this->jsonSuccess(
                 $result['data'] ?? null,
@@ -111,9 +111,9 @@ class LevelController extends Controller
 
     public function detailData($id)
     {
-        $level = LevelModel::detailData($id);
+        $level = HakAksesModel::detailData($id);
 
-        return view("ManagePengguna/ManageLevel.detail", [
+        return view("sisfo::ManagePengguna/ManageLevel.detail", [
             'level' => $level,
             'title' => 'Detail Level'
         ]);
@@ -122,15 +122,15 @@ class LevelController extends Controller
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            $level = LevelModel::detailData($id);
+            $level = HakAksesModel::detailData($id);
 
-            return view("ManagePengguna/ManageLevel.delete", [
+            return view("sisfo::ManagePengguna/ManageLevel.delete", [
                 'level' => $level
             ]);
         }
 
         try {
-            $result = LevelModel::deleteData($id);
+            $result = HakAksesModel::deleteData($id);
 
             return $this->jsonSuccess(
                 $result['data'] ?? null,

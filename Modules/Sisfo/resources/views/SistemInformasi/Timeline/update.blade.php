@@ -1,5 +1,8 @@
 <!-- views/SistemInformasi/Timeline/update.blade.php -->
-
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $timelineUrl = WebMenuModel::getDynamicMenuUrl('timeline');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">Ubah Timeline</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -8,8 +11,8 @@
 </div>
 
 <div class="modal-body">
-    <form id="formUpdateTimeline" action="{{ url('SistemInformasi/Timeline/updateData/' . $timeline->timeline_id) }}"
-        method="POST">
+    <form id="formUpdateTimeline" action="{{ url($timelineUrl . '/updateData/' . $timeline->timeline_id) }}"
+        method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="alert alert-info mt-3">
@@ -34,6 +37,33 @@
             <input type="text" class="form-control" id="judul_timeline" name="t_timeline[judul_timeline]" maxlength="255"
                 value="{{ $timeline->judul_timeline }}">
             <div class="invalid-feedback" id="judul_timeline_error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="timeline_file">File Timeline (PDF) <span class="text-muted">(Opsional)</span></label>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="timeline_file" name="timeline_file" accept=".pdf">
+                <label class="custom-file-label" for="timeline_file">
+                    @if($timeline->timeline_file)
+                        {{ $timeline->timeline_file }} (Ganti file)
+                    @else
+                        Pilih file PDF (maks 5 MB)
+                    @endif
+                </label>
+            </div>
+            <div class="invalid-feedback" id="timeline_file_error"></div>
+            <small class="form-text text-muted">
+                Hanya file PDF dengan ukuran maksimal 5 MB. 
+            </small>
+            
+            @if($timeline->timeline_file)
+            <div class="mt-2">
+                <p class="mb-1">File saat ini:</p>
+                <a href="{{ Storage::url($timeline->timeline_file) }}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-file-pdf"></i> Lihat Dokumen
+                </a>
+            </div>
+            @endif
         </div>
 
         <div class="mt-4 mb-3">
@@ -73,6 +103,7 @@
         </div>
 
         <input type="hidden" id="jumlah_langkah_timeline" name="jumlah_langkah_timeline" value="{{ $jumlahLangkah }}">
+        <input type="hidden" name="existing_file" value="{{ $timeline->timeline_file }}">
     </form>
 </div>
 
@@ -85,6 +116,12 @@
 
 <script>
     $(document).ready(function () {
+        // Tambahan untuk custom file input
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).siblings('.custom-file-label').addClass('selected').html(fileName || 'Pilih file PDF (maks. 5 MB)');
+        });
+
         let currentLangkahCount = parseInt($('#jumlah_langkah_timeline').val());
         // Array untuk menyimpan indeks yang dihapus
         let deletedLangkahIndices = [];
@@ -198,99 +235,118 @@
             });
         });
 
-        // Initialize form validation
-        $('#formUpdateTimeline').validate({
-            errorElement: 'span',
-            errorPlacement: function (error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group').append(error);
-            },
-            highlight: function (element, errorClass, validClass) {
-                $(element).addClass('is-invalid');
-            },
-            unhighlight: function (element, errorClass, validClass) {
-                $(element).removeClass('is-invalid');
-            },
-            // Kustomisasi validator untuk mengabaikan langkah yang dihapus
-            ignore: ":hidden:not(input[type=hidden])",
-            submitHandler: function (form) {
-                // Periksa apakah semua langkah yang terlihat telah diisi
-                let allFieldsFilled = true;
-                $('.langkah-item:visible input').each(function () {
-                    if (!$(this).val()) {
-                        allFieldsFilled = false;
-                        return false; // keluar dari loop
-                    }
-                });
+        // Submit form
+        $('button[form="formUpdateTimeline"]').on('click', function(e) {
+            e.preventDefault();
+            const form = $('#formUpdateTimeline');
+            const button = $(this);
+            const formData = new FormData(form[0]);
 
-                if (!allFieldsFilled) {
+            // Reset error
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').html('');
+
+            // Validasi ukuran file PDF
+            const fileInput = $('#timeline_file')[0];
+            if (fileInput.files.length > 0) {
+                const fileSize = fileInput.files[0].size; // ukuran dalam bytes
+                const maxSize = 5 * 1024 * 1024; // 5 MB
+
+                if (fileSize > maxSize) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Validasi Gagal',
-                        text: 'Semua langkah timeline harus diisi'
+                        title: 'Ukuran File Terlalu Besar',
+                        text: 'File PDF maksimal 5 MB'
                     });
-                    return false;
+                    return;
                 }
+            }
 
-                // Tambahkan daftar indeks yang dihapus ke form
-                const formJq = $(form);
-                formJq.append(`<input type="hidden" name="deleted_indices" value="${JSON.stringify(deletedLangkahIndices)}">`);
+            // Periksa apakah semua langkah yang terlihat telah diisi
+            let allFieldsFilled = true;
+            $('.langkah-item:visible input').each(function () {
+                if (!$(this).val()) {
+                    allFieldsFilled = false;
+                    return false; // keluar dari loop
+                }
+            });
 
-                // Jika semua validasi berhasil, kirim dengan Ajax
-                const url = formJq.attr('action');
-                const formData = new FormData(form);
+            if (!allFieldsFilled) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validasi Gagal',
+                    text: 'Semua langkah timeline harus diisi'
+                });
+                return;
+            }
 
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function () {
-                        formJq.find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            $('#myModal').modal('hide');
-                            reloadTable();
+            // Tambahkan daftar indeks yang dihapus ke form
+            form.append(`<input type="hidden" name="deleted_indices" value="${JSON.stringify(deletedLangkahIndices)}">`);
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.message
+            // Loading state
+            button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        $('#myModal').modal('hide');
+                        reloadTable();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response.message
+                        });
+                    } else {
+                        if (response.errors) {
+                            // Tampilkan error
+                            $.each(response.errors, function(key, value) {
+                                if (key.startsWith('t_timeline.')) {
+                                    const fieldName = key.replace('t_timeline.', '');
+                                    if (fieldName === 'fk_m_kategori_form') {
+                                        $('#kategori_form').addClass('is-invalid');
+                                        $('#kategori_form_error').html(value[0]);
+                                    } else {
+                                        $(`#${fieldName}`).addClass('is-invalid');
+                                        $(`#${fieldName}_error`).html(value[0]);
+                                    }
+                                } else {
+                                    $(`#${key}`).addClass('is-invalid');
+                                    $(`#${key}_error`).html(value[0]);
+                                }
                             });
-                        } else {
-                            let errorMessage = response.message;
-
-                            if (response.errors) {
-                                errorMessage = '<ul>';
-                                $.each(response.errors, function (key, value) {
-                                    errorMessage += '<li>' + value + '</li>';
-                                });
-                                errorMessage += '</ul>';
-                            }
-
+                            
                             Swal.fire({
                                 icon: 'error',
+                                title: 'Validasi Gagal',
+                                text: 'Mohon periksa kembali input Anda'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon:'error',
                                 title: 'Gagal',
-                                html: errorMessage
+                                text: response.message || 'Terjadi kesalahan saat menyimpan data'
                             });
                         }
-                    },
-                    error: function (xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
-                        });
-                    },
-                    complete: function () {
-                        formJq.find('button[type="submit"]').html('<i class="fas fa-save mr-1"></i> Simpan Perubahan').attr('disabled', false);
                     }
-                });
-
-                return false; // Mencegah submit form secara normal
-            }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+                    });
+                },
+                complete: function() {
+                    button.html('<i class="fas fa-save mr-1"></i> Simpan Perubahan').attr('disabled', false);
+                }
+            });
         });
     });
 </script>
+</document>

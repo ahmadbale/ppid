@@ -1,11 +1,17 @@
-<!-- SistemInformasi/EForm/ADM/WBS/pengisianForm.blade.php-->
+
+<!-- pengisian form halaman admin -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $wbsAdminUrl = WebMenuModel::getDynamicMenuUrl('whistle-blowing-system-admin');
+@endphp
 
 @extends('sisfo::layouts.template')
 @section('content')
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div>
-                <a href="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/WBS') }}" class="btn btn-secondary">
+
+                <a href="{{ url($wbsAdminUrl) }}" class="btn btn-secondary">
                     <i class="fa fa-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -13,7 +19,9 @@
         </div>
         <div class="card-body">
 
-            <form action="{{ url('SistemInformasi/EForm/' . Auth::user()->level->level_kode . '/WBS/createData') }}" method="POST"
+
+            <form id="permohonanForm"  action="{{ url($wbsAdminUrl . '/createData') }}" method="POST"
+
                 enctype="multipart/form-data" novalidate>
                 @csrf
 
