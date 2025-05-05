@@ -54,53 +54,52 @@
   
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-    <button type="button" class="btn btn-danger" id="confirmDeleteButton">
-      <i class="fas fa-trash mr-1"></i> Hapus
+    <button type="button" class="btn btn-danger" id="confirmDeleteButton"
+      onclick="confirmDelete('{{ url( $managementLevelUrl . '/deleteData/' . $level->hak_akses_id) }}')">
+    <i class="fas fa-trash mr-1"></i> Hapus
     </button>
 </div>
   
 <script>
-    $(document).ready(function () {
-        $('#confirmDeleteButton').on('click', function() {
-            const button = $(this);
-            
-            button.html('<i class="fas fa-spinner fa-spin"></i> Menghapus...').prop('disabled', true);
-            
-            $.ajax({
-                url: '{{ url($managementLevelUrl . "/deleteData/" . $level->hak_akses_id) }}',
-                type: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    $('#myModal').modal('hide');
-                    
-                    if (response.success) {
-                        reloadTable();
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: response.message
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: response.message
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: 'Terjadi kesalahan saat menghapus data. Silakan coba lagi.'
-                    });
-                    
-                    button.html('<i class="fas fa-trash mr-1"></i> Hapus').prop('disabled', false);
-                }
-            });
+    function confirmDelete(url) {
+    const button = $('#confirmDeleteButton');
+
+    button.html('<i class="fas fa-spinner fa-spin"></i> Menghapus...').prop('disabled', true);
+
+    $.ajax({
+      url: url,
+      type: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function (response) {
+        $('#myModal').modal('hide');
+
+        if (response.success) {
+          reloadTable();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: response.message
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: response.message
+          });
+        }
+      },
+      error: function (xhr) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: 'Terjadi kesalahan saat menghapus data. Silakan coba lagi.'
         });
+
+        button.html('<i class="fas fa-trash mr-1"></i> Hapus').prop('disabled', false);
+      }
     });
+  }
 </script>
