@@ -33,7 +33,7 @@
                 <div class="timeline position-relative mb-5" x-data="{ showItems: [] }">
                     @if(!empty($steps))
                         @foreach ($steps as $index => $step)
-                            <div class="timeline-item {{ $step['position'] }}" 
+                            <div class="timeline-item {{ $step['position'] }}"
                                 x-data="{ show: false }"
                                 x-init="setTimeout(() => show = true, {{ $index }} * 200)"
                                 x-intersect.once="show = true"
