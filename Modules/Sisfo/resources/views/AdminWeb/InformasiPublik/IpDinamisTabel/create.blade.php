@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('dinamis-tabel');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Tambah IP Dinamis Tabel Baru</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
    </div>
    
    <div class="modal-body">
-     <form id="formCreateIpDinamisTabel" action="{{ url('adminweb/informasipublik/ipdinamis-tabel/createData') }}" method="POST">
+     <form id="formCreateIpDinamisTabel" action="{{ url($IpdinamisTabelUrl . '/createData') }}" method="POST">
        @csrf
    
        <div class="form-group">

@@ -1,4 +1,8 @@
-
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+  $IpUploadKontenUrl = WebMenuModel::getDynamicMenuUrl('upload-detail-konten');
+@endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
      <div class="showing-text">
          Showing {{ $ipUploadKonten->firstItem() }} to {{ $ipUploadKonten->lastItem() }} of {{ $ipUploadKonten->total() }} results
@@ -22,15 +26,28 @@
              <td table-data-label="Kategori Konten" class="text-center">{{ $item->IpDinamisKonten->kd_nama_konten_dinamis }}</td>
              <td table-data-label="Judul Konten" class="text-center">{{ $item->uk_judul_konten }}</td>
              <td table-data-label="Aksi" class="text-center">
-                 <button class="btn btn-sm btn-warning" onclick="modalAction('{{ url("adminweb/informasipublik/ipupload-detail-konten/editData/{$item->ip_upload_konten_id}") }}')">
-                     <i class="fas fa-edit"></i> Edit
-                 </button>
-                 <button class="btn btn-sm btn-info" onclick="modalAction('{{ url("adminweb/informasipublik/ipupload-detail-konten/detailData/{$item->ip_upload_konten_id}") }}')">
-                     <i class="fas fa-eye"></i> Detail
-                 </button>
-                 <button class="btn btn-sm btn-danger" onclick="modalAction('{{ url("adminweb/informasipublik/ipupload-detail-konten/deleteData/{$item->ip_upload_konten_id}") }}')">
-                     <i class="fas fa-trash"></i> Hapus
-                 </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $IpUploadKontenUrl, 'update')
+                )
+                    <button class="btn btn-sm btn-warning"
+                        onclick="modalAction('{{ url($IpUploadKontenUrl . '/editData/' . $item->ip_upload_konten_id) }}')">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                @endif
+                <button class="btn btn-sm btn-info"
+                    onclick="modalAction('{{ url($IpUploadKontenUrl . '/detailData/' . $item->ip_upload_konten_id) }}')">
+                    <i class="fas fa-eye"></i> Detail
+                </button>
+                @if(
+                    Auth::user()->level->hak_akses_kode === 'SAR' ||
+                    SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $IpUploadKontenUrl, 'delete')
+                )
+                    <button class="btn btn-sm btn-danger"
+                        onclick="modalAction('{{ url($IpUploadKontenUrl . '/deleteData/' . $item->ip_upload_konten_id) }}')">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                @endif
              </td>
          </tr>
          @empty

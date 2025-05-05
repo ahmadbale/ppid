@@ -1,12 +1,17 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+   $IpUploadKontenUrl= WebMenuModel::getDynamicMenuUrl('upload-detail-konten');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Ubah Detail Upload Konten</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
          <span aria-hidden="true">&times;</span>
      </button>
+     
  </div>
  
  <div class="modal-body">
-     <form id="formUpdateDetailUploadKonten" action="{{ url('adminweb/informasipublik/ipupload-detail-konten/updateData/' . $ipUploadKonten->ip_upload_konten_id) }}" method="POST" enctype="multipart/form-data">
+     <form id="formUpdateDetailUploadKonten"  action="{{ url($IpUploadKontenUrl . '/updateData/'  . $ipUploadKonten->ip_upload_konten_id) }}" method="POST" enctype="multipart/form-data">
          @csrf
          
          <div class="form-group">
