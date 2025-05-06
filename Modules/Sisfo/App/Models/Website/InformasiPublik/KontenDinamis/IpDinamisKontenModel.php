@@ -24,6 +24,48 @@ class IpDinamisKontenModel extends  Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
+    public static function getDataIPDaftarInformasi()
+    {
+        $arr_data = self::query()
+            ->from('m_ip_dinamis_konten')
+            ->select([
+                'ip_dinamis_konten_id',
+                'kd_nama_konten_dinamis',
+                'created_at'
+            ])
+            ->where('isDeleted', 0)
+            ->get()
+            ->map(function ($konten_dinamis) {
+                // Ambil data upload konten untuk setiap konten dinamis
+                $upload_konten = DB::table('t_ip_upload_konten')
+                    ->select([
+                        'ip_upload_konten_id',
+                        'fk_m_ip_dinamis_konten',
+                        'uk_judul_konten',
+                        'uk_dokumen_konten'
+                    ])
+                    ->where('fk_m_ip_dinamis_konten', $konten_dinamis->ip_dinamis_konten_id)
+                    ->where('isDeleted', 0)
+                    ->get()
+                    ->map(function ($upload) {
+                        return [
+                            'upload_konten_id' => $upload->ip_upload_konten_id,
+                            'judul_konten' => $upload->uk_judul_konten,
+                            'dokumen' => asset('storage/' . $upload->uk_dokumen_konten)
+                        ];
+                    });
+    
+                return [
+                    'konten_dinamis_id' => $konten_dinamis->ip_dinamis_konten_id,
+                    'nama_konten' => $konten_dinamis->kd_nama_konten_dinamis,
+                    'tanggal_dibuat' => $konten_dinamis->created_at,
+                    'upload_konten' => $upload_konten
+                ];
+            })
+            ->toArray();
+    
+        return $arr_data;
+    }
 
     public static function selectData($perPage = null, $search = '')
     {

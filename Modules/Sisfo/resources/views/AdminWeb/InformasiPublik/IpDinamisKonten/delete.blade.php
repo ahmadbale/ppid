@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $IpdinamisKontenUrl = WebMenuModel::getDynamicMenuUrl('dinamis-tabel');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Konfirmasi Hapus IpDinamis Konten</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -51,7 +55,7 @@
  <div class="modal-footer">
      <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
      <button type="button" class="btn btn-danger" id="confirmDeleteButton" 
-         onclick="confirmDelete('{{ url('adminweb/informasipublik/ipdinamis-konten/deleteData/'.$ipDinamisKonten->ip_dinamis_konten_id) }}')">
+         onclick="confirmDelete('{{ url( $IpdinamisKontenUrl . '/deleteData/'.$ipDinamisKonten->ip_dinamis_konten_id) }}')">
          <i class="fas fa-trash mr-1"></i> Hapus
      </button>
  </div>

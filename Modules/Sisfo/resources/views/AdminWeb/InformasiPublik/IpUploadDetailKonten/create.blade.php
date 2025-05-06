@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $IpUploadKontenUrl = WebMenuModel::getDynamicMenuUrl('upload-detail-konten');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Tambah Detail Upload Konten Baru</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
  </div>
  
  <div class="modal-body">
-   <form id="formCreateDetailUploadKonten" action="{{ url('adminweb/informasipublik/ipupload-detail-konten/createData') }}" method="POST" enctype="multipart/form-data">
+   <form id="formCreateDetailUploadKonten"  action="{{ url($IpUploadKontenUrl . '/createData') }}" method="POST" enctype="multipart/form-data">
      @csrf
      <div class="form-group">
        <label for="fk_m_ip_dinamis_konten">Kategori Konten Dinamis <span class="text-danger">*</span></label>

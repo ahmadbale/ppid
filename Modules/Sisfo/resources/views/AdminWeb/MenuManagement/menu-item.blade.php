@@ -81,7 +81,7 @@
     @if ($menu->children->count() > 0)
         <ol class="dd-list">
             @foreach ($menu->children as $child)
-                @include('adminweb.MenuManagement.menu-item', ['menu' => $child, 'kode' => $contexthakAksesKode])
+                @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $child, 'kode' => $contexthakAksesKode])
             @endforeach
         </ol>
     @endif

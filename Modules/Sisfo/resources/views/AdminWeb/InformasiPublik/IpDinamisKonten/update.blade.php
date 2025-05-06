@@ -1,3 +1,7 @@
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+   $IpdinamisKontenUrl  = WebMenuModel::getDynamicMenuUrl('dinamis-konten');
+@endphp
 <div class="modal-header">
      <h5 class="modal-title">Ubah IpDinamis Konten</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -6,7 +10,7 @@
  </div>
  
  <div class="modal-body">
-     <form id="formUpdateIpDinamisKonten" action="{{ url('adminweb/informasipublik/ipdinamis-konten/updateData/' . $ipDinamisKonten->ip_dinamis_konten_id) }}" method="POST">
+     <form id="formUpdateIpDinamisKonten" action="{{ url($IpdinamisKontenUrl . '/updateData/' . $ipDinamisKonten->ip_dinamis_konten_id) }}" method="POST">
          @csrf
  
          <div class="form-group">

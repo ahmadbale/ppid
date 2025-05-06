@@ -281,7 +281,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData'])->middleware('permission:delete');
     });
 
-
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('permohonan-informasi'), 'middleware' => ['authorize:RPN']], function () {
         Route::get('/', [PermohonanInformasiController::class, 'index']);
         Route::get('/getData', [PermohonanInformasiController::class, 'getData']);
@@ -451,38 +450,38 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteHakAkses/{id}', [UserController::class, 'deleteHakAkses'])->middleware('permission:update');
     });
 
-    Route::group(['prefix' => 'adminweb/informasipublik/IpDinamisTabel', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [IpDinamisTabelController::class, 'index']);
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('dinamis-tabel')], function () {
+        Route::get('/', [IpDinamisTabelController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [IpDinamisTabelController::class, 'getData']);
         Route::get('/addData', [IpDinamisTabelController::class, 'addData']);
-        Route::post('/createData', [IpDinamisTabelController::class, 'createData']);
+        Route::post('/createData', [IpDinamisTabelController::class, 'createData'])->middleware('permission:create');
         Route::get('/editData/{id}', [IpDinamisTabelController::class, 'editData']);
-        Route::post('/updateData/{id}', [IpDinamisTabelController::class, 'updateData']);
+        Route::post('/updateData/{id}', [IpDinamisTabelController::class, 'updateData'])->middleware('permission:update');
         Route::get('/detailData/{id}', [IpDinamisTabelController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData'])->middleware('permission:delete');
     });
 
-        Route::group(['prefix' => 'adminweb/informasipublik/ipdinamis-konten', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [IpDinamisKontenController::class, 'index']);
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('dinamis-konten')], function () {
+        Route::get('/', [IpDinamisKontenController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [IpDinamisKontenController::class, 'getData']);
         Route::get('/addData', [IpDinamisKontenController::class, 'addData']);
-        Route::post('/createData', [IpDinamisKontenController::class, 'createData']);
+        Route::post('/createData', [IpDinamisKontenController::class, 'createData'])->middleware('permission:create');
         Route::get('/editData/{id}', [IpDinamisKontenController::class, 'editData']);
-        Route::post('/updateData/{id}', [IpDinamisKontenController::class, 'updateData']);
+        Route::post('/updateData/{id}', [IpDinamisKontenController::class, 'updateData'])->middleware('permission:update');
         Route::get('/detailData/{id}', [IpDinamisKontenController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpDinamisKontenController::class, 'deleteData'])->middleware('permission:delete');
     });
-    Route::group(['prefix' => 'adminweb/informasipublik/ipupload-detail-konten', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [IpUploadKontenController::class, 'index']);
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('upload-detail-konten')], function () {
+        Route::get('/', [IpUploadKontenController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [IpUploadKontenController::class, 'getData']);
         Route::get('/addData', [IpUploadKontenController::class, 'addData']);
-        Route::post('/createData', [IpUploadKontenController::class, 'createData']);
+        Route::post('/createData', [IpUploadKontenController::class, 'createData'])->middleware('permission:create');
         Route::get('/editData/{id}', [IpUploadKontenController::class, 'editData']);
-        Route::post('/updateData/{id}', [IpUploadKontenController::class, 'updateData']);
+        Route::post('/updateData/{id}', [IpUploadKontenController::class, 'updateData'])->middleware('permission:update');
         Route::get('/detailData/{id}', [IpUploadKontenController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData'])->middleware('permission:delete');
     });
 });
