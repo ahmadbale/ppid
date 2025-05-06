@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 
 class PermohonanInformasiController extends Controller
 {
@@ -98,11 +100,11 @@ class PermohonanInformasiController extends Controller
             return $this->redirectError($result['message']);
         } catch (ValidationException $e) {
             if ($request->ajax()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat mengajukan permohonan'
-            ]);
-        }
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat mengajukan permohonan'
+                ]);
+            }
             return $this->redirectValidationError($e);
         } catch (\Exception $e) {
             if ($request->ajax()) {
@@ -117,7 +119,27 @@ class PermohonanInformasiController extends Controller
 
     private function getUserFolder()
     {
-        $levelKode = Auth::user()->level->level_kode;
-        return ($levelKode === 'ADM' || $levelKode === 'RPN') ? $levelKode : abort(403);
+        $user = Auth::user();
+        $hakAksesKode = $user->level->hak_akses_kode;
+        $levelKode = $user->level->level_kode;
+
+        // Super Admin always has access
+        if ($hakAksesKode === 'SAR') {
+            return 'ADM'; // Return ADM folder for SAR users
+        }
+
+        // Allow users with proper permissions
+        if ($levelKode === 'ADM' || $levelKode === 'RPN') {
+            return $levelKode;
+        }
+
+        // Check if user has specific permission for this menu
+        $menuUrl = WebMenuModel::getDynamicMenuUrl('permohonan-informasi-admin');
+        if (SetHakAksesModel::cekHakAkses($user->user_id, $menuUrl, 'view')) {
+            return 'ADM'; // Default to ADM folder if they have permission
+        }
+
+        // No permission
+        abort(403, 'Forbidden. Kamu tidak punya akses ke halaman ini');
     }
 }

@@ -281,7 +281,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/deleteData/{id}', [KategoriRegulasiController::class, 'deleteData'])->middleware('permission:delete');
     });
 
-
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('permohonan-informasi'), 'middleware' => ['authorize:RPN']], function () {
         Route::get('/', [PermohonanInformasiController::class, 'index']);
         Route::get('/getData', [PermohonanInformasiController::class, 'getData']);

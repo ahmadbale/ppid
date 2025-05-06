@@ -244,16 +244,25 @@
 
 @push('js')
     <script>
-        $(document).ready(function () {
+        // Pastikan document ready hanya dipanggil sekali
+        $(function () {
             // Hilangkan tombol "Tambah Hak Akses" karena fitur ini tidak diperlukan lagi sesuai revisi
 
-            $(document).on('click', '.set-hak-level', function () {
+            // Tambahkan flag untuk mencegah submit ganda
+            let isSubmitting = false;
+
+            // Set handler untuk tombol set-hak-level menggunakan event delegation
+            $(document).off('click', '.set-hak-level').on('click', '.set-hak-level', function () {
                 let hakAksesKode = $(this).data('level');
                 $('#hakAksesKode').val(hakAksesKode);
                 $('#levelTitle').text($(this).data('name'));
 
                 console.log('Loading hak akses for level:', hakAksesKode);
 
+                // Tampilkan loading spinner atau pesan
+                $('#menuList').html('<tr><td colspan="7" class="text-center"><i class="fas fa-spinner fa-spin"></i> Memuat data...</td></tr>');
+
+                // Gunakan AJAX untuk mendapatkan data hak akses level
                 $.ajax({
                     url: `{{ url('/HakAkses/getHakAksesData') }}/${hakAksesKode}`,
                     type: 'GET',
@@ -270,16 +279,16 @@
 
                                 // Tambahkan baris untuk ha_menu di modal hak akses level
                                 html += `
-                        <tr>
-                            <td>${akses.menu_utama}</td>
-                            <td>${akses.sub_menu ?? 'Null'}</td>
-                            <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][menu]" ${akses.ha_menu ? 'checked' : ''}></td>
-                            <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][view]" ${akses.ha_view ? 'checked' : ''}></td>
-                            <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][create]" ${akses.ha_create ? 'checked' : ''}></td>
-                            <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][update]" ${akses.ha_update ? 'checked' : ''}></td>
-                            <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][delete]" ${akses.ha_delete ? 'checked' : ''}></td>
-                        </tr>
-                        `;
+                            <tr>
+                                <td>${akses.menu_utama}</td>
+                                <td>${akses.sub_menu ?? 'Null'}</td>
+                                <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][menu]" ${akses.ha_menu ? 'checked' : ''}></td>
+                                <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][view]" ${akses.ha_view ? 'checked' : ''}></td>
+                                <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][create]" ${akses.ha_create ? 'checked' : ''}></td>
+                                <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][update]" ${akses.ha_update ? 'checked' : ''}></td>
+                                <td class="text-center"><input type="checkbox" name="menu_akses[${menu_id}][delete]" ${akses.ha_delete ? 'checked' : ''}></td>
+                            </tr>
+                            `;
                             });
                         }
 
@@ -288,12 +297,26 @@
                     },
                     error: function (xhr, status, error) {
                         console.error('Error loading hak akses level:', error, xhr.responseText);
-                        alert("Terjadi kesalahan, silakan coba lagi.");
+                        $('#menuList').html('<tr><td colspan="7" class="text-center text-danger">Gagal memuat data. Silakan coba lagi.</td></tr>');
+                        toastr.error("Terjadi kesalahan saat memuat data hak akses.");
                     }
                 });
             });
 
-            $('#btnSimpanHakAksesLevel').click(function () {
+            // Handler untuk tombol Simpan di modal hak akses level
+            $('#btnSimpanHakAksesLevel').off('click').on('click', function () {
+                // Cek apakah sedang dalam proses submit
+                if (isSubmitting) return;
+
+                // Set flag submit
+                isSubmitting = true;
+
+                // Ubah teks tombol untuk indikasi loading
+                const $btn = $(this);
+                const originalText = $btn.text();
+                $btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+                $btn.prop('disabled', true);
+
                 $.ajax({
                     url: `{{ url('/HakAkses/updateData') }}`,
                     type: 'POST',
@@ -303,13 +326,25 @@
                             toastr.success(response.message);
                             setTimeout(() => {
                                 location.reload();
-                            }, 1000);
+                            }, 1500);
                         } else {
                             toastr.error(response.message);
+                            // Reset tombol
+                            $btn.html(originalText);
+                            $btn.prop('disabled', false);
+                            isSubmitting = false;
                         }
                     },
-                    error: function () {
-                        toastr.error("Terjadi kesalahan, silakan coba lagi.");
+                    error: function (xhr) {
+                        let errorMsg = "Terjadi kesalahan, silakan coba lagi.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMsg);
+                        // Reset tombol
+                        $btn.html(originalText);
+                        $btn.prop('disabled', false);
+                        isSubmitting = false;
                     }
                 });
             });
@@ -317,40 +352,109 @@
             // Muat hak akses saat halaman dimuat
             loadAllHakAkses();
 
-            // Simpan semua perubahan
-            $('#btn-save-all').click(function () {
-                $('#form-hak-akses').submit();
+            // Handler untuk tombol simpan semua perubahan
+            $('#btn-save-all').off('click').on('click', function (e) {
+                e.preventDefault();
+
+                // Cek apakah sedang dalam proses submit
+                if (isSubmitting) return;
+
+                // Set flag submit
+                isSubmitting = true;
+
+                // Ubah teks tombol untuk indikasi loading
+                const $btn = $(this);
+                const originalText = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+                $btn.prop('disabled', true);
+
+                // Gunakan AJAX untuk submit form agar lebih terkontrol
+                $.ajax({
+                    url: $('#form-hak-akses').attr('action'),
+                    type: 'POST',
+                    data: $('#form-hak-akses').serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                            // Reset tombol
+                            $btn.html(originalText);
+                            $btn.prop('disabled', false);
+                            isSubmitting = false;
+                        }
+                    },
+                    error: function (xhr) {
+                        let errorMsg = "Terjadi kesalahan, silakan coba lagi.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMsg);
+                        // Reset tombol
+                        $btn.html(originalText);
+                        $btn.prop('disabled', false);
+                        isSubmitting = false;
+                    }
+                });
             });
 
             // Fungsi untuk memuat hak akses
             function loadAllHakAkses() {
+                // Kumpulkan semua checkbox dalam satu array untuk meminimalkan jumlah request
+                const checkboxes = [];
                 $('.hak-akses-checkbox').each(function () {
                     const userId = $(this).data('user');
                     const menuId = $(this).data('menu');
                     const hak = $(this).data('hak');
-                    const checkbox = $(this);
-
-                    // Gunakan AJAX untuk mendapatkan data hak akses
-                    $.ajax({
-                        url: `{{ url('/HakAkses/getHakAksesData') }}/${userId}/${menuId}`,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function (data) {
-                            console.log(`Loading hak akses for user ${userId}, menu ${menuId}, hak ${hak}:`, data);
-
-                            // Periksa apakah data ditemukan dan nilai hak akses adalah 1
-                            if (data && data['ha_' + hak] === 1) {
-                                checkbox.prop('checked', true);
-                            } else {
-                                checkbox.prop('checked', false);
-                            }
-                        },
-                        error: function (error) {
-                            console.error('Error loading hak akses:', error);
-                            checkbox.prop('checked', false); // Default tidak dicentang jika error
-                        }
+                    checkboxes.push({
+                        userId: userId,
+                        menuId: menuId,
+                        hak: hak,
+                        element: this
                     });
                 });
+
+                // Buat fungsi untuk memproses checkbox secara batch
+                function processCheckboxes(start, batchSize) {
+                    const end = Math.min(start + batchSize, checkboxes.length);
+                    const currentBatch = checkboxes.slice(start, end);
+
+                    if (currentBatch.length === 0) return; // Semua sudah diproses
+
+                    // Proses batch saat ini
+                    const requests = currentBatch.map(item => {
+                        return $.ajax({
+                            url: `{{ url('/HakAkses/getHakAksesData') }}/${item.userId}/${item.menuId}`,
+                            type: 'GET',
+                            dataType: 'json'
+                        }).then(data => {
+                            // Periksa apakah data ditemukan dan nilai hak akses adalah 1
+                            if (data && data['ha_' + item.hak] === 1) {
+                                $(item.element).prop('checked', true);
+                            } else {
+                                $(item.element).prop('checked', false);
+                            }
+                        }).catch(error => {
+                            console.error(`Error loading hak akses for user ${item.userId}, menu ${item.menuId}:`, error);
+                            $(item.element).prop('checked', false);
+                        });
+                    });
+
+                    // Setelah batch saat ini selesai, proses batch berikutnya
+                    $.when.apply($, requests).always(() => {
+                        if (end < checkboxes.length) {
+                            setTimeout(() => {
+                                processCheckboxes(end, batchSize);
+                            }, 100); // Tambahkan sedikit delay untuk menghindari overload
+                        }
+                    });
+                }
+
+                // Mulai memproses checkbox dalam batch (50 per batch)
+                processCheckboxes(0, 50);
             }
 
             // Toggle collapse untuk semua menu saat pertama kali
