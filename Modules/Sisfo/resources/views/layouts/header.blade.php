@@ -119,11 +119,6 @@
                         </a>
                     @endforeach
                 @endif
-                
-                <div class="dropdown-divider"></div>
-                <a href="{{ url('/logout') }}" class="dropdown-item text-danger">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </a>
             </div>
         </li>
     </ul>
