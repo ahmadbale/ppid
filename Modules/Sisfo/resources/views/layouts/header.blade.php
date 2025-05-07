@@ -20,7 +20,7 @@
     </ul>
 
     <!-- Right navbar links -->
-    <ul class="navbar-nav ml-auto mr-2 align-items-center">
+    <ul class="navbar-nav ml-auto align-items-center">
         <!-- Notification -->
         <li class="nav-item dropdown d-flex align-items-center mr-3">
             {{-- by level --}}
@@ -84,21 +84,21 @@
 
         <!-- User Profile Dropdown -->
         <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center px-0" data-toggle="dropdown" aria-expanded="false">
                 <div class="d-flex align-items-center">
                     <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
                         alt="User Profile Picture"
-                        class="img-circle"
-                        style="width: 32px; height: 32px; object-fit: cover; opacity: 0.9; margin-right: 10px;">
-
+                        class="img-circle mr-2"
+                        style="width: 32px; height: 32px; object-fit: cover; opacity: 0.9;">
                     <div class="d-flex flex-column justify-content-center">
-                        <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
+                        <span class="font-weight-bold text-primary" style="font-size: 1.1rem; line-height: 1.1;">
                             {{ Auth::user()->nama_pengguna }}
                         </span>
-                        <span class="text-muted" style="font-size: 0.85rem;">
+                        <span class="text-muted" style="font-size: 0.85rem; line-height: 1.1;">
                             {{ Auth::user()->level->hak_akses_nama }}
                         </span>
                     </div>
+                    <i class="fas fa-chevron-down ml-2" style="color: #007bff; font-size: 1 rem;"></i>
                 </div>
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
@@ -120,10 +120,22 @@
                     @endforeach
                 @endif
                 
+                <div class="dropdown-divider"></div>
+                <a href="{{ url('/logout') }}" class="dropdown-item text-danger">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </a>
             </div>
         </li>
     </ul>
 </nav>
+
+<style>
+/* Menghilangkan caret bawaan dari Bootstrap dropdown-toggle */
+.dropdown-toggle::after {
+    display: none !important;
+}
+</style>
+
 <script>
     function getGreeting() {
         const now = new Date();
