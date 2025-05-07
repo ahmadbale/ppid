@@ -18,6 +18,7 @@ class HomeController extends Controller
         $this->jwtTokenService = $jwtTokenService;
         $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
     }
+    
 
     /**
      * Make authenticated request with JWT token
