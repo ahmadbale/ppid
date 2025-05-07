@@ -89,6 +89,6 @@
 
 @if(isset($users))
   <div class="mt-3">
-    {{ $users->appends(['search' => $search, 'level_id' => $levelId ?? null])->links() }}
+    {{ $users->appends(['search' => $search, 'hak_akses_id' => $levelId ?? null])->links() }}
   </div>
 @endif

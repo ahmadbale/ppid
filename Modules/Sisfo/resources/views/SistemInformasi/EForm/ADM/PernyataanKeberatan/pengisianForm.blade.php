@@ -383,7 +383,9 @@
                         title: 'Validasi Gagal',
                         text: 'Mohon periksa kembali input Anda'
                     });
-                    return;
+                    button.html('Ajukan Pernyataan Keberatan').attr('disabled', false);
+                    isSubmitting = false;
+                    return; // Hentikan proses submit
                 }
 
                 const formData = new FormData(this);
@@ -401,7 +403,7 @@
                                 title: 'Berhasil',
                                 text: response.message
                             }).then(() => {
-                                window.location.reload();
+                                window.location.href = "{{ url($pernyataanKeberatanAdminUrl) }}";
                             });
                         } else {
                             handleServerErrors(response.errors);

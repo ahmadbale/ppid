@@ -31,7 +31,7 @@ class PermohonanPerawatanController extends Controller
             'title' => 'Permohonan Pemeliharaan Sarana Prasarana'
         ];
 
-        $activeMenu = 'PermohonanPerawatan';
+        $activeMenu = 'permohonansaranadanprasaranaadmin';
 
         return view("sisfo::SistemInformasi/EForm/$folder/PermohonanPerawatan.index", [
             'breadcrumb' => $breadcrumb,
@@ -80,39 +80,37 @@ class PermohonanPerawatanController extends Controller
             PermohonanPerawatanModel::validasiData($request);
             $result = PermohonanPerawatanModel::createData($request);
 
-            // if ($result['success']) {
-            //     return $this->redirectSuccess("/SistemInformasi/EForm/$folder/PermohonanPerawatan", $result['message']);
-            // }
-
-            if ($request->ajax()) { // << cek kalau request dari AJAX
-                if ($result['success']) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => $result['message']
-                    ]);
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => $result['message']
-                    ]);
-                }
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Permohonan Perawatan Sarana dan Prasarana berhasil diajukan.'
+                ]);
             }
 
-            return $this->redirectError($result['message']);
+            // Untuk request normal (non-AJAX), lakukan redirect
+            if ($folder === 'RPN') {
+                $redirectUrl = WebMenuModel::getDynamicMenuUrl('permohonan-sarana-dan-prasarana');
+            } else {
+                $redirectUrl = WebMenuModel::getDynamicMenuUrl('permohonan-sarana-dan-prasarana-admin');
+            }
+
+            return $this->redirectSuccess($redirectUrl, $result['message']);
         } catch (ValidationException $e) {
-            if ($request->ajax()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat mengajukan permohonan'
-            ]);
-        }
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi data gagal. Silakan periksa kembali data Anda.',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+        
             return $this->redirectValidationError($e);
         } catch (\Exception $e) {
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Terjadi kesalahan saat memproses permohonan'
-                ]);
+                ], 500);
             }
             return $this->redirectException($e, 'Terjadi kesalahan saat memproses permohonan');
         }
@@ -121,27 +119,10 @@ class PermohonanPerawatanController extends Controller
 
     private function getUserFolder()
     {
-        $user = Auth::user();
-        $hakAksesKode = $user->level->hak_akses_kode;
-        $levelKode = $user->level->level_kode;
-
-        // Super Admin always has access
-        if ($hakAksesKode === 'SAR') {
-            return 'ADM'; // Return ADM folder for SAR users
-        }
-
-        // Allow users with proper permissions
-        if ($levelKode === 'ADM' || $levelKode === 'RPN') {
-            return $levelKode;
-        }
-
-        // Check if user has specific permission for this menu
-        $menuUrl = WebMenuModel::getDynamicMenuUrl('permohonan-informasi-admin');
-        if (SetHakAksesModel::cekHakAkses($user->user_id, $menuUrl, 'view')) {
-            return 'ADM'; // Default to ADM folder if they have permission
-        }
-
-        // No permission
-        abort(403, 'Forbidden. Kamu tidak punya akses ke halaman ini');
+        $hakAksesKode = Auth::user()->level->hak_akses_kode;
+        
+        // Jika user adalah RPN, gunakan folder RPN
+        // Jika tidak (ADM, ADT, atau lainnya), gunakan folder ADM
+        return ($hakAksesKode === 'RPN') ? 'RPN' : 'ADM';
     }
 }

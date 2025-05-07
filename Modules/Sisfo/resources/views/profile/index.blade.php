@@ -18,7 +18,7 @@
                         </h3>
 
                         <p class="text-muted text-center">
-                            {{ Auth::user()->level->level_nama }}
+                            {{ Auth::user()->level->hak_akses_nama }}
                         </p>
 
                         <ul class="list-group list-group-unbordered mb-3">

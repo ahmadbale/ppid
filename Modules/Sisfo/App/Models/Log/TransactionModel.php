@@ -41,17 +41,34 @@ class TransactionModel extends Model
         $formType = self::menentukanTipeForm($controller);
 
         // Ambil level dari user yang sedang login
-        $levelNama = '';
+        $hakAksesNama = '';
         if (Auth::check()) {
             // Ambil level langsung dari session atau query database
             $activeHakAksesId = session('active_hak_akses_id');
             
             if ($activeHakAksesId) {
                 $level = HakAksesModel::find($activeHakAksesId);
-                $levelNama = $level ? $level->hak_akses_nama : 'Tidak Diketahui';
+                $hakAksesNama = $level ? $level->hak_akses_nama : 'Tidak Diketahui';
             } else {
                 // Fallback jika tidak ada hak akses di session
-                $levelNama = 'Tidak Diketahui';
+                $hakAksesNama = 'Tidak Diketahui';
+            }
+        }
+
+        // Dapatkan alias dari session, jika tidak ada, gunakan dari UserModel
+        $namaPelaku = null;
+        if (Auth::check()) {
+            // Coba ambil dari session dulu
+            if (session()->has('alias')) {
+                $namaPelaku = session('alias');
+                Log::info("Menggunakan alias dari session: $namaPelaku");
+            } else {
+                // Jika tidak ada di session, gunakan fungsi yang sudah ada
+                $namaPelaku = \Modules\Sisfo\App\Models\UserModel::generateAlias(Auth::user()->nama_pengguna);
+                Log::info("Menggunakan alias yang di-generate: $namaPelaku");
+                
+                // Simpan ke session untuk penggunaan berikutnya
+                session(['alias' => $namaPelaku]);
             }
         }
 
@@ -63,13 +80,13 @@ class TransactionModel extends Model
             $detailAktivitas
         );
 
-        // Buat record log transaksi
+        // Buat record log transaksi dengan namaPelaku yang sudah pasti ada nilainya
         self::create([
             'log_transaction_jenis' => $transactionType,
             'log_transaction_aktivitas_id' => $aktivitasId,
             'log_transaction_aktivitas' => $aktivitas,
-            'log_transaction_level' => $levelNama,
-            'log_transaction_pelaku' => session('alias'),
+            'log_transaction_level' => $hakAksesNama,
+            'log_transaction_pelaku' => $namaPelaku,
             'log_transaction_tanggal_aktivitas' => now()
         ]);
     } catch (\Exception $e) {

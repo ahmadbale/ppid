@@ -30,29 +30,38 @@ class FormPiOrganisasiModel extends Model
     }
 
     public static function createData($request)
-    {
-        $uploadNikPelaporFile = self::uploadFile(
-            $request->file('pi_identitas_narahubung'),
-            'pi_organisasi_identitas'
-        );
-
-        try {
-            $data = $request->t_form_pi_organisasi;
-            $data['pi_identitas_narahubung'] = $uploadNikPelaporFile;
-            $saveData = self::create($data);
-
-            $result = [
-                'pkField' => 'fk_t_form_pi_organisasi', // Perbaikan nama field relasi
-                'id' => $saveData->form_pi_organisasi_id,
-                'message' => "{$saveData->pi_nama_organisasi} Mengajukan Permohonan Informasi",
-            ];
-            return $result;
-        } catch (\Exception $e) {
-            // Jika terjadi kesalahan, hapus file yang sudah diupload
-            self::removeFile($uploadNikPelaporFile);
-            throw $e;
+{
+    $uploadNikPelaporFile = null;
+    
+    try {
+        // Pindahkan upload file ke dalam try-catch
+        if ($request->hasFile('pi_identitas_narahubung')) {
+            $uploadNikPelaporFile = self::uploadFile(
+                $request->file('pi_identitas_narahubung'),
+                'pi_organisasi_identitas'
+            );
+        } else {
+            throw new \Exception('File identitas narahubung wajib diunggah');
         }
+
+        $data = $request->t_form_pi_organisasi;
+        $data['pi_identitas_narahubung'] = $uploadNikPelaporFile;
+        $saveData = self::create($data);
+
+        $result = [
+            'pkField' => 'fk_t_form_pi_organisasi',
+            'id' => $saveData->form_pi_organisasi_id,
+            'message' => "{$saveData->pi_nama_organisasi} Mengajukan Permohonan Informasi",
+        ];
+        return $result;
+    } catch (\Exception $e) {
+        // Hapus file jika terjadi error
+        if ($uploadNikPelaporFile) {
+            self::removeFile($uploadNikPelaporFile);
+        }
+        throw $e;
     }
+}
 
     public static function validasiData($request)
 {

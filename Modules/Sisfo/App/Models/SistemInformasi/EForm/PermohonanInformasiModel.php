@@ -9,6 +9,7 @@ use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -63,16 +64,21 @@ class PermohonanInformasiModel extends Model
 
     public static function createData($request)
     {
-        $buktiAduanFile = self::uploadFile(
-            $request->file('pi_bukti_aduan'),
-            'pi_bukti_aduan'
-        );
+        DB::beginTransaction();
 
-        $notifMessage = '';
         try {
+            // Pindahkan upload file ke dalam try-catch
+            $buktiAduanFile = null;
+            if ($request->hasFile('pi_bukti_aduan')) {
+                $buktiAduanFile = self::uploadFile(
+                    $request->file('pi_bukti_aduan'),
+                    'pi_bukti_aduan'
+                );
+            }
+
             $data = $request->t_permohonan_informasi;
             $kategoriPemohon = $data['pi_kategori_pemohon'];
-            $userLevel = Auth::user()->level->level_kode;
+            $userLevel = Auth::user()->level->hak_akses_kode;
             $kategoriAduan = $userLevel === 'ADM' ? 'offline' : 'online';
 
             if ($userLevel === 'ADM') {
@@ -80,21 +86,18 @@ class PermohonanInformasiModel extends Model
             }
 
             switch ($kategoriPemohon) {
-
                 case 'Diri Sendiri':
                     $child = FormPiDiriSendiriModel::createData($request);
                     break;
-
                 case 'Orang Lain':
                     $child = FormPiOrangLainModel::createData($request);
                     break;
-
                 case 'Organisasi':
                     $child = FormPiOrganisasiModel::createData($request);
                     break;
+                default:
+                    throw new \Exception('Kategori pemohon tidak valid');
             }
-
-            DB::beginTransaction();
 
             $data['pi_kategori_pemohon'] = $kategoriPemohon;
             $data['pi_kategori_aduan'] = $kategoriAduan;
@@ -105,11 +108,11 @@ class PermohonanInformasiModel extends Model
             $notifMessage = $child['message'];
             $permohonanId = $saveData->permohonan_informasi_id;
 
-            // Create notifications dengan permohonan_informasi_id
+            // Buat notifikasi
             NotifAdminModel::createData($permohonanId, $notifMessage);
             NotifVerifikatorModel::createData($permohonanId, $notifMessage);
 
-            // Mencatat log transaksi
+            // Catat log transaksi
             TransactionModel::createData(
                 'CREATED',
                 $saveData->permohonan_informasi_id,
@@ -119,16 +122,21 @@ class PermohonanInformasiModel extends Model
             $result = self::responFormatSukses($saveData, 'Permohonan Informasi berhasil diajukan.');
 
             DB::commit();
-
             return $result;
         } catch (ValidationException $e) {
             DB::rollBack();
-            self::removeFile($buktiAduanFile);
+            if ($buktiAduanFile) {
+                self::removeFile($buktiAduanFile);
+            }
             return self::responValidatorError($e);
         } catch (\Exception $e) {
             DB::rollBack();
-            self::removeFile($buktiAduanFile);
-            return self::responFormatError($e, 'Terjadi kesalahan saat mengajukan permohonan');
+            if ($buktiAduanFile) {
+                self::removeFile($buktiAduanFile);
+            }
+            // Tambahkan log error untuk debugging
+            Log::error('Error saat membuat permohonan informasi: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return self::responFormatError($e, 'Terjadi kesalahan saat mengajukan permohonan: ' . $e->getMessage());
         }
     }
 
@@ -163,7 +171,7 @@ class PermohonanInformasiModel extends Model
         ];
 
         // Tambahkan validasi untuk admin jika diperlukan
-        if (Auth::user()->level->level_kode === 'ADM') {
+        if (Auth::user()->level->hak_akses_kode === 'ADM') {
             $rules['pi_bukti_aduan'] = 'required|file|mimes:pdf,jpg,jpeg,png,svg,doc,docx|max:10240';
             $message['pi_bukti_aduan.required'] = 'Bukti aduan wajib diupload untuk Admin';
             $message['pi_bukti_aduan.file'] = 'Bukti aduan harus berupa file';
