@@ -35,49 +35,73 @@ class FormPiOrangLainModel extends Model
     }
 
     public static function createData($request)
-    {
-        // Upload file untuk pengguna informasi
-        $uploadNikPelaporFile = self::uploadFile(
-            $request->file('pi_upload_nik_pengguna_penginput'),
-            'pi_identitas_pelapor_ol'
-        );
+{
+    $uploadNikPelaporFile = null;
+    $uploadNikFile = null;
+    
+    try {
+        $data = $request->t_form_pi_orang_lain;
+        $userLevel = Auth::user()->level->hak_akses_kode;
+        
+        // Tambahkan log untuk debugging
+        \Log::info("User level yang aktif: " . $userLevel);
 
-        $uploadNikFile = self::uploadFile(
-            $request->file('pi_upload_nik_pengguna_informasi'),
-            'pi_ol_upload_nik'
-        );
-
-        try {
-            $data = $request->t_form_pi_orang_lain;
-
-            $userLevel = Auth::user()->level->level_kode;
-
-            if ($userLevel === 'RPN') {
-                $data['pi_nama_pengguna_penginput'] = Auth::user()->nama_pengguna;
-                $data['pi_alamat_pengguna_penginput'] = Auth::user()->alamat_pengguna;
-                $data['pi_no_hp_pengguna_penginput'] = Auth::user()->no_hp_pengguna;
-                $data['pi_email_pengguna_penginput'] = Auth::user()->email_pengguna;
-                $data['pi_upload_nik_pengguna_penginput'] = Auth::user()->upload_nik_pengguna;
-            } else if ($userLevel === 'ADM') {
-                $data['pi_upload_nik_pengguna_penginput'] = $uploadNikPelaporFile;
+        if ($userLevel === 'RPN') {
+            // Pastikan data user ada sebelum menggunakan
+            if (!Auth::user()->nama_pengguna || !Auth::user()->alamat_pengguna || 
+                !Auth::user()->no_hp_pengguna || !Auth::user()->email_pengguna || 
+                !Auth::user()->upload_nik_pengguna) {
+                throw new \Exception('Data profil pengguna tidak lengkap. Silakan lengkapi profil Anda terlebih dahulu.');
             }
-            $data['pi_upload_nik_pengguna_informasi'] = $uploadNikFile;
-
-            $saveData = self::create($data);
-
-            $result = [
-                'pkField' => 'fk_t_form_pi_orang_lain', // Perbaikan nama field relasi
-                'id' => $saveData->form_pi_orang_lain_id,
-                'message' => "{$saveData->pi_nama_pengguna_informasi} Mengajukan Permohonan Informasi",
-            ];
-            return $result;
-        } catch (\Exception $e) {
-            // Jika terjadi kesalahan, hapus file yang sudah diupload
-            self::removeFile($uploadNikFile);
-            self::removeFile($uploadNikPelaporFile);
-            throw $e;
+            
+            $data['pi_nama_pengguna_penginput'] = Auth::user()->nama_pengguna;
+            $data['pi_alamat_pengguna_penginput'] = Auth::user()->alamat_pengguna;
+            $data['pi_no_hp_pengguna_penginput'] = Auth::user()->no_hp_pengguna;
+            $data['pi_email_pengguna_penginput'] = Auth::user()->email_pengguna;
+            $data['pi_upload_nik_pengguna_penginput'] = Auth::user()->upload_nik_pengguna;
+        } else {
+            // Perubahan disini: Tidak lagi membatasi hanya untuk ADM
+            if ($request->hasFile('pi_upload_nik_pengguna_penginput')) {
+                $uploadNikPelaporFile = self::uploadFile(
+                    $request->file('pi_upload_nik_pengguna_penginput'),
+                    'pi_identitas_pelapor_ol'
+                );
+                $data['pi_upload_nik_pengguna_penginput'] = $uploadNikPelaporFile;
+            } else {
+                throw new \Exception('File identitas pelapor wajib diunggah');
+            }
         }
+        
+        // Pindahkan upload file ke dalam try-catch
+        if ($request->hasFile('pi_upload_nik_pengguna_informasi')) {
+            $uploadNikFile = self::uploadFile(
+                $request->file('pi_upload_nik_pengguna_informasi'),
+                'pi_ol_upload_nik'
+            );
+            $data['pi_upload_nik_pengguna_informasi'] = $uploadNikFile;
+        } else {
+            throw new \Exception('File identitas pemohon wajib diunggah');
+        }
+
+        $saveData = self::create($data);
+
+        $result = [
+            'pkField' => 'fk_t_form_pi_orang_lain', 
+            'id' => $saveData->form_pi_orang_lain_id,
+            'message' => "{$saveData->pi_nama_pengguna_informasi} Mengajukan Permohonan Informasi",
+        ];
+        return $result;
+    } catch (\Exception $e) {
+        // Hapus file jika terjadi error
+        if ($uploadNikFile) {
+            self::removeFile($uploadNikFile);
+        }
+        if ($uploadNikPelaporFile) {
+            self::removeFile($uploadNikPelaporFile);
+        }
+        throw $e;
     }
+}
 
     public static function validasiData($request)
     {
@@ -86,7 +110,7 @@ class FormPiOrangLainModel extends Model
         $message = [];
 
         // Jika user adalah ADM, tambahkan validasi untuk penginput
-        if (Auth::user()->level->level_kode === 'ADM') {
+        if (Auth::user()->level->hak_akses_kode === 'ADM') {
             $rules = array_merge($rules, [
                 't_form_pi_orang_lain.pi_nama_pengguna_penginput' => 'required',
                 't_form_pi_orang_lain.pi_alamat_pengguna_penginput' => 'required',

@@ -457,7 +457,10 @@
                         title: 'Validasi Gagal',
                         text: 'Mohon periksa kembali input Anda'
                     });
-                    return;
+                    
+                    button.html('Ajukan Permohonan Informasi').attr('disabled', false);
+                    isSubmitting = false;
+                    return; // Hentikan proses submit
                 }
 
                 // Submit pakai AJAX
@@ -470,16 +473,20 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
+                        console.log('Success response:', response);
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil',
                                 text: response.message
                             }).then(() => {
-                                window.location.reload();
+                                window.location.href = "{{ url($permohonanInformasiAdminUrl) }}";
                             });
                         } else {
-                            handleServerErrors(response.errors);
+                            // Perbaikan: Tampilkan pesan kesalahan yang lebih detail
+                            if (response.errors) {
+                                handleServerErrors(response.errors);
+                            }
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal',
@@ -488,14 +495,33 @@
                         }
                     },
                     error: function(xhr) {
+                        console.error('Error status:', xhr.status);
+                        console.error('Error response:', xhr.responseText);
+                        
+                        let errorMessage = 'Terjadi kesalahan server. Silakan coba lagi.';
+                        
+                        // Coba parse error message dari response JSON
+                        try {
+                            const errorResponse = JSON.parse(xhr.responseText);
+                            if (errorResponse.message) {
+                                errorMessage = errorResponse.message;
+                            }
+                            
+                            if (errorResponse.errors) {
+                                handleServerErrors(errorResponse.errors);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing response:', e);
+                        }
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal',
-                            text: 'Terjadi kesalahan server. Silakan coba lagi.'
+                            text: errorMessage
                         });
                     },
                     complete: function() {
-                        button.html('Submit').attr('disabled', false);
+                        button.html('Ajukan Permohonan Informasi').attr('disabled', false);
                         isSubmitting = false;
                     }
                 });
@@ -504,13 +530,14 @@
             function validateForm() {
                 let isValid = true;
                 const kategoriPemohon = $('#pi_kategori_pemohon').val();
-
-                // Validasi kategori pemohon
-                if (!kategoriPemohon) {
-                    showError('#f_pi_kategori_pemohon_error', 'Pilih kategori pemohon');
-                    isValid = false;
-                } else {
-                    hideError('#f_pi_kategori_pemohon_error');
+                if (kategoriPemohon === 'Diri Sendiri') {
+                    const fileInput = document.getElementById('pi_upload_nik_pengguna');
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        showError('#f_pi_upload_nik_pengguna_error', 'File identitas pelapor wajib diunggah');
+                        isValid = false;
+                    } else {
+                        hideError('#f_pi_upload_nik_pengguna_error');
+                    }
                 }
 
                 // Validasi spesifik berdasarkan kategori
@@ -584,11 +611,35 @@
             }
 
             function handleServerErrors(errors) {
+                // Reset semua pesan error sebelumnya
+                $('.invalid-feedback').hide();
+                
                 if (errors) {
                     $.each(errors, function(key, messages) {
-                        const cleanKey = key.replace('t_permohonan_informasi.', '');
-                        $(`#${cleanKey}`).addClass('is-invalid');
-                        $(`#error-${cleanKey}`).html(messages[0]);
+                        // Tangani error untuk form utama
+                        if (key.includes('t_permohonan_informasi.')) {
+                            const fieldName = key.replace('t_permohonan_informasi.', '');
+                            $(`#f_${fieldName}_error`).text(messages[0]).show();
+                        } 
+                        // Tangani error untuk form diri sendiri
+                        else if (key.includes('t_form_pi_diri_sendiri.')) {
+                            const fieldName = key.replace('t_form_pi_diri_sendiri.', '');
+                            $(`#f_${fieldName}_error`).text(messages[0]).show();
+                        }
+                        // Tangani error untuk form orang lain
+                        else if (key.includes('t_form_pi_orang_lain.')) {
+                            const fieldName = key.replace('t_form_pi_orang_lain.', '');
+                            $(`#f_${fieldName}_error`).text(messages[0]).show();
+                        }
+                        // Tangani error untuk form organisasi
+                        else if (key.includes('t_form_pi_organisasi.')) {
+                            const fieldName = key.replace('t_form_pi_organisasi.', '');
+                            $(`#f_${fieldName}_error`).text(messages[0]).show();
+                        }
+                        // Tangani error untuk file upload
+                        else {
+                            $(`#f_${key}_error`).text(messages[0]).show();
+                        }
                     });
                 }
             }

@@ -59,6 +59,17 @@
                         <div class="invalid-feedback" id="f_pm_email_pengguna_error"></div>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="pm_nik_pengguna">NIK Pelapor<span class="text-danger">*</span></label>
+                    <small class="text-muted d-block">Nomor Induk Kependudukan (16 digit)</small>
+                    <input type="text" class="form-control" id="pm_nik_pengguna" 
+                        name="t_pengaduan_masyarakat[pm_nik_pengguna]" 
+                        value="{{ old('t_pengaduan_masyarakat.pm_nik_pengguna') }}" 
+                        maxlength="16" pattern="\d{16}">
+                    <div class="invalid-feedback" id="f_pm_nik_pengguna_error"></div>
+                </div>
+                
                 <div class="form-group">
                     <label for="pm_upload_nik_pengguna">
                         Upload Foto Kartu Identitas Pelapor <span class="text-danger">*</span>
@@ -346,8 +357,7 @@
                                     title: 'Berhasil',
                                     text: response.message || 'Pengaduan berhasil diajukan'
                                 }).then(() => {
-                                    window.location.href =
-                                        '/SistemInformasi/EForm/ADM/PengaduanMasyarakat';
+                                    window.location.href = "{{ url($pengaduanMasyarakatAdminUrl) }}";
                                 });
                             } else {
                                 // Display error message
@@ -440,6 +450,7 @@
 
                     // Validasi biodata
                     isValid &= validateField('#pm_nama_tanpa_gelar', '#f_pm_nama_tanpa_gelar_error');
+                    isValid &= validateNIK('#pm_nik_pengguna', '#f_pm_nik_pengguna_error');
                     isValid &= validatePhone('#pm_no_hp_pengguna', '#f_pm_no_hp_pengguna_error');
                     isValid &= validateEmail('#pm_email_pengguna', '#f_pm_email_pengguna_error');
                     isValid &= validateFile('#pm_upload_nik_pengguna', '#f_pm_upload_nik_pengguna_error');
@@ -463,6 +474,25 @@
                     const value = $(fieldSelector).val();
                     if (!value) {
                         showError(errorSelector, 'Field ini wajib diisi');
+                        $(fieldSelector).addClass('is-invalid');
+                        return false;
+                    } else {
+                        hideError(errorSelector);
+                        $(fieldSelector).removeClass('is-invalid');
+                        return true;
+                    }
+                }
+
+                function validateNIK(fieldSelector, errorSelector) {
+                    const value = $(fieldSelector).val();
+                    const regex = /^\d{16}$/;
+                    
+                    if (!value) {
+                        showError(errorSelector, 'NIK wajib diisi');
+                        $(fieldSelector).addClass('is-invalid');
+                        return false;
+                    } else if (!regex.test(value)) {
+                        showError(errorSelector, 'NIK harus terdiri dari 16 digit angka');
                         $(fieldSelector).addClass('is-invalid');
                         return false;
                     } else {

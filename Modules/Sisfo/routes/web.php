@@ -447,7 +447,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/deleteData/{id}', [UserController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [UserController::class, 'deleteData'])->middleware('permission:delete');
         Route::post('/addHakAkses/{userId}', [UserController::class, 'addHakAkses'])->middleware('permission:update');
-        Route::delete('/deleteHakAkses/{id}', [UserController::class, 'deleteHakAkses'])->middleware('permission:update');
+        Route::delete('/removeHakAkses/{userId}', [UserController::class, 'removeHakAkses'])->middleware('permission:update');
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('dinamis-tabel')], function () {

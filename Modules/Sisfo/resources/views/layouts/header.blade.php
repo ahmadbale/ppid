@@ -23,7 +23,7 @@
         <!-- Notification -->
         <li class="nav-item dropdown d-flex align-items-center mr-3">
             {{-- by level --}}
-            @if (Auth::user()->level->level_kode == 'SAR')
+            @if (Auth::user()->level->hak_akses_kode == 'SAR')
                 <a href="{{ url('/Notifikasi/NotifSarpras') }}"
                     class="nav-link d-flex align-items-center "
                     style="font-size: 1.3rem;">
@@ -34,7 +34,7 @@
                         </span>
                     @endif --}}
                 </a>
-            @elseif (Auth::user()->level->level_kode == 'ADM')
+            @elseif (Auth::user()->level->hak_akses_kode == 'ADM')
                 <a href="{{ url('/Notifikasi/NotifAdmin') }}"
                     class="nav-link d-flex align-items-center"
                     style="font-size: 1.3rem;">
@@ -45,7 +45,7 @@
                         </span>
                     @endif
                 </a>
-            @elseif (Auth::user()->level->level_kode == 'MPU')
+            @elseif (Auth::user()->level->hak_akses_kode == 'MPU')
                 <a href="{{ url('/Notifikasi/NotifMPU') }}"
                     class="nav-link d-flex align-items-center"
                     style="font-size: 1.3rem;">
@@ -56,7 +56,7 @@
                         </span>
                     @endif --}}
                 </a>
-            @elseif (Auth::user()->level->level_kode == 'VFR')
+            @elseif (Auth::user()->level->hak_akses_kode == 'VFR')
                 <a href="{{ url('/Notifikasi/NotifVFR') }}"
                     class="nav-link d-flex align-items-center"
                     style="font-size: 1.3rem;">
@@ -67,7 +67,7 @@
                         </span>
                     @endif --}}
                 </a>
-            @elseif (Auth::user()->level->level_kode == 'RPN')
+            @elseif (Auth::user()->level->hak_akses_kode == 'RPN')
                 <a href="{{ url('/Notifikasi/NotifRPN') }}"
                     class="nav-link d-flex align-items-center"
                     style="font-size: 1.3rem;">
@@ -94,7 +94,7 @@
                         {{ Auth::user()->nama_pengguna }}
                     </span>
                     <span class="text-muted" style="font-size: 0.85rem;">
-                        {{ Auth::user()->level->level_nama }}
+                        {{ Auth::user()->level->hak_akses_nama }}
                     </span>
                 </div>
             </a>

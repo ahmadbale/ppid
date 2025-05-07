@@ -270,7 +270,7 @@
                                 title: 'Berhasil',
                                 text: response.message
                             }).then(() => {
-                                window.location.reload();
+                                window.location.href = "{{ url($permohonanPerawatanAdminUrl) }}";
                             });
                         } else {
                             handleServerErrors(response.errors);
