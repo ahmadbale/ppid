@@ -56,6 +56,10 @@ class NotifAdminController extends Controller
         ]);
     }
 
+    public function notifikasiPernyataanKeberatan() {
+        // permohonan pernyataan keberatan
+    }
+
     public function tandaiDibaca($id)
     {
         $result = NotifAdminModel::tandaiDibaca($id);
