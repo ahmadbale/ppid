@@ -126,6 +126,13 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        // tambahan saya
+        'jwt' => [
+        'driver' => 'daily',
+        'path' => storage_path('logs/jwt.log'),
+        'level' => 'debug',
+        'days' => 7, // Simpan log selama 7 hari
+    ],
     ],
 
 ];

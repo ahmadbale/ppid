@@ -6,38 +6,140 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-
+use App\Services\JwtTokenService;
 class HomeController extends Controller
 {
+    // tambahan kinboy 
+    protected $jwtTokenService;
+    protected $baseUrl;
+
+    public function __construct(JwtTokenService $jwtTokenService)
+    {
+        $this->jwtTokenService = $jwtTokenService;
+        $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
+    }
+
+    /**
+     * Make authenticated request with JWT token
+     */
+    private function makeAuthenticatedRequest($endpoint)
+    {
+        try {
+            // Get active token
+            $tokenData = $this->jwtTokenService->getActiveToken();
+            
+            // Make request with token
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $tokenData['token']
+            ])->get($this->baseUrl . '/api/' . $endpoint);
+
+            // Check if token expired
+            if ($response->status() === 401) {
+                // Generate new token and retry
+                $tokenData = $this->jwtTokenService->generateSystemToken();
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $tokenData['token']
+                ])->get($this->baseUrl . '/api/' . $endpoint);
+            }
+
+            return $response;
+
+        } catch (\Exception $e) {
+            Log::error('API request failed', [
+                'endpoint' => $endpoint,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    // public function index()
+    // {
+    //     try {
+    //         Log::info('Mengambil data dari API');
+
+    //         // Ambil data pintasan
+    //         $pintasanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPintasanLainnya');
+    //         $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
+
+    //         // Ambil data akses cepat
+    //         $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
+    //         $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
+
+    //         $pengumumanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPengumumanLandingPage');
+    //         $pengumumanMenus = $this->fetchPengumumanData($pengumumanResponse);
+
+    //         $beritaResponse = Http::get('http://ppid-polinema.test/api/public/getDataBeritaLandingPage');
+    //         $beritaMenus = $this->fetchBeritaData($beritaResponse);
+
+    //         $heroSectionResponse = Http::get('http://ppid-polinema.test/api/public/getDataHeroSection');
+    //         $heroSectionMenus = $this->fetchHeroSectionData($heroSectionResponse);
+
+    //         $dokumentasiResponse = Http::get('http://ppid-polinema.test/api/public/getDataDokumentasi');
+    //         $dokumentasiMenus = $this->fetchDokumentasiData($dokumentasiResponse);
+
+    //         $mediaInformasiPublikResponse = Http::get('http://ppid-polinema.test/api/public/getDataMediaInformasiPublik');
+    //         $mediaInformasiPublikMenus = $this->fetchMediaInformasiPublikData($mediaInformasiPublikResponse);
+
+    //         $statisticResponse = Http::get('http://ppid-polinema.test/api/public/getDashboardStatistics');
+    //         $statisticData = $this->fetchStatisticData($statisticResponse);
+
+    //         return view('user::landing_page', compact(
+    //             'pintasanMenus',
+    //             'aksesCepatMenus',
+    //             'pengumumanMenus',
+    //             'beritaMenus',
+    //             'heroSectionMenus',
+    //             'dokumentasiMenus',
+    //             'mediaInformasiPublikMenus',
+    //             'statisticData' 
+    //         ));
+    //     } catch (\Exception $e) {
+    //         Log::error('Error saat mengambil data dari API', [
+    //             'message' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+    //         return view('user::landing_page', [
+    //             'pintasanMenus' => [],
+    //             'aksesCepatMenus' => [],
+    //             'pengumumanMenus' => [],
+    //             'beritaMenus' => [],
+    //             'heroSectionMenus' => [],
+    //             'dokumentasiMenus' => [],
+    //             'mediaInformasiPublikMenus' => [],
+    //             'statisticData' => []
+    //         ]);
+    //     }
+    // }
+    // tes kinboy
     public function index()
     {
         try {
             Log::info('Mengambil data dari API');
 
-            // Ambil data pintasan
-            $pintasanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPintasanLainnya');
+            // Update semua request menggunakan makeAuthenticatedRequest
+            $pintasanResponse = $this->makeAuthenticatedRequest('public/getDataPintasanLainnya');
             $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
 
-            // Ambil data akses cepat
-            $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
+            $aksesCepatResponse = $this->makeAuthenticatedRequest('public/getDataAksesCepat');
             $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
 
-            $pengumumanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPengumumanLandingPage');
+            $pengumumanResponse = $this->makeAuthenticatedRequest('public/getDataPengumumanLandingPage');
             $pengumumanMenus = $this->fetchPengumumanData($pengumumanResponse);
 
-            $beritaResponse = Http::get('http://ppid-polinema.test/api/public/getDataBeritaLandingPage');
+            $beritaResponse = $this->makeAuthenticatedRequest('public/getDataBeritaLandingPage');
             $beritaMenus = $this->fetchBeritaData($beritaResponse);
 
-            $heroSectionResponse = Http::get('http://ppid-polinema.test/api/public/getDataHeroSection');
+            $heroSectionResponse = $this->makeAuthenticatedRequest('public/getDataHeroSection');
             $heroSectionMenus = $this->fetchHeroSectionData($heroSectionResponse);
 
-            $dokumentasiResponse = Http::get('http://ppid-polinema.test/api/public/getDataDokumentasi');
+            $dokumentasiResponse = $this->makeAuthenticatedRequest('public/getDataDokumentasi');
             $dokumentasiMenus = $this->fetchDokumentasiData($dokumentasiResponse);
 
-            $mediaInformasiPublikResponse = Http::get('http://ppid-polinema.test/api/public/getDataMediaInformasiPublik');
+            $mediaInformasiPublikResponse = $this->makeAuthenticatedRequest('public/getDataMediaInformasiPublik');
             $mediaInformasiPublikMenus = $this->fetchMediaInformasiPublikData($mediaInformasiPublikResponse);
 
-            $statisticResponse = Http::get('http://ppid-polinema.test/api/public/getDashboardStatistics');
+            $statisticResponse = $this->makeAuthenticatedRequest('public/getDashboardStatistics');
             $statisticData = $this->fetchStatisticData($statisticResponse);
 
             return view('user::landing_page', compact(
@@ -48,13 +150,15 @@ class HomeController extends Controller
                 'heroSectionMenus',
                 'dokumentasiMenus',
                 'mediaInformasiPublikMenus',
-                'statisticData' 
+                'statisticData'
             ));
+
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+            
             return view('user::landing_page', [
                 'pintasanMenus' => [],
                 'aksesCepatMenus' => [],

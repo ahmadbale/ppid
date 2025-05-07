@@ -12,7 +12,7 @@ class ApiPermohonanInformasiController extends BaseApiController
      use TraitsController;
     public function createPermohonanInformasi(Request $request)
     {
-        return $this->executeWithAutCreate(
+        return $this->executeWithAuthentication(
             function() use ($request) {
                 // Validasi data terlebih dahulu
                 PermohonanInformasiModel::validasiData($request);
@@ -27,6 +27,7 @@ class ApiPermohonanInformasiController extends BaseApiController
                 return $result;
             },
             'Laman Permohonan Informasi',
+            self::ACTION_CREATE
         );
     }
 }

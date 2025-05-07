@@ -17,9 +17,9 @@ class IpSubMenu extends Model
         'dokumen_ip_sm'
     ];
 
-    public function IpSubMenuUtana()
+    public function IpSubMenuUtama()
     {
-        return $this->belongsTo(IpSubMenuUtama::class, 'fk_t_ip_sub_menu_utama', 'ip_sub_menu_id');
+        return $this->belongsTo(IpSubMenuUtamaModel::class, 'fk_t_ip_sub_menu_utama', 'ip_sub_menu_id');
     }
 
     public function __construct(array $attributes = [])
