@@ -16,7 +16,7 @@
     <div id="header"></div>
     <div id="nav-bar"></div>
     <!-- Hero Section -->
-    <section class="hero-section" x-data="heroSlider()" x-init="startSlider()">
+    <section class="hero-section mt-5" x-data="heroSlider()" x-init="startSlider()">
         <div class="custom-slider">
             @if (!empty($heroSectionMenus))
                 @php
@@ -123,7 +123,7 @@
 <section class="statistik-section py-5" x-data="statistikCounter">
     <div class="container">
         <h3 class="title-section" style="color: white;">Statistik Pelayanan PPID Polinema</h3>
-        
+
         @if(!empty($statisticData['periode']))
             <p class="info-text">Dalam periode <strong>{{ $statisticData['periode']['tahun'] }}</strong> telah melayani sebanyak:</p>
             <div class="statistik-row">
