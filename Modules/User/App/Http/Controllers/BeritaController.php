@@ -6,9 +6,50 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
+use App\Services\JwtTokenService;
 
 class BeritaController extends Controller
 {
+    protected $jwtTokenService;
+    protected $baseUrl;
+
+    public function __construct(JwtTokenService $jwtTokenService)
+    {
+        $this->jwtTokenService = $jwtTokenService;
+        $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
+    }
+
+    private function makeAuthenticatedRequest($endpoint)
+    {
+        try {
+            // Get active token
+            $tokenData = $this->jwtTokenService->getActiveToken();
+            
+            // Make request with token
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $tokenData['token']
+            ])->get($this->baseUrl . '/api/' . $endpoint);
+
+            // Check if token expired
+            if ($response->status() === 401) {
+                // Generate new token and retry
+                $tokenData = $this->jwtTokenService->generateSystemToken();
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $tokenData['token']
+                ])->get($this->baseUrl . '/api/' . $endpoint);
+            }
+
+            return $response;
+
+        } catch (\Exception $e) {
+            Log::error('API request failed', [
+                'endpoint' => $endpoint,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
     public function index(Request $request)
     {
         try {
@@ -16,7 +57,7 @@ class BeritaController extends Controller
     
             // Ambil halaman saat ini dari request, default ke 1
             $page = $request->get('page', 1);
-    
+            
             // Validasi nomor halaman
             if (!is_numeric($page) || $page < 1) {
                 Log::warning('Nomor halaman tidak valid', [
@@ -28,10 +69,10 @@ class BeritaController extends Controller
                 ]);
             }
     
-            // Ambil data dari API dengan parameter halaman
-            $beritaResponse = Http::get("http://ppid-polinema.test/api/public/getDataBerita", [
-                'page' => $page
-            ]);
+           // Ambil data dari API dengan authenticated request
+        $beritaResponse = $this->makeAuthenticatedRequest('public/getDataBerita?' . http_build_query([
+            'page' => $page
+        ]));
     
             $beritaData = $this->fetchBeritaData($beritaResponse);
     
@@ -134,7 +175,7 @@ class BeritaController extends Controller
             Log::info('Mengambil detail berita dari API', ['berita_id' => $beritaId]);
 
             // Ambil data detail berita dari API berdasarkan ID
-            $detailResponse = Http::get("http://ppid-polinema.test/api/public/getDetailBeritaById/{$slug}/{$beritaId}");
+            $detailResponse = $this->makeAuthenticatedRequest("public/getDetailBeritaById/{$slug}/{$beritaId}");
 
             $detailData = $this->fetchBeritaDetail($detailResponse);
 

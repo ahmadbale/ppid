@@ -152,6 +152,13 @@ return [
         'sub',
         'jti',
     ],
+    // Konfigurasi lainnya
+    'providers' => [
+        'jwt' => Tymon\JWTAuth\Providers\JWT\Lcobucci::class,
+        'auth' => Tymon\JWTAuth\Providers\Auth\Illuminate::class,
+        'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class,
+    ],
+    
 
     /*
     |--------------------------------------------------------------------------
