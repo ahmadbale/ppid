@@ -604,6 +604,37 @@ class UserModel extends Authenticatable implements JWTSubject
         return $this->hakAkses()->where('m_hak_akses.hak_akses_id', $activeHakAksesId)->first();
     }
 
+    public function getAvailableRoles()
+    {
+        $activeHakAksesId = session('active_hak_akses_id');
+
+        return $this->hakAkses()
+            ->where('m_hak_akses.hak_akses_id', '!=', $activeHakAksesId)
+            ->get();
+    }
+
+    /**
+     * Mendapatkan hak akses aktif saat ini dengan detail lengkap
+     */
+    public function getActiveRole()
+    {
+        $activeHakAksesId = session('active_hak_akses_id');
+
+        if (!$activeHakAksesId) {
+            // Jika tidak ada hak akses aktif di session, ambil yang pertama
+            $hakAkses = $this->hakAkses()->first();
+            if ($hakAkses) {
+                session(['active_hak_akses_id' => $hakAkses->hak_akses_id]);
+                return $hakAkses;
+            }
+            return null;
+        }
+
+        return $this->hakAkses()
+            ->where('m_hak_akses.hak_akses_id', $activeHakAksesId)
+            ->first();
+    }
+
     public static function addHakAkses($userId, $hakAksesId)
     {
         try {

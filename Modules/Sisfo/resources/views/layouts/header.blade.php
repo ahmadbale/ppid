@@ -1,3 +1,4 @@
+<!-- resources/views/sisfo/layouts/header.blade.php -->
 @php
     use Modules\Sisfo\App\Models\Log\NotifAdminModel;
     use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
@@ -81,23 +82,45 @@
             @endif
         </li>
 
-        <!-- User Profile -->
-        <li class="nav-item d-flex align-items-center">
-            <a href="{{ url('/profile') }}" class="d-flex align-items-center text-decoration-none">
-                <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
-                    alt="User Profile Picture"
-                    class="img-circle"
-                    style="width: 32px; height: 32px; object-fit: cover; opacity: 0.9; margin-right: 10px;">
+        <!-- User Profile Dropdown -->
+        <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <div class="d-flex align-items-center">
+                    <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
+                        alt="User Profile Picture"
+                        class="img-circle"
+                        style="width: 32px; height: 32px; object-fit: cover; opacity: 0.9; margin-right: 10px;">
 
-                <div class="d-flex flex-column justify-content-center">
-                    <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
-                        {{ Auth::user()->nama_pengguna }}
-                    </span>
-                    <span class="text-muted" style="font-size: 0.85rem;">
-                        {{ Auth::user()->level->hak_akses_nama }}
-                    </span>
+                    <div class="d-flex flex-column justify-content-center">
+                        <span class="font-weight-bold text-primary" style="font-size: 1.1rem;">
+                            {{ Auth::user()->nama_pengguna }}
+                        </span>
+                        <span class="text-muted" style="font-size: 0.85rem;">
+                            {{ Auth::user()->level->hak_akses_nama }}
+                        </span>
+                    </div>
                 </div>
             </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <a href="{{ url('/profile') }}" class="dropdown-item">
+                    <i class="fas fa-user mr-2"></i> Profile
+                </a>
+                
+                @php
+                    // Ambil semua hak akses yang dimiliki user selain yang aktif saat ini
+                    $userHakAkses = Auth::user()->getAvailableRoles();
+                @endphp
+                
+                @if($userHakAkses->count() > 0)
+                    <div class="dropdown-divider"></div>
+                    @foreach($userHakAkses as $hakAkses)
+                        <a href="{{ url('/switch-role/'.$hakAkses->hak_akses_id) }}" class="dropdown-item">
+                            <i class="fas fa-exchange-alt mr-2"></i> Login sebagai {{ $hakAkses->hak_akses_nama }}
+                        </a>
+                    @endforeach
+                @endif
+                
+            </div>
         </li>
     </ul>
 </nav>
@@ -118,5 +141,11 @@
             return "🌙 Good evening! Time to chill down.";
         }
     }
-    document.querySelector(".greeting-nich").textContent =  getGreeting();
+    document.querySelector(".greeting-nich").textContent = getGreeting();
+
+    // Pastikan dropdown berfungsi dengan benar
+    $(document).ready(function() {
+        // Inisialisasi dropdown Bootstrap
+        $('.dropdown-toggle').dropdown();
+    });
 </script>

@@ -1,3 +1,5 @@
+<!-- resources/views/sisfo/layouts/template.blade.php -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -51,6 +53,10 @@
         <!-- /.navbar -->
         @include('sisfo::layouts.sidebar')
         <div class="content-wrapper">
+            <!-- Flash Messages (Tambahkan di sini) -->
+            <div class="container-fluid pt-3">
+                @include('sisfo::layouts.flash-message')
+            </div>
             @include('sisfo::layouts.breadcrumb')
 
             <section class="content">
@@ -74,8 +80,10 @@
     </script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}">
     </script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script
+        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script
+        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
@@ -102,8 +110,10 @@
     </script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}">
     </script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script
+        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script
+        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
@@ -124,6 +134,32 @@
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Tambahkan script ini di bagian bawah file template.blade.php sebelum tag body ditutup -->
+    <script>
+        // Script untuk memastikan dropdown berfungsi dengan benar
+        $(document).ready(function () {
+            // Cek apakah Bootstrap dropdown sudah terinitisasi dengan benar
+            if (typeof $.fn.dropdown !== 'undefined') {
+                console.log('Bootstrap Dropdown terdeteksi');
+
+                // Aktifkan secara manual dropdown di navbar
+                $('.dropdown-toggle').dropdown();
+
+                // Handler dropdown click untuk debugging
+                $('.dropdown-toggle').on('click', function (e) {
+                    console.log('Dropdown diklik');
+                });
+            } else {
+                console.error('Bootstrap Dropdown tidak terdeteksi. Pastikan Bootstrap JS sudah dimuat dengan benar.');
+            }
+
+            // Tambahkan class bootstrap dropdown jika belum ada
+            if (!$('.nav-item.dropdown').hasClass('dropdown')) {
+                $('.nav-item.dropdown').addClass('dropdown');
+            }
+        });
+    </script>
 
     <script>
         // Konfigurasi toastr global
