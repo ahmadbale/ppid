@@ -603,4 +603,82 @@ class UserModel extends Authenticatable implements JWTSubject
 
         return $this->hakAkses()->where('m_hak_akses.hak_akses_id', $activeHakAksesId)->first();
     }
+
+    public static function addHakAkses($userId, $hakAksesId)
+    {
+        try {
+            // Cek apakah menambahkan hak akses SAR
+            $hakAkses = HakAksesModel::findOrFail($hakAksesId);
+            if ($hakAkses->hak_akses_kode === 'SAR' && Auth::user()->level->hak_akses_kode !== 'SAR') {
+                throw new \Exception('Anda tidak memiliki izin untuk menambahkan level Super Administrator');
+            }
+
+            // Cek apakah user sudah memiliki hak akses tersebut
+            $exists = SetUserHakAksesModel::where('fk_m_user', $userId)
+                ->where('fk_m_hak_akses', $hakAksesId)
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($exists) {
+                throw new \Exception('Pengguna sudah memiliki hak akses ini');
+            }
+
+            $result = SetUserHakAksesModel::createData($userId, $hakAksesId);
+
+            return self::responFormatSukses(
+                $result['data'] ?? null,
+                'Hak akses berhasil ditambahkan'
+            );
+        } catch (\Exception $e) {
+            return self::responFormatError($e, 'Terjadi kesalahan saat menambahkan hak akses');
+        }
+    }
+
+    public static function removeHakAkses($userId, $hakAksesId)
+    {
+        try {
+            // Hitung total hak akses user
+            $totalHakAkses = SetUserHakAksesModel::where('fk_m_user', $userId)
+                ->where('isDeleted', 0)
+                ->count();
+
+            // Jika user hanya memiliki 1 hak akses, tolak penghapusan
+            if ($totalHakAkses <= 1) {
+                throw new \Exception('Pengguna harus memiliki minimal 1 hak akses');
+            }
+
+            // Cek apakah yang dihapus adalah hak akses SAR
+            $hakAkses = HakAksesModel::findOrFail($hakAksesId);
+            if ($hakAkses->hak_akses_kode === 'SAR' && Auth::user()->level->hak_akses_kode !== 'SAR') {
+                throw new \Exception('Anda tidak memiliki izin untuk menghapus level Super Administrator');
+            }
+
+            // Cek apakah relasi ada
+            $userHakAkses = SetUserHakAksesModel::where('fk_m_user', $userId)
+                ->where('fk_m_hak_akses', $hakAksesId)
+                ->where('isDeleted', 0)
+                ->first();
+
+            if (!$userHakAkses) {
+                throw new \Exception('Pengguna tidak memiliki hak akses ini');
+            }
+
+            $isActiveHakAkses = false;
+            if (Auth::id() == $userId && session('active_hak_akses_id') == $hakAksesId) {
+                $isActiveHakAkses = true;
+            }
+
+            // Hapus hak akses dengan metode delete() untuk memicu event deleting
+            $userHakAkses->delete();
+
+            return self::responFormatSukses(
+                [
+                    'is_active_hak_akses' => $isActiveHakAkses
+                ],
+                'Hak akses berhasil dihapus dari pengguna'
+            );
+        } catch (\Exception $e) {
+            return self::responFormatError($e, 'Terjadi kesalahan saat menghapus hak akses');
+        }
+    }
 }

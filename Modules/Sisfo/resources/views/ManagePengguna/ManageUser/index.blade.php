@@ -18,7 +18,7 @@
               Auth::user()->level->hak_akses_kode === 'SAR' ||
               SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $managementUserUrl, 'create')
             )
-              <button onclick="modalAction('{{ url($managementUserUrl . '/addData') . (isset($levelId) ? '?level_id='.$levelId : '') }}')" class="btn btn-sm btn-success">
+              <button onclick="modalAction('{{ url($managementUserUrl . '/addData') . (isset($levelId) ? '?hak_akses_id='.$levelId : '') }}')" class="btn btn-sm btn-success">
                 <i class="fas fa-plus"></i> Tambah
               </button>
             @endif
@@ -38,7 +38,7 @@
           <li class="nav-item">
             <a class="nav-link {{ $levelId == $hak->hak_akses_id ? 'active' : '' }}" 
                id="level-{{ $hak->hak_akses_id }}-tab" 
-               href="{{ url($managementUserUrl) }}?level_id={{ $hak->hak_akses_id }}">
+               href="{{ url($managementUserUrl) }}?hak_akses_id={{ $hak->hak_akses_id }}">
               {{ $hak->hak_akses_nama }}
             </a>
           </li>
@@ -51,7 +51,7 @@
             <div class="col-md-6">
               <form id="searchForm" class="d-flex">
                 @if(!empty($levelId))
-                  <input type="hidden" name="level_id" value="{{ $levelId }}">
+                  <input type="hidden" name="hak_akses_id" value="{{ $levelId }}">
                 @endif
                 <input type="text" name="search" class="form-control" placeholder="Cari nama, email, NIK, atau no HP"
                   value="{{ $search ?? '' }}">
@@ -106,7 +106,7 @@
       $('#searchForm').on('submit', function (e) {
         e.preventDefault();
         var search = $(this).find('input[name="search"]').val();
-        var levelId = $(this).find('input[name="level_id"]').val();
+        var levelId = $(this).find('input[name="hak_akses_id"]').val();
         loadUserData(1, search, levelId);
       });
 
@@ -115,7 +115,7 @@
         e.preventDefault();
         var page = $(this).attr('href').split('page=')[1];
         var search = $('#searchForm input[name="search"]').val();
-        var levelId = $('#searchForm input[name="level_id"]').val();
+        var levelId = $('#searchForm input[name="hak_akses_id"]').val();
         loadUserData(page, search, levelId);
       });
 
@@ -127,7 +127,7 @@
           data: {
             page: page,
             search: search,
-            level_id: levelId
+            hak_akses_id: levelId
           },
           success: function (response) {
             $('#table-container').html(response);
@@ -175,7 +175,7 @@
         var currentPage = $('.pagination .active .page-link').text();
         currentPage = currentPage || 1;
         var search = $('#searchForm input[name="search"]').val();
-        var levelId = $('#searchForm input[name="level_id"]').val();
+        var levelId = $('#searchForm input[name="hak_akses_id"]').val();
         loadUserData(currentPage, search, levelId);
       }
 

@@ -848,8 +848,8 @@
                 </div>
             </div>
 
-            <!-- Menu untuk setiap level_kode -->
-            @if (Auth::user()->level->level_kode == 'ADM')
+            <!-- Menu untuk setiap hak_akses_kode -->
+            @if (Auth::user()->level->hak_akses_kode == 'ADM')
                 <li class="nav-header">Menu Umum</li>
                 <li class="nav-item">
                     <a href="{{ url('/dashboardADM') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
@@ -1127,7 +1127,7 @@
                             </ul>
                         </li>
                     </li>
-            @elseif (Auth::user()->level->level_kode == 'SAR')
+            @elseif (Auth::user()->level->hak_akses_kode == 'SAR')
                 <li class="nav-item">
                     <a href="{{ url('/dashboardSAR') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -1146,7 +1146,7 @@
                         <p>Hak Akses</p>
                     </a>
                 </li>
-            @elseif (Auth::user()->level->level_kode == 'MPU')
+            @elseif (Auth::user()->level->hak_akses_kode == 'MPU')
                 <li class="nav-item">
                     <a href="{{ url('/dashboardMPU') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -1179,7 +1179,7 @@
                         <p>Daftar Pertanyaan</p>
                     </a>
                 </li>
-            @elseif (Auth::user()->level->level_kode == 'VFR')
+            @elseif (Auth::user()->level->hak_akses_kode == 'VFR')
                 <li class="nav-item">
                     <a href="{{ url('/dashboardVFR') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -1215,7 +1215,7 @@
                         <p>Daftar Pertanyaan</p>
                     </a>
                 </li>
-            @elseif (Auth::user()->level->level_kode == 'RPN')
+            @elseif (Auth::user()->level->hak_akses_kode == 'RPN')
                 <li class="nav-item">
                     <a href="{{ url('/dashboardRPN') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>

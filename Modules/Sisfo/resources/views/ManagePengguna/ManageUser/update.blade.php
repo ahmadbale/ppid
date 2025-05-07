@@ -96,11 +96,10 @@
                 <td>
                   @if(count($user->hakAkses) > 1)
                     @if(Auth::user()->level->hak_akses_kode === 'SAR' || $hakAkses->hak_akses_kode !== 'SAR')
-                      <button type="button" class="btn btn-sm btn-danger delete-hak-akses" 
-                        data-id="{{ $hakAkses->pivot->set_user_hak_akses_id }}" 
-                        data-name="{{ $hakAkses->hak_akses_nama }}">
-                        <i class="fas fa-trash"></i> Hapus
-                      </button>
+                    <!--letakkan tombol hapus hak akses disini -->
+                    <button type="button" class="btn btn-sm btn-danger hapus-hak-akses" data-id="{{ $hakAkses->hak_akses_id }}">
+                      <i class="fas fa-trash"></i> Hapus
+                    </button>
                     @endif
                   @else
                     <span class="text-muted">Minimal 1 hak akses</span>
@@ -233,61 +232,84 @@
     });
 
     // Handle hapus hak akses
-    $(document).on('click', '.delete-hak-akses', function() {
-      const id = $(this).data('id');
-      const name = $(this).data('name');
-      
-      Swal.fire({
-        title: 'Konfirmasi Hapus',
-        text: `Apakah Anda yakin ingin menghapus hak akses ${name}?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          $.ajax({
-            url: '{{ url($managementUserUrl) }}' + '/deleteHakAkses/' + id,
-            type: 'DELETE',
-            headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-              if (response.success) {
-                // Muat ulang modal
-                modalAction('{{ url($managementUserUrl . "/editData/" . $user->user_id) }}');
-                
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Berhasil',
-                  text: response.message
-                });
-              } else {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Gagal',
-                  text: response.message || 'Terjadi kesalahan saat menghapus hak akses'
-                });
-              }
-            },
-            error: function(xhr) {
-              let errorMessage = 'Terjadi kesalahan saat menghapus hak akses. Silakan coba lagi.';
-              if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = xhr.responseJSON.message;
-              }
+$(document).on('click', '.hapus-hak-akses', function() {
+  const hakAksesId = $(this).data('id');
+  const isCurrentUser = {{ Auth::id() == $user->user_id ? 'true' : 'false' }};
+  const activeHakAksesId = {{ session('active_hak_akses_id') ? session('active_hak_akses_id') : 0 }};
+  const isActiveHakAkses = isCurrentUser && (hakAksesId == activeHakAksesId);
+  
+  let confirmText = 'Apakah Anda yakin ingin menghapus hak akses ini?';
+  if (isActiveHakAkses) {
+    confirmText = 'Jika Anda menghapus hak akses ini, Anda akan terlogout dari sistem. Lanjutkan?';
+  }
+  
+  Swal.fire({
+    title: 'Konfirmasi',
+    text: confirmText,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Ya, Hapus',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: '{{ url($managementUserUrl . "/removeHakAkses/" . $user->user_id) }}',
+        type: 'POST',
+        data: {
+          hak_akses_id: hakAksesId,
+          _method: 'DELETE'
+        },
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+          if (response.success) {
+            // Cek berdasarkan response dari server apakah hak akses yang dihapus adalah yang aktif
+            if (response.data && response.data.is_active_hak_akses) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Hak akses berhasil dihapus. Anda akan dialihkan ke halaman logout.',
+                allowOutsideClick: false
+              }).then(() => {
+                window.location.href = '{{ url("logout") }}';
+              });
+            } else {
+              // Muat ulang modal
+              modalAction('{{ url($managementUserUrl . "/editData/" . $user->user_id) }}');
               
               Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: errorMessage
+                icon: 'success',
+                title: 'Berhasil',
+                text: response.message
               });
             }
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal',
+              text: response.message || 'Terjadi kesalahan saat menghapus hak akses'
+            });
+          }
+        },
+        error: function(xhr) {
+          let errorMessage = 'Terjadi kesalahan saat menghapus hak akses. Silakan coba lagi.';
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+          }
+          
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: errorMessage
           });
         }
       });
-    });
+    }
+  });
+});
 
     // Handle tambah hak akses
     $('#btnAddHakAkses').on('click', function() {
