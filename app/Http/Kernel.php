@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
-
+    // tambahkan middleware
     /**
      * The application's middleware aliases.
      *
@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'token.check' => \Modules\User\App\Http\Middleware\TokenMiddleware::class,
         'token' => \Modules\User\App\Http\Middleware\TokenMiddleware::class,
-        'permission' => \App\Http\Middleware\CheckUserPermission::class
+        'permission' => \App\Http\Middleware\CheckUserPermission::class,
+        'jwt.verify' => \App\Http\Middleware\VerifyApiToken::class, // Add this line
     ];
 }

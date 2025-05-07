@@ -2,6 +2,7 @@
 
 use Spatie\FlareClient\Api;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\SystemAuthController;
 use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\AuthMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMenuController;
@@ -21,6 +22,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
+use Modules\Sisfo\App\Http\Controllers\Api\AplicationSetting\ApiSetHakAksesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +39,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageContro
 Route::prefix('auth')->group(function () {
     // Public routes (tidak perlu autentikasi)
     Route::post('login', [ApiAuthController::class, 'login']);
-    // Route::post('register', [ApiAuthController::class, 'register']);
+    Route::post('register', [ApiAuthController::class, 'register']);
 
     // Protected routes (perlu autentikasi)
     Route::middleware('auth:api')->group(function () {
@@ -53,15 +55,29 @@ Route::prefix('auth')->group(function () {
         // Route::get('getBeritaPengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
         // Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
         Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
-        Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
+        Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']); 
+        Route::prefix('AplicationSetting')->group(function () {
+            Route::get('/level/{hakAksesKode}', [ApiSetHakAksesController::class, 'getHakAksesByLevel']);
+            Route::get('/detail/{userId}/{menuId}', [ApiSetHakAksesController::class, 'getHakAksesDetail']);
+            Route::post('/cek-menu', [ApiSetHakAksesController::class, 'cekHakAksesMenu']);
+            Route::post('/cek-akses', [ApiSetHakAksesController::class, 'cekHakAkses']);
+            Route::post('/update', [ApiSetHakAksesController::class, 'updateHakAkses']);
+            Route::post('/create', [ApiSetHakAksesController::class, 'createHakAkses']);
+            Route::post('/create-level', [ApiSetHakAksesController::class, 'createHakAksesLevel']);
+            Route::get('/menu-struktur/{hakAksesKode}', [ApiSetHakAksesController::class, 'getMenusByLevel']);
+            Route::get('/user-hak-akses/{userId}', [ApiSetHakAksesController::class, 'getUserHakAkses']);
+        });
     });
+  
 });
-
+// Route::post('logout', [ApiAuthController::class, 'logout']);
+// Route::get('user', [ApiAuthController::class, 'getData']);
+// // Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
+// Route untuk mendapatkan token sistem (tidak perlu auth)
+Route::get('system/get-token', [SystemAuthController::class, 'getToken']);
+Route::post('system/refresh-token', [SystemAuthController::class, 'refreshToken']);
 // Route publik
-Route::prefix('public')->group(function () {
-    Route::post('logout', [ApiAuthController::class, 'logout']);
-    Route::get('user', [ApiAuthController::class, 'getData']);
-    // Route::get('menus', [AuthMenuController::class, 'getAuthMenus']);
+Route::prefix('public')->middleware('jwt.verify')->group(function () {
     Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
     Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
     Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
