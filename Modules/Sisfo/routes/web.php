@@ -1,5 +1,6 @@
 <?php
 
+use Modules\Sisfo\App\Http\Controllers\SwitchRoleController;
 use Modules\SIsfo\App\Models\Website\WebMenuModel;
 use Illuminate\Support\Facades\Route;
 use Modules\SIsfo\App\Http\Controllers\AuthController;
@@ -86,6 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/session', [AuthController::class, 'getData']);
     Route::get('/js/summernote.js', [SummernoteController::class, 'getSummernoteJS']);
     Route::get('/css/summernote.css', [SummernoteController::class, 'getSummernoteCSS']);
+    Route::get('/switch-role/{hakAksesId}', [SwitchRoleController::class, 'index'])->name('switch.role');
 
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);

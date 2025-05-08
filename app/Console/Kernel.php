@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Services\JwtTokenService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -12,7 +13,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Jadwalkan refresh token tepat menjelang expired (2 hari)
+        $schedule->command('system:refresh-token')
+                 ->dailyAt('00:00') 
+                 ->when(function () {
+                     // Periksa apakah token akan expire dalam 1-2 hari ke depan
+                     $jwtTokenService = app(JwtTokenService::class);
+                     return $jwtTokenService->isTokenNearExpiration();
+                 });
     }
 
     /**

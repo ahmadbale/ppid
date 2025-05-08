@@ -5,7 +5,7 @@ namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 
-class IpMenuUtama extends Model
+class IpMenuUtamaModel extends Model
 {
     use TraitsModel;
 
@@ -19,7 +19,7 @@ class IpMenuUtama extends Model
 
     public function IpDinamisTabel()
     {
-        return $this->belongsTo(IpDinamisTabel::class, 'fk_t_ip_dinamis_tabel', 'ip_dinamis_tabel_id');
+        return $this->belongsTo(IpDinamisTabelModel::class, 'fk_t_ip_dinamis_tabel', 'ip_dinamis_tabel_id');
     }
 
     public function __construct(array $attributes = [])

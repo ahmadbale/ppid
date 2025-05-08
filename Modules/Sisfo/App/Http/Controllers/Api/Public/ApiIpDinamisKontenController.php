@@ -14,7 +14,7 @@ class ApiIpDinamisKontenController extends BaseApiController
                  $getDataIPDaftarInformasi = IpDinamisKontenModel::getDataIPDaftarInformasi();
                  return $getDataIPDaftarInformasi;
              },
-             'laman Data IP Daftar Informasi'
+             'laman IP Daftar Informasi'
          );
      }
  }
