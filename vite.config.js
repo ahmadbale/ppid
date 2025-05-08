@@ -13,7 +13,6 @@ export default defineConfig({
                 'resources/js/upload-bukti.js',
                 'resources/css/sidebar.css',
                 'resources/js/timeline.js',
-                'resources/css/timeline.css'
                 ],
             refresh: true,
         }),
