@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Route;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PengaduanMasyarakatModel;
 use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanPerawatanModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PernyataanKeberatanModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\WBSModel;
 
 class NotifAdminModel extends Model
 {
@@ -32,6 +36,26 @@ class NotifAdminModel extends Model
         return $this->belongsTo(PermohonanInformasiModel::class, 'notif_admin_form_id', 'permohonan_informasi_id');
     }
 
+    public function t_pernyataan_keberatan()
+    {
+        return $this->belongsTo(PernyataanKeberatanModel::class, 'notif_admin_form_id', 'pernyataan_keberatan_id');
+    }
+
+    public function t_pengaduan_masyarakat()
+    {
+        return $this->belongsTo(PengaduanMasyarakatModel::class, 'notif_admin_form_id', 'pengaduan_masyarakat_id');
+    }
+
+    public function t_wbsi()
+    {
+        return $this->belongsTo(WBSModel::class, 'notif_admin_form_id', 'wbs_id');
+    }
+
+    public function t_permohonan_perawatan()
+    {
+        return $this->belongsTo(PermohonanPerawatanModel::class, 'notif_admin_form_id', 'permohonan_perawatan_id');
+    }
+
     public static function createData($formId, $message)
     {
         $currentRoute = Route::currentRouteName() ?? Route::current()->uri();
@@ -48,15 +72,25 @@ class NotifAdminModel extends Model
 
     private static function menentukanKategoriForm($route)
     {
-        if (strpos($route, 'PermohonanInformasi') !== false) {
-            return 'E-Form Permohonan Informasi';
-        } elseif (strpos($route, 'PernyataanKeberatan') !== false) {
-            return 'E-Form Pernyataan Keberatan';
-        } elseif (strpos($route, 'PengaduanMasyarakat') !== false) {
-            return 'E-Form Pengaduan Masyarakat';
-        } else {
-            return 'Notification';
+        // Memetakan kata kunci rute ke nama kategori masing-masing
+        $categoryMappings = [
+            // Pemetaan segmen URL
+            'permohonan-informasi' => 'E-Form Permohonan Informasi',
+            'pernyataan-keberatan' => 'E-Form Pernyataan Keberatan',
+            'pengaduan-masyarakat' => 'E-Form Pengaduan Masyarakat',
+            'whistle-blowing-system' => 'E-Form Whistle Blowing System',
+            'permohonan-sarana-dan-prasarana' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+        ];
+        
+        // Periksa setiap pemetaan terhadap rute
+        foreach ($categoryMappings as $keyword => $category) {
+            if (strpos($route, $keyword) !== false) {
+                return $category;
+            }
         }
+        
+        // Pengembalian default jika tidak ada kecocokan
+        return 'Notification';
     }
 
     public static function tandaiDibaca($id)

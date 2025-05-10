@@ -9,7 +9,7 @@
                 <i class="fa fa-arrow-left"></i> Kembali
             </a>
         </div>
-        <h3 class="card-title"><strong> Notifikasi Pengajuan Permohonan Informasi </strong></h3>
+        <h3 class="card-title"><strong> Notifikasi Pengajuan Pernyataan Keberatan </strong></h3>
     </div>
     <div class="card-body">
         @if($notifikasi->isEmpty())
@@ -18,7 +18,7 @@
                 style="height: 200px; background-color: #fff3cd; border: 1px solid #856404; border-radius: 10px;">
                 <span style="font-size: 50px;">📭</span>
                 <p style="margin: 0; font-weight: bold; font-size: 18px; text-align: center;">Tidak ada Notifikasi
-                    Permohonan Informasi</p>
+                    Pernyataan Keberatan</p>
             </div>
         @else
             <!-- Container Notifikasi -->
@@ -28,9 +28,9 @@
                     <i class="fas fa-bell fa-2x" style="margin-right: 15px;"></i>
                     <div style="flex: 1;">
                         <p style="margin: 0; font-weight: bold;">{{ $item->pesan_notif_admin }}</p>
-                        <p style="margin: 0;">Status pemohon: {{ $item->t_permohonan_informasi->pi_kategori_pemohon ?? 'Data Sudah Dihapus' }}
+                        <p style="margin: 0;">Status pemohon: {{ $item->t_pernyataan_keberatan->pk_kategori_pemohon ?? 'Data Sudah Dihapus' }}
                         </p>
-                        <p style="margin: 0;">Kategori Aduan: {{ $item->t_permohonan_informasi->pi_kategori_aduan ?? 'Data Sudah Dihapus' }}</p>
+                        <p style="margin: 0;">Kategori Aduan: {{ $item->t_pernyataan_keberatan->pk_kategori_aduan ?? 'Data Sudah Dihapus' }}</p>
                         <p style="margin: 0;">
                             {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
                         </p>

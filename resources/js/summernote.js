@@ -226,10 +226,6 @@ function hapusGambarSummernote(urlGambar, editor, urlHapus) {
     }
 }
 
-/**
- * Inisialisasi form modal dengan Summernote
- * - Diperbaiki untuk menangani inisialisasi Summernote dengan lebih baik
- */
 function aturFormModal() {
     console.log('Inisialisasi form modal...');
 
@@ -326,7 +322,7 @@ function initializeSummernoteOnModalShown() {
 }
 
 // Memperbaiki event handler saat dokumen dimuat
-$(document).ready(function() {
+$(function() {
     console.log('Summernote: Document ready');
 
     try {
