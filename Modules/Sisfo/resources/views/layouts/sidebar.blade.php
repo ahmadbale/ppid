@@ -60,7 +60,7 @@ $hakAksesKode = $hakAkses ? $hakAkses->hak_akses_kode : '';
                 </div>
                 
                 <!-- Dynamic Menu dari MenuHelper -->
-                {!! MenuHelper::renderSidebarMenus($hakAksesKode, $activeMenu) !!}
+                {!! MenuHelper::renderSidebarMenus($hakAksesKode, request()->get('activeMenu', $activeMenu ?? '')) !!}
                 
                 <!-- Logout Menu (Tetap untuk semua pengguna) -->
                 <li class="nav-header">Logout</li>
