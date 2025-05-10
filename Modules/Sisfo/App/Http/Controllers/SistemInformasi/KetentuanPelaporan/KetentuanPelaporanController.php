@@ -30,7 +30,7 @@ class KetentuanPelaporanController extends Controller
             'title' => 'Daftar Ketentuan Pelaporan'
         ];
 
-        $activeMenu = 'KetentuanPelaporan';
+        $activeMenu = 'ketentuanpelaporan';
         
         // Gunakan pagination dan pencarian
         $ketentuanPelaporan = KetentuanPelaporanModel::selectData(10, $search);

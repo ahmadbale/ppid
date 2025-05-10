@@ -31,7 +31,7 @@ class PermohonanPerawatanController extends Controller
             'title' => 'Permohonan Pemeliharaan Sarana Prasarana'
         ];
 
-        $activeMenu = 'permohonansaranadanprasaranaadmin';
+        $activeMenu = 'permohonansaranadanprasarana';
 
         return view("sisfo::SistemInformasi/EForm/$folder/PermohonanPerawatan.index", [
             'breadcrumb' => $breadcrumb,
