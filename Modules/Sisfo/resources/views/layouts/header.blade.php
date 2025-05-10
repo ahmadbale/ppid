@@ -150,9 +150,5 @@
     }
     document.querySelector(".greeting-nich").textContent = getGreeting();
 
-    // Pastikan dropdown berfungsi dengan benar
-    $(document).ready(function() {
-        // Inisialisasi dropdown Bootstrap
-        $('.dropdown-toggle').dropdown();
-    });
+
 </script>
