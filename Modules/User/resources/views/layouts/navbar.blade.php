@@ -34,7 +34,7 @@
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse mt-1" id="navbarNav">
                 <ul class="navbar-nav">
                     @foreach ($navbar as $menu)
                         {{-- Menampilkan menu utama --}}

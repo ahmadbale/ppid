@@ -15,7 +15,7 @@ class FooterServiceProvider extends ServiceProvider
 
     public function __construct()
     {
-        $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
+        $this->baseUrl = config('BASE_URL', env('BASE_URL'));
     }
 
     public function register()

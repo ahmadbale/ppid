@@ -16,8 +16,8 @@ class TimelineController extends Controller
  
      public function __construct(JwtTokenService $jwtTokenService)
      {
-         $this->jwtTokenService = $jwtTokenService;
-         $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
+        $this->jwtTokenService = $jwtTokenService;
+        $this->baseUrl = config('BASE_URL', env('BASE_URL'));
      }
      
  
