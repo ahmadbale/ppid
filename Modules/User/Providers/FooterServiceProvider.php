@@ -15,7 +15,7 @@ class FooterServiceProvider extends ServiceProvider
 
     public function __construct()
     {
-        $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
+        $this->baseUrl = config('BASE_URL', env('BASE_URL'));
     }
 
     public function register()
@@ -25,14 +25,9 @@ class FooterServiceProvider extends ServiceProvider
   
     public function boot()
     {
-        Log::info('FooterServiceProvider: Boot method dipanggil');
         View::composer('user::layouts.footer', function ($view) {
             try {
-                Log::info('Memulai proses pengambilan data footer');
-
                 $footerData = $this->getFooterData();
-                Log::info('Data Footer berhasil diperoleh', ['footerData' => $footerData]);
-
                 $view->with($footerData);
             } catch (\Exception $e) {
                 Log::error('Error in FooterServiceProvider', ['message' => $e->getMessage()]);
