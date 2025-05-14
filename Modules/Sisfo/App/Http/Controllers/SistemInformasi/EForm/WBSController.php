@@ -28,7 +28,7 @@ class WBSController extends Controller
         ];
 
         $page = (object) [
-            'title' => 'whistleblowingsystemadmin'
+            'title' => 'whistleblowingsystem'
         ];
 
         $activeMenu = 'WBS';

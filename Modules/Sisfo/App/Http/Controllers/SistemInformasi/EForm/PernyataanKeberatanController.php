@@ -30,7 +30,7 @@ class PernyataanKeberatanController extends Controller
             'title' => 'Pengajuan Pernyataan Keberatan'
         ];
 
-        $activeMenu = 'pernyataankeberatanadminn';
+        $activeMenu = 'pernyataankeberatan';
 
         return view("sisfo::SistemInformasi/EForm/$folder/PernyataanKeberatan.index", [
             'breadcrumb' => $breadcrumb,

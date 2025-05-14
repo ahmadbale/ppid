@@ -62,6 +62,10 @@ class CheckUserPermission
 
         $currentPath = $request->path();
 
+        $activeMenu = WebMenuModel::getActiveMenuByUrl($currentPath);
+
+        $request->merge(['activeMenu' => $activeMenu]);
+
         // Cari menu URL berdasarkan nama URL
         $menuUrl = WebMenuUrlModel::where('wmu_nama', $currentPath)
             ->orWhere('wmu_nama', str_replace('adminweb/', '', $currentPath))

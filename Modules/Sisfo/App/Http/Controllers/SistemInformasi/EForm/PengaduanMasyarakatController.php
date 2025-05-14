@@ -63,7 +63,7 @@ class PengaduanMasyarakatController extends Controller
             'title' => 'Pengajuan Pengaduan Masyarakat'
         ];
 
-        $activeMenu = 'PengaduanMasyarakat';
+        $activeMenu = 'pengaduanmasyarakat';
 
         return view("sisfo::SistemInformasi/EForm/$folder/PengaduanMasyarakat.pengisianForm", [
             'breadcrumb' => $breadcrumb,
