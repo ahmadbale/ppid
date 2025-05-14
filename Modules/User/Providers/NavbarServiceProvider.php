@@ -24,14 +24,9 @@ class NavbarServiceProvider extends ServiceProvider
     }
     public function boot()
     {
-        Log::info('NavbarServiceProvider: Boot method dipanggil');
         View::composer('user::layouts.navbar', function ($view) {
             try {
-                Log::info('Memulai proses pengambilan data navbar');
-
                 $navbarData = $this->getNavbarData();
-                Log::info('Data navbar berhasil diperoleh', ['navbarData' => $navbarData]);
-
                 $view->with('navbar', $navbarData);
             } catch (\Exception $e) {
                 Log::error('Error in NavbarServiceProvider', ['message' => $e->getMessage()]);

@@ -25,14 +25,9 @@ class FooterServiceProvider extends ServiceProvider
   
     public function boot()
     {
-        Log::info('FooterServiceProvider: Boot method dipanggil');
         View::composer('user::layouts.footer', function ($view) {
             try {
-                Log::info('Memulai proses pengambilan data footer');
-
                 $footerData = $this->getFooterData();
-                Log::info('Data Footer berhasil diperoleh', ['footerData' => $footerData]);
-
                 $view->with($footerData);
             } catch (\Exception $e) {
                 Log::error('Error in FooterServiceProvider', ['message' => $e->getMessage()]);
