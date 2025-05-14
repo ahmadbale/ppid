@@ -9,7 +9,7 @@ class ApiDashboardStatisticsController extends BaseApiController
 {
     public function getDashboardStatistics()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function () {
                 $statistics = DashboardStatisticsModel::getDashboardStatistics();
                 return $statistics;

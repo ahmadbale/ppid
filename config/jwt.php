@@ -84,6 +84,17 @@ return [
         'passphrase' => env('JWT_PASSPHRASE'),
 
     ],
+    // tambahan 
+      // Konfigurasi TTL terpisah untuk user dan system
+      'ttl' => [
+        'user' => env('JWT_USER_TTL', 60),      // 1 jam default
+        'system' => env('JWT_SYSTEM_TTL', 2880), // 2 hari default
+    ],
+    
+    'refresh_ttl' => [
+        'user' => env('JWT_USER_REFRESH_TTL', 1440),    // 1 hari
+        'system' => env('JWT_SYSTEM_REFRESH_TTL', 4320), // 3 hari
+    ],
 
     /*
     |--------------------------------------------------------------------------

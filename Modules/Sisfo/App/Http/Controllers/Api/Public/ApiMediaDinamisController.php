@@ -14,7 +14,7 @@ class ApiMediaDinamisController extends BaseApiController
 {
     public function getDataHeroSection()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $heroSection = MediaDinamisModel::getDataHeroSection();
                 return $heroSection;
@@ -24,7 +24,7 @@ class ApiMediaDinamisController extends BaseApiController
     }
     public function getDataDokumentasi()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $dokumentasi = MediaDinamisModel::getDataDokumentasi();
                 return $dokumentasi;
@@ -34,7 +34,7 @@ class ApiMediaDinamisController extends BaseApiController
     }
     public function getDataMediaInformasiPublik(Request $request)
 {
-    return $this->execute(
+    return $this->executeWithSystemAuth(
         function() use ($request) {
             // Ambil parameter showAll dari query string, default false
             $showAll = $request->query('showAll', false);

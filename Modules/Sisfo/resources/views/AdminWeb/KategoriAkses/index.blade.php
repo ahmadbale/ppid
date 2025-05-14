@@ -19,9 +19,9 @@
                 Auth::user()->level->hak_akses_kode === 'SAR' ||
                 SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriAksesCepatUrl, 'create')
                 )
-                <button onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/addData') }}')" class="btn btn-sm btn-success">
+                {{-- <button onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/addData') }}')" class="btn btn-sm btn-success">
                 <i class="fas fa-plus"></i> Tambah
-                </button>
+                </button> --}}
             @endif
             </div>
           </div>

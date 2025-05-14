@@ -10,7 +10,7 @@ class ApiLhkpnController extends BaseApiController
 {
     public function getDataLhkpn(Request $request)
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function () use ($request) {
                 $tahun = $request->input('tahun');
                 $perPage = $request->input('per_page', 10);

@@ -9,7 +9,7 @@ class ApiFooterController extends BaseApiController
 {
      public function getDataFooter()
      {
-         return $this->execute(
+         return $this->executeWithSystemAuth(
              function() {
                  $getDataFooter = KategoriFooterModel::getDataFooter();
                  return $getDataFooter;

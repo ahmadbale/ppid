@@ -9,7 +9,7 @@ class ApiIpDinamisKontenController extends BaseApiController
 {
      public function getDataIPDaftarInformasi()
      {
-         return $this->execute(
+         return $this->executeWithSystemAuth(
              function() {
                  $getDataIPDaftarInformasi = IpDinamisKontenModel::getDataIPDaftarInformasi();
                  return $getDataIPDaftarInformasi;

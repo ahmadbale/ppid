@@ -69,6 +69,8 @@ class Kernel extends HttpKernel
         'token.check' => \Modules\User\App\Http\Middleware\TokenMiddleware::class,
         'token' => \Modules\User\App\Http\Middleware\TokenMiddleware::class,
         'permission' => \App\Http\Middleware\CheckUserPermission::class,
-        'jwt.verify' => \App\Http\Middleware\VerifyApiToken::class, // Add this line
+        # tambahan 
+        'jwt.system' => \App\Http\Middleware\VerifyApiToken::class, // Add this line
+        'jwt.user' => \App\Http\Middleware\VerifyUserToken::class,
     ];
 }

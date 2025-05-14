@@ -12,7 +12,7 @@ class ApiPengumumanLandingPageController extends BaseApiController
 {
     public function getDataPengumumanLandingPage()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $pengumumanLandingPage = PengumumanDinamisModel::getDataPengumumanLandingPage();
                 return $pengumumanLandingPage;
