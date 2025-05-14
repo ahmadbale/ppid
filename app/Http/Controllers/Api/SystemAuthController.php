@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 use App\Services\JwtTokenService;
 use Illuminate\Http\Request;
 
-class SystemAuthController extends Controller
+class SystemAuthController extends BaseApiController
 {
     protected $jwtTokenService;
 
@@ -17,24 +17,36 @@ class SystemAuthController extends Controller
 
     public function getToken()
     {
-        $tokenData = $this->jwtTokenService->getActiveToken();
-        return response()->json($tokenData);
+        return $this->execute(
+            function() {
+                $tokenData = $this->jwtTokenService->getActiveToken();
+                return $tokenData;
+            },
+            'token',
+            self::ACTION_GET
+        );
     }
 
     public function refreshToken(Request $request)
     {
-        $refreshToken = $request->refresh_token;
-
-        if (!$refreshToken) {
-            return response()->json(['error' => 'Refresh token tidak ditemukan'], 400);
-        }
-
-        $newToken = $this->jwtTokenService->refreshToken($refreshToken);
-
-        if (!$newToken) {
-            return response()->json(['error' => 'Refresh token tidak valid'], 401);
-        }
-
-        return response()->json($newToken);
+        return $this->executeWithValidation(
+            function() use ($request) {
+                // Validasi input
+                return validator($request->all(), [
+                    'refresh_token' => 'required|string'
+                ]);
+            },
+            function() use ($request) {
+                $refreshToken = $request->refresh_token;
+                $newToken = $this->jwtTokenService->refreshToken($refreshToken);
+                
+                if (!$newToken) {
+                    return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
+                }
+                
+                return $newToken;
+            },
+            self::ACTION_UPDATE
+        );
     }
 }

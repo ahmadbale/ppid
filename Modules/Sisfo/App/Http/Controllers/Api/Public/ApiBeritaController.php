@@ -9,7 +9,7 @@ class ApiBeritaController extends BaseApiController
 {
     public function getDataBerita()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function () {
                 $berita = BeritaDinamisModel::getDataBerita();
                 return $berita;
@@ -19,7 +19,7 @@ class ApiBeritaController extends BaseApiController
     }
     public function getDetailBeritaById($slug,$berita_id)
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function () use ($slug,$berita_id) {
                 $berita = BeritaDinamisModel::getDetailBeritaById($slug,$berita_id);
                 return $berita;

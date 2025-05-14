@@ -9,7 +9,7 @@ class ApiKetentuanPelaporanController extends BaseApiController
 {
      public function getDataKetentuanPelaporan()
      {
-         return $this->execute(
+         return $this->executeWithSystemAuth(
              function() {
                  $getDataKetentuanPelaporan = KategoriFormModel::getDataKetentuanPelaporan();
                  return $getDataKetentuanPelaporan;

@@ -33,7 +33,7 @@ class HakAksesController extends Controller
 
         // Gunakan pagination dan pencarian
         $level = HakAksesModel::selectData(10, $search);
-
+        
         return view("sisfo::ManagePengguna/ManageLevel.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,

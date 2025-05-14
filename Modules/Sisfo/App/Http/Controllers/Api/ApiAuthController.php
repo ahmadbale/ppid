@@ -12,98 +12,108 @@ use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class ApiAuthController extends BaseApiController
 {
-    /**
-     * Login user dan mendapatkan token JWT
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function login(Request $request)
-    {
-        return $this->execute(
-            function () use ($request) {
-                // Validasi input request
-                $validator = Validator::make($request->all(), [
-                    'username' => 'required|string',
-                    'password' => 'required|string|min:5',
-                ], [
-                    'username.required' => 'Username wajib diisi',
-                    'password.required' => 'Password wajib diisi',
-                    'password.min' => 'Password minimal 5 karakter',
-                ]);
+{
+    return $this->execute(
+        function () use ($request) {
+            // Validasi input request
+            $validator = Validator::make($request->all(), [
+                'username' => 'required|string',
+                'password' => 'required|string|min:5',
+            ], [
+                'username.required' => 'Username wajib diisi',
+                'password.required' => 'Password wajib diisi',
+                'password.min' => 'Password minimal 5 karakter',
+            ]);
 
-                if ($validator->fails()) {
-                    return $this->errorResponse(
-                        self::AUTH_INVALID_INPUT,
-                        $validator->errors()->first(),
-                        422
-                    );
-                }
+            if ($validator->fails()) {
+                return $this->errorResponse(
+                    self::AUTH_INVALID_INPUT,
+                    $validator->errors()->first(),
+                    422
+                );
+            }
 
-                // Panggil method prosesLogin dari UserModel
-                $loginResult = UserModel::prosesLogin($request);
+            // Panggil method prosesLogin dari UserModel
+            $loginResult = UserModel::prosesLogin($request);
 
-                // Periksa hasil login
-                if (!$loginResult['success']) {
-                    return $this->errorResponse(
-                        self::AUTH_INVALID_CREDENTIALS,
-                        $loginResult['message'],
-                        401
-                    );
-                }
+            if (!$loginResult['success']) {
+                return $this->errorResponse(
+                    self::AUTH_INVALID_CREDENTIALS,
+                    $loginResult['message'],
+                    401
+                );
+            }
 
-                // User sudah terautentikasi dari prosesLogin
-                $user = $loginResult['user'];
+            // User sudah terautentikasi
+            $user = $loginResult['user'];
 
-                // Generate token JWT
-                $token = JWTAuth::fromUser($user);
-                
-                // Return response dengan token dan data user
+            // Set custom claims untuk user token
+            $customClaims = [
+                'type' => 'user',
+                'exp' => now()->addMinutes(config('jwt.ttl.user', 60))->timestamp,
+                'user_id' => $user->user_id,
+                'role' => $user->getRoleName()
+            ];
+
+            // Generate token dengan custom claims
+            $token = JWTAuth::claims($customClaims)->fromUser($user);
+
+            // Set cookie dengan token
+            $cookie = cookie(
+                'jwt_token',
+                $token,
+                config('jwt.ttl.user', 60),
+                '/',
+                null,
+                true,
+                true,
+                false,
+                'Strict'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => $loginResult['message'],
+                'redirect' => $loginResult['redirect'],
+                'multi_level' => $loginResult['multi_level'] ?? false,
+                'token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => config('jwt.ttl.user', 60) * 60, // dalam detik
+                'user' => UserModel::getDataUser($user)
+            ])->withCookie($cookie);
+        },
+        'login',
+        self::ACTION_LOGIN
+    );
+}
+
+public function logout()
+{
+    return $this->executeWithAuthentication(
+        function ($user) {
+            try {
+                $token = JWTAuth::getToken();
+                JWTAuth::invalidate($token);
+
+                // Hapus cookie
+                $cookie = cookie()->forget('jwt_token');
+
                 return response()->json([
                     'success' => true,
-                    'message' => $loginResult['message'],
-                    'redirect' => $loginResult['redirect'],
-                    'multi_level' => $loginResult['multi_level'] ?? false,
-                    'token' => $token,
-                    'token_type' => 'bearer',
-                    'expires_in' => config('jwt.ttl') * 60, // dalam detik
-                    'user' => UserModel::getDataUser($user)
-                ]);
-            },
-            'login',
-            self::ACTION_LOGIN
-        );
-    }
+                    'message' => 'Berhasil logout'
+                ])->withCookie($cookie);
 
-    /**
-     * Logout user dan invalidate token
-     * 
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
-    {
-        return $this->executeWithAuthentication(
-            function ($user) {
-                try {
-                    $token = JWTAuth::getToken();
-                    JWTAuth::invalidate($token);
+            } catch (JWTException $e) {
+                throw new \Exception(self::AUTH_LOGOUT_FAILED);
+            }
+        },
+        'logout',
+        self::ACTION_LOGOUT
+    );
+}
 
-                    return null; // Sukses tanpa data yang dikembalikan
-                } catch (JWTException $e) {
-                    throw new \Exception(self::AUTH_LOGOUT_FAILED);
-                }
-            },
-            'logout',
-            self::ACTION_LOGOUT
-        );
-    }
-
-    /**
-     * Register pengguna baru
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
+ 
     public function register(Request $request)
     {
         return $this->execute(
@@ -131,11 +141,7 @@ class ApiAuthController extends BaseApiController
         );
     }
 
-    /**
-     * Mendapatkan data user yang sedang login
-     * 
-     * @return \Illuminate\Http\JsonResponse
-     */
+   
     public function getData()
     {
         return $this->executeWithAuthentication(
@@ -148,67 +154,74 @@ class ApiAuthController extends BaseApiController
         );
     }
 
-    /**
-     * Memperbaharui token JWT
-     * 
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refreshToken()
-    {
-        return $this->execute(
-            function () {
-                try {
-                    // Dapatkan token saat ini
-                    $oldToken = JWTAuth::getToken();
-    
-                    // Periksa apakah token ada
-                    if (!$oldToken) {
-                        return $this->errorResponse(
-                            self::AUTH_TOKEN_NOT_FOUND,
-                            'Token tidak ditemukan',
-                            401
-                        );
-                    }
-    
-                    // Generate token baru
-                    $newToken = JWTAuth::refresh($oldToken);
-                    
-                    // Dapatkan user dari token baru
-                    $user = JWTAuth::setToken($newToken)->authenticate();
-    
-                    // Kembalikan token baru dengan informasi tambahan
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Token berhasil diperbaharui',
-                        'token' => $newToken,
-                        'token_type' => 'bearer',
-                        'expires_in' => config('jwt.ttl') * 60, // dalam detik
-                        'user' => UserModel::getDataUser($user)
-                    ]);
-                } catch (TokenExpiredException $e) {
-                    return $this->errorResponse(
-                        self::AUTH_TOKEN_EXPIRED,
-                        'Token sudah kadaluarsa dan tidak dapat diperbaharui',
-                        401
-                    );
-                } catch (TokenInvalidException $e) {
-                    return $this->errorResponse(
-                        self::AUTH_TOKEN_INVALID,
-                        'Token tidak valid',
-                        401
-                    );
-                } catch (JWTException $e) {
-                    return $this->errorResponse(
-                        self::AUTH_TOKEN_ERROR,
-                        'Terjadi kesalahan saat memperbaharui token',
-                        500
-                    );
-                }
-            },
-            'token',
-            self::ACTION_UPDATE
-        );
-    }
+   
+// public function refreshToken()
+// {
+//     return $this->execute(
+//         function () {
+//             try {
+//                 $oldToken = JWTAuth::getToken();
+//                 if (!$oldToken) {
+//                     return $this->errorResponse(
+//                         self::AUTH_TOKEN_NOT_FOUND,
+//                         'Token tidak ditemukan',
+//                         401
+//                     );
+//                 }
+
+//                 $user = JWTAuth::parseToken()->authenticate();
+                
+//                 // Set custom claims untuk token baru
+//                 $customClaims = [
+//                     'type' => 'user',
+//                     'exp' => now()->addMinutes(config('jwt.ttl.user', 60))->timestamp,
+//                     'user_id' => $user->user_id,
+//                     'role' => $user->getRoleName()
+//                 ];
+
+//                 // Generate token baru dengan custom claims
+//                 $newToken = JWTAuth::claims($customClaims)->fromUser($user);
+
+//                 // Update cookie
+//                 $cookie = cookie(
+//                     'jwt_token',
+//                     $newToken,
+//                     config('jwt.ttl.user', 60),
+//                     '/',
+//                     null,
+//                     true,
+//                     true,
+//                     false,
+//                     'Strict'
+//                 );
+
+//                 return response()->json([
+//                     'success' => true,
+//                     'message' => 'Token berhasil diperbaharui',
+//                     'token' => $newToken,
+//                     'token_type' => 'bearer',
+//                     'expires_in' => config('jwt.ttl.user', 60) * 60,
+//                     'user' => UserModel::getDataUser($user)
+//                 ])->withCookie($cookie);
+
+//             } catch (TokenExpiredException $e) {
+//                 return $this->errorResponse(
+//                     self::AUTH_TOKEN_EXPIRED,
+//                     'Token sudah kadaluarsa dan tidak dapat diperbaharui',
+//                     401
+//                 );
+//             } catch (\Exception $e) {
+//                 return $this->errorResponse(
+//                     self::AUTH_TOKEN_ERROR,
+//                     'Terjadi kesalahan saat memperbaharui token',
+//                     500
+//                 );
+//             }
+//         },
+//         'token',
+//         self::ACTION_UPDATE
+//     );
+// }
     
     /**
      * Mengubah hak akses aktif user

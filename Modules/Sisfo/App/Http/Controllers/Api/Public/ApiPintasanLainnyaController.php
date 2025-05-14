@@ -10,7 +10,7 @@ class ApiPintasanLainnyaController extends BaseApiController
 {
     public function getDataPintasanLainnya()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $pintasanLainnya = KategoriAksesModel::getDataPintasanLainnya();
                 return $pintasanLainnya;
