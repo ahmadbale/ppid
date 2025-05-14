@@ -9,7 +9,7 @@ class ApiAksesCepatController extends BaseApiController
 {
     public function getDataAksesCepat()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $aksesCepat = KategoriAksesModel::getDataAksesCepat();
                 return $aksesCepat;

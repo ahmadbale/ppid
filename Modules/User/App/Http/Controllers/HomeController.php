@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\JwtTokenService;
+
 class HomeController extends Controller
 {
     // tambahan kinboy 
@@ -16,9 +17,9 @@ class HomeController extends Controller
     public function __construct(JwtTokenService $jwtTokenService)
     {
         $this->jwtTokenService = $jwtTokenService;
-        $this->baseUrl = config('app.url', 'http://ppid-polinema.test');
+        $this->baseUrl = config('BASE_URL', env('BASE_URL'));
     }
-    
+
 
     /**
      * Make authenticated request with JWT token
@@ -28,7 +29,7 @@ class HomeController extends Controller
         try {
             // Get active token
             $tokenData = $this->jwtTokenService->getActiveToken();
-            
+
             // Make request with token
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $tokenData['token']
@@ -44,7 +45,6 @@ class HomeController extends Controller
             }
 
             return $response;
-
         } catch (\Exception $e) {
             Log::error('API request failed', [
                 'endpoint' => $endpoint,
@@ -153,13 +153,12 @@ class HomeController extends Controller
                 'mediaInformasiPublikMenus',
                 'statisticData'
             ));
-
         } catch (\Exception $e) {
             Log::error('Error saat mengambil data dari API', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return view('user::landing_page', [
                 'pintasanMenus' => [],
                 'aksesCepatMenus' => [],
@@ -190,7 +189,7 @@ class HomeController extends Controller
         $result = [];
         foreach ($data as $item) {
             $kategoriJudul = $item['kategori_judul'] ?? 'Pintasan Lainnya';
-            
+
             foreach ($item['pintasan'] as $pintasan) {
                 $result[] = [
                     'kategori_judul' => $kategoriJudul,
@@ -406,7 +405,7 @@ class HomeController extends Controller
         return $this->processStatisticData($response->json('data'));
     }
 
-    private function processStatisticData($data) 
+    private function processStatisticData($data)
     {
         $result = [];
         try {
@@ -427,7 +426,7 @@ class HomeController extends Controller
                     ]
                 ];
             }
-            
+
             Log::info('Data statistik berhasil diproses', ['result' => $result]);
             return $result;
         } catch (\Exception $e) {
@@ -438,6 +437,4 @@ class HomeController extends Controller
             return [];
         }
     }
-
-    
 }

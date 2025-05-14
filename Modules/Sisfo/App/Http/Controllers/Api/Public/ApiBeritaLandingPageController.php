@@ -13,7 +13,7 @@ class ApiBeritaLandingPageController extends BaseApiController
 {
     public function getDataBeritaLandingPage()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $beritaLandingPage = BeritaDinamisModel::getDataBeritaLandingPage();
                 return $beritaLandingPage;

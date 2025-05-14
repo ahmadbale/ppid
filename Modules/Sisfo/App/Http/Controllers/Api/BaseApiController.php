@@ -24,9 +24,10 @@ class BaseApiController extends Controller
     protected const ACTION_REGISTER = 'register';
     protected const ACTION_LOGOUT = 'logout';
     
-    // Konstanta untuk pesan error autentikasi
+    // Konstanta untuk pesan error dan respons
     protected const AUTH_TOKEN_NOT_FOUND = 'Token tidak ditemukan';
     protected const AUTH_USER_NOT_FOUND = 'User tidak ditemukan';
+    protected const AUTH_SYSTEM_NOT_FOUND = 'System tidak ditemukan';
     protected const AUTH_TOKEN_EXPIRED = 'Token telah kadaluarsa';
     protected const AUTH_TOKEN_INVALID = 'Token tidak valid';
     protected const AUTH_TOKEN_ERROR = 'Terjadi kesalahan pada token';
@@ -41,6 +42,11 @@ class BaseApiController extends Controller
     protected const VALIDATION_FAILED = 'Validasi gagal';
     protected const SERVER_ERROR = 'Terjadi kesalahan pada server';
     protected const RESOURCE_NOT_FOUND = 'Data tidak ditemukan';
+    protected const INVALID_REQUEST_FORMAT = 'Format request tidak valid';
+    
+    // Konstanta untuk jenis autentikasi
+    protected const AUTH_TYPE_USER = 'user';
+    protected const AUTH_TYPE_SYSTEM = 'system';
    
     // Template pesan untuk setiap aksi
     protected $messageTemplates = [
@@ -75,7 +81,7 @@ class BaseApiController extends Controller
     ];
 
     /**
-     * Mengeksekusi aksi dan memberikan respons yang terstandarisasi.
+     * Menjalankan aksi API tanpa autentikasi (untuk endpoint publik)
      * 
      * @param callable $action Fungsi yang akan dieksekusi
      * @param string $resourceName Nama resource (contoh: 'menu', 'user')
@@ -131,176 +137,219 @@ class BaseApiController extends Controller
     }
 
     /**
-     * Mengeksekusi aksi yang memerlukan autentikasi token JWT
+     * Menjalankan aksi API dengan autentikasi sistem (jwt.system)
+     * Digunakan untuk endpoint API publik yang dilindungi middleware jwt.system
+     * 
+     * @param callable $action Fungsi yang akan dieksekusi
+     * @param string $resourceName Nama resource (contoh: 'menu', 'berita')
+     * @param string $actionType Jenis aksi (get, create, update, delete, dll)
+     * @return JsonResponse
+     */
+    protected function executeWithSystemAuth(callable $action, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
+{
+    try {
+        // Get active system token using JwtTokenService
+        $jwtService = new \App\Services\JwtTokenService();
+        $tokenData = $jwtService->getActiveToken();
+
+        if (!$tokenData || !isset($tokenData['token'])) {
+            return $this->errorResponse(self::AUTH_SYSTEM_NOT_FOUND, null, 401);
+        }
+
+        // Set token for request
+        JWTAuth::setToken($tokenData['token']);
+
+        // Execute action without passing system parameter
+        $result = $action();
+            
+        // Handle JsonResponse result
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
+        // Handle null result
+        if ($result === null) {
+            $errorMessage = match($actionType) {
+                self::ACTION_GET => sprintf('%s tidak ditemukan.', $resourceName),
+                self::ACTION_UPDATE => sprintf('Data %s yang akan diupdate tidak ditemukan.', $resourceName),
+                self::ACTION_DELETE => sprintf('Data %s yang akan dihapus tidak ditemukan.', $resourceName),
+                self::ACTION_CREATE => sprintf('Gagal membuat data %s.', $resourceName),
+                default => sprintf('%s tidak ditemukan.', $resourceName)
+            };
+            
+            return $this->errorResponse($errorMessage, null, 404);
+        }
+
+        // Get success message from templates
+        $message = isset($this->messageTemplates[$actionType]) 
+            ? sprintf($this->messageTemplates[$actionType]['success'], $resourceName)
+            : sprintf('Data %s berhasil diproses.', $resourceName);
+            
+        return $this->successResponse($result, $message);
+            
+    } catch (TokenExpiredException $e) {
+        // Generate new token if expired
+        try {
+            $newToken = $jwtService->generateSystemToken();
+            JWTAuth::setToken($newToken['token']);
+            return $this->execute($action, $resourceName, $actionType);
+        } catch (\Exception $e) {
+            return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, 401);
+        }
+    } catch (TokenInvalidException $e) {
+        $this->logError('System token invalid', $e);
+        return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
+    } catch (JWTException $e) {
+        $this->logError('JWT Error: ' . $resourceName, $e);
+        return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), 401);
+    } catch (\Exception $e) {
+        $this->logError('System auth error: ' . $resourceName, $e);
+        return $this->errorResponse(
+            sprintf($this->messageTemplates[$actionType]['error'] ?? 'Terjadi kesalahan saat memproses %s.', $resourceName),
+            config('app.debug') ? $e->getMessage() : null,
+            500
+        );
+    }
+}
+    /**
+     * Menjalankan aksi API yang memerlukan autentikasi user (jwt.user)
      * 
      * @param callable $action Fungsi yang akan dieksekusi, menerima user terautentikasi
      * @param string $resourceName Nama resource (contoh: 'menu', 'user')
      * @param string $actionType Jenis aksi (get, create, update, delete, dll)
      * @return JsonResponse
      */
-
-     protected function executeWithAuthentication(callable $action, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
-     {
-         try {
-             // Periksa keberadaan token
-             if (!$token = JWTAuth::getToken()) {
-                 return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, 401);
-             }
-     
-             // Autentikasi token dan dapatkan user
-             $user = JWTAuth::parseToken()->authenticate();
-             if (!$user) {
-                 return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, 401);
-             }
-             
-             // Eksekusi aksi dengan user terautentikasi
-             $result = $action($user);
-     
-             // Jika hasil adalah instance JsonResponse, langsung kembalikan
-             if ($result instanceof JsonResponse) {
-                 return $result;
-             }
-     
-             // Definisi pesan error untuk hasil null
-             $notFoundMessages = [
-                 self::ACTION_GET => '%s tidak ditemukan.',
-                 self::ACTION_UPDATE => 'Data %s yang akan diupdate tidak ditemukan.',
-                 self::ACTION_DELETE => 'Data %s yang akan dihapus tidak ditemukan.',
-                 self::ACTION_CREATE => 'Gagal membuat data %s.',
-             ];
-     
-             // Cek hasil null dengan pesan sesuai tipe aksi
-             if ($result === null) {
-                 $errorMessage = isset($notFoundMessages[$actionType]) 
-                     ? sprintf($notFoundMessages[$actionType], $resourceName)
-                     : sprintf('%s tidak ditemukan.', $resourceName);
-                 
-                 return $this->errorResponse($errorMessage, null, 404);
-             }
-     
-             // Pastikan action type valid, jika tidak gunakan pesan default
-             $message = self::RESOURCE_NOT_FOUND;
-             if (isset($this->messageTemplates[$actionType])) {
-                 $message = sprintf($this->messageTemplates[$actionType]['success'], $resourceName);
-             }
-             
-             return $this->successResponse($result, $message);
-             
-         } catch (TokenExpiredException $e) {
-             $this->logError('Token expired', $e);
-             return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, 401);
-         } catch (TokenInvalidException $e) {
-             $this->logError('Token invalid', $e);
-             return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
-         } catch (JWTException $e) {
-             $this->logError('JWT Error: ' . $resourceName, $e);
-             return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), 401);
-         } catch (\Exception $e) {
-             $this->logError('Authentication action error: ' . $resourceName, $e);
-             $message = isset($this->messageTemplates[$actionType]) 
-                 ? sprintf($this->messageTemplates[$actionType]['error'], $resourceName)
-                 : sprintf('Terjadi kesalahan saat memproses %s.', $resourceName);
-             return $this->errorResponse($message, $e->getMessage(), 500);
-         }
-     }
-
-    /**
-     * Mengeksekusi aksi yang memerlukan validasi input terlebih dahulu
-     * 
-     * @param callable $validatorAction Fungsi yang mengembalikan validator
-     * @param callable $successAction Fungsi yang dijalankan jika validasi berhasil
-     * @param string $actionType Jenis aksi
-     * @return JsonResponse
-     */
-    protected function executeWithValidation(callable $validatorAction, callable $successAction, string $actionType): JsonResponse
-    {
-        try {
-            // Jalankan validator
-            $validator = $validatorAction();
-            
-            // Cek hasil validasi
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => self::VALIDATION_FAILED,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            
-            // Jika validasi berhasil, jalankan aksi sukses
-            $result = $successAction();
-            
-            // Jika hasil adalah instance JsonResponse, langsung kembalikan
-            if ($result instanceof JsonResponse) {
-                return $result;
-            }
-            
-            $message = isset($this->messageTemplates[$actionType]) 
-                ? $this->messageTemplates[$actionType]['success']
-                : 'Operasi berhasil';
-            
-            return $this->successResponse($result, $message);
-        } catch (\Exception $e) {
-            $this->logError('Validation action error', $e);
-            return $this->errorResponse(self::SERVER_ERROR, $e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Mengeksekusi aksi yang memerlukan autentikasi dan validasi
-     * 
-     * @param callable $validatorAction Fungsi yang mengembalikan validator
-     * @param callable $successAction Fungsi yang dijalankan jika autentikasi dan validasi berhasil
-     * @param string $resourceName Nama resource
-     * @param string $actionType Jenis aksi
-     * @return JsonResponse
-     */
-    protected function executeWithAuthAndValidation(callable $validatorAction, callable $successAction, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
+    protected function executeWithAuthentication(callable $action, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
     {
         try {
             // Periksa keberadaan token
             if (!$token = JWTAuth::getToken()) {
                 return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, 401);
             }
-
+    
             // Autentikasi token dan dapatkan user
             $user = JWTAuth::parseToken()->authenticate();
             if (!$user) {
                 return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, 401);
             }
             
-            // Jalankan validator
-            $validator = $validatorAction();
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => self::VALIDATION_FAILED,
-                    'errors' => $validator->errors()
-                ], 422);
+            // Eksekusi aksi dengan user terautentikasi
+            $result = $action($user);
+    
+            // Jika hasil adalah instance JsonResponse, langsung kembalikan
+            if ($result instanceof JsonResponse) {
+                return $result;
+            }
+    
+            // Definisi pesan error untuk hasil null
+            $notFoundMessages = [
+                self::ACTION_GET => '%s tidak ditemukan.',
+                self::ACTION_UPDATE => 'Data %s yang akan diupdate tidak ditemukan.',
+                self::ACTION_DELETE => 'Data %s yang akan dihapus tidak ditemukan.',
+                self::ACTION_CREATE => 'Gagal membuat data %s.',
+            ];
+    
+            // Cek hasil null dengan pesan sesuai tipe aksi
+            if ($result === null) {
+                $errorMessage = isset($notFoundMessages[$actionType]) 
+                    ? sprintf($notFoundMessages[$actionType], $resourceName)
+                    : sprintf('%s tidak ditemukan.', $resourceName);
+                
+                return $this->errorResponse($errorMessage, null, 404);
+            }
+    
+            // Pastikan action type valid, jika tidak gunakan pesan default
+            $message = self::RESOURCE_NOT_FOUND;
+            if (isset($this->messageTemplates[$actionType])) {
+                $message = sprintf($this->messageTemplates[$actionType]['success'], $resourceName);
             }
             
-            // Jalankan aksi sukses dengan user terautentikasi
-            return $this->execute(
-                function() use ($successAction, $user) {
-                    return $successAction($user);
-                },
-                $resourceName,
-                $actionType
-            );
+            return $this->successResponse($result, $message);
             
         } catch (TokenExpiredException $e) {
+            $this->logError('Token expired', $e);
             return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, 401);
         } catch (TokenInvalidException $e) {
+            $this->logError('Token invalid', $e);
             return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
         } catch (JWTException $e) {
-            $this->logError('JWT Error', $e);
+            $this->logError('JWT Error: ' . $resourceName, $e);
             return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), 401);
         } catch (\Exception $e) {
-            $this->logError('Auth and validation error: ' . $resourceName, $e);
+            $this->logError('Authentication action error: ' . $resourceName, $e);
             $message = isset($this->messageTemplates[$actionType]) 
                 ? sprintf($this->messageTemplates[$actionType]['error'], $resourceName)
                 : sprintf('Terjadi kesalahan saat memproses %s.', $resourceName);
             return $this->errorResponse($message, $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Menjalankan aksi API yang memerlukan validasi dan autentikasi
+     * 
+     * @param callable $validator Fungsi yang melakukan validasi data input
+     * @param callable $action Fungsi yang dijalankan jika validasi berhasil
+     * @param string $resourceName Nama resource
+     * @param string $actionType Jenis aksi
+     * @return JsonResponse
+     */
+    /**
+ * Menjalankan aksi API yang memerlukan validasi dan autentikasi sekaligus
+ * 
+ * @param callable $action Fungsi yang akan dieksekusi jika autentikasi berhasil
+ * @param string $resourceName Nama resource
+ * @param string $actionType Jenis aksi
+ * @return JsonResponse
+ */
+protected function executeWithAuthAndValidation(callable $action, string $resourceName, string $actionType): JsonResponse
+{
+    return $this->executeWithAuthentication(
+        function ($user) use ($action, $resourceName, $actionType) {
+            try {
+                // Jalankan action dengan user
+                $result = $action($user);
+                
+                // Jika result adalah response, kembalikan langsung
+                if ($result instanceof JsonResponse) {
+                    return $result;
+                }
+                
+                return $result;
+            } catch (\Exception $e) {
+                $this->logError('Validation error in authenticated context: ' . $resourceName, $e);
+                return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), 422);
+            }
+        },
+        $resourceName,
+        $actionType
+    );
+}
+    protected function executeWithValidation(callable $validator, callable $action, string $resourceName, string $actionType): JsonResponse
+    {
+        try {
+            // Jalankan validator
+            $validationResult = $validator();
+            
+            // Jika validasi memberikan response error, kembalikan
+            if ($validationResult instanceof JsonResponse) {
+                return $validationResult;
+            }
+            
+            // Jika validator mengembalikan pesan error string
+            if (is_string($validationResult)) {
+                return $this->errorResponse($validationResult, null, 422);
+            }
+            
+            // Jalankan aksi sukses
+            return $this->execute(
+                $action,
+                $resourceName,
+                $actionType
+            );
+            
+        } catch (\Exception $e) {
+            $this->logError('Validation error: ' . $resourceName, $e);
+            return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), 422);
         }
     }
 

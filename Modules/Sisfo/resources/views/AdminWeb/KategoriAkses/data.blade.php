@@ -40,10 +40,10 @@
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriAksesCepatUrl, 'delete')
                 )
-                    <button class="btn btn-sm btn-danger"
+                    {{-- <button class="btn btn-sm btn-danger"
                         onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/deleteData/' . $item->kategori_akses_id) }}')">
                         <i class="fas fa-trash"></i> Hapus
-                    </button>
+                    </button> --}}
                 @endif
             </td>
          </tr>

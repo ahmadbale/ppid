@@ -355,9 +355,13 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => 'Notifikasi/NotifAdmin', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [NotifAdminController::class, 'index']);
-        Route::get('/notifPI', [NotifAdminController::class, 'notifikasiPermohonan']);
-        Route::post('/tandai-dibaca/{id}', [NotifAdminController::class, 'tandaiDibaca'])->name('NotifAdmin.tandaiDibaca');
-        Route::delete('/hapus/{id}', [NotifAdminController::class, 'hapusNotifikasi'])->name('NotifAdmin.hapus');
+        Route::get('/notifPI', [NotifAdminController::class, 'notifikasiPermohonanInformasi']);
+        Route::get('/notifPK', [NotifAdminController::class, 'notifikasiPernyataanKeberatan']);
+        Route::get('/notifPM', [NotifAdminController::class, 'notifikasiPengaduanMasyarakat']);
+        Route::get('/notifWBS', [NotifAdminController::class, 'notifikasiWBS']);
+        Route::get('/notifPP', [NotifAdminController::class, 'notifikasiPermohonanPerawatan']);
+        Route::post('/tandai-dibaca/{id}', [NotifAdminController::class, 'tandaiDibaca']);
+        Route::delete('/hapus/{id}', [NotifAdminController::class, 'hapusNotifikasi']);
         Route::post('/tandai-semua-dibaca', [NotifAdminController::class, 'tandaiSemuaDibaca']);
         Route::delete('/hapus-semua-dibaca', [NotifAdminController::class, 'hapusSemuaDibaca']);
     });

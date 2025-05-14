@@ -980,4 +980,43 @@ class WebMenuModel extends Model
         // Gunakan wm_menu_nama jika ada, jika tidak gunakan nama default dari WebMenuGlobal
         return $this->wm_menu_nama ?: ($this->WebMenuGlobal ? $this->WebMenuGlobal->wmg_nama_default : 'Unnamed Menu');
     }
+
+    public static function getActiveMenuByUrl($currentUrl)
+    {
+        // Cek apakah URL adalah e-form
+        $eformActiveMenu = \Modules\Sisfo\App\Helpers\EFormActiveMenuHelper::getActiveMenu($currentUrl);
+        if ($eformActiveMenu !== null) {
+            return $eformActiveMenu;
+        }
+
+        // Jika bukan URL e-form, lanjutkan dengan logika standar...
+        $menuUrl = DB::table('web_menu_url as wmu')
+            ->join('web_menu_global as wmg', 'wmu.web_menu_url_id', '=', 'wmg.fk_web_menu_url')
+            ->join('web_menu as wm', 'wmg.web_menu_global_id', '=', 'wm.fk_web_menu_global')
+            ->where('wmu.wmu_nama', $currentUrl)
+            ->where('wm.wm_status_menu', 'aktif')
+            ->where('wm.isDeleted', 0)
+            ->select('wmu.wmu_nama', 'wm.wm_menu_nama', 'wmg.wmg_nama_default')
+            ->first();
+
+        if ($menuUrl) {
+            // Ambil nama menu yang akan digunakan sebagai active menu
+            $menuName = $menuUrl->wm_menu_nama ?: $menuUrl->wmg_nama_default;
+
+            // Standardisasi format: lowercase, tanpa spasi dan karakter khusus
+            return strtolower(str_replace(' ', '', $menuName));
+        }
+
+        // Jika tidak ditemukan di database, gunakan format default dari URL
+        // Ambil segmen terakhir dari URL (setelah slash terakhir)
+        $urlSegments = explode('/', $currentUrl);
+        $lastSegment = end($urlSegments);
+
+        // Untuk URL dengan akhiran -admin, gunakan versi tanpa admin
+        if (str_ends_with($lastSegment, '-admin')) {
+            $lastSegment = str_replace('-admin', '', $lastSegment);
+        }
+
+        return strtolower($lastSegment);
+    }
 }

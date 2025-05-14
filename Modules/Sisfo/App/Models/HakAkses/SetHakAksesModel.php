@@ -108,12 +108,19 @@ class SetHakAksesModel extends Model
                     }
 
                     // Tentukan nilai hak akses baru
+                    // $newHakAkses = [
+                    //     'ha_menu' => isset($akses['menu']) ? 1 : 0,
+                    //     'ha_view' => isset($akses['view']) ? 1 : 0,
+                    //     'ha_create' => isset($akses['create']) ? 1 : 0,
+                    //     'ha_update' => isset($akses['update']) ? 1 : 0,
+                    //     'ha_delete' => isset($akses['delete']) ? 1 : 0
+                    // ];
                     $newHakAkses = [
-                        'ha_menu' => isset($akses['menu']) ? 1 : 0,
-                        'ha_view' => isset($akses['view']) ? 1 : 0,
-                        'ha_create' => isset($akses['create']) ? 1 : 0,
-                        'ha_update' => isset($akses['update']) ? 1 : 0,
-                        'ha_delete' => isset($akses['delete']) ? 1 : 0
+                        'ha_menu' => (int)(isset($akses['menu']) && $akses['menu']),
+                        'ha_view' => (int)(isset($akses['view']) && $akses['view']),
+                        'ha_create' => (int)(isset($akses['create']) && $akses['create']),
+                        'ha_update' => (int)(isset($akses['update']) && $akses['update']),
+                        'ha_delete' => (int)(isset($akses['delete']) && $akses['delete'])
                     ];
 
                     // Update atau buat hak akses untuk setiap user

@@ -9,7 +9,7 @@ class ApiRegulasiController extends BaseApiController
 {
      public function getDataRegulasi()
      {
-         return $this->execute(
+         return $this->executeWithSystemAuth(
              function() {
                  $getDataRegulasi = RegulasiDinamisModel::getDataRegulasi();
                  return $getDataRegulasi;

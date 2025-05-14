@@ -9,7 +9,7 @@ class ApiTimelineController extends BaseApiController
 {
      public function getDataTimeline()
      {
-         return $this->execute(
+         return $this->executeWithSystemAuth(
              function() {
                  $getDataTimeline = KategoriFormModel::getDataTimeline();
                  return $getDataTimeline;

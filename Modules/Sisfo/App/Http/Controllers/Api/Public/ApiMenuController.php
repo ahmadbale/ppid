@@ -10,7 +10,7 @@ class ApiMenuController extends BaseApiController
     
     public function getDataMenu()
     {
-        return $this->execute(
+        return $this->executeWithSystemAuth(
             function() {
                 $menu = WebMenuModel::getDataMenu();
                 return $menu;

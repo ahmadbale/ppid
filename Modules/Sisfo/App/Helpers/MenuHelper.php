@@ -12,7 +12,7 @@ class MenuHelper
         if (empty($hakAksesKode)) {
             return ''; // Jika kode hak akses kosong, tidak ada menu yang ditampilkan
         }
-        
+
         $userId = Auth::user()->user_id;
         $menus = WebMenuModel::getMenusByLevelWithPermissions($hakAksesKode, $userId);
         $totalNotifikasi = WebMenuModel::getNotifikasiCount($hakAksesKode);
@@ -23,7 +23,7 @@ class MenuHelper
             'Notifikasi' => 'fa-bell',
             'Hak Akses' => 'fa-key',
             'E-Form Admin' => 'fa-folder-open',
-            'Menu Management' => 'fa-tasks', 
+            'Menu Management' => 'fa-tasks',
             'Management Pengumuman' => 'fa-bullhorn',
             'Management Berita' => 'fa-newspaper',
             'Management Footer' => 'fa-columns',
@@ -104,14 +104,16 @@ class MenuHelper
 
     private static function generateMenuItem($url, $name, $icon, $activeMenu)
     {
-        $isActive = ($activeMenu == strtolower(str_replace(' ', '', $name))) ? 'active' : '';
+        // Standardisasi format nama menu untuk pemeriksaan active state
+        $menuSlug = strtolower(str_replace(' ', '', $name));
+        $isActive = ($activeMenu == $menuSlug) ? 'active' : '';
         return "
-        <li class='nav-item'>
-            <a href='{$url}' class='nav-link {$isActive}'>
-                <i class='nav-icon fas {$icon}'></i>
-                <p>{$name}</p>
-            </a>
-        </li>";
+    <li class='nav-item'>
+        <a href='{$url}' class='nav-link {$isActive}'>
+            <i class='nav-icon fas {$icon}'></i>
+            <p>{$name}</p>
+        </a>
+    </li>";
     }
 
     private static function generateNotificationMenuItem($url, $name, $icon, $activeMenu, $notificationCount)
@@ -132,36 +134,57 @@ class MenuHelper
 
     private static function generateDropdownMenu($menu, $activeMenu, $menuIcons)
     {
-        // Ambil nama menu yang akan ditampilkan (bisa alias atau nama asli)
+        // Ambil nama menu yang akan ditampilkan
         $menuName = $menu->getDisplayName();
+
+        // Standardisasi format nama menu
+        $menuSlug = strtolower(str_replace(' ', '', $menuName));
 
         // Tentukan icon untuk parent menu
         $parentIcon = isset($menuIcons[$menuName]) ? $menuIcons[$menuName] : 'fa-cog';
 
+        // Periksa apakah ada submenu yang aktif
+        $hasActiveSubmenu = false;
+        foreach ($menu->children as $submenu) {
+            $submenuName = $submenu->getDisplayName();
+            $submenuSlug = strtolower(str_replace(' ', '', $submenuName));
+            if ($activeMenu == $submenuSlug) {
+                $hasActiveSubmenu = true;
+                break;
+            }
+        }
+
+        // Tambahkan class menu-open jika ada submenu yang aktif
+        $menuOpen = $hasActiveSubmenu ? 'menu-open' : '';
+        $parentActive = $hasActiveSubmenu ? 'active' : '';
+
         $html = "
-        <li class='nav-item'>
-            <a href='#' class='nav-link'>
-                <i class='nav-icon fas {$parentIcon}'></i>
-                <p>{$menuName}
-                    <i class='right fas fa-angle-left'></i>
-                </p>
-            </a>
-            <ul class='nav nav-treeview'>";
+            <li class='nav-item {$menuOpen}'>
+                <a href='#' class='nav-link {$parentActive}'>
+                    <i class='nav-icon fas {$parentIcon}'></i>
+                    <p>{$menuName}
+                        <i class='right fas fa-angle-left'></i>
+                    </p>
+                </a>
+                <ul class='nav nav-treeview'>";
 
         foreach ($menu->children as $submenu) {
-            // Ambil nama submenu yang akan ditampilkan (bisa alias atau nama asli)
+            // Ambil nama submenu yang akan ditampilkan
             $submenuName = $submenu->getDisplayName();
 
+            // Standardisasi format submenu untuk pemeriksaan active state
+            $submenuSlug = strtolower(str_replace(' ', '', $submenuName));
+
             $submenuUrl = $submenu->WebMenuUrl ? $submenu->WebMenuUrl->wmu_nama : '#';
-            $isActive = ($activeMenu == strtolower(str_replace(' ', '', $submenuName))) ? 'active' : '';
-            
+            $isActive = ($activeMenu == $submenuSlug) ? 'active' : '';
+
             $html .= "
-                <li class='nav-item'>
-                    <a href='" . url($submenuUrl) . "' class='nav-link {$isActive}'>
-                        <i class='far fa-circle nav-icon'></i>
-                        <p>{$submenuName}</p>
-                    </a>
-                </li>";
+            <li class='nav-item'>
+                <a href='" . url($submenuUrl) . "' class='nav-link {$isActive}'>
+                    <i class='far fa-circle nav-icon'></i>
+                    <p>{$submenuName}</p>
+                </a>
+            </li>";
         }
 
         $html .= "

@@ -30,7 +30,7 @@ class PermohonanInformasiController extends Controller
             'title' => 'Pengajuan Permohonan Informasi'
         ];
 
-        $activeMenu = 'permohonaninformasiadmin';
+        $activeMenu = 'permohonaninformasi';
 
         return view("sisfo::SistemInformasi/EForm/$folder/PermohonanInformasi.index", [
             'breadcrumb' => $breadcrumb,

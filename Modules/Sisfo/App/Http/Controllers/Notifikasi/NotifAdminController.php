@@ -30,7 +30,7 @@ class NotifAdminController extends Controller
         ]);
     }
 
-    public function notifikasiPermohonan()
+    public function notifikasiPermohonanInformasi()
     {
         $notifikasi = NotifAdminModel::with('t_permohonan_informasi')
             ->where('kategori_notif_admin', 'E-Form Permohonan Informasi')
@@ -43,7 +43,7 @@ class NotifAdminController extends Controller
         ];
 
         $page = (object) [
-            'title' => 'Notifikasi Pengajuan Permohonan'
+            'title' => 'Notifikasi Pengajuan Permohonan Informasi'
         ];
 
         $activeMenu = 'notifikasi';
@@ -56,8 +56,108 @@ class NotifAdminController extends Controller
         ]);
     }
 
-    public function notifikasiPernyataanKeberatan() {
-        // permohonan pernyataan keberatan
+    public function notifikasiPernyataanKeberatan()
+    {
+        $notifikasi = NotifAdminModel::with('t_pernyataan_keberatan')
+            ->where('kategori_notif_admin', 'E-Form Pernyataan Keberatan')
+            ->where('isDeleted', 0)
+            ->get();
+
+        $breadcrumb = (object) [
+            'title' => 'Notifikasi',
+            'list' => ['Home', 'Notifikasi']
+        ];
+
+        $page = (object) [
+            'title' => 'Notifikasi Pengajuan Pernyataan Keberatan'
+        ];
+
+        $activeMenu = 'notifikasi';
+
+        return view('sisfo::Notifikasi/NotifAdmin.notifPK', [
+            'notifikasi' => $notifikasi,
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu
+        ]);
+    }
+
+    public function notifikasiPengaduanMasyarakat()
+    {
+        $notifikasi = NotifAdminModel::with('t_pengaduan_masyarakat')
+            ->where('kategori_notif_admin', 'E-Form Pengaduan Masyarakat')
+            ->where('isDeleted', 0)
+            ->get();
+
+        $breadcrumb = (object) [
+            'title' => 'Notifikasi',
+            'list' => ['Home', 'Notifikasi']
+        ];
+
+        $page = (object) [
+            'title' => 'Notifikasi Pengajuan Pengaduan Masyarakat'
+        ];
+
+        $activeMenu = 'notifikasi';
+
+        return view('sisfo::Notifikasi/NotifAdmin.notifPM', [
+            'notifikasi' => $notifikasi,
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu
+        ]);
+    }
+
+    public function notifikasiWBS()
+    {
+        $notifikasi = NotifAdminModel::with('t_wbs')
+            ->where('kategori_notif_admin', 'E-Form Whistle Blowing System')
+            ->where('isDeleted', 0)
+            ->get();
+
+        $breadcrumb = (object) [
+            'title' => 'Notifikasi',
+            'list' => ['Home', 'Notifikasi']
+        ];
+
+        $page = (object) [
+            'title' => 'Notifikasi Pengajuan Whistle Blowing System'
+        ];
+
+        $activeMenu = 'notifikasi';
+
+        return view('sisfo::Notifikasi/NotifAdmin.notifWBS', [
+            'notifikasi' => $notifikasi,
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu
+        ]);
+    }
+
+    public function notifikasiPermohonanPerawatan()
+    {
+        $notifikasi = NotifAdminModel::with('t_permohonan_perawatan')
+            ->where('kategori_notif_admin', 'E-Form Permohonan Perawatan Sarana Prasarana')
+            ->where('isDeleted', 0)
+            ->get();
+
+        $breadcrumb = (object) [
+            'title' => 'Notifikasi',
+            'list' => ['Home', 'Notifikasi']
+        ];
+
+        $page = (object) [
+            'title' => 'Notifikasi Pengajuan Permohonan Perawatan Sarana Prasarana'
+        ];
+
+        $activeMenu = 'notifikasi';
+
+        return view('sisfo::Notifikasi/NotifAdmin.notifPP', [
+            'notifikasi' => $notifikasi,
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu
+        ]);
     }
 
     public function tandaiDibaca($id)
@@ -71,7 +171,7 @@ class NotifAdminController extends Controller
         $result = NotifAdminModel::hapusNotifikasi($id);
         return response()->json($result);
     }
-    
+
     public function tandaiSemuaDibaca()
     {
         $result = NotifAdminModel::tandaiSemuaDibaca();
