@@ -37,7 +37,12 @@ class WBSModel extends Model
         'wbs_status',
         'wbs_jawaban',
         'wbs_alasan_penolakan',
-        'wbs_sudah_dibaca'
+        'wbs_sudah_dibaca',
+        'wbs_tanggal_dibaca',
+        'wbs_review',
+        'wbs_tanggal_review',
+        'wbs_tanggal_jawaban',
+        'wbs_verif_isDeleted'
         
     ];
 

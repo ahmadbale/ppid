@@ -33,7 +33,12 @@ class PermohonanInformasiModel extends Model
         'pi_status',
         'pi_jawaban',
         'pi_alasan_penolakan',
-        'pi_sudah_dibaca'
+        'pi_sudah_dibaca',
+        'pi_tanggal_dibaca',
+        'pi_review',
+        'pi_tanggal_review',
+        'pi_tanggal_jawaban',
+        'pi_verif_isDeleted'
     ];
 
     public function PiDiriSendiri()

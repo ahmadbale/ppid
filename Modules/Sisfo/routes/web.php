@@ -43,6 +43,7 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\Regulas
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 
 /*
@@ -489,5 +490,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [IpUploadKontenController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [IpUploadKontenController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan')], function () {
+        // Route utama - menampilkan index semua kategori verifikasi
+        Route::get('/', [VerifPIController::class, 'index'])->middleware('permission:view');
+        
+        // Route untuk Verifikasi Permohonan Informasi
+        Route::group(['prefix' => 'permohonan-informasi'], function() {
+            Route::get('/', [VerifPIController::class, 'daftarVerifPermohonanInformasi'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [VerifPIController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [VerifPIController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [VerifPIController::class, 'setujuiPermohonan'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [VerifPIController::class, 'tolakPermohonan'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [VerifPIController::class, 'tandaiDibaca'])->middleware('permission:update');
+            Route::post('/hapusPermohonan/{id}', [VerifPIController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        });
+        
+        // Tambahkan grup route untuk kategori pengajuan lainnya disini
+        // ...
     });
 });

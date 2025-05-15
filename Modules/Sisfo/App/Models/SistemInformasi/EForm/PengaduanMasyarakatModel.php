@@ -37,7 +37,12 @@ class PengaduanMasyarakatModel extends Model
         'pm_status',
         'pm_jawaban',
         'pm_alasan_penolakan',
-        'pm_sudah_dibaca'
+        'pm_sudah_dibaca',
+        'pm_tanggal_dibaca',
+        'pm_review',
+        'pm_tanggal_review',
+        'pm_tanggal_jawaban',
+        'pm_verif_isDeleted'
     ];
 
     public function __construct(array $attributes = [])
