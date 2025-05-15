@@ -1,0 +1,2 @@
+<!-- Halaman Untuk data data pengajuan di Pernyataan keberatan beserta tombol setujui, tolak, sudah dibaca, hapus
+     dan terdapat tombol kembali yang akan diarahkan ke ../DaftarPengajuan/index.blade.php -->
