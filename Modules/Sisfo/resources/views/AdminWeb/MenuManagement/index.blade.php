@@ -27,16 +27,26 @@
                 <strong>Catatan:</strong> Jika menu dipindahkan ke kategori menu berbeda, jenis menu akan otomatis
                 menyesuaikan.
             </div>
-
-            <div class="row">
+            <div class="form-group mb-4 col-md-6">
+                <label for="filterKategori"><strong>Pilih Kategori Menu:</strong></label>
+                <select class="form-control" id="filterKategori">
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="all">Semua</option>
+                    @foreach($jenisMenuList as $kode => $nama)
+                        <option value="{{ $kode }}">{{ $nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div id="menuKategoriWrapper" style="display:none;">
+            <div id="menuKategoriRows">
                 @php $counter = 0; @endphp
                 @foreach($jenisMenuList as $kode => $nama)
                             @if($counter % 2 == 0 && $counter > 0)
                                 </div>
-                                <div class="row mt-4">
+                                <div class="mt-4">
                             @endif
 
-                            <div class="col-md-6">
+                            <div class="menu-kategori-item" data-kode="{{ $kode }}" style="display:none;">
                                 <div class="card">
                                     @php
                                         // Tetapkan warna berbeda untuk setiap jenis menu
@@ -89,6 +99,7 @@
 
                             @php $counter++; @endphp
                 @endforeach
+                </div>
             </div>
 
             {{-- Tombol Simpan Urutan (Drag and Drop) --}}
@@ -339,17 +350,6 @@
     <link rel="stylesheet" href="{{ asset('vendor/nestable2/jquery.nestable.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/toastr/toastr.min.css') }}">
     <style>
-        .dd-item-buttons {
-            position: absolute;
-            right: 10px;
-            top: 7px;
-            z-index: 10;
-        }
-
-        .dd-handle {
-            padding-right: 120px !important;
-            /* Provide space for buttons */
-        }
 
         .is-invalid {
             border-color: #dc3545 !important;
@@ -401,6 +401,31 @@
     <script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
 
     <script>
+
+$(function() {
+    // Sembunyikan tombol simpan urutan saat belum pilih kategori
+    $('#saveOrderBtn').hide();
+
+    $('#filterKategori').on('change', function() {
+    var kode = $(this).val();
+    if (kode && kode !== 'all') {
+        $('#menuKategoriWrapper').show();
+        $('.menu-kategori-item').hide();
+        $('.menu-kategori-item[data-kode="' + kode + '"]').show();
+        $('#saveOrderBtn').show();
+    } else if (kode === 'all') {
+        $('#menuKategoriWrapper').show();
+        $('.menu-kategori-item').show();
+        $('#saveOrderBtn').show();
+    } else {
+        $('#menuKategoriWrapper').hide();
+        $('#saveOrderBtn').hide();
+    }
+});
+
+    // Optional: trigger change on page load to ensure hidden
+    $('#filterKategori').trigger('change');
+});
         // Tambahkan token CSRF ke semua request AJAX
        // Tambahkan token CSRF ke semua request AJAX
 $.ajaxSetup({
