@@ -276,17 +276,23 @@
 
         <!-- Tombol Aksi -->
         <div class="action-container">
-            <button type="button" class="btn btn-success btn-action" onclick="showApproveModal({{ $permohonan->permohonan_informasi_id }})">
-                <i class="fas fa-check"></i> Setujui
-            </button>
-            <button type="button" class="btn btn-danger btn-action" onclick="showDeclineModal({{ $permohonan->permohonan_informasi_id }})">
-                <i class="fas fa-times"></i> Tolak
-            </button>
-            <button class="btn btn-info btn-action" onclick="tandaiDibaca({{ $permohonan->permohonan_informasi_id }})">
+            @if($permohonan->pi_status == 'Masuk')
+                <button type="button" class="btn btn-success btn-action" onclick="showApproveModal({{ $permohonan->permohonan_informasi_id }})">
+                    <i class="fas fa-check"></i> Setujui
+                </button>
+                <button type="button" class="btn btn-danger btn-action" onclick="showDeclineModal({{ $permohonan->permohonan_informasi_id }})">
+                    <i class="fas fa-times"></i> Tolak
+                </button>
+            @endif
+
+            <button class="btn btn-info btn-action" onclick="tandaiDibaca({{ $permohonan->permohonan_informasi_id }}, '{{ $permohonan->pi_status }}', {{ $permohonan->pi_sudah_dibaca ? 'true' : 'false' }})" 
+                data-status="{{ $permohonan->pi_status }}" data-dibaca="{{ $permohonan->pi_sudah_dibaca ? 'true' : 'false' }}">
                 <i class="fas fa-book-reader"></i> Tandai Dibaca
             </button>
-            <button class="btn btn-warning btn-action" onclick="hapusPermohonan({{ $permohonan->permohonan_informasi_id }})">
-                <i class="fas fa-trash"></i> Hapus
+            
+            <button class="btn btn-warning btn-action" onclick="hapusPermohonan({{ $permohonan->permohonan_informasi_id }}, {{ $permohonan->pi_sudah_dibaca ? 'true' : 'false' }})" 
+                data-dibaca="{{ $permohonan->pi_sudah_dibaca ? 'true' : 'false' }}">
+                <i class="fas fa-trash"></i> Tandai Hapus
             </button>
         </div>
     </div>

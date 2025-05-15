@@ -277,8 +277,29 @@
             });
         };
         
-        // PERBAIKAN: Fungsi untuk tandai dibaca
-        window.tandaiDibaca = function(id) {
+        // PERBAIKAN: Fungsi untuk tandai dibaca dengan validasi awal
+        window.tandaiDibaca = function(id, status, sudahDibaca) {
+            // Validasi awal: permohonan harus sudah disetujui atau ditolak
+            if (status !== 'Verifikasi' && status !== 'Ditolak') {
+                Swal.fire({
+                    title: 'Perhatian!',
+                    text: 'Anda harus menyetujui/menolak permohonan ini terlebih dahulu',
+                    icon: 'warning'
+                });
+                return;
+            }
+            
+            // Jika sudah dibaca, tampilkan peringatan
+            if (sudahDibaca) {
+                Swal.fire({
+                    title: 'Informasi',
+                    text: 'Permohonan ini sudah ditandai dibaca sebelumnya',
+                    icon: 'info'
+                });
+                return;
+            }
+            
+            // Jika validasi sukses, baru tampilkan konfirmasi
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Apakah anda yakin ingin menandai pengajuan permohonan informasi ini sebagai telah dibaca?',
@@ -337,8 +358,19 @@
             });
         };
 
-        // PERBAIKAN: Fungsi untuk hapus permohonan dari daftar verifikasi
-        window.hapusPermohonan = function(id) {
+        // PERBAIKAN: Fungsi untuk hapus permohonan dengan validasi awal
+        window.hapusPermohonan = function(id, sudahDibaca) {
+            // Validasi awal: permohonan harus sudah ditandai dibaca
+            if (!sudahDibaca) {
+                Swal.fire({
+                    title: 'Perhatian!',
+                    text: 'Anda harus menandai pengajuan ini telah dibaca terlebih dahulu',
+                    icon: 'warning'
+                });
+                return;
+            }
+            
+            // Jika validasi sukses, baru tampilkan konfirmasi
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Apakah anda yakin ingin menghapus pengajuan ini dari daftar verifikasi?',
