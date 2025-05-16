@@ -16,8 +16,9 @@ use Modules\Sisfo\App\Http\Controllers\Api\HakAkses\ApiSetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiIpDinamisKontenController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiHakAksesController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanInformasiController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaPengumumanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
@@ -43,9 +44,9 @@ Route::prefix('auth')->group(function () {
     Route::middleware('jwt.user')->group(function () {
         Route::post('logout', [ApiAuthController::class, 'logout']);
         Route::get('user', [ApiAuthController::class, 'getData']);
-        Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
+        // Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
         // Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
-        Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
+        // Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
         // api set_hak_akses
         Route::prefix('set-hak-akses')->group(function () {
             Route::get('/', [ApiSetHakAksesController::class, 'index']);
@@ -60,6 +61,10 @@ Route::prefix('auth')->group(function () {
             Route::delete('/delete/{id}', [ApiHakAksesController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiHakAksesController::class, 'detailData']);
         });
+        // Api EForm
+        Route::prefix('permohonan-informasi')->group(function () {
+            Route::post('/create', [ApiPermohonanInformasiController::class, 'createData']);
+        });
     });
 });
 // 
@@ -67,7 +72,7 @@ Route::get('system/get-token', [SystemAuthController::class, 'getToken']);
 Route::post('system/refresh-token', [SystemAuthController::class, 'refreshToken']);
 // Route api konten untuk halaman web frontend
 Route::prefix('public')->middleware('jwt.system')->group(function () {
-    Route::get('berita-pengumuman', [BeritaPengumumanController::class, 'getBeritaPengumuman']);
+    Route::get('berita-pengumuman', [ApiBeritaPengumumanController::class, 'getBeritaPengumuman']);
     Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
     Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
     Route::get('getDataPintasanLainnya', [ApiPintasanLainnyaController::class, 'getDataPintasanLainnya']);

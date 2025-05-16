@@ -3,7 +3,6 @@
 namespace Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Modules\Sisfo\App\Models\HakAksesModel;
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 
