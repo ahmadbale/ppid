@@ -2,13 +2,14 @@
 
 namespace Modules\Sisfo\App\Models;
 
-use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
-use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
-
+use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
+use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
+use Tymon\JWTAuth\Facades\JWTAuth;
 trait BaseModelFunction
 {
     protected static $defaultPerPage = 1;
@@ -26,36 +27,105 @@ trait BaseModelFunction
     public static function bootBaseModelFunction()
     {
         // Event ketika model dibuat, isi created_by otomatis
+        // static::creating(function ($model) {
+        //     if (!isset($model->created_by)) {
+        //         if (session()->has('alias')) {
+        //             $model->created_by = session('alias');
+        //         } else {
+        //             // Tambahkan default value untuk kasus registrasi
+        //             $model->created_by = 'System';
+        //         }
+        //     }
+        // });
+        // tambahan
         static::creating(function ($model) {
             if (!isset($model->created_by)) {
+                $alias = null;
+                // Cek session alias (web)
                 if (session()->has('alias')) {
-                    $model->created_by = session('alias');
+                    $alias = session('alias');
                 } else {
-                    // Tambahkan default value untuk kasus registrasi
-                    $model->created_by = 'System';
+                    // Cek user login (web atau API)
+                    $user = Auth::user();
+                    if (!$user) {
+                        // Coba ambil dari JWT jika API
+                        try {
+                            $user = JWTAuth::parseToken()->authenticate();
+                        } catch (\Exception $e) {
+                            $user = null;
+                        }
+                    }
+                    if ($user) {
+                        // Gunakan properti alias jika ada, fallback ke nama_pengguna
+                        $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);    
+                    }
                 }
+                $model->created_by = $alias ?? 'System';
             }
         });
-
+    
         // Event ketika model diupdate, isi updated_by otomatis
-        static::updating(function ($model) {
-            if (session()->has('alias')) {
-                $model->updated_by = session('alias');
-            }
+        // static::updating(function ($model) {
+        //     if (session()->has('alias')) {
+        //         $model->updated_by = session('alias');
+        //     }
 
-            // Pastikan updated_at diisi dengan timestamp sekarang
+        //     // Pastikan updated_at diisi dengan timestamp sekarang
+        //     $model->updated_at = now();
+        // });
+        //  tambahan
+        static::updating(function ($model) {
+            $alias = null;
+            if (session()->has('alias')) {
+                $alias = session('alias');
+            } else {
+                $user = Auth::user();
+                if (!$user) {
+                    try {
+                        $user = JWTAuth::parseToken()->authenticate();
+                    } catch (\Exception $e) {
+                        $user = null;
+                    }
+                }
+                if ($user) {
+                    $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);
+                }
+            }
+            $model->updated_by = $alias ?? 'System';
             $model->updated_at = now();
         });
 
         // Event ketika model dihapus (soft delete), isi deleted_by dan deleted_at otomatis
-        static::deleting(function ($model) {
-            if (session()->has('alias')) {
-                $model->deleted_by = session('alias');
-            } else {
-                $model->deleted_by = 'System';
-            }
+        // static::deleting(function ($model) {
+        //     if (session()->has('alias')) {
+        //         $model->deleted_by = session('alias');
+        //     } else {
+        //         $model->deleted_by = 'System';
+        //     }
 
-            // Ubah kode ini dari conditional menjadi selalu mengisi
+        //     // Ubah kode ini dari conditional menjadi selalu mengisi
+        //     $model->deleted_at = now();
+        // });
+        // tambahan
+        static::deleting(function ($model) {
+            $alias = null;
+            if (session()->has('alias')) {
+                $alias = session('alias');
+            } else {
+                $user = Auth::user();
+                if (!$user) {
+                    try {
+                        $user = JWTAuth::parseToken()->authenticate();
+                    } catch (\Exception $e) {
+                        $user = null;
+                    }
+                }
+                if ($user) {
+                    $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);
+                }
+            }
+            $model->deleted_by = $alias ?? 'System';
+            // Pastikan deleted_at diisi dengan timestamp sekarang
             $model->deleted_at = now();
         });
     }

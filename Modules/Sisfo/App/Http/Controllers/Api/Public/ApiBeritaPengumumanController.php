@@ -1,15 +1,15 @@
 <?php
 
-namespace Modules\Sisfo\App\Http\Controllers\Api\Auth;
+namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
 
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 
-class BeritaPengumumanController extends BaseApiController
+class ApiBeritaPengumumanController extends BaseApiController
 {
     public function getBeritaPengumuman()
     {
-        return $this->eksekusiDenganOtentikasi(
+        return $this->executeWithSystemAuth(
             function() {
                 $beritaPengumuman = WebMenuModel::selectBeritaPengumuman();
                 return  $beritaPengumuman ;

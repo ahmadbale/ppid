@@ -93,23 +93,24 @@ class APISetHakAksesController extends BaseApiController
                 // Proses update data
                 $isLevel = $request->has('hak_akses_kode');
                 
-                // Add user info to request
-                $requestData = $request->all();
-                $requestData['updated_by'] = $user->user_id;
-                
                 // Proses data dengan model
-                $result = SetHakAksesModel::updateData($requestData, $isLevel);
+                $result = SetHakAksesModel::updateData($request->all(), $isLevel);
                 
+
                 if (!$result['success']) {
-                    // Gunakan pesan error dari model jika ada, atau gunakan template pesan dari BaseApiController
                     $errorMessage = $result['message'] ?? sprintf(
                         $this->messageTemplates[self::ACTION_UPDATE]['error'], 
                         'hak akses'
                     );
                     return $this->errorResponse($errorMessage, null, 422);
                 }
-                
-                return $result['data'] ?? [];
+    
+                // Kembalikan data jika ada, atau pesan sukses saja
+                return [
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Hak akses berhasil diperbarui.',
+                    'data' => $result['data'] ?? null
+                ];
             },
             'hak akses',
             self::ACTION_UPDATE
