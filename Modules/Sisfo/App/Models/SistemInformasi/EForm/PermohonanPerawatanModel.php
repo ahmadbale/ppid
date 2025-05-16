@@ -32,7 +32,12 @@ class PermohonanPerawatanModel extends Model
         'pp_status',
         'pp_jawaban',
         'pp_alasan_penolakan',
-        'pp_sudah_dibaca'
+        'pp_sudah_dibaca',
+        'pp_tanggal_dibaca',
+        'pp_review',
+        'pp_tanggal_review',
+        'pp_tanggal_jawaban',
+        'pp_verif_isDeleted'
         
     ];
 

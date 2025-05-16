@@ -29,7 +29,12 @@ class PernyataanKeberatanModel extends Model
         'pk_status',
         'pk_jawaban',
         'pk_alasan_penolakan',
-        'pk_sudah_dibaca'
+        'pk_sudah_dibaca',
+        'pk_tanggal_dibaca',
+        'pk_review',
+        'pk_tanggal_review',
+        'pk_tanggal_jawaban',
+        'pk_verif_isDeleted'
     ];
 
     public function PkDiriSendiri()
