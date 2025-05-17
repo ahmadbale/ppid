@@ -9,9 +9,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Modules\Sisfo\App\Models\UserModel;
 use Modules\User\App\Services\ApiService;
+use App\Services\JwtTokenService; 
 
 class UserController extends Controller
 {
+    protected $jwtTokenService;
+    protected $baseUrl;
+
+    public function __construct(JwtTokenService $jwtTokenService)
+    {
+        $this->jwtTokenService = $jwtTokenService;
+        $this->baseUrl = config('BASE_URL', env('BASE_URL'));
+    }
+
     public function showLoginForm()
     {
         return view(view: 'user::login');
@@ -20,8 +30,13 @@ class UserController extends Controller
     public function login(Request $request)
     {
         try {
-            // Kirim request login ke API backend
-            $response = Http::post('http://ppid-polinema.test/api/auth/login', [
+             // Ambil token JWT aktif
+            $tokenData = $this->jwtTokenService->getActiveToken();
+
+            // Kirim request login ke API backend dengan token
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $tokenData['token']
+            ])->post($this->baseUrl . '/api/auth/login', [
                 'username' => $request->username,
                 'password' => $request->password
             ]);
@@ -100,14 +115,13 @@ class UserController extends Controller
 public function logout()
 {
     try {
-        // Kirim request logout ke backend API
-        $token = session('api_token');
+        $tokenData = $this->jwtTokenService->getActiveToken();
 
-        if ($token) {
-            $response = Http::withHeaders([
-                'Authorization' => $token
-            ])->post('http://ppid-polinema.test/api/auth/logout');
-        }
+            if ($tokenData && isset($tokenData['token'])) {
+                Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $tokenData['token']
+                ])->post($this->baseUrl . '/api/auth/logout');
+            }
 
         // Hapus semua data session yang terkait
         session()->forget(['api_token', 'user_data']);

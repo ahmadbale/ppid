@@ -8,7 +8,8 @@
         Showing {{ $footer->firstItem() }} to {{ $footer->lastItem() }} of {{ $footer->total() }} results
     </div>
 </div>
-<table class="table table-bordered table-striped table-hover table-sm">
+<div class="table-responsive">
+    <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
     <thead>
         <tr>
             <th width="5%">Nomor</th>
@@ -61,6 +62,7 @@
         @endforelse
     </tbody>
 </table>
+</div>
 <div class="mt-3">
     {{ $footer->appends(['search' => $search])->links() }}
 </div>

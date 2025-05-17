@@ -8,7 +8,7 @@
         Showing {{$aksesCepat->firstItem() }} to {{$aksesCepat->lastItem() }} of {{$aksesCepat->total() }} results
     </div>
 </div>
-<div class="table-responsive"></div>
+<div class="table-responsive">
 <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
     <thead class="text-center">
         <tr>
@@ -79,7 +79,7 @@
         @endforelse
     </tbody>
 </table>
-
+</div>
 <div class="mt-3">
     {{$aksesCepat->appends(['search' => $search])->links() }}
 </div>
