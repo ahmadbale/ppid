@@ -21,7 +21,8 @@
   @endif
 </div>
 
-<table class="table table-bordered table-striped table-hover table-sm">
+<div class="table-responsive">
+  <table class="table table-responsive-stack align-middle table-bordered table-striped table-hover table-sm">
   <thead>
     <tr>
       <th width="5%">No</th>
@@ -86,7 +87,7 @@
     @endif
   </tbody>
 </table>
-
+</div>
 @if(isset($users))
   <div class="mt-3">
     {{ $users->appends(['search' => $search, 'hak_akses_id' => $levelId ?? null])->links() }}
