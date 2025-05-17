@@ -84,7 +84,7 @@
 
         <!-- User Profile Dropdown -->
         <li class="nav-item dropdown">
-            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center px-0" data-toggle="dropdown" aria-expanded="false">
+            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center px-0" id="profileDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
                 <div class="d-flex align-items-center">
                     <img src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('img/userr.png') }}"
                         alt="User Profile Picture"
@@ -101,9 +101,9 @@
                     <i class="fas fa-chevron-down ml-2" style="color: #007bff; font-size: 1 rem;"></i>
                 </div>
             </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" aria-labelledby="profileDropdown">
                 <a href="{{ url('/profile') }}" class="dropdown-item">
-                    <i class="fas fa-user mr-2"></i> Profile
+                    <i class="fas fa-user mr-2"></i> Profil
                 </a>
                 
                 @php

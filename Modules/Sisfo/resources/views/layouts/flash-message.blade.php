@@ -36,8 +36,39 @@
 @endif
 
 <script>
-    // Auto-hide flash messages after 5 seconds
-    setTimeout(function() {
-        $('.alert').alert('close');
-    }, 5000);
+    // Pastikan script hanya dijalankan setelah jQuery dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Periksa apakah jQuery tersedia
+            if (typeof jQuery !== 'undefined') {
+                // Gunakan pendekatan yang lebih aman untuk auto-hide
+                setTimeout(function() {
+                    // Sembunyikan alert perlahan menggunakan jQuery
+                    jQuery(".alert").fadeOut(500, function() {
+                        jQuery(this).remove(); // Hapus dari DOM setelah fadeout
+                    });
+                }, 5000);
+                
+                console.log('Pesan flash akan otomatis hilang setelah 5 detik');
+            } else {
+                // Fallback menggunakan JavaScript murni jika jQuery tidak tersedia
+                setTimeout(function() {
+                    var alerts = document.querySelectorAll('.alert');
+                    alerts.forEach(function(alert) {
+                        alert.style.transition = 'opacity 0.5s';
+                        alert.style.opacity = '0';
+                        setTimeout(function() {
+                            if (alert.parentNode) {
+                                alert.parentNode.removeChild(alert);
+                            }
+                        }, 500);
+                    });
+                }, 5000);
+                
+                console.log('Pesan flash akan otomatis hilang menggunakan vanilla JS');
+            }
+        } catch (error) {
+            console.error('Terjadi kesalahan pada auto-hide pesan flash:', error);
+        }
+    });
 </script>

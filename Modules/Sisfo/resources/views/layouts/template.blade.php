@@ -1,5 +1,4 @@
-<!-- resources/views/sisfo/layouts/template.blade.php -->
-
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\layouts\template.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -30,8 +29,6 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet"
         href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
-    <link rel="stylesheet"
-        href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/style.css') }}">
@@ -42,6 +39,10 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
     <!-- Custom Summernote CSS (dari Controller) -->
     <link href="{{ url('/css/summernote.css') }}" rel="stylesheet">
+    
+    <!-- Flatpicker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
     @stack('css') <!-- Digunakan untuk memanggil custom css dari perintah push('css') pada masing-masing view -->
 </head>
 
@@ -66,102 +67,57 @@
         @include('sisfo::layouts.footer')
     </div>
 
-    {{-- chart --}}
+    <!-- jQuery (hanya dimuat sekali) -->
+    <script src="{{ asset('/modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
+    
+    <!-- Bootstrap 4 (hanya dimuat sekali) -->
+    <script src="{{ asset('/modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- jQuery -->
-    <script src="{{ asset('/modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{{ asset('/modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <!-- DataTables  & Plugins -->
+    <!-- DataTables & Plugins -->
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}">
-    </script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}">
-    </script>
-    <script
-        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script
-        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    
     <!-- jquery-validation -->
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
+    
     <!-- SweetAlert2 -->
     <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    <!-- modules/sisfo/AdminLTE App -->
+    
+    <!-- AdminLTE App -->
     <script src="{{ asset('/modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
-    {{-- flatpicker --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <!-- jQuery -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <!-- DataTables  & Plugins -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}">
-    </script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}">
-    </script>
-    <script
-        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script
-        src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
-    <!-- jquery-validation -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
-    <!-- SweetAlert2 -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    
+    <!-- Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    
+    <!-- Custom Summernote JS (dari Controller) -->
+    <script src="{{ url('/js/summernote.js') }}"></script>
+
     <script>
-        //Untuk Mengirimkan token laravel CSRF pada setiap request ajax
+        // Untuk Mengirimkan token laravel CSRF pada setiap request ajax
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <!-- Tambahkan script ini di bagian bawah file template.blade.php sebelum tag body ditutup -->
-    <script>
-        // Script untuk memastikan dropdown berfungsi dengan benar
-        $(document).ready(function () {
-            // Cek apakah Bootstrap dropdown sudah terinitisasi dengan benar
-            if (typeof $.fn.dropdown !== 'undefined') {
-                console.log('Bootstrap Dropdown terdeteksi');
-
-                // Aktifkan secara manual dropdown di navbar
-                $('.dropdown-toggle').dropdown();
-
-                // Handler dropdown click untuk debugging
-                $('.dropdown-toggle').on('click', function (e) {
-                    console.log('Dropdown diklik');
-                });
-            } else {
-                console.error('Bootstrap Dropdown tidak terdeteksi. Pastikan Bootstrap JS sudah dimuat dengan benar.');
-            }
-
-            // Tambahkan class bootstrap dropdown jika belum ada
-            if (!$('.nav-item.dropdown').hasClass('dropdown')) {
-                $('.nav-item.dropdown').addClass('dropdown');
-            }
-        });
-    </script>
-
-    <script>
+        
         // Konfigurasi toastr global
         toastr.options = {
             "closeButton": true,
@@ -172,18 +128,63 @@
             "hideDuration": "300",
             "timeOut": "3000",
             "extendedTimeOut": "500"
-        }
-    </script>
-    @stack('js'){}
+        };
     </script>
 
+    <!-- Script untuk memperbaiki dropdown yang tidak berfungsi -->
+    <script>
+        $(document).ready(function() {
+            // Inisialisasi dropdown dengan cara yang lebih robust
+            try {
+                // Hapus event listener sebelumnya untuk mencegah duplikasi
+                $('.dropdown-toggle').off('click');
+                
+                // Perbaiki inisialisasi dropdown untuk halaman Menu Management
+                $('.dropdown-toggle').each(function() {
+                    $(this).on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Toggle dropdown
+                        var dropdownMenu = $(this).next('.dropdown-menu');
+                        
+                        // Tutup dropdown lain yang terbuka
+                        $('.dropdown-menu').not(dropdownMenu).removeClass('show');
+                        
+                        // Toggle dropdown saat ini
+                        dropdownMenu.toggleClass('show');
+                        
+                        console.log('Dropdown diklik manual');
+                    });
+                });
+                
+                // Tutup dropdown saat klik di luar
+                $(document).on('click', function(e) {
+                    if (!$(e.target).closest('.dropdown').length) {
+                        $('.dropdown-menu').removeClass('show');
+                    }
+                });
+                
+                console.log('Dropdown berhasil diinisialisasi dengan pengaturan manual');
+            } catch (error) {
+                console.error('Terjadi kesalahan saat mengatur dropdown:', error);
+                
+                // Fallback jika terjadi error: coba gunakan Bootstrap dropdown
+                try {
+                    $('.dropdown-toggle').dropdown();
+                    console.log('Menggunakan Bootstrap dropdown sebagai fallback');
+                } catch(err) {
+                    console.error('Bootstrap dropdown juga error:', err);
+                }
+            }
+            
+            // Pastikan dropdown memiliki class yang dibutuhkan
+            if (!$('.nav-item.dropdown').hasClass('dropdown')) {
+                $('.nav-item.dropdown').addClass('dropdown');
+            }
+        });
+    </script>
 
-    <!-- Summernote JS -->
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-    <!-- Custom Summernote JS (dari Controller) -->
-    <script src="{{ url('/js/summernote.js') }}"></script>
     @stack('js')
 </body>
-
 </html>
