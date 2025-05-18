@@ -1,7 +1,10 @@
-{{-- Modal Konfirmasi Hapus --}}
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\MenuManagement\delete.blade.php -->
 @php
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
+    use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 @endphp
+
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -23,52 +26,52 @@
     </div>
 </div>
 
+@push('js')
 <script>
-$(function() {
-    // Event delegation untuk tombol hapus
-    $(document).off('click', '.delete-menu').on('click', '.delete-menu', function() {
-        let menuId = $(this).data('id');
-        let menuName = $(this).data('name');
-        let hakAksesKode = $(this).data('level-kode');
+// Hapus Menu - gunakan event delegation untuk mencegah binding ganda
+$(document).off('click', '.delete-menu').on('click', '.delete-menu', function() {
+    let menuId = $(this).data('id');
+    let menuName = $(this).data('name');
+    let hakAksesKode = $(this).data('level-kode');
 
-        // Jika level menu adalah SAR dan pengguna bukan SAR, tolak
-        if (hakAksesKode === 'SAR' && '{{ Auth::user()->level->hak_akses_kode }}' !== 'SAR') {
-            toastr.error('Hanya pengguna dengan level Super Administrator yang dapat menghapus menu SAR');
-            return false;
-        }
+    // Jika level menu adalah SAR dan pengguna bukan SAR, tolak
+    if (hakAksesKode === 'SAR' && '{{ Auth::user()->level->hak_akses_kode }}' !== 'SAR') {
+        toastr.error('Hanya pengguna dengan level Super Administrator yang dapat menghapus menu SAR');
+        return false;
+    }
 
-        $('#confirmDelete').data('id', menuId);
-        $('#menuNameToDelete').text(menuName);
-        $('#deleteConfirmModal').modal('show');
-    });
+    $('#confirmDelete').data('id', menuId);
+    $('#menuNameToDelete').text(menuName);
+    $('#deleteConfirmModal').modal('show');
+});
 
-    // Event listener untuk konfirmasi hapus - gunakan .off() untuk mencegah binding ganda
-    $('#confirmDelete').off('click').on('click', function() {
-        let menuId = $(this).data('id');
+// Event listener untuk konfirmasi hapus
+$('#confirmDelete').off('click').on('click', function() {
+    let menuId = $(this).data('id');
 
-        if (menuId) {
-            $.ajax({
-                url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/delete`,
-                type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        toastr.success(response.message);
-                        setTimeout(() => window.location.reload(), 1000);
-                    } else {
-                        toastr.error(response.message);
-                    }
-                    $('#deleteConfirmModal').modal('hide');
-                },
-                error: function(xhr) {
-                    toastr.error('Error saat menghapus menu');
-                    console.error(xhr.responseText);
-                    $('#deleteConfirmModal').modal('hide');
+    if (menuId) {
+        $.ajax({
+            url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/delete`,
+            type: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    toastr.error(response.message);
                 }
-            });
-        }
-    });
+                $('#deleteConfirmModal').modal('hide');
+            },
+            error: function(xhr) {
+                toastr.error('Error deleting menu');
+                console.error(xhr.responseText);
+                $('#deleteConfirmModal').modal('hide');
+            }
+        });
+    }
 });
 </script>
+@endpush
