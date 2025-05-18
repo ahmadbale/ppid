@@ -75,8 +75,9 @@
 
 @push('js')
 <script>
-// Variabel untuk menyimpan level asli dari menu
+// Variabel untuk menyimpan level asli dari menu dan parent ID
 let originalMenuLevel = '';
+let pendingParentId = null; // Variabel untuk menyimpan parent ID yang akan dipilih
 
 // Event handler untuk dropdown Hak Akses
 $('#edit_level_menu').off('change').on('change', function() {
@@ -98,6 +99,10 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
     let menuNama = $('#edit_menu_nama').val().trim();
     let statusMenu = $('#edit_status_menu').val();
     let levelMenu = $('#edit_level_menu').val();
+    let parentId = $('#edit_parent_id').val();
+
+    // Log untuk debugging
+    console.log('Submitting with parent ID:', parentId);
 
     // Validasi Nama Menu
     if (!menuNama) {
@@ -114,7 +119,7 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
     }
 
     // Validasi Level Menu jika tidak ada parent
-    if (!$('#edit_parent_id').val() && !levelMenu) {
+    if (!parentId && !levelMenu) {
         $('#edit_level_menu').addClass('is-invalid');
         $('#edit_level_menu').siblings('.invalid-feedback').show();
         isValid = false;
@@ -132,7 +137,7 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
     }
 
     // Jika ada parent, pastikan level menu diambil dari parent
-    if ($('#edit_parent_id').val()) {
+    if (parentId) {
         // Aktifkan kembali level_menu agar dikirim dengan form
         $('#edit_level_menu').prop('disabled', false);
     }
@@ -140,10 +145,31 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
     let menuId = $('#edit_menu_id').val();
     console.log('Submitting form for menu ID:', menuId);
     
+    // Persiapkan data secara manual untuk memastikan wm_parent_id dikirim dengan benar
+    let formData = $(this).serializeArray();
+    
+    // Pastikan parent_id dikirim dengan benar
+    let parentIdFound = false;
+    for (let i = 0; i < formData.length; i++) {
+        if (formData[i].name === 'web_menu[wm_parent_id]') {
+            formData[i].value = parentId;
+            parentIdFound = true;
+            break;
+        }
+    }
+    
+    // Jika parent_id tidak ditemukan, tambahkan secara manual
+    if (!parentIdFound && parentId) {
+        formData.push({
+            name: 'web_menu[wm_parent_id]',
+            value: parentId
+        });
+    }
+    
     $.ajax({
         url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/update`,
         type: 'PUT',
-        data: $(this).serialize(),
+        data: $.param(formData),
         success: function(response) {
             if (response.success) {
                 toastr.success(response.message);
@@ -175,6 +201,7 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
     let hakAksesKode = $(this).data('level-kode');
     
     $('#edit_menu_id').val(menuId);
+    pendingParentId = null; // Reset pending parent ID
 
     $.ajax({
         url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/edit`,
@@ -186,22 +213,19 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
                 $('#edit_menu_url').val(response.menu.fk_web_menu_url);
                 $('#edit_status_menu').val(response.menu.wm_status_menu);
                 
+                // Simpan parent ID yang akan dipilih nanti setelah dropdown diisi
+                pendingParentId = response.menu.wm_parent_id;
+                console.log('Parent ID from response:', pendingParentId);
+                
                 // Set level menu
                 $('#edit_level_menu').val(response.menu.fk_m_hak_akses || '');
                 
                 // Perbarui dropdown Kategori Menu berdasarkan Level yang dipilih
-                // Pass menu ID untuk dikecualikan dari daftar parent
                 updateParentMenuOptions(
                     response.menu.fk_m_hak_akses, 
                     $('#edit_parent_id'),
                     menuId // Kirim menuId untuk dikecualikan
                 );
-                
-                // Set selected parent - set setelah dropdown diupdate
-                // Kita tambahkan delay untuk memastikan dropdown sudah terisi
-                setTimeout(function() {
-                    $('#edit_parent_id').val(response.menu.wm_parent_id);
-                }, 500); // Tambah delay lebih lama untuk memastikan dropdown sudah terisi
                 
                 // Disable/enable level field based on parent
                 if (response.menu.wm_parent_id) {
@@ -225,5 +249,47 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
         }
     });
 });
+
+// Override fungsi updateParentMenuOptions di sini untuk menangani pengaturan nilai parent_id
+function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
+    // Reset dropdown
+    targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
+
+    // Jika tidak ada hakAksesId, tidak perlu memuat data
+    if (!hakAksesId) return;
+
+    // Dapatkan URL dinamis
+    const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
+
+    // Lakukan request AJAX untuk mendapatkan parent menu berdasarkan level
+    $.ajax({
+        url: `${dynamicUrl}/${hakAksesId}`,
+        type: 'GET',
+        data: { exclude_id: excludeId }, // Kirim exclude_id sebagai parameter
+        success: function(response) {
+            if (response.success && response.parentMenus) {
+                response.parentMenus.forEach(function(menu) {
+                    // Gunakan display_name yang sudah diproses di server
+                    targetSelect.append(`
+                        <option value="${menu.web_menu_id}" data-level="${hakAksesId}">
+                            ${menu.display_name}
+                        </option>
+                    `);
+                });
+                
+                // Setelah dropdown diisi, atur nilai jika ada pendingParentId
+                if (pendingParentId) {
+                    console.log('Setting parent ID to:', pendingParentId);
+                    targetSelect.val(pendingParentId);
+                    // Reset pendingParentId setelah digunakan
+                    pendingParentId = null;
+                }
+            }
+        },
+        error: function() {
+            toastr.error('Gagal memuat menu induk');
+        }
+    });
+}
 </script>
 @endpush
