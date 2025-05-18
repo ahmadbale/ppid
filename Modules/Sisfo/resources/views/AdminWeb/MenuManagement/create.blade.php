@@ -70,6 +70,9 @@
 
 @push('js')
 <script>
+// Variabel untuk menyimpan dropdown ID yang dipilih
+let addFormPendingParentId = null;
+
 // Form addMenu - gunakan .off() untuk mencegah binding ganda
 $('#addMenuForm').off('submit').on('submit', function(e) {
     e.preventDefault();
@@ -82,11 +85,13 @@ $('#addMenuForm').off('submit').on('submit', function(e) {
     let menuNama = $('#add_menu_nama').val().trim();
     let statusMenu = $('#add_status_menu').val();
     let levelMenu = $('#add_level_menu').val();
-    // URL menu bisa kosong untuk menu utama dengan submenu
-    let menuUrl = $('#add_menu_url').val();
+    let parentId = $('#add_parent_id').val();
+    
+    // Log untuk debugging
+    console.log('Creating menu with parent ID:', parentId);
 
     // Validasi Level Menu
-    if (!levelMenu) {
+    if (!levelMenu && !parentId) {
         $('#add_level_menu').addClass('is-invalid');
         $('#add_level_menu').siblings('.invalid-feedback').show();
         isValid = false;
@@ -110,11 +115,32 @@ $('#addMenuForm').off('submit').on('submit', function(e) {
         return false;
     }
 
+    // Persiapkan data secara manual untuk memastikan wm_parent_id dikirim dengan benar
+    let formData = $(this).serializeArray();
+    
+    // Pastikan parent_id dikirim dengan benar
+    let parentIdFound = false;
+    for (let i = 0; i < formData.length; i++) {
+        if (formData[i].name === 'web_menu[wm_parent_id]') {
+            formData[i].value = parentId;
+            parentIdFound = true;
+            break;
+        }
+    }
+    
+    // Jika parent_id tidak ditemukan, tambahkan secara manual
+    if (!parentIdFound && parentId) {
+        formData.push({
+            name: 'web_menu[wm_parent_id]',
+            value: parentId
+        });
+    }
+
     // Jika validasi berhasil, lanjutkan submit
     $.ajax({
         url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/store') }}",
         type: 'POST',
-        data: $(this).serialize(),
+        data: $.param(formData), // Gunakan data yang sudah disiapkan secara manual
         success: function(response) {
             if (response.success) {
                 toastr.success(response.message);
@@ -124,15 +150,24 @@ $('#addMenuForm').off('submit').on('submit', function(e) {
             }
         },
         error: function(xhr) {
+            console.error('Error creating menu:', xhr.responseText);
             if (xhr.status === 422) {
                 let errors = xhr.responseJSON.errors;
                 Object.keys(errors).forEach(key => {
                     toastr.error(errors[key][0]);
-                    $(`[name="${key}"]`).addClass('is-invalid');
-                    $(`[name="${key}"]`).siblings('.invalid-feedback').text(errors[key][0]).show();
+                    // Perbaikan untuk menangani field dari array web_menu
+                    if (key.startsWith('web_menu.')) {
+                        const fieldName = key.replace('web_menu.', '');
+                        $(`#add_${fieldName}`).addClass('is-invalid');
+                        $(`#add_${fieldName}`).siblings('.invalid-feedback').text(errors[key][0]).show();
+                    } else {
+                        // Untuk field biasa
+                        $(`[name="${key}"]`).addClass('is-invalid');
+                        $(`[name="${key}"]`).siblings('.invalid-feedback').text(errors[key][0]).show();
+                    }
                 });
             } else {
-                toastr.error('Error creating menu');
+                toastr.error('Error creating menu: ' + xhr.statusText);
             }
         }
     });
@@ -141,7 +176,60 @@ $('#addMenuForm').off('submit').on('submit', function(e) {
 // Event handler untuk dropdown Hak Akses
 $('#add_level_menu').off('change').on('change', function() {
     let hakAksesId = $(this).val();
-    updateParentMenuOptions(hakAksesId, $('#add_parent_id'));
+    // Simpan nilai parent dropdown yang telah dipilih
+    addFormPendingParentId = $('#add_parent_id').val();
+    updateAddFormParentMenuOptions(hakAksesId);
+});
+
+// Fungsi khusus untuk form add - agar tidak konflik dengan form update
+function updateAddFormParentMenuOptions(hakAksesId) {
+    // Reset dropdown
+    const targetSelect = $('#add_parent_id');
+    targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
+
+    // Jika tidak ada hakAksesId, tidak perlu memuat data
+    if (!hakAksesId) return;
+
+    // Dapatkan URL dinamis
+    const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
+
+    // Lakukan request AJAX untuk mendapatkan parent menu berdasarkan level
+    $.ajax({
+        url: `${dynamicUrl}/${hakAksesId}`,
+        type: 'GET',
+        success: function(response) {
+            if (response.success && response.parentMenus) {
+                response.parentMenus.forEach(function(menu) {
+                    // Gunakan display_name yang sudah diproses di server
+                    targetSelect.append(`
+                        <option value="${menu.web_menu_id}" data-level="${hakAksesId}">
+                            ${menu.display_name}
+                        </option>
+                    `);
+                });
+                
+                // Setelah dropdown diisi, atur nilai jika ada addFormPendingParentId
+                if (addFormPendingParentId) {
+                    console.log('Setting parent ID in create form to:', addFormPendingParentId);
+                    targetSelect.val(addFormPendingParentId);
+                    // Reset pendingParentId setelah digunakan
+                    addFormPendingParentId = null;
+                }
+            }
+        },
+        error: function() {
+            toastr.error('Gagal memuat menu induk');
+        }
+    });
+}
+
+// Reset form saat modal ditampilkan
+$('#addMenuModal').on('show.bs.modal', function() {
+    $('#addMenuForm')[0].reset();
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').hide();
+    $('#add_parent_id').empty().append('<option value="">-Set Sebagai Menu Utama</option>');
+    addFormPendingParentId = null;
 });
 </script>
 @endpush
