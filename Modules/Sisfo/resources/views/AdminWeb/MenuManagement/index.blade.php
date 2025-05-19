@@ -22,12 +22,14 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Drag and drop item menu untuk menyusun ulang. <br>
-                Setelah mengubah urutan, klik <strong>"Simpan Urutan"</strong> untuk menyimpan perubahan. <br>
-                <strong>Catatan:</strong> Jika menu dipindahkan ke kategori menu berbeda, jenis menu akan otomatis
-                menyesuaikan.
-            </div>
+            <div class="info-message alert-info">
+    <div class="info-content">
+        <i class="fas fa-info-circle"></i> Drag and drop item menu untuk menyusun ulang. <br>
+        Setelah mengubah urutan, klik <strong>"Simpan Urutan"</strong> untuk menyimpan perubahan. <br>
+        <strong>Catatan:</strong> Jika menu dipindahkan ke kategori menu berbeda, jenis menu akan otomatis
+        menyesuaikan.
+    </div>
+</div>
             <div class="form-group mb-4 col-md-6">
                 <label for="filterKategori"><strong>Pilih Kategori Menu:</strong></label>
                 <select class="form-control" id="filterKategori">
@@ -72,7 +74,7 @@
                                             <i class="fas fa-fw fa-list-alt"></i> {{ $nama }}
                                         </h5>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="card-body menu">
                                         <div class="dd nestable-{{ $kode }}" data-jenis="{{ $kode }}">
                                             <ol class="dd-list">
                                                 @foreach($menusByJenis[$kode]['menus'] as $menu)
@@ -118,6 +120,31 @@
     <link rel="stylesheet" href="{{ asset('vendor/nestable2/jquery.nestable.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/toastr/toastr.min.css') }}">
     <style>
+         .card-body.menu ,
+.card-body.menu .dd,
+.card-body.menu .dd-list,
+.card-body.menu .dd-item,
+.card-body.menu .dd-handle{
+        width:  960px !important;
+    }
+        .info-message {
+        position: relative;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid #bee5eb;
+        border-radius: 0.25rem;
+        color: #fffff;
+    }
+    
+    .info-message .fa-info-circle {
+        margin-right: 8px;
+    }
+    
+    .info-content {
+        line-height: 1.5;
+    }
+
+
         .is-invalid {
             border-color: #dc3545 !important;
         }
