@@ -1,3 +1,4 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\MenuManagement\index.blade.php -->
 {{-- resources/views/adminweb/MenuManagement/index.blade.php --}}
 @php
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
@@ -14,9 +15,9 @@
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'create')
                 )
-                                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addMenuModal">
-                                    <i class="fas fa-plus"></i> Tambah Menu
-                                </button>
+                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addMenuModal">
+                        <i class="fas fa-plus"></i> Tambah Menu
+                    </button>
                 @endif
             </div>
         </div>
@@ -68,16 +69,7 @@
 
                                     <div class="card-header {{ $bgColor }} {{ $textColor }}">
                                         <h5 class="card-title mb-0">
-                                            <i class="fas fa-fw 
-                                                    @if($kode == 'SAR') fa-crown
-                                                    @elseif($kode == 'ADM') fa-user-cog
-                                                    @elseif($kode == 'MPU') fa-sitemap
-                                                    @elseif($kode == 'VFR') fa-check-circle
-                                                    @elseif($kode == 'RPN') fa-users
-                                                    @elseif($kode == 'ADT') fa-search
-                                                        @else fa-list
-                                                    @endif
-                                            "></i> {{ $nama }}
+                                            <i class="fas fa-fw fa-list-alt"></i> {{ $nama }}
                                         </h5>
                                     </div>
                                     <div class="card-body">
@@ -89,8 +81,8 @@
                                             </ol>
                                         </div>
                                         @if(count($menusByJenis[$kode]['menus']) == 0)
-                                            <div class="alert alert-warning">
-                                                Belum ada menu untuk kategori {{ $nama }}
+                                            <div class="text-center text-muted">
+                                                <i class="fas fa-info-circle"></i> Belum ada menu untuk kategori ini
                                             </div>
                                         @endif
                                     </div>
@@ -109,248 +101,23 @@
         </div>
     </div>
 
-    <!-- Add Menu Modal -->
+    <!-- Include modals for CRUD operations -->
     @if(
         Auth::user()->level->hak_akses_kode === 'SAR' ||
         SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'create')
     )
-        <div class="modal fade" id="addMenuModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Tambah Menu</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form id="addMenuForm">
-                        @csrf
-                        <div class="modal-body">
-
-                            <div class="form-group">
-                                <label>Hak Akses<span class="text-danger">*</span></label>
-                                <select class="form-control" name="web_menu[fk_m_hak_akses]" id="add_level_menu">
-                                    <option value="">Pilih Hak Akses</option>
-                                    @foreach($levels as $level)
-                                        <option value="{{ $level->hak_akses_id }}">{{ $level->hak_akses_nama }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback">Hak Akses wajib diisi</div>
-                            </div>
-                            <div class="form-group">
-                                <label>Kategori Menu</label>
-                                <select class="form-control" name="web_menu[wm_parent_id]" id="add_parent_id">
-                                    <option value="">-Set Sebagai Menu Utama</option>
-                                    <!-- Menu parent akan difilter berdasarkan hak akses yang dipilih menggunakan JavaScript -->
-                                </select>
-                                <small class="form-text text-muted">Jika memilih kategori menu, jenis menu akan otomatis
-                                    menyesuaikan dengan jenis menu induk.</small>
-                            </div>
-                            <div class="form-group">
-                                <label>Nama Menu<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="web_menu[wm_menu_nama]" id="add_menu_nama">
-                                <div class="invalid-feedback">Nama menu wajib diisi</div>
-                            </div>
-                            <div class="form-group">
-                                <label>URL Menu</label>
-                                <select class="form-control" name="web_menu[fk_web_menu_url]" id="add_menu_url">
-                                    <option value="">Pilih URL</option>
-                                    <option value="">Null - Menu Utama dengan Sub Menu</option>
-                                    @foreach($menuUrls as $url)
-                                        @if($url->Application && $url->Application->app_key == 'app ppid')
-                                            <option value="{{ $url->web_menu_url_id }}">
-                                                {{ $url->wmu_nama }} | {{ $url->Application->app_nama }}
-                                                <small>({{ $url->wmu_keterangan }})</small>
-                                            </option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Status <span class="text-danger">*</span></label>
-                                <select class="form-control" name="web_menu[wm_status_menu]" id="add_status_menu">
-                                    <option value="">Pilih Status</option>
-                                    <option value="aktif">Aktif</option>
-                                    <option value="nonaktif">Non-Aktif</option>
-                                </select>
-                                <div class="invalid-feedback">Status menu wajib diisi</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        @include('sisfo::adminweb.MenuManagement.create')
     @endif
-
-    <!-- Perbaikan di Form Modal Edit -->
-    <div class="modal fade" id="editMenuModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Menu</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="editMenuForm">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="web_menu[web_menu_id]" id="edit_menu_id">
-                    <input type="hidden" name="web_menu[set_akses_menu_id]" id="edit_set_akses_menu_id">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Hak Akses<span class="text-danger">*</span></label>
-                            <select class="form-control" name="web_menu[fk_m_hak_akses]" id="edit_level_menu">
-                                <option value="">Pilih Hak Akses</option>
-                                @foreach($levels as $level)
-                                    <option value="{{ $level->hak_akses_id }}">{{ $level->hak_akses_nama }}</option>
-                                @endforeach
-                            </select>
-                            <div class="invalid-feedback">Hak Akses wajib diisi</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Kategori Menu</label>
-                            <select class="form-control" name="web_menu[wm_parent_id]" id="edit_parent_id">
-                                <option value="">-Set Sebagai Menu Utama</option>
-                                <!-- Menu parent akan diisi menggunakan JavaScript -->
-                            </select>
-                            <small class="form-text text-muted">Jika memilih kategori menu, jenis menu akan otomatis
-                                menyesuaikan dengan jenis menu induk.</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Nama Menu <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="web_menu[wm_menu_nama]" id="edit_menu_nama">
-                            <div class="invalid-feedback">Nama menu wajib diisi</div>
-                        </div>
-                        <div class="form-group">
-                            <label>URL Menu</label>
-                            <select class="form-control" name="web_menu[fk_web_menu_url]" id="edit_menu_url">
-                                <option value="">Pilih URL</option>
-                                <option value="">Null - Menu Utama dengan Sub Menu</option>
-                                @foreach($menuUrls as $url)
-                                    @if($url->Application && $url->Application->app_key == 'app ppid')
-                                        <option value="{{ $url->web_menu_url_id }}">
-                                            {{ $url->wmu_nama }} | {{ $url->Application->app_nama }}
-                                            <small>({{ $url->wmu_keterangan }})</small>
-                                        </option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Status <span class="text-danger">*</span></label>
-                            <select class="form-control" name="web_menu[wm_status_menu]" id="edit_status_menu">
-                                <option value="">Pilih Status</option>
-                                <option value="aktif">Aktif</option>
-                                <option value="nonaktif">Non-Aktif</option>
-                            </select>
-                            <div class="invalid-feedback">Status menu wajib diisi</div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" id="submitEditMenu">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Menu Modal -->
-    <div class="modal fade" id="detailMenuModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-md" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-info-circle"></i> Detail Menu Aplikasi
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th width="35%">Nama Menu</th>
-                            <td><span id="detail_menu_nama"></span></td>
-                        </tr>
-                        <tr>
-                            <th>URL Menu</th>
-                            <td><span id="detail_menu_url"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Jenis Menu</th>
-                            <td><span id="detail_jenis_menu"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Kategori Menu</th>
-                            <td><span id="detail_parent_menu"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Urutan Menu</th>
-                            <td><span id="detail_urutan_menu"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Status</th>
-                            <td><span id="detail_status_menu"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Dibuat Oleh</th>
-                            <td><span id="detail_created_by"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Tanggal Dibuat</th>
-                            <td><span id="detail_created_at"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Diperbarui Oleh</th>
-                            <td><span id="detail_updated_by"></span></td>
-                        </tr>
-                        <tr>
-                            <th>Tanggal Diperbarui</th>
-                            <td><span id="detail_updated_at"></span></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Konfirmasi Hapus</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin menghapus <strong id="menuNameToDelete"></strong>? Tindakan ini tidak dapat
-                        dibatalkan.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Ya, Hapus</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
+    @include('sisfo::adminweb.MenuManagement.update')
+    @include('sisfo::adminweb.MenuManagement.detail')
+    @include('sisfo::adminweb.MenuManagement.delete')
 @endsection
 
 @push('css')
     <link rel="stylesheet" href="{{ asset('vendor/nestable2/jquery.nestable.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/toastr/toastr.min.css') }}">
     <style>
-
         .is-invalid {
             border-color: #dc3545 !important;
         }
@@ -401,666 +168,316 @@
     <script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
 
     <script>
+    // Tambahkan token CSRF ke semua request AJAX
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
 
-$(function() {
-    // Sembunyikan tombol simpan urutan saat belum pilih kategori
-    $('#saveOrderBtn').hide();
-
-    $('#filterKategori').on('change', function() {
-    var kode = $(this).val();
-    if (kode && kode !== 'all') {
-        $('#menuKategoriWrapper').show();
-        $('.menu-kategori-item').hide();
-        $('.menu-kategori-item[data-kode="' + kode + '"]').show();
-        $('#saveOrderBtn').show();
-    } else if (kode === 'all') {
-        $('#menuKategoriWrapper').show();
-        $('.menu-kategori-item').show();
-        $('#saveOrderBtn').show();
-    } else {
-        $('#menuKategoriWrapper').hide();
+    // Tunggu document ready hanya sekali
+    $(function() {
+        // Sembunyikan tombol simpan urutan saat belum pilih kategori
         $('#saveOrderBtn').hide();
-    }
-});
 
-    // Optional: trigger change on page load to ensure hidden
-    $('#filterKategori').trigger('change');
-});
-        // Tambahkan token CSRF ke semua request AJAX
-       // Tambahkan token CSRF ke semua request AJAX
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
-
-// Tunggu document ready hanya sekali
-$(function() {
-    // Simpan semua menu dalam variabel JavaScript untuk digunakan dalam filter
-    const allMenus = @json($menus);
-
-    // Daftar warna untuk setiap jenis menu
-    const menuColors = {
-        'SAR': 'border-left-dark',
-        'ADM': 'border-left-primary',
-        'MPU': 'border-left-success',
-        'VFR': 'border-left-warning',
-        'RPN': 'border-left-danger',
-        'ADT': 'border-left-info'
-    };
-
-    // Simpan jenis menu asli untuk validasi
-    let originalMenuLevel = '';
-
-    // Inisialisasi Nestable untuk setiap jenis menu - hanya sekali per elemen
-    $('.dd').each(function() {
-        const $container = $(this);
-        // Periksa apakah nestable sudah diinisialisasi
-        if (!$container.data('nestable-initialized')) {
-            $container.nestable({
-                maxDepth: 2,
-                group: 1, // Memungkinkan drag and drop antar kelompok
-                dragStop: function(e) {
-                    // Dapatkan kontainer target
-                    const $container = $(e.target).closest('.dd');
-                    const targetJenis = $container.data('jenis');
-                    
-                    // Update jenis menu untuk item yang dipindahkan
-                    const $item = $(e.item);
-                    $item.attr('data-jenis', targetJenis);
-                    
-                    // Update juga untuk semua submenu
-                    $item.find('.dd-item').each(function() {
-                        $(this).attr('data-jenis', targetJenis);
-                        updateMenuItemStyle($(this), targetJenis);
-                    });
-                    
-                    // Update tampilan
-                    updateMenuItemStyle($item, targetJenis);
-                }
-            }).data('nestable-initialized', true); // Tandai sudah diinisialisasi
-        }
-    });
-
-    // Event handler untuk dropdown Hak Akses - gunakan .off() untuk mencegah binding ganda
-    $('#add_level_menu').off('change').on('change', function() {
-        let hakAksesId = $(this).val();
-        updateParentMenuOptions(hakAksesId, $('#add_parent_id'));
-    });
-
-    $('#edit_level_menu').off('change').on('change', function() {
-        let hakAksesId = $(this).val();
-        let menuId = $('#edit_menu_id').val();
-        updateParentMenuOptions(hakAksesId, $('#edit_parent_id'), menuId);
-    });
-
-    function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
-        // Reset dropdown
-        targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
-
-        // Jika tidak ada hakAksesId, tidak perlu memuat data
-        if (!hakAksesId) return;
-
-        // Dapatkan URL dinamis
-        const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
-
-        // Lakukan request AJAX untuk mendapatkan parent menu berdasarkan level
-        $.ajax({
-            url: `${dynamicUrl}/${hakAksesId}`,
-            type: 'GET',
-            data: { exclude_id: excludeId }, // Kirim exclude_id sebagai parameter
-            success: function(response) {
-                if (response.success && response.parentMenus) {
-                    response.parentMenus.forEach(function(menu) {
-                        // Gunakan display_name yang sudah diproses di server
-                        targetSelect.append(`
-                            <option value="${menu.web_menu_id}" data-level="${hakAksesId}">
-                                ${menu.display_name}
-                            </option>
-                        `);
-                    });
-                }
-            },
-            error: function() {
-                toastr.error('Gagal memuat menu induk');
+        $('#filterKategori').on('change', function() {
+            var kode = $(this).val();
+            if (kode && kode !== 'all') {
+                $('#menuKategoriWrapper').show();
+                $('.menu-kategori-item').hide();
+                $('.menu-kategori-item[data-kode="' + kode + '"]').show();
+                $('#saveOrderBtn').show();
+            } else if (kode === 'all') {
+                $('#menuKategoriWrapper').show();
+                $('.menu-kategori-item').show();
+                $('#saveOrderBtn').show();
+            } else {
+                $('#menuKategoriWrapper').hide();
+                $('#saveOrderBtn').hide();
             }
         });
-    }
 
-    // Fungsi untuk mengumpulkan semua data menu dari semua kategori
-    function collectAllMenuData() {
-        let allData = [];
+        // Optional: trigger change on page load to ensure hidden
+        $('#filterKategori').trigger('change');
 
-        // Kumpulkan data dari setiap nestable
+        // Simpan semua menu dalam variabel JavaScript untuk digunakan dalam filter
+        const allMenus = @json($menus);
+
+        // Daftar warna untuk setiap jenis menu
+        const menuColors = {
+            'SAR': 'border-left-dark',
+            'ADM': 'border-left-primary',
+            'MPU': 'border-left-success',
+            'VFR': 'border-left-warning',
+            'RPN': 'border-left-danger',
+            'ADT': 'border-left-info'
+        };
+
+        // Inisialisasi Nestable untuk setiap jenis menu - hanya sekali per elemen
         $('.dd').each(function() {
-            let jenisKode = $(this).data('jenis');
-            let levelData = $(this).nestable('serialize');
-
-            if (levelData && levelData.length > 0) {
-                // Tambahkan informasi level ke setiap item menu utama (tanpa parent)
-                levelData.forEach(item => {
-                    // Hanya menambahkan level ke menu tanpa parent
-                    if (!item.parent_id) {
-                        item.level = jenisKode;
+            const $container = $(this);
+            // Periksa apakah nestable sudah diinisialisasi
+            if (!$container.data('nestable-initialized')) {
+                $container.nestable({
+                    maxDepth: 2,
+                    group: 1, // Memungkinkan drag and drop antar kelompok
+                    dragStop: function(e) {
+                        // Dapatkan kontainer target
+                        const $container = $(e.target).closest('.dd');
+                        const targetJenis = $container.data('jenis');
+                        
+                        // Update jenis menu untuk item yang dipindahkan
+                        const $item = $(e.item);
+                        $item.attr('data-jenis', targetJenis);
+                        
+                        // Update juga untuk semua submenu
+                        $item.find('.dd-item').each(function() {
+                            $(this).attr('data-jenis', targetJenis);
+                            updateMenuItemStyle($(this), targetJenis);
+                        });
+                        
+                        // Update tampilan
+                        updateMenuItemStyle($item, targetJenis);
                     }
-
-                    // Simpan informasi level kode saat ini untuk menu ini
-                    item.current_level = jenisKode;
-                });
-
-                allData = allData.concat(levelData);
+                }).data('nestable-initialized', true); // Tandai sudah diinisialisasi
             }
         });
 
-        return allData;
-    }
+        // Fungsi untuk mengumpulkan semua data menu dari semua kategori
+        function collectAllMenuData() {
+            let allData = [];
 
-    // Handler ketika item dilepas (drop) setelah di-drag
-    $('.dd').off('change').on('change', function() {
-        // Dapatkan jenis kontainer tujuan
-        let targetContainerJenis = $(this).data('jenis');
-        let userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
+            // Kumpulkan data dari setiap nestable
+            $('.dd').each(function() {
+                let jenisKode = $(this).data('jenis');
+                let levelData = $(this).nestable('serialize');
 
-        // Jika container tujuan adalah SAR atau ada menu SAR yang di-drop ke container lain
-        if (targetContainerJenis === 'SAR' && userhakAksesKode !== 'SAR') {
-            // Cek apakah ada item non-SAR yang dipindahkan ke container SAR
-            let nonSarItemInSarContainer = false;
-            $(this).find('.dd-item').each(function() {
-                if ($(this).data('jenis') !== 'SAR') {
-                    nonSarItemInSarContainer = true;
-                    return false; // break the loop
+                if (levelData && levelData.length > 0) {
+                    // Tambahkan informasi level ke setiap item menu utama (tanpa parent)
+                    levelData.forEach(item => {
+                        // Hanya menambahkan level ke menu tanpa parent
+                        if (!item.parent_id) {
+                            item.level = jenisKode;
+                        }
+
+                        // Simpan informasi level kode saat ini untuk menu ini
+                        item.current_level = jenisKode;
+                    });
+
+                    allData = allData.concat(levelData);
                 }
             });
 
-            if (nonSarItemInSarContainer) {
-                // Reload halaman untuk membatalkan perubahan
-                toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-                setTimeout(() => window.location.reload(), 1000);
-                return;
-            }
+            return allData;
         }
 
-        // Cek juga apakah item SAR dipindahkan ke container non-SAR
-        if (targetContainerJenis !== 'SAR' && userhakAksesKode !== 'SAR') {
-            let sarItemInNonSarContainer = false;
-            $(this).find('.dd-item[data-jenis="SAR"]').each(function() {
-                sarItemInNonSarContainer = true;
-                return false; // break the loop
-            });
+        // Handler ketika item dilepas (drop) setelah di-drag
+        $('.dd').off('change').on('change', function() {
+            // Dapatkan jenis kontainer tujuan
+            let targetContainerJenis = $(this).data('jenis');
+            let userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
 
-            if (sarItemInNonSarContainer) {
-                // Reload halaman untuk membatalkan perubahan
-                toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-                setTimeout(() => window.location.reload(), 1000);
-                return;
+            // Jika container tujuan adalah SAR atau ada menu SAR yang di-drop ke container lain
+            if (targetContainerJenis === 'SAR' && userhakAksesKode !== 'SAR') {
+                // Cek apakah ada item non-SAR yang dipindahkan ke container SAR
+                let nonSarItemInSarContainer = false;
+                $(this).find('.dd-item').each(function() {
+                    if ($(this).data('jenis') !== 'SAR') {
+                        nonSarItemInSarContainer = true;
+                        return false; // break the loop
+                    }
+                });
+
+                if (nonSarItemInSarContainer) {
+                    // Reload halaman untuk membatalkan perubahan
+                    toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
+                    setTimeout(() => window.location.reload(), 1000);
+                    return;
+                }
             }
-        }
 
-        // Loop melalui semua item level 1 (menu utama) dalam kontainer ini
-        $(this).find('> .dd-list > .dd-item').each(function() {
-            // Perbarui data-jenis untuk menu utama
-            $(this).attr('data-jenis', targetContainerJenis);
+            // Cek juga apakah item SAR dipindahkan ke container non-SAR
+            if (targetContainerJenis !== 'SAR' && userhakAksesKode !== 'SAR') {
+                let sarItemInNonSarContainer = false;
+                $(this).find('.dd-item[data-jenis="SAR"]').each(function() {
+                    sarItemInNonSarContainer = true;
+                    return false; // break the loop
+                });
 
-            // Perbarui juga tampilan visual
-            updateMenuItemStyle($(this), targetContainerJenis);
+                if (sarItemInNonSarContainer) {
+                    // Reload halaman untuk membatalkan perubahan
+                    toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
+                    setTimeout(() => window.location.reload(), 1000);
+                    return;
+                }
+            }
 
-            // Update juga data-jenis untuk semua submenu
-            $(this).find('.dd-item').each(function() {
+            // Loop melalui semua item level 1 (menu utama) dalam kontainer ini
+            $(this).find('> .dd-list > .dd-item').each(function() {
+                // Perbarui data-jenis untuk menu utama
                 $(this).attr('data-jenis', targetContainerJenis);
+
+                // Perbarui juga tampilan visual
                 updateMenuItemStyle($(this), targetContainerJenis);
-            });
-        });
-    });
 
-    // Fungsi untuk memperbarui gaya tampilan menu sesuai jenisnya
-    function updateMenuItemStyle(menuItem, jenis) {
-        // Hapus kelas border warna lama
-        menuItem.find('> .dd-handle').removeClass(function(index, className) {
-            return (className.match(/(^|\s)border-left-\S+/g) || []).join(' ');
-        });
-
-        // Tambahkan kelas border warna baru sesuai jenis
-        const borderClass = menuColors[jenis] || 'border-left-secondary';
-        menuItem.find('> .dd-handle').addClass(borderClass);
-    }
-
-    // Simpan Urutan Menu - pastikan hanya satu handler
-    $('#saveOrderBtn').off('click').on('click', function() {
-        let data = collectAllMenuData();
-        let userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
-
-        // Validasi menu SAR
-        if (userhakAksesKode !== 'SAR') {
-            // Dapatkan semua menu dengan jenis SAR
-            let sarMenus = [];
-            $('.dd-item[data-jenis="SAR"]').each(function() {
-                sarMenus.push({
-                    id: parseInt($(this).data('id')),
-                    parent_id: $(this).parent().closest('.dd-item').data('id') || null
+                // Update juga data-jenis untuk semua submenu
+                $(this).find('.dd-item').each(function() {
+                    $(this).attr('data-jenis', targetContainerJenis);
+                    updateMenuItemStyle($(this), targetContainerJenis);
                 });
             });
+        });
 
-            // Cek apakah ada perubahan pada menu SAR
-            let hasSARChange = false;
-            for (let sarMenu of sarMenus) {
-                // Cari menu SAR di data yang akan disimpan
-                let foundInData = data.find(item => item.id === sarMenu.id);
+        // Fungsi untuk memperbarui gaya tampilan menu sesuai jenisnya
+        function updateMenuItemStyle(menuItem, jenis) {
+            // Hapus kelas border warna lama
+            menuItem.find('> .dd-handle').removeClass(function(index, className) {
+                return (className.match(/(^|\s)border-left-\S+/g) || []).join(' ');
+            });
 
-                // Jika tidak ditemukan di level 1, periksa anak-anak menu
-                if (!foundInData) {
-                    for (let item of data) {
-                        if (item.children) {
-                            foundInData = item.children.find(child => child.id === sarMenu.id);
-                            if (foundInData) {
-                                // Jika ditemukan di anak, verifikasi parent ID
-                                if (foundInData.parent_id !== sarMenu.parent_id) {
-                                    hasSARChange = true;
-                                    break;
+            // Tambahkan kelas border warna baru sesuai jenis
+            const borderClass = menuColors[jenis] || 'border-left-secondary';
+            menuItem.find('> .dd-handle').addClass(borderClass);
+        }
+
+        // Simpan Urutan Menu - pastikan hanya satu handler
+        $('#saveOrderBtn').off('click').on('click', function() {
+            let data = collectAllMenuData();
+            let userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
+
+            // Validasi menu SAR
+            if (userhakAksesKode !== 'SAR') {
+                // Dapatkan semua menu dengan jenis SAR
+                let sarMenus = [];
+                $('.dd-item[data-jenis="SAR"]').each(function() {
+                    sarMenus.push({
+                        id: parseInt($(this).data('id')),
+                        parent_id: $(this).parent().closest('.dd-item').data('id') || null
+                    });
+                });
+
+                // Cek apakah ada perubahan pada menu SAR
+                let hasSARChange = false;
+                for (let sarMenu of sarMenus) {
+                    // Cari menu SAR di data yang akan disimpan
+                    let foundInData = data.find(item => item.id === sarMenu.id);
+
+                    // Jika tidak ditemukan di level 1, periksa anak-anak menu
+                    if (!foundInData) {
+                        for (let item of data) {
+                            if (item.children) {
+                                foundInData = item.children.find(child => child.id === sarMenu.id);
+                                if (foundInData) {
+                                    // Jika ditemukan di anak, verifikasi parent ID
+                                    if (foundInData.parent_id !== sarMenu.parent_id) {
+                                        hasSARChange = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
+                    } else if (foundInData.parent_id !== sarMenu.parent_id) {
+                        // Jika ditemukan tapi parent ID berbeda
+                        hasSARChange = true;
                     }
-                } else if (foundInData.parent_id !== sarMenu.parent_id) {
-                    // Jika ditemukan tapi parent ID berbeda
-                    hasSARChange = true;
+
+                    if (hasSARChange) break;
                 }
 
-                if (hasSARChange) break;
-            }
-
-            // Jika ada menu non-SAR yang dipindahkan ke container SAR
-            $('.dd[data-jenis="SAR"] .dd-item').each(function() {
-                if ($(this).data('jenis') !== 'SAR') {
-                    hasSARChange = true;
-                    return false; // break the loop
-                }
-            });
-
-            // Cek juga menu SAR yang dipindahkan ke container non-SAR
-            $('.dd:not([data-jenis="SAR"]) .dd-item').each(function() {
-                if ($(this).data('jenis') === 'SAR') {
-                    hasSARChange = true;
-                    return false; // break the loop
-                }
-            });
-
-            if (hasSARChange) {
-                toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-                setTimeout(() => window.location.reload(), 1000);
-                return;
-            }
-        }
-
-        $.ajax({
-            url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/reorder') }}",
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                data: data
-            },
-            success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    toastr.error(response.message);
-                    if (response.message.includes('SAR')) {
-                        setTimeout(() => window.location.reload(), 1000);
-                    }
-                }
-            },
-            error: function() {
-                toastr.error('Error updating menu order');
-            }
-        });
-    });
-
-    // Detail Menu - gunakan event delegation untuk mencegah binding ganda
-    $(document).off('click', '.detail-menu').on('click', '.detail-menu', function() {
-        let menuId = $(this).data('id');
-
-        if (!menuId) {
-            console.error("Data ID tidak ditemukan.");
-            return;
-        }
-
-        $.ajax({
-            url: "/{{ WebMenuModel::getDynamicMenuUrl('menu-management') }}/" + menuId + "/detail_menu",
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    let menu = response.menu;
-
-                    // Isi modal dengan data dari server
-                    $('#detail_menu_nama').text(menu.wm_menu_nama || '-');
-                    $('#detail_menu_url').text(menu.wm_menu_url || '-');
-                    $('#detail_jenis_menu').text(menu.jenis_menu_nama || '-'); 
-                    $('#detail_parent_menu').text(
-                        menu.wm_parent_id ?
-                            `Anak dari Menu ${menu.parent_menu_nama || '-'}` :
-                            'Menu Induk'
-                    );
-                    $('#detail_urutan_menu').text(menu.wm_urutan_menu || '-');
-                    $('#detail_status_menu').html(
-                        `<span class="badge ${menu.wm_status_menu === 'aktif' ? 'badge-success' : 'badge-danger'}">
-                            ${menu.wm_status_menu}
-                        </span>`
-                    );
-                    $('#detail_created_by').text(menu.created_by || '-');
-                    $('#detail_created_at').text(menu.created_at || '-');
-                    $('#detail_updated_by').text(menu.updated_by || '-');
-                    $('#detail_updated_at').text(menu.updated_at || '-');
-
-                    // Tampilkan modal setelah data terisi
-                    $('#detailMenuModal').modal('show');
-                } else {
-                    console.error("Gagal mendapatkan data:", response.message);
-                    toastr.error("Gagal memuat detail menu: " + response.message);
-                }
-            },
-            error: function(xhr) {
-                console.error("AJAX Error:", xhr.responseText);
-                toastr.error("Terjadi kesalahan saat mengambil data menu.");
-            }
-        });
-    });
-
-    // Edit Menu - gunakan event delegation untuk mencegah binding ganda
-    @if(
-        Auth::user()->level->hak_akses_kode === 'SAR' ||
-        SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'update')
-    )
-        $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
-            let menuId = $(this).data('id');
-            let hakAksesKode = $(this).data('level-kode');
-            
-            $('#edit_menu_id').val(menuId);
-
-            $.ajax({
-                url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/edit`,
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        // Set nilai form berdasarkan data dari response
-                        $('#edit_menu_nama').val(response.menu.wm_menu_nama);
-                        $('#edit_menu_url').val(response.menu.fk_web_menu_url);
-                        $('#edit_status_menu').val(response.menu.wm_status_menu);
-                        
-                        // Set level menu
-                        $('#edit_level_menu').val(response.menu.fk_m_hak_akses || '');
-                        
-                        // Perbarui dropdown Kategori Menu berdasarkan Level yang dipilih
-                        // Pass menu ID untuk dikecualikan dari daftar parent
-                        updateParentMenuOptions(
-                            response.menu.fk_m_hak_akses, 
-                            $('#edit_parent_id'),
-                            menuId // Kirim menuId untuk dikecualikan
-                        );
-                        
-                        // Set selected parent - set setelah dropdown diupdate
-                        // Kita tambahkan delay untuk memastikan dropdown sudah terisi
-                        setTimeout(function() {
-                            $('#edit_parent_id').val(response.menu.wm_parent_id);
-                        }, 500); // Tambah delay lebih lama untuk memastikan dropdown sudah terisi
-                        
-                        // Disable/enable level field based on parent
-                        if (response.menu.wm_parent_id) {
-                            $('#edit_level_menu').prop('disabled', true);
-                        } else {
-                            $('#edit_level_menu').prop('disabled', false);
-                        }
-                        
-                        // Store original menu level for validation
-                        originalMenuLevel = response.menu.hak_akses_kode;
-                        
-                        // Show edit modal
-                        $('#editMenuModal').modal('show');
-                    } else {
-                        toastr.error(response.message || 'Gagal mengambil data menu');
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Error fetching menu data:', xhr.responseText);
-                    toastr.error('Error mengambil data menu');
-                }
-            });
-        });
-    @else
-        $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
-            toastr.error('Anda tidak memiliki izin untuk mengubah menu');
-            return false;
-        });
-    @endif
-
-    // Hapus Menu - gunakan event delegation untuk mencegah binding ganda
-    @if(
-        Auth::user()->level->hak_akses_kode === 'SAR' ||
-        SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'delete')
-    )
-        $(document).off('click', '.delete-menu').on('click', '.delete-menu', function() {
-            let menuId = $(this).data('id');
-            let menuName = $(this).data('name');
-            let hakAksesKode = $(this).data('level-kode');
-
-            // Jika level menu adalah SAR dan pengguna bukan SAR, tolak
-            if (hakAksesKode === 'SAR' && '{{ Auth::user()->level->hak_akses_kode }}' !== 'SAR') {
-                toastr.error('Hanya pengguna dengan level Super Administrator yang dapat menghapus menu SAR');
-                return false;
-            }
-
-            $('#confirmDelete').data('id', menuId);
-            $('#menuNameToDelete').text(menuName);
-            $('#deleteConfirmModal').modal('show');
-        });
-
-        // Event listener untuk konfirmasi hapus - gunakan .off() untuk mencegah binding ganda
-        $('#confirmDelete').off('click').on('click', function() {
-            let menuId = $(this).data('id');
-
-            if (menuId) {
-                $.ajax({
-                    url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/delete`,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            setTimeout(() => window.location.reload(), 1000);
-                        } else {
-                            toastr.error(response.message);
-                        }
-                        $('#deleteConfirmModal').modal('hide');
-                    },
-                    error: function(xhr) {
-                        toastr.error('Error deleting menu');
-                        console.error(xhr.responseText);
-                        $('#deleteConfirmModal').modal('hide');
+                // Jika ada menu non-SAR yang dipindahkan ke container SAR
+                $('.dd[data-jenis="SAR"] .dd-item').each(function() {
+                    if ($(this).data('jenis') !== 'SAR') {
+                        hasSARChange = true;
+                        return false; // break the loop
                     }
                 });
-            }
-        });
 
-    @else
-        $(document).off('click', '.delete-menu').on('click', '.delete-menu', function() {
-            toastr.error('Anda tidak memiliki izin untuk menghapus menu');
-            return false;
-        });
-    @endif
+                // Cek juga menu SAR yang dipindahkan ke container non-SAR
+                $('.dd:not([data-jenis="SAR"]) .dd-item').each(function() {
+                    if ($(this).data('jenis') === 'SAR') {
+                        hasSARChange = true;
+                        return false; // break the loop
+                    }
+                });
 
-    // Form addMenu - gunakan .off() untuk mencegah binding ganda
-    $('#addMenuForm').off('submit').on('submit', function(e) {
-        e.preventDefault();
-
-        // Reset validasi
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').hide();
-
-        let isValid = true;
-        let menuNama = $('#add_menu_nama').val().trim();
-        let statusMenu = $('#add_status_menu').val();
-        let levelMenu = $('#add_level_menu').val();
-        // URL menu bisa kosong untuk menu utama dengan submenu
-        let menuUrl = $('#add_menu_url').val();
-
-        // Validasi Level Menu
-        if (!levelMenu) {
-            $('#add_level_menu').addClass('is-invalid');
-            $('#add_level_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-
-        // Validasi Nama Menu
-        if (!menuNama) {
-            $('#add_menu_nama').addClass('is-invalid');
-            $('#add_menu_nama').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-
-        // Validasi Status
-        if (!statusMenu) {
-            $('#add_status_menu').addClass('is-invalid');
-            $('#add_status_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-
-        if (!isValid) {
-            return false;
-        }
-
-        // Jika validasi berhasil, lanjutkan submit
-        $.ajax({
-            url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/store') }}",
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message);
+                if (hasSARChange) {
+                    toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
                     setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    Object.keys(errors).forEach(key => {
-                        toastr.error(errors[key][0]);
-                        $(`[name="${key}"]`).addClass('is-invalid');
-                        $(`[name="${key}"]`).siblings('.invalid-feedback').text(errors[key][0]).show();
-                    });
-                } else {
-                    toastr.error('Error creating menu');
+                    return;
                 }
             }
+
+            $.ajax({
+                url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/reorder') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    data: data
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        toastr.error(response.message);
+                        if (response.message.includes('SAR')) {
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    }
+                },
+                error: function() {
+                    toastr.error('Error updating menu order');
+                }
+            });
         });
-    });
 
-    // Form editMenu - gunakan .off() untuk mencegah binding ganda
-    $('#editMenuForm').off('submit').on('submit', function(e) {
-        e.preventDefault();
-        console.log('Edit form submitted');
+        // Fungsi untuk update opsi parent menu
+        function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
+            // Reset dropdown
+            targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
 
-        // Reset validasi
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').hide();
+            // Jika tidak ada hakAksesId, tidak perlu memuat data
+            if (!hakAksesId) return;
 
-        let isValid = true;
-        let menuNama = $('#edit_menu_nama').val().trim();
-        let statusMenu = $('#edit_status_menu').val();
-        let levelMenu = $('#edit_level_menu').val();
+            // Dapatkan URL dinamis
+            const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
 
-        // Log nilai-nilai form untuk debugging
-        console.log('Menu name:', menuNama);
-        console.log('Status:', statusMenu);
-        console.log('Level:', levelMenu);
-        console.log('Parent ID:', $('#edit_parent_id').val());
-
-        // Validasi Nama Menu
-        if (!menuNama) {
-            $('#edit_menu_nama').addClass('is-invalid');
-            $('#edit_menu_nama').siblings('.invalid-feedback').show();
-            isValid = false;
+            // Lakukan request AJAX untuk mendapatkan parent menu berdasarkan level
+            $.ajax({
+                url: `${dynamicUrl}/${hakAksesId}`,
+                type: 'GET',
+                data: { exclude_id: excludeId }, // Kirim exclude_id sebagai parameter
+                success: function(response) {
+                    if (response.success && response.parentMenus) {
+                        response.parentMenus.forEach(function(menu) {
+                            // Gunakan display_name yang sudah diproses di server
+                            targetSelect.append(`
+                                <option value="${menu.web_menu_id}" data-level="${hakAksesId}">
+                                    ${menu.display_name}
+                                </option>
+                            `);
+                        });
+                    }
+                },
+                error: function() {
+                    toastr.error('Gagal memuat menu induk');
+                }
+            });
         }
 
-        // Validasi Status
-        if (!statusMenu) {
-            $('#edit_status_menu').addClass('is-invalid');
-            $('#edit_status_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-
-        // Validasi Level Menu jika tidak ada parent
-        if (!$('#edit_parent_id').val() && !levelMenu) {
-            $('#edit_level_menu').addClass('is-invalid');
-            $('#edit_level_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-
-        if (!isValid) {
-            console.log('Form tidak valid');
-            return false;
-        }
-
-        // Validasi menu SAR
-        if (originalMenuLevel === 'SAR' && '{{ Auth::user()->level->hak_akses_kode }}' !== 'SAR') {
-            toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-            return false;
-        }
-
-        // Jika ada parent, pastikan level menu diambil dari parent
-        if ($('#edit_parent_id').val()) {
-            // Aktifkan kembali level_menu agar dikirim dengan form
+        // Reset forms dan validasi setelah modal ditutup
+        $('.modal').on('hidden.bs.modal', function() {
+            $(this).find('form')[0].reset();
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').hide();
             $('#edit_level_menu').prop('disabled', false);
-        }
-
-        let menuId = $('#edit_menu_id').val();
-        console.log('Submitting form for menu ID:', menuId);
-        
-        $.ajax({
-            url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/update`,
-            type: 'PUT',
-            data: $(this).serialize(),
-            success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function(xhr) {
-                console.error('Error updating menu:', xhr.responseText);
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    Object.keys(errors).forEach(key => {
-                        toastr.error(errors[key][0]);
-                        // Tandai field yang error
-                        $(`[name="${key}"]`).addClass('is-invalid');
-                        $(`[name="${key}"]`).siblings('.invalid-feedback').text(errors[key][0]).show();
-                    });
-                } else {
-                    toastr.error('Error updating menu: ' + xhr.statusText);
-                }
-            }
+            
+            // Reset dropdown
+            $('#edit_parent_id').empty().append('<option value="">-Set Sebagai Menu Utama</option>');
+            
+            // Reset variabel jenis menu asli
+            originalMenuLevel = '';
         });
     });
-
-    // Reset forms dan validasi setelah modal ditutup
-    $('.modal').on('hidden.bs.modal', function() {
-        $(this).find('form')[0].reset();
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').hide();
-        $('#edit_level_menu').prop('disabled', false);
-        
-        // Reset dropdown
-        $('#edit_parent_id').empty().append('<option value="">-Set Sebagai Menu Utama</option>');
-        
-        // Reset variabel jenis menu asli
-        originalMenuLevel = '';
-    });
-});
     </script>
 @endpush

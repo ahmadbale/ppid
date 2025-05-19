@@ -42,6 +42,8 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\DetailPintasanLain
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuUrlController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
@@ -509,5 +511,29 @@ Route::middleware('auth')->group(function () {
         
         // Tambahkan grup route untuk kategori pengajuan lainnya disini
         // ...
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('management-menu-url')], function () {
+        Route::get('/', [WebMenuUrlController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [WebMenuUrlController::class, 'getData']);
+        Route::get('/addData', [WebMenuUrlController::class, 'addData']);
+        Route::post('/createData', [WebMenuUrlController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [WebMenuUrlController::class, 'editData']);
+        Route::post('/updateData/{id}', [WebMenuUrlController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [WebMenuUrlController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [WebMenuUrlController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [WebMenuUrlController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('management-menu-global')], function () {
+        Route::get('/', [WebMenuGlobalController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [WebMenuGlobalController::class, 'getData']);
+        Route::get('/addData', [WebMenuGlobalController::class, 'addData']);
+        Route::post('/createData', [WebMenuGlobalController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [WebMenuGlobalController::class, 'editData']);
+        Route::post('/updateData/{id}', [WebMenuGlobalController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [WebMenuGlobalController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [WebMenuGlobalController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [WebMenuGlobalController::class, 'deleteData'])->middleware('permission:delete');
     });
 });
