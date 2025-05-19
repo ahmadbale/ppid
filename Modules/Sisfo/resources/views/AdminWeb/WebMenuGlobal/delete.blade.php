@@ -1,10 +1,10 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\WebMenuUrl\delete.blade.php -->
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\WebMenuGlobal\delete.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  $webMenuUrlPath = WebMenuModel::getDynamicMenuUrl('management-menu-url');
+  $webMenuGlobalPath = WebMenuModel::getDynamicMenuUrl('management-menu-global');
 @endphp
 <div class="modal-header">
-  <h5 class="modal-title">Konfirmasi Hapus URL Menu</h5>
+  <h5 class="modal-title">Konfirmasi Hapus Menu Global</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -12,7 +12,7 @@
 
 <div class="modal-body">
   <div class="alert alert-danger mt-3">
-    <i class="fas fa-exclamation-triangle mr-2"></i> Apakah Anda yakin ingin menghapus URL menu dengan detail
+    <i class="fas fa-exclamation-triangle mr-2"></i> Apakah Anda yakin ingin menghapus menu global dengan detail
     berikut:
   </div>
 
@@ -20,32 +20,35 @@
     <div class="card-body">
       <table class="table table-borderless">
         <tr>
-          <th width="200">Aplikasi</th>
-          <td>{{ $webMenuUrl->application ? $webMenuUrl->application->app_nama : 'Tidak Ada' }}</td>
+          <th width="200">Nama Default Menu</th>
+          <td>{{ $webMenuGlobal->wmg_nama_default }}</td>
         </tr>
         <tr>
           <th>URL Menu</th>
-          <td>{{ $webMenuUrl->wmu_nama }}</td>
-        </tr>
-        <tr>
-          <th>Deskripsi URL Menu</th>
-          <td><code>{{ $webMenuUrl->wmu_keterangan }}</code></td>
+          <td>
+            @if($webMenuGlobal->fk_web_menu_url)
+                <strong>Aplikasi:</strong> {{ $webMenuGlobal->WebMenuUrl->application->app_nama }}<br>
+                <strong>Nama URL:</strong> {{ $webMenuGlobal->WebMenuUrl->wmu_nama }}
+            @else
+                <span class="badge badge-info">Group Menu</span>
+            @endif
+          </td>
         </tr>
       </table>
     </div>
   </div>
 
   <div class="alert alert-warning mt-3">
-    <i class="fas fa-info-circle mr-2"></i> <strong>Perhatian:</strong> Menghapus URL menu ini mungkin akan
-    memengaruhi menu lain yang menggunakan URL ini. Pastikan tidak ada menu lain yang masih
-    menggunakan URL ini.
+    <i class="fas fa-info-circle mr-2"></i> <strong>Perhatian:</strong> Menghapus menu global ini mungkin akan
+    memengaruhi menu website yang menggunakannya. Pastikan tidak ada menu website yang masih
+    menggunakan menu global ini.
   </div>
 </div>
 
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
   <button type="button" class="btn btn-danger" id="confirmDeleteButton"
-    onclick="confirmDelete('{{ url($webMenuUrlPath . '/deleteData/' . $webMenuUrl->web_menu_url_id) }}')">
+    onclick="confirmDelete('{{ url($webMenuGlobalPath . '/deleteData/' . $webMenuGlobal->web_menu_global_id) }}')">
     <i class="fas fa-trash mr-1"></i> Hapus
   </button>
 </div>
@@ -67,20 +70,11 @@
 
         // Cek pesan error dalam respons terlepas dari status success
         if (response.message && response.message.includes('sedang digunakan')) {
-          // Hapus duplikasi dalam pesan jika ada
-          let cleanMessage = response.message;
-          
-          // Jika pesan duplikat, potong bagian duplikat
-          const colonPos = cleanMessage.indexOf(':');
-          if (colonPos > -1 && cleanMessage.substring(colonPos + 2) === cleanMessage.substring(0, colonPos)) {
-            cleanMessage = cleanMessage.substring(0, colonPos);
-          }
-          
           // Jika pesan mengandung "sedang digunakan", selalu tampilkan warning
           Swal.fire({
             icon: 'warning',
             title: 'Peringatan',
-            text: cleanMessage
+            text: response.message
           });
         } else if (response.success) {
           // Jika sukses dan bukan pesan "sedang digunakan"
@@ -95,7 +89,7 @@
           Swal.fire({
             icon: 'error',
             title: 'Gagal',
-            text: response.message || 'Gagal menghapus URL menu'
+            text: response.message
           });
         }
       },

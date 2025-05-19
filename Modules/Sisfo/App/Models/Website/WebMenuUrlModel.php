@@ -42,14 +42,14 @@ class WebMenuUrlModel extends Model
 
         // Tambahkan fungsionalitas pencarian
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('wmu_nama', 'like', "%{$search}%")
-                  ->orWhereHas('application', function($app) use ($search) {
-                      $app->where('app_nama', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('application', function ($app) use ($search) {
+                        $app->where('app_nama', 'like', "%{$search}%");
+                    });
             });
         }
-        
+
         $query->orderBy('created_at', 'desc');
 
         return self::paginateResults($query, $perPage);
@@ -114,7 +114,12 @@ class WebMenuUrlModel extends Model
             $menuUsage = DB::table('web_menu_global')->where('fk_web_menu_url', $id)->where('isDeleted', 0)->count();
 
             if ($menuUsage > 0) {
-                throw new \Exception('URL tidak dapat dihapus karena sedang digunakan oleh menu.');
+                // Tampilkan pesan tanpa menggunakan exception yang akan digabung dengan pesan lain
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'message' => "Gagal menghapus URL ({$webMenuUrl->wmu_nama}) dikarenakan sedang digunakan pada tabel web_menu_global"
+                ];
             }
 
             $webMenuUrl->delete();
@@ -164,7 +169,7 @@ class WebMenuUrlModel extends Model
         return true;
     }
 
-     // Filter untuk PPID only
+    // Filter untuk PPID only
     public function scopePpidOnly($query)
     {
         return $query->whereHas('application', function ($q) {
