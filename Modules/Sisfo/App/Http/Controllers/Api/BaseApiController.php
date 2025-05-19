@@ -43,7 +43,7 @@ class BaseApiController extends Controller
     protected const SERVER_ERROR = 'Terjadi kesalahan pada server';
     protected const RESOURCE_NOT_FOUND = 'Data tidak ditemukan';
     protected const INVALID_REQUEST_FORMAT = 'Format request tidak valid';
-    
+    protected const AUTH_FORBIDDEN = 'Anda tidak memiliki izin untuk melakukan akse ini';
     // Konstanta untuk jenis autentikasi
     protected const AUTH_TYPE_USER = 'user';
     protected const AUTH_TYPE_SYSTEM = 'system';
