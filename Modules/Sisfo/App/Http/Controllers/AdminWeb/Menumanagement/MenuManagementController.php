@@ -55,13 +55,21 @@ class MenuManagementController extends Controller
                 ];
             }
 
-            // Untuk dropdown di form
-            $menus = WebMenuModel::getMenusWithChildren();
-
-            // Get group menus (fk_web_menu_url = NULL)
-            $groupMenus = WebMenuGlobalModel::whereNull('fk_web_menu_url')
+            // Untuk dropdown di form - data dari web_menu_global
+            $groupMenusGlobal = WebMenuGlobalModel::whereNull('fk_web_menu_url')
                 ->where('isDeleted', 0)
                 ->orderBy('wmg_nama_default')
+                ->get();
+
+            // PERUBAHAN: Untuk dropdown nama group menu pada form submenu - data dari web_menu
+            $groupMenusFromWebMenu = WebMenuModel::whereHas('WebMenuGlobal', function ($query) {
+                $query->whereNull('fk_web_menu_url');
+            })
+                ->whereNull('wm_parent_id')  // Pastikan ini adalah menu utama/parent
+                ->where('isDeleted', 0)
+                ->where('wm_status_menu', 'aktif')
+                ->with('WebMenuGlobal')
+                ->orderBy('wm_urutan_menu')
                 ->get();
 
             // Get non-group menus (fk_web_menu_url != NULL)
@@ -71,6 +79,9 @@ class MenuManagementController extends Controller
                 ->orderBy('wmg_nama_default')
                 ->get();
 
+            // Untuk dropdown - data dari web_menu biasa
+            $menus = WebMenuModel::getMenusWithChildren();
+
             return view('sisfo::adminweb.MenuManagement.index', compact(
                 'breadcrumb',
                 'page',
@@ -79,7 +90,8 @@ class MenuManagementController extends Controller
                 'menusByJenis',
                 'jenisMenuList',
                 'levels',
-                'groupMenus',
+                'groupMenusGlobal',     // Group menus dari web_menu_global untuk set sebagai group menu
+                'groupMenusFromWebMenu', // Group menus dari web_menu untuk set sebagai sub menu
                 'nonGroupMenus'
             ));
         } catch (\Exception $e) {

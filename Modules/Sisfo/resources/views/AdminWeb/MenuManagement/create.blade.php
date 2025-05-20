@@ -42,11 +42,23 @@
                         <label>Nama Group Menu<span class="text-danger">*</span></label>
                         <select class="form-control" name="web_menu[wm_parent_id]" id="add_nama_group_menu" disabled>
                             <option value="">Pilih Nama Group Menu</option>
-                            @foreach($groupMenus as $menu)
-                                <option value="{{ $menu->web_menu_global_id }}">
-                                    {{ $menu->wmg_nama_default }}
-                                </option>
-                            @endforeach
+                            <!-- Untuk "Set sebagai group menu" -->
+                            <optgroup label="Group Menu" id="add_group_menu_options">
+                                @foreach($groupMenusGlobal as $menu)
+                                    <option value="{{ $menu->web_menu_global_id }}" data-menu-type="global">
+                                        {{ $menu->wmg_nama_default }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                            
+                            <!-- Untuk "Set sebagai sub menu" -->
+                            <optgroup label="Menu Utama" id="add_sub_menu_options" style="display:none;">
+                                @foreach($groupMenusFromWebMenu as $menu)
+                                    <option value="{{ $menu->web_menu_id }}" data-menu-type="parent">
+                                        {{ $menu->wm_menu_nama ?: $menu->WebMenuGlobal->wmg_nama_default }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         </select>
                         <div class="invalid-feedback">Nama group menu wajib dipilih</div>
                         <small class="form-text text-muted" id="add_group_menu_help">
@@ -227,6 +239,10 @@ $('#add_kategori_menu').off('change').on('change', function() {
         // Update wajib/tidak wajib
         $('#add_nama_menu').siblings('label').find('.text-danger').show();
         $('#add_nama_group_menu').siblings('label').find('.text-danger').hide();
+        
+        // Sembunyikan semua opsi group
+        $('#add_group_menu_options').show();
+        $('#add_sub_menu_options').hide();
     } 
     else if (selectedValue === 'group_menu') {
         // Set sebagai group menu
@@ -237,6 +253,10 @@ $('#add_kategori_menu').off('change').on('change', function() {
         // Update wajib/tidak wajib
         $('#add_nama_menu').siblings('label').find('.text-danger').hide();
         $('#add_nama_group_menu').siblings('label').find('.text-danger').show();
+        
+        // Tampilkan opsi untuk group menu
+        $('#add_group_menu_options').show();
+        $('#add_sub_menu_options').hide();
     }
     else if (selectedValue === 'sub_menu') {
         // Set sebagai sub menu
@@ -248,6 +268,10 @@ $('#add_kategori_menu').off('change').on('change', function() {
         // Update wajib/tidak wajib
         $('#add_nama_menu').siblings('label').find('.text-danger').show();
         $('#add_nama_group_menu').siblings('label').find('.text-danger').show();
+        
+        // Tampilkan opsi untuk sub menu
+        $('#add_group_menu_options').hide();
+        $('#add_sub_menu_options').show();
     }
 });
 

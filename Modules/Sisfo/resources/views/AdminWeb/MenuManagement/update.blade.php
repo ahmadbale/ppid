@@ -45,11 +45,23 @@
                         <label>Nama Group Menu<span class="text-danger">*</span></label>
                         <select class="form-control" name="web_menu[wm_parent_id]" id="edit_nama_group_menu" disabled>
                             <option value="">Pilih Nama Group Menu</option>
-                            @foreach($groupMenus as $menu)
-                                <option value="{{ $menu->web_menu_global_id }}">
-                                    {{ $menu->wmg_nama_default }}
-                                </option>
-                            @endforeach
+                            <!-- Untuk "Set sebagai group menu" -->
+                            <optgroup label="Group Menu" id="edit_group_menu_options">
+                                @foreach($groupMenusGlobal as $menu)
+                                    <option value="{{ $menu->web_menu_global_id }}" data-menu-type="global">
+                                        {{ $menu->wmg_nama_default }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                            
+                            <!-- Untuk "Set sebagai sub menu" -->
+                            <optgroup label="Menu Utama" id="edit_sub_menu_options" style="display:none;">
+                                @foreach($groupMenusFromWebMenu as $menu)
+                                    <option value="{{ $menu->web_menu_id }}" data-menu-type="parent">
+                                        {{ $menu->wm_menu_nama ?: $menu->WebMenuGlobal->wmg_nama_default }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         </select>
                         <div class="invalid-feedback">Nama group menu wajib dipilih</div>
                         <small class="form-text text-muted" id="edit_group_menu_help">
@@ -121,6 +133,10 @@ $('#edit_kategori_menu').off('change').on('change', function() {
         // Update wajib/tidak wajib
         $('#edit_nama_menu').siblings('label').find('.text-danger').show();
         $('#edit_nama_group_menu').siblings('label').find('.text-danger').hide();
+        
+        // Tampilkan opsi yang sesuai
+        $('#edit_group_menu_options').show();
+        $('#edit_sub_menu_options').hide();
     } 
     else if (selectedValue === 'group_menu') {
         // Set sebagai group menu
@@ -131,6 +147,10 @@ $('#edit_kategori_menu').off('change').on('change', function() {
         // Update wajib/tidak wajib
         $('#edit_nama_menu').siblings('label').find('.text-danger').hide();
         $('#edit_nama_group_menu').siblings('label').find('.text-danger').show();
+        
+        // Tampilkan opsi yang sesuai
+        $('#edit_group_menu_options').show();
+        $('#edit_sub_menu_options').hide();
     }
     else if (selectedValue === 'sub_menu') {
         // Set sebagai sub menu
@@ -142,6 +162,10 @@ $('#edit_kategori_menu').off('change').on('change', function() {
         // Update wajib/tidak wajib
         $('#edit_nama_menu').siblings('label').find('.text-danger').show();
         $('#edit_nama_group_menu').siblings('label').find('.text-danger').show();
+        
+        // Tampilkan opsi yang sesuai
+        $('#edit_group_menu_options').hide();
+        $('#edit_sub_menu_options').show();
     }
 });
 
@@ -263,10 +287,9 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
     });
 });
 
-// Event handler untuk tombol Edit
+// Modifikasi fungsi edit untuk menampilkan data dengan benar
 $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
     let menuId = $(this).data('id');
-    let hakAksesKode = $(this).data('level-kode');
     
     $('#edit_menu_id').val(menuId);
 
@@ -275,9 +298,6 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
         type: 'GET',
         success: function(response) {
             if (response.success) {
-                // Store original menu level for validation
-                originalMenuLevel = response.menu.hak_akses_kode;
-                
                 // Set nilai form berdasarkan data dari response
                 $('#edit_level_menu').val(response.menu.fk_m_hak_akses || '');
                 $('#edit_menu_alias').val(response.menu.wm_menu_nama);
@@ -287,16 +307,29 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
                 if (response.menu.wm_parent_id) {
                     // Ini adalah sub menu
                     $('#edit_kategori_menu').val('sub_menu');
+                    // Pilih opsi yang sesuai berdasarkan web_menu_id, bukan web_menu_global_id
                     $('#edit_nama_group_menu').val(response.menu.wm_parent_id);
                     $('#edit_nama_menu').val(response.menu.fk_web_menu_global);
+                    
+                    // Tampilkan opsi sub menu
+                    $('#edit_group_menu_options').hide();
+                    $('#edit_sub_menu_options').show();
                 } else if (response.menu.fk_web_menu_url === null) {
                     // Ini adalah group menu
                     $('#edit_kategori_menu').val('group_menu');
                     $('#edit_nama_group_menu').val(response.menu.fk_web_menu_global);
+                    
+                    // Tampilkan opsi group menu
+                    $('#edit_group_menu_options').show();
+                    $('#edit_sub_menu_options').hide();
                 } else {
                     // Ini adalah menu biasa
                     $('#edit_kategori_menu').val('menu_biasa');
                     $('#edit_nama_menu').val(response.menu.fk_web_menu_global);
+                    
+                    // Tampilkan opsi menu biasa
+                    $('#edit_group_menu_options').show();
+                    $('#edit_sub_menu_options').hide();
                 }
                 
                 // Trigger change event untuk setup form sesuai kategori
