@@ -53,71 +53,9 @@ class HomeController extends Controller
             throw $e;
         }
     }
-
-    // public function index()
-    // {
-    //     try {
-    //         Log::info('Mengambil data dari API');
-
-    //         // Ambil data pintasan
-    //         $pintasanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPintasanLainnya');
-    //         $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
-
-    //         // Ambil data akses cepat
-    //         $aksesCepatResponse = Http::get('http://ppid-polinema.test/api/public/getDataAksesCepat');
-    //         $aksesCepatMenus = $this->fetchAksesCepatData($aksesCepatResponse);
-
-    //         $pengumumanResponse = Http::get('http://ppid-polinema.test/api/public/getDataPengumumanLandingPage');
-    //         $pengumumanMenus = $this->fetchPengumumanData($pengumumanResponse);
-
-    //         $beritaResponse = Http::get('http://ppid-polinema.test/api/public/getDataBeritaLandingPage');
-    //         $beritaMenus = $this->fetchBeritaData($beritaResponse);
-
-    //         $heroSectionResponse = Http::get('http://ppid-polinema.test/api/public/getDataHeroSection');
-    //         $heroSectionMenus = $this->fetchHeroSectionData($heroSectionResponse);
-
-    //         $dokumentasiResponse = Http::get('http://ppid-polinema.test/api/public/getDataDokumentasi');
-    //         $dokumentasiMenus = $this->fetchDokumentasiData($dokumentasiResponse);
-
-    //         $mediaInformasiPublikResponse = Http::get('http://ppid-polinema.test/api/public/getDataMediaInformasiPublik');
-    //         $mediaInformasiPublikMenus = $this->fetchMediaInformasiPublikData($mediaInformasiPublikResponse);
-
-    //         $statisticResponse = Http::get('http://ppid-polinema.test/api/public/getDashboardStatistics');
-    //         $statisticData = $this->fetchStatisticData($statisticResponse);
-
-    //         return view('user::landing_page', compact(
-    //             'pintasanMenus',
-    //             'aksesCepatMenus',
-    //             'pengumumanMenus',
-    //             'beritaMenus',
-    //             'heroSectionMenus',
-    //             'dokumentasiMenus',
-    //             'mediaInformasiPublikMenus',
-    //             'statisticData' 
-    //         ));
-    //     } catch (\Exception $e) {
-    //         Log::error('Error saat mengambil data dari API', [
-    //             'message' => $e->getMessage(),
-    //             'trace' => $e->getTraceAsString()
-    //         ]);
-    //         return view('user::landing_page', [
-    //             'pintasanMenus' => [],
-    //             'aksesCepatMenus' => [],
-    //             'pengumumanMenus' => [],
-    //             'beritaMenus' => [],
-    //             'heroSectionMenus' => [],
-    //             'dokumentasiMenus' => [],
-    //             'mediaInformasiPublikMenus' => [],
-    //             'statisticData' => []
-    //         ]);
-    //     }
-    // }
-    // tes kinboy
     public function index()
     {
         try {
-            Log::info('Mengambil data dari API');
-
             // Update semua request menggunakan makeAuthenticatedRequest
             $pintasanResponse = $this->makeAuthenticatedRequest('public/getDataPintasanLainnya');
             $pintasanMenus = $this->fetchPintasanData($pintasanResponse);
@@ -426,8 +364,6 @@ class HomeController extends Controller
                     ]
                 ];
             }
-
-            Log::info('Data statistik berhasil diproses', ['result' => $result]);
             return $result;
         } catch (\Exception $e) {
             Log::error('Error saat memproses data statistik', [

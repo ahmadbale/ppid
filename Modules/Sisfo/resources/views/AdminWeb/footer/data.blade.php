@@ -13,8 +13,8 @@
     <thead>
         <tr>
             <th width="5%">Nomor</th>
-            <th width="35%">Judul Footer</th>
-            <th width="35%">Kategori Footer</th>
+            <th width="30%">Kategori Footer</th>
+            <th width="40%">Judul Footer</th>
             <th width="25%">Aksi</th>
         </tr>
     </thead>
@@ -22,8 +22,8 @@
         @forelse($footer as $key => $item)
         <tr>
             <td>{{ ($footer->currentPage() - 1) * $footer->perPage() + $key + 1 }}</td>
+             <td>{{ $item->kategoriFooter->kt_footer_nama ?? 'Tidak Ada' }}</td>
             <td>{{ $item->f_judul_footer }}</td>
-            <td>{{ $item->kategoriFooter->kt_footer_nama ?? 'Tidak Ada' }}</td>
             <td>
                 @if(
                     Auth::user()->level->hak_akses_kode === 'SAR' ||

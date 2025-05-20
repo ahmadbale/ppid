@@ -14,9 +14,9 @@
         <tr>
             <th width="5%">Nomor</th>
             <th width="20%">Judul Informasi Akses Cepat</th>
-            <th width="20%">Icon Akses Cepat</th>
-            <th width="20%">Icon Animasi Akses Cepat</th>
-            <th width="15%">Aksi</th>
+            <th width="15%">Icon Akses Cepat</th>
+            <th width="15%">Icon Animasi Akses Cepat</th>
+            <th width="20%">Aksi</th>
         </tr>
     </thead>
     <tbody>

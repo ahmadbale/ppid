@@ -14,8 +14,8 @@
      <thead>
          <tr>
              <th width="5%">Nomor</th>
-             <th width="30%">Kode Kategori Footer</th>
-             <th width="35%">Nama Kategori Footer</th>
+             <th width="25%">Kode Kategori Footer</th>
+             <th width="40%">Nama Kategori Footer</th>
              <th width="30%">Aksi</th>
          </tr>
      </thead>

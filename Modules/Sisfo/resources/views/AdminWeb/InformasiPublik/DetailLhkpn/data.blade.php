@@ -14,10 +14,10 @@
      <thead>
          <tr>
              <th width="5%">No</th>
-             <th width="20%">Nama Karyawan</th>
-             <th width="15%">Tahun</th>
+             <th width="30%">Nama Karyawan</th>
+             <th width="10%">Tahun</th>
              <th width="30%">Judul Informasi</th>
-             <th width="30%">Aksi</th>
+             <th width="25%">Aksi</th>
          </tr>
      </thead>
      <tbody>

@@ -14,9 +14,9 @@
     <thead>
         <tr>
             <th width="5%">Nomor</th>
-            <th width="20%">Kategori</th>
-            <th width="25%">Judul</th>
-            <th width="15%">Status</th>
+            <th width="15%">Kategori</th>
+            <th width="35%">Judul</th>
+            <th width="10%">Status</th>
             <th width="20%">Aksi</th>
         </tr>
     </thead>

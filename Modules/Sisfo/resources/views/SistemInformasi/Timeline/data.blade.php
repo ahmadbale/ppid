@@ -14,8 +14,8 @@
     <thead>
         <tr>
             <th width="5%">Nomor</th>
-            <th width="20%">Kategori Timeline</th>
-            <th width="45%">Judul Timeline</th>
+            <th width="30%">Kategori Timeline</th>
+            <th width="35%">Judul Timeline</th>
             <th width="30%">Aksi</th>
         </tr>
     </thead>

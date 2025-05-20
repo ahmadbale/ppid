@@ -14,10 +14,10 @@
      <thead>
          <tr>
              <th width="5%">Nomor</th>
-             <th width="30%">Kategori Regulasi</th>
-             <th width="30%">Judul</th>
+             <th width="40%">Kategori Regulasi</th>
+             <th width="20%">Judul</th>
              <th width="10%">Tipe</th>
-             <th width="15%">Aksi</th>
+             <th width="25%">Aksi</th>
          </tr>
      </thead>
      <tbody>

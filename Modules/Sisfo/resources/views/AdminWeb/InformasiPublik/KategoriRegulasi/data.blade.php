@@ -14,10 +14,10 @@
      <thead>
          <tr>
              <th width="5%">Nomor</th>
-             <th width="30%">Regulasi Dinamis</th>
-             <th width="20%">Kode Kategori</th>
-             <th width="30%">Nama Kategori Regulasi</th>
-             <th width="15%">Aksi</th>
+             <th width="20%">Regulasi Dinamis</th>
+             <th width="15%">Kode Kategori</th>
+             <th width="35%">Nama Kategori Regulasi</th>
+             <th width="25%">Aksi</th>
          </tr>
      </thead>
      <tbody>
