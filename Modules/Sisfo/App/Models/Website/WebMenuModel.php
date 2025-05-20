@@ -263,120 +263,144 @@ class WebMenuModel extends Model
     }
 
     public static function createData($request)
-{
-    DB::beginTransaction();
-    try {
-        self::validasiData($request);
-        $data = $request->web_menu;
+    {
+        DB::beginTransaction();
+        try {
+            self::validasiData($request);
+            $data = $request->web_menu;
+            $kategoriMenu = $request->kategori_menu; // Ambil kategori menu dari form
 
-        // Validasi apakah user mencoba membuat menu dengan level SAR
-        $hakAksesId = $data['fk_m_hak_akses'] ?? null;
-        $level = HakAksesModel::find($hakAksesId);
+            // Validasi apakah user mencoba membuat menu dengan level SAR
+            $hakAksesId = $data['fk_m_hak_akses'] ?? null;
+            $level = HakAksesModel::find($hakAksesId);
 
-        // Jika level adalah SAR dan user bukan SAR, tolak permintaan
-        if ($level && $level->hak_akses_kode === 'SAR' && Auth::user()->level->hak_akses_kode !== 'SAR') {
+            // Jika level adalah SAR dan user bukan SAR, tolak permintaan
+            if ($level && $level->hak_akses_kode === 'SAR' && Auth::user()->level->hak_akses_kode !== 'SAR') {
+                return [
+                    'success' => false,
+                    'message' => 'Hanya pengguna dengan level Super Administrator yang dapat menambahkan menu SAR'
+                ];
+            }
+
+            // Tentukan wm_parent_id berdasarkan kategori menu
+            $parentId = null;
+
+            if ($kategoriMenu === 'sub_menu') {
+                // Jika sub menu, ambil parent_id dari field nama_group_menu
+                $parentId = $data['wm_parent_id'] ?? null;
+            } else {
+                // Jika menu biasa atau group menu, set parent_id = NULL
+                $parentId = null;
+            }
+
+            // Buat menu baru
+            $saveData = self::create([
+                'fk_web_menu_global' => $data['fk_web_menu_global'],
+                'fk_m_hak_akses' => $data['fk_m_hak_akses'],
+                'wm_parent_id' => $parentId, // Set nilai wm_parent_id
+                'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
+                'wm_status_menu' => $data['wm_status_menu'],
+                'wm_urutan_menu' => self::where('wm_parent_id', $parentId)
+                    ->where('isDeleted', 0)
+                    ->count() + 1
+            ]);
+
+            TransactionModel::createData(
+                'CREATED',
+                $saveData->web_menu_id,
+                $saveData->wm_menu_nama ?: ($saveData->WebMenuGlobal ? $saveData->WebMenuGlobal->wmg_nama_default : 'Menu Baru')
+            );
+
+            DB::commit();
+            return [
+                'success' => true,
+                'message' => 'Menu berhasil dibuat',
+                'data' => $saveData
+            ];
+        } catch (ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Hanya pengguna dengan level Super Administrator yang dapat menambahkan menu SAR'
+                'message' => 'Validasi gagal',
+                'errors' => $e->validator->errors()
             ];
-        }
-
-        // Buat menu baru
-        $saveData = self::create([
-            'fk_web_menu_global' => $data['fk_web_menu_global'],
-            'fk_m_hak_akses' => $data['fk_m_hak_akses'],
-            'wm_parent_id' => $data['wm_parent_id'] ? $data['wm_parent_id'] : null,
-            'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
-            'wm_status_menu' => $data['wm_status_menu'],
-            'wm_urutan_menu' => self::where('wm_parent_id', $data['wm_parent_id'] ?? null)
-                ->where('isDeleted', 0)
-                ->count() + 1
-        ]);
-
-        TransactionModel::createData(
-            'CREATED',
-            $saveData->web_menu_id,
-            $saveData->wm_menu_nama ?: ($saveData->WebMenuGlobal ? $saveData->WebMenuGlobal->wmg_nama_default : 'Menu Baru')
-        );
-
-        DB::commit();
-        return [
-            'success' => true,
-            'message' => 'Menu berhasil dibuat',
-            'data' => $saveData
-        ];
-    } catch (ValidationException $e) {
-        DB::rollBack();
-        return [
-            'success' => false,
-            'message' => 'Validasi gagal',
-            'errors' => $e->validator->errors()
-        ];
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error creating menu: ' . $e->getMessage());
-        return [
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat membuat menu: ' . $e->getMessage()
-        ];
-    }
-}
-
-public static function updateData($request, $id)
-{
-    DB::beginTransaction();
-    try {
-        self::validasiData($request);
-
-        $saveData = self::findOrFail($id);
-        $data = $request->web_menu;
-
-        // Periksa level menu
-        $level = HakAksesModel::find($saveData->fk_m_hak_akses);
-        if ($level && $level->hak_akses_kode === 'SAR' && Auth::user()->level->hak_akses_kode !== 'SAR') {
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating menu: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR'
+                'message' => 'Terjadi kesalahan saat membuat menu: ' . $e->getMessage()
             ];
         }
-
-        // Update menu
-        $saveData->update([
-            'fk_web_menu_global' => $data['fk_web_menu_global'],
-            'fk_m_hak_akses' => $data['fk_m_hak_akses'],
-            'wm_parent_id' => isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null,
-            'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
-            'wm_status_menu' => $data['wm_status_menu']
-        ]);
-
-        TransactionModel::createData(
-            'UPDATED',
-            $saveData->web_menu_id,
-            $saveData->wm_menu_nama ?: ($saveData->WebMenuGlobal ? $saveData->WebMenuGlobal->wmg_nama_default : 'Menu')
-        );
-
-        DB::commit();
-        return [
-            'success' => true,
-            'message' => 'Menu berhasil diperbarui',
-            'data' => $saveData
-        ];
-    } catch (ValidationException $e) {
-        DB::rollBack();
-        return [
-            'success' => false,
-            'message' => 'Validasi gagal',
-            'errors' => $e->validator->errors()
-        ];
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error updating menu: ' . $e->getMessage());
-        return [
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat memperbarui menu: ' . $e->getMessage()
-        ];
     }
-}
+
+    public static function updateData($request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            self::validasiData($request);
+
+            $saveData = self::findOrFail($id);
+            $data = $request->web_menu;
+            $kategoriMenu = $request->kategori_menu; // Ambil kategori menu dari form
+
+            // Periksa level menu
+            $level = HakAksesModel::find($saveData->fk_m_hak_akses);
+            if ($level && $level->hak_akses_kode === 'SAR' && Auth::user()->level->hak_akses_kode !== 'SAR') {
+                return [
+                    'success' => false,
+                    'message' => 'Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR'
+                ];
+            }
+
+            // Tentukan wm_parent_id berdasarkan kategori menu
+            $parentId = null;
+
+            if ($kategoriMenu === 'sub_menu') {
+                // Jika sub menu, ambil parent_id dari field nama_group_menu
+                $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
+            } else {
+                // Jika menu biasa atau group menu, set parent_id = NULL
+                $parentId = null;
+            }
+
+            // Update menu
+            $saveData->update([
+                'fk_web_menu_global' => $data['fk_web_menu_global'],
+                'fk_m_hak_akses' => $data['fk_m_hak_akses'],
+                'wm_parent_id' => $parentId, // Set nilai wm_parent_id berdasarkan kategori
+                'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
+                'wm_status_menu' => $data['wm_status_menu']
+            ]);
+
+            TransactionModel::createData(
+                'UPDATED',
+                $saveData->web_menu_id,
+                $saveData->wm_menu_nama ?: ($saveData->WebMenuGlobal ? $saveData->WebMenuGlobal->wmg_nama_default : 'Menu')
+            );
+
+            DB::commit();
+            return [
+                'success' => true,
+                'message' => 'Menu berhasil diperbarui',
+                'data' => $saveData
+            ];
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->validator->errors()
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating menu: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui menu: ' . $e->getMessage()
+            ];
+        }
+    }
 
     public static function deleteData($id)
     {
@@ -442,34 +466,34 @@ public static function updateData($request, $id)
         }
     }
 
-public static function validasiData($request)
-{
-    $rules = [
-        'web_menu.fk_web_menu_global' => 'required|exists:web_menu_global,web_menu_global_id',
-        'web_menu.wm_menu_nama' => 'nullable|string|max:60',
-        'web_menu.wm_parent_id' => 'nullable',
-        'web_menu.wm_status_menu' => 'required|in:aktif,nonaktif',
-        'web_menu.fk_m_hak_akses' => 'required|exists:m_hak_akses,hak_akses_id',
-    ];
+    public static function validasiData($request)
+    {
+        $rules = [
+            'web_menu.fk_web_menu_global' => 'required|exists:web_menu_global,web_menu_global_id',
+            'web_menu.wm_menu_nama' => 'nullable|string|max:60',
+            'web_menu.wm_parent_id' => 'nullable',
+            'web_menu.wm_status_menu' => 'required|in:aktif,nonaktif',
+            'web_menu.fk_m_hak_akses' => 'required|exists:m_hak_akses,hak_akses_id',
+        ];
 
-    $messages = [
-        'web_menu.fk_web_menu_global.required' => 'Nama menu wajib diisi',
-        'web_menu.fk_web_menu_global.exists' => 'Menu global tidak valid',
-        'web_menu.wm_menu_nama.max' => 'Alias menu maksimal 60 karakter',
-        'web_menu.wm_status_menu.required' => 'Status menu wajib diisi',
-        'web_menu.wm_status_menu.in' => 'Status menu harus aktif atau nonaktif',
-        'web_menu.fk_m_hak_akses.required' => 'Level menu wajib dipilih',
-        'web_menu.fk_m_hak_akses.exists' => 'Level menu tidak valid',
-    ];
+        $messages = [
+            'web_menu.fk_web_menu_global.required' => 'Nama menu wajib diisi',
+            'web_menu.fk_web_menu_global.exists' => 'Menu global tidak valid',
+            'web_menu.wm_menu_nama.max' => 'Alias menu maksimal 60 karakter',
+            'web_menu.wm_status_menu.required' => 'Status menu wajib diisi',
+            'web_menu.wm_status_menu.in' => 'Status menu harus aktif atau nonaktif',
+            'web_menu.fk_m_hak_akses.required' => 'Level menu wajib dipilih',
+            'web_menu.fk_m_hak_akses.exists' => 'Level menu tidak valid',
+        ];
 
-    $validator = Validator::make($request->all(), $rules, $messages);
+        $validator = Validator::make($request->all(), $rules, $messages);
 
-    if ($validator->fails()) {
-        throw new ValidationException($validator);
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return true;
     }
-
-    return true;
-}
 
     public static function getParentMenusByLevel($hakAksesId, $excludeId = null)
     {
