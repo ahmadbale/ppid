@@ -11,6 +11,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPengaduanMasyarakatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\HakAkses\ApiSetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiIpDinamisKontenController;
@@ -18,6 +19,9 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanInformasiController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanPerawatanController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPernyataanKeberatanController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiWBSController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaPengumumanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
@@ -62,8 +66,25 @@ Route::prefix('auth')->group(function () {
             Route::get('/detail/{id}', [ApiHakAksesController::class, 'detailData']);
         });
         // Api EForm
+        // permohonan informasi
         Route::prefix('permohonan-informasi')->group(function () {
             Route::post('/create', [ApiPermohonanInformasiController::class, 'createData']);
+        });
+        // pernyataan keberatan
+        Route::prefix('pernyataan-keberatan')->group(function () {
+            Route::post('/create', [ApiPernyataanKeberatanController::class, 'createData']);
+        });
+        // pengaduan Masyarakat
+        Route::prefix('pengaduan-masyarakat')->group(function () {
+            Route::post('/create', [ApiPengaduanMasyarakatController::class, 'createData']);
+        });
+        // permohonan perawatan
+        Route::prefix('permohonan-perawatan')->group(function () {
+            Route::post('/create', [ApiPermohonanPerawatanController::class, 'createData']);
+        });
+        // WBS
+        Route::prefix('wbs')->group(function () {
+            Route::post('/create', [ApiWBSController::class, 'createData']);
         });
     });
 });
