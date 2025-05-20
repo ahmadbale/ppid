@@ -5,9 +5,9 @@ namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Modules\Sisfo\App\Models\HakAksesModel;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
-use Modules\Sisfo\App\Models\Website\WebMenuUrlModel;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Sisfo\App\Models\WebMenuGlobalModel;
 
 class MenuManagementController extends Controller
 {
@@ -58,8 +58,18 @@ class MenuManagementController extends Controller
             // Untuk dropdown di form
             $menus = WebMenuModel::getMenusWithChildren();
 
-            // Dapatkan daftar URL untuk dropdown
-            $menuUrls = WebMenuUrlModel::ppidOnly()->where('isDeleted', 0)->get();
+            // Get group menus (fk_web_menu_url = NULL)
+            $groupMenus = WebMenuGlobalModel::whereNull('fk_web_menu_url')
+                ->where('isDeleted', 0)
+                ->orderBy('wmg_nama_default')
+                ->get();
+
+            // Get non-group menus (fk_web_menu_url != NULL)
+            $nonGroupMenus = WebMenuGlobalModel::whereNotNull('fk_web_menu_url')
+                ->where('isDeleted', 0)
+                ->with('WebMenuUrl.application')
+                ->orderBy('wmg_nama_default')
+                ->get();
 
             return view('sisfo::adminweb.MenuManagement.index', compact(
                 'breadcrumb',
@@ -69,7 +79,8 @@ class MenuManagementController extends Controller
                 'menusByJenis',
                 'jenisMenuList',
                 'levels',
-                'menuUrls'
+                'groupMenus',
+                'nonGroupMenus'
             ));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error loading menu management page: ' . $e->getMessage());
