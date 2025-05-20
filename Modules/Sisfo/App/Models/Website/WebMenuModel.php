@@ -282,20 +282,26 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // Tentukan wm_parent_id berdasarkan kategori menu
+            // Tentukan wm_parent_id dan fk_web_menu_global berdasarkan kategori menu
             $parentId = null;
+            $webMenuGlobalId = $data['fk_web_menu_global'];
 
             if ($kategoriMenu === 'sub_menu') {
                 // Jika sub menu, ambil parent_id dari field nama_group_menu
-                $parentId = $data['wm_parent_id'] ?? null;
+                // PERUBAHAN: Gunakan langsung web_menu_id yang dipilih, bukan web_menu_global_id
+                $parentId = isset($data['wm_parent_id']) ? $data['wm_parent_id'] : null;
+            } else if ($kategoriMenu === 'group_menu') {
+                // Jika group menu, ambil web_menu_global_id dari field nama_group_menu
+                $parentId = null; // Group menu tidak memiliki parent
+                $webMenuGlobalId = isset($data['wm_parent_id']) ? $data['wm_parent_id'] : $webMenuGlobalId;
             } else {
-                // Jika menu biasa atau group menu, set parent_id = NULL
+                // Menu biasa, tidak memiliki parent
                 $parentId = null;
             }
 
             // Buat menu baru
             $saveData = self::create([
-                'fk_web_menu_global' => $data['fk_web_menu_global'],
+                'fk_web_menu_global' => $webMenuGlobalId,
                 'fk_m_hak_akses' => $data['fk_m_hak_akses'],
                 'wm_parent_id' => $parentId, // Set nilai wm_parent_id
                 'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
@@ -353,20 +359,26 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // Tentukan wm_parent_id berdasarkan kategori menu
+            // Tentukan wm_parent_id dan fk_web_menu_global berdasarkan kategori menu
             $parentId = null;
+            $webMenuGlobalId = $data['fk_web_menu_global'];
 
             if ($kategoriMenu === 'sub_menu') {
                 // Jika sub menu, ambil parent_id dari field nama_group_menu
+                // PERUBAHAN: Gunakan langsung web_menu_id yang dipilih, bukan web_menu_global_id
                 $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
+            } else if ($kategoriMenu === 'group_menu') {
+                // Jika group menu, ambil web_menu_global_id dari field nama_group_menu
+                $parentId = null; // Group menu tidak memiliki parent
+                $webMenuGlobalId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : $webMenuGlobalId;
             } else {
-                // Jika menu biasa atau group menu, set parent_id = NULL
+                // Menu biasa, tidak memiliki parent
                 $parentId = null;
             }
 
             // Update menu
             $saveData->update([
-                'fk_web_menu_global' => $data['fk_web_menu_global'],
+                'fk_web_menu_global' => $webMenuGlobalId,
                 'fk_m_hak_akses' => $data['fk_m_hak_akses'],
                 'wm_parent_id' => $parentId, // Set nilai wm_parent_id berdasarkan kategori
                 'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
