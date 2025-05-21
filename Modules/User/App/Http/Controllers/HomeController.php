@@ -10,7 +10,6 @@ use App\Services\JwtTokenService;
 
 class HomeController extends Controller
 {
-    // tambahan kinboy 
     protected $jwtTokenService;
     protected $baseUrl;
 
