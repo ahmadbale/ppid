@@ -264,6 +264,71 @@ class WebMenuModel extends Model
 
     public static function createData($request)
     {
+        // Cek apakah request berisi multiple menu
+        if ($request->has('menus')) {
+            $createdMenuIds = [];
+            $hasError = false;
+            $errorMessage = '';
+
+            DB::beginTransaction();
+            try {
+                // Proses setiap entri menu
+                foreach ($request->menus as $index => $menuData) {
+                    // Siapkan data menu untuk model - PERBAIKAN BAGIAN INI
+                    $menuRequest = new \Illuminate\Http\Request();
+
+                    // Gunakan method merge() untuk menambahkan data ke request
+                    $menuRequest->merge([
+                        'web_menu' => $menuData,
+                        'kategori_menu' => $menuData['kategori_menu']
+                    ]);
+
+                    // Gunakan implementasi createData yang sudah ada untuk single menu
+                    $result = self::createSingleMenu($menuRequest);
+
+                    if ($result['success']) {
+                        $createdMenuIds[] = $result['data']->web_menu_id;
+                    } else {
+                        $hasError = true;
+                        $errorMessage = 'Error membuat menu #' . ($index + 1) . ': ' . $result['message'];
+                        break;
+                    }
+                }
+
+                if ($hasError) {
+                    DB::rollBack();
+                    return [
+                        'success' => false,
+                        'message' => $errorMessage
+                    ];
+                } else {
+                    DB::commit();
+                    return [
+                        'success' => true,
+                        'message' => count($createdMenuIds) . ' menu berhasil dibuat',
+                        'data' => [
+                            'ids' => $createdMenuIds
+                        ]
+                    ];
+                }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error creating multiple menus: ' . $e->getMessage());
+                return [
+                    'success' => false,
+                    'message' => 'Error saat membuat menu: ' . $e->getMessage()
+                ];
+            }
+        }
+        // Jika bukan multiple menu, gunakan implementasi yang sudah ada
+        else {
+            return self::createSingleMenu($request);
+        }
+    }
+
+    // Method baru untuk memproses single menu (dipecah dari createData asli)
+    private static function createSingleMenu($request)
+    {
         DB::beginTransaction();
         try {
             self::validasiData($request);
