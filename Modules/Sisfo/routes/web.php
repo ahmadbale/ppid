@@ -42,6 +42,8 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\DetailPintasanLain
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDUploadController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuUrlController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
@@ -535,5 +537,29 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [WebMenuGlobalController::class, 'detailData']);
         Route::get('/deleteData/{id}', [WebMenuGlobalController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [WebMenuGlobalController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('layanan-informasi-Dinamis')], function () {
+        Route::get('/', [LIDinamisController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [LIDinamisController::class, 'getData']);
+        Route::get('/addData', [LIDinamisController::class, 'addData']);
+        Route::post('/createData', [LIDinamisController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [LIDinamisController::class, 'editData']);
+        Route::post('/updateData/{id}', [LIDinamisController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [LIDinamisController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [LIDinamisController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [LIDinamisController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('layanan-informasi-upload')], function () {
+        Route::get('/', [LIDUploadController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [LIDUploadController::class, 'getData']);
+        Route::get('/addData', [LIDUploadController::class, 'addData']);
+        Route::post('/createData', [LIDUploadController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [LIDUploadController::class, 'editData']);
+        Route::post('/updateData/{id}', [LIDUploadController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [LIDUploadController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [LIDUploadController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [LIDUploadController::class, 'deleteData'])->middleware('permission:delete');
     });
 });

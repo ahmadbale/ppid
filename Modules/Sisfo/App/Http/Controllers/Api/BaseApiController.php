@@ -284,15 +284,7 @@ class BaseApiController extends Controller
         }
     }
 
-    /**
-     * Menjalankan aksi API yang memerlukan validasi dan autentikasi
-     * 
-     * @param callable $validator Fungsi yang melakukan validasi data input
-     * @param callable $action Fungsi yang dijalankan jika validasi berhasil
-     * @param string $resourceName Nama resource
-     * @param string $actionType Jenis aksi
-     * @return JsonResponse
-     */
+ 
     /**
  * Menjalankan aksi API yang memerlukan validasi dan autentikasi sekaligus
  * 
@@ -376,38 +368,44 @@ protected function executeWithAuthAndValidation(callable $action, string $resour
         return response()->json($response, $statusCode);
     }
 
-    /**
-     * Return error response in JSON format.
-     * 
-     * @param string $message Pesan error
-     * @param mixed $error Detail error (hanya tampil jika debug mode aktif)
-     * @param int $statusCode HTTP status code
-     * @return JsonResponse
-     */
-    protected function errorResponse(string $message = 'An error occurred', $error = null, int $statusCode = 500): JsonResponse
-    {
-        $response = [
-            'success' => false,
-            'message' => $message
-        ];
-        
-        // Tambahkan detail error jika debug mode aktif
-        if ($error !== null && config('app.debug')) {
-            $errorDetail = $error;
-            // Jika error adalah Exception, ambil pesan dan stacktrace
-            if ($error instanceof \Exception) {
-                $errorDetail = [
-                    'message' => $error->getMessage(),
-                    'code' => $error->getCode(),
-                    'file' => $error->getFile(),
-                    'line' => $error->getLine()
-                ];
-            }
-            $response['error'] = $errorDetail;
-        }
-        
-        return response()->json($response, $statusCode);
+   /**
+ * Return error response in JSON format.
+ * 
+ * @param string $message Pesan error
+ * @param mixed $error Detail error (hanya tampil jika debug mode aktif)
+ * @param int $statusCode HTTP status code
+ * @param array|null $validationErrors Error validasi yang akan ditampilkan
+ * @return JsonResponse
+ */
+protected function errorResponse(string $message = 'An error occurred', $error = null, int $statusCode = 500, ?array $validationErrors = null): JsonResponse
+{
+    $response = [
+        'success' => false,
+        'message' => $message
+    ];
+    
+    // Tambahkan validation errors jika ada
+    if ($validationErrors !== null) {
+        $response['errors'] = $validationErrors;
     }
+    
+    // Tambahkan detail error jika debug mode aktif
+    if ($error !== null && config('app.debug')) {
+        $errorDetail = $error;
+        // Jika error adalah Exception, ambil pesan dan stacktrace
+        if ($error instanceof \Exception) {
+            $errorDetail = [
+                'message' => $error->getMessage(),
+                'code' => $error->getCode(),
+                'file' => $error->getFile(),
+                'line' => $error->getLine()
+            ];
+        }
+        $response['error_detail'] = $errorDetail;
+    }
+    
+    return response()->json($response, $statusCode);
+}
 
     /**
      * Log error ke system log.
