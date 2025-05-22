@@ -268,6 +268,7 @@ class WebMenuModel extends Model
         try {
             self::validasiData($request);
             $data = $request->web_menu;
+            $kategoriMenu = $request->kategori_menu; // Ambil kategori menu dari form
 
             // Validasi apakah user mencoba membuat menu dengan level SAR
             $hakAksesId = $data['fk_m_hak_akses'] ?? null;
@@ -281,77 +282,34 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // Validasi data yang dikirim
-            $hakAksesId = $data['fk_m_hak_akses'] ?? null;
-            $menuName = $data['wm_menu_nama'];
-            $menuUrl = $data['fk_web_menu_url'] ?? null;
+            // Tentukan wm_parent_id dan fk_web_menu_global berdasarkan kategori menu
+            $parentId = null;
+            $webMenuGlobalId = $data['fk_web_menu_global'];
 
-            // Cek ketersediaan menu dengan nama yang sama pada level yang sama
-            $menuCheck = self::mengecekKetersediaanMenu($menuName, $hakAksesId);
-            if ($menuCheck['exists']) {
-                return [
-                    'success' => false,
-                    'message' => $menuCheck['message']
-                ];
-            }
-
-            // Fix untuk Masalah 3
-            // Cek apakah sudah ada menu dengan URL yang sama pada level lain
-            $webMenuGlobal = null;
-            if ($menuUrl) {
-                // Cari WebMenuGlobal dengan URL yang sama
-                $webMenuGlobal = WebMenuGlobalModel::where('fk_web_menu_url', $menuUrl)
-                    ->where('isDeleted', 0)
-                    ->first();
-
-                if ($webMenuGlobal) {
-                    // Jika nama yang diinputkan sama dengan wmg_nama_default dan URL sama
-                    if ($menuName === $webMenuGlobal->wmg_nama_default) {
-                        // Set wm_menu_nama ke null
-                        $data['wm_menu_nama'] = null;
-                    }
-                    // Jika URL sama tapi nama berbeda, pertahankan nama yang diinputkan
-                } else {
-                    // Jika URL baru, buat WebMenuGlobal baru
-                    $webMenuGlobal = WebMenuGlobalModel::create([
-                        'fk_web_menu_url' => $menuUrl,
-                        'wmg_nama_default' => $menuName
-                    ]);
-
-                    // Set wm_menu_nama ke null karena ini adalah menu baru
-                    $data['wm_menu_nama'] = null;
-                }
-
-                // Set WebMenuGlobal ID
-                $data['fk_web_menu_global'] = $webMenuGlobal->web_menu_global_id;
+            if ($kategoriMenu === 'sub_menu') {
+                // Jika sub menu, ambil parent_id dari field nama_group_menu
+                // PERUBAHAN: Gunakan langsung web_menu_id yang dipilih, bukan web_menu_global_id
+                $parentId = isset($data['wm_parent_id']) ? $data['wm_parent_id'] : null;
+            } else if ($kategoriMenu === 'group_menu') {
+                // Jika group menu, ambil web_menu_global_id dari field nama_group_menu
+                $parentId = null; // Group menu tidak memiliki parent
+                $webMenuGlobalId = isset($data['wm_parent_id']) ? $data['wm_parent_id'] : $webMenuGlobalId;
             } else {
-                // Fix untuk Masalah 4
-                // Jika tidak ada URL, cari atau buat WebMenuGlobal baru untuk nama menu
-                $webMenuGlobal = WebMenuGlobalModel::where('wmg_nama_default', $menuName)
-                    ->whereNull('fk_web_menu_url')
-                    ->where('isDeleted', 0)
-                    ->first();
-
-                if (!$webMenuGlobal) {
-                    // Buat baru jika belum ada
-                    $webMenuGlobal = WebMenuGlobalModel::create([
-                        'fk_web_menu_url' => null,
-                        'wmg_nama_default' => $menuName
-                    ]);
-                }
-
-                $data['fk_web_menu_global'] = $webMenuGlobal->web_menu_global_id;
-                // Set wm_menu_nama ke null karena menggunakan nama default dari WebMenuGlobal
-                $data['wm_menu_nama'] = null;
+                // Menu biasa, tidak memiliki parent
+                $parentId = null;
             }
-
-            // Tambahkan urutan menu
-            $data['wm_urutan_menu'] = self::where('wm_parent_id', $data['wm_parent_id'] ?? null)
-                ->where('isDeleted', 0)
-                ->count() + 1;
 
             // Buat menu baru
-            $saveData = self::create($data);
+            $saveData = self::create([
+                'fk_web_menu_global' => $webMenuGlobalId,
+                'fk_m_hak_akses' => $data['fk_m_hak_akses'],
+                'wm_parent_id' => $parentId, // Set nilai wm_parent_id
+                'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
+                'wm_status_menu' => $data['wm_status_menu'],
+                'wm_urutan_menu' => self::where('wm_parent_id', $parentId)
+                    ->where('isDeleted', 0)
+                    ->count() + 1
+            ]);
 
             TransactionModel::createData(
                 'CREATED',
@@ -390,6 +348,7 @@ class WebMenuModel extends Model
 
             $saveData = self::findOrFail($id);
             $data = $request->web_menu;
+            $kategoriMenu = $request->kategori_menu; // Ambil kategori menu dari form
 
             // Periksa level menu
             $level = HakAksesModel::find($saveData->fk_m_hak_akses);
@@ -400,92 +359,31 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // Simpan nilai lama untuk perbandingan
-            $oldhakAksesId = $saveData->fk_m_hak_akses;
-            $newhakAksesId = $data['fk_m_hak_akses'] ?? $oldhakAksesId;
-            $menuName = $data['wm_menu_nama'];
-            $menuUrl = $data['fk_web_menu_url'] ?? null;
+            // Tentukan wm_parent_id dan fk_web_menu_global berdasarkan kategori menu
+            $parentId = null;
+            $webMenuGlobalId = $data['fk_web_menu_global'];
 
-            // Jika level berubah
-            if ($oldhakAksesId != $newhakAksesId) {
-                // Cek apakah menu dengan nama yang sama sudah ada di level tujuan
-                $existingMenu = self::where('wm_menu_nama', $menuName)
-                    ->where('fk_m_hak_akses', $newhakAksesId)
-                    ->where('web_menu_id', '!=', $id)
-                    ->where('isDeleted', 0)
-                    ->first();
-
-                if ($existingMenu) {
-                    return [
-                        'success' => false,
-                        'message' => 'Menu ini sudah ada untuk level yang dipilih'
-                    ];
-                }
-
-                // Update level
-                $saveData->fk_m_hak_akses = $newhakAksesId;
+            if ($kategoriMenu === 'sub_menu') {
+                // Jika sub menu, ambil parent_id dari field nama_group_menu
+                // PERUBAHAN: Gunakan langsung web_menu_id yang dipilih, bukan web_menu_global_id
+                $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
+            } else if ($kategoriMenu === 'group_menu') {
+                // Jika group menu, ambil web_menu_global_id dari field nama_group_menu
+                $parentId = null; // Group menu tidak memiliki parent
+                $webMenuGlobalId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : $webMenuGlobalId;
+            } else {
+                // Menu biasa, tidak memiliki parent
+                $parentId = null;
             }
 
-            // Jika URL berubah
-            if ($menuUrl && $menuUrl != ($saveData->WebMenuGlobal->fk_web_menu_url ?? null)) {
-                // Cari WebMenuGlobal yang sesuai dengan URL baru
-                $webMenuGlobal = WebMenuGlobalModel::where('fk_web_menu_url', $menuUrl)
-                    ->where('isDeleted', 0)
-                    ->first();
-
-                if (!$webMenuGlobal) {
-                    // Buat baru jika belum ada
-                    $webMenuGlobal = WebMenuGlobalModel::create([
-                        'fk_web_menu_url' => $menuUrl,
-                        'wmg_nama_default' => $menuName
-                    ]);
-
-                    // Set wm_menu_nama ke null karena ini adalah menu baru
-                    $menuName = null;
-                } else {
-                    // Jika nama yang diinputkan sama dengan wmg_nama_default dan URL sama
-                    if ($menuName === $webMenuGlobal->wmg_nama_default) {
-                        // Set wm_menu_nama ke null
-                        $menuName = null;
-                    }
-                    // Jika URL sama tapi nama berbeda, pertahankan nama yang diinputkan
-                }
-
-                // Update referensi ke WebMenuGlobal
-                $saveData->fk_web_menu_global = $webMenuGlobal->web_menu_global_id;
-            } else if (!$menuUrl) {
-                // Fix untuk Masalah 4
-                // Jika tidak ada URL, cari atau buat WebMenuGlobal baru untuk nama menu
-                $webMenuGlobal = WebMenuGlobalModel::where('wmg_nama_default', $menuName)
-                    ->whereNull('fk_web_menu_url')
-                    ->where('isDeleted', 0)
-                    ->first();
-
-                if (!$webMenuGlobal) {
-                    // Buat baru jika belum ada
-                    $webMenuGlobal = WebMenuGlobalModel::create([
-                        'fk_web_menu_url' => null,
-                        'wmg_nama_default' => $menuName
-                    ]);
-                }
-
-                $saveData->fk_web_menu_global = $webMenuGlobal->web_menu_global_id;
-                // Set wm_menu_nama ke null karena menggunakan nama default dari WebMenuGlobal
-                $menuName = null;
-            }
-
-            // Update data menu
-            $saveData->wm_menu_nama = $menuName;
-
-            // Update data menu
-            $saveData->wm_menu_nama = $menuName;
-            $saveData->wm_status_menu = $data['wm_status_menu'];
-
-            // Fix untuk masalah 1: Pastikan parent_id diupdate dengan benar
-            // Jika form mengirimkan parent_id kosong atau "", set sebagai null
-            $saveData->wm_parent_id = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
-
-            $saveData->save();
+            // Update menu
+            $saveData->update([
+                'fk_web_menu_global' => $webMenuGlobalId,
+                'fk_m_hak_akses' => $data['fk_m_hak_akses'],
+                'wm_parent_id' => $parentId, // Set nilai wm_parent_id berdasarkan kategori
+                'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
+                'wm_status_menu' => $data['wm_status_menu']
+            ]);
 
             TransactionModel::createData(
                 'UPDATED',
@@ -583,21 +481,19 @@ class WebMenuModel extends Model
     public static function validasiData($request)
     {
         $rules = [
-            'web_menu.wm_menu_nama' => 'required|string|max:60',
-            'web_menu.wm_parent_id' => 'nullable|exists:web_menu,web_menu_id',
+            'web_menu.fk_web_menu_global' => 'required|exists:web_menu_global,web_menu_global_id',
+            'web_menu.wm_menu_nama' => 'nullable|string|max:60',
+            'web_menu.wm_parent_id' => 'nullable',
             'web_menu.wm_status_menu' => 'required|in:aktif,nonaktif',
-            // Ubah validasi URL menjadi opsional
-            'web_menu.fk_web_menu_url' => 'nullable|exists:web_menu_url,web_menu_url_id',
             'web_menu.fk_m_hak_akses' => 'required|exists:m_hak_akses,hak_akses_id',
         ];
 
         $messages = [
-            'web_menu.wm_menu_nama.required' => 'Nama menu wajib diisi',
-            'web_menu.wm_menu_nama.max' => 'Nama menu maksimal 60 karakter',
-            'web_menu.wm_parent_id.exists' => 'Parent menu tidak valid',
+            'web_menu.fk_web_menu_global.required' => 'Nama menu wajib diisi',
+            'web_menu.fk_web_menu_global.exists' => 'Menu global tidak valid',
+            'web_menu.wm_menu_nama.max' => 'Alias menu maksimal 60 karakter',
             'web_menu.wm_status_menu.required' => 'Status menu wajib diisi',
             'web_menu.wm_status_menu.in' => 'Status menu harus aktif atau nonaktif',
-            'web_menu.fk_web_menu_url.exists' => 'URL menu tidak valid',
             'web_menu.fk_m_hak_akses.required' => 'Level menu wajib dipilih',
             'web_menu.fk_m_hak_akses.exists' => 'Level menu tidak valid',
         ];
