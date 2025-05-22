@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\MenuManagement\update.blade.php -->
 @php
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
     use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
@@ -6,7 +5,7 @@
 
 <!-- Edit Menu Modal -->
 <div class="modal fade" id="editMenuModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Menu</h5>
@@ -105,6 +104,77 @@
                         </select>
                         <div class="invalid-feedback">Status menu wajib diisi</div>
                     </div>
+
+                    <hr>
+                    
+                    <!-- Pengaturan Hak Akses -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Pengaturan Hak Akses untuk Menu Ini</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Level Hak Akses:</label>
+                                <select class="form-control" id="edit_hak_akses_kode" name="hak_akses_kode">
+                                    <option value="">-- Pilih Level --</option>
+                                    @foreach($levels as $level)
+                                        <option value="{{ $level->hak_akses_kode }}">{{ $level->hak_akses_nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            <div id="edit-hak-akses-table-container" style="display: none;">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Tampil Menu</th>
+                                            <th>Lihat</th>
+                                            <th>Tambah</th>
+                                            <th>Ubah</th>
+                                            <th>Hapus</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_menu" name="hak_menu" value="1">
+                                                    <label class="custom-control-label" for="edit_hak_menu"></label>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_view" name="hak_view" value="1">
+                                                    <label class="custom-control-label" for="edit_hak_view"></label>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_create" name="hak_create" value="1">
+                                                    <label class="custom-control-label" for="edit_hak_create"></label>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_update" name="hak_update" value="1">
+                                                    <label class="custom-control-label" for="edit_hak_update"></label>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_delete" name="hak_delete" value="1">
+                                                    <label class="custom-control-label" for="edit_hak_delete"></label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Pengaturan hak akses ini akan diterapkan untuk semua pengguna dengan level yang dipilih.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
@@ -166,6 +236,53 @@ $('#edit_kategori_menu').off('change').on('change', function() {
         // Tampilkan opsi yang sesuai
         $('#edit_group_menu_options').hide();
         $('#edit_sub_menu_options').show();
+    }
+});
+
+// Event handler untuk hak akses dropdown di form edit
+$('#edit_hak_akses_kode').change(function() {
+    const menuId = $('#edit_menu_id').val();
+    const hakAksesKode = $(this).val();
+    
+    if (hakAksesKode) {
+        // Tampilkan tabel hak akses
+        $('#edit-hak-akses-table-container').show();
+        
+        // Ambil pengaturan hak akses yang sudah ada untuk menu ini dan level
+        $.ajax({
+            url: "{{ url('/HakAkses/getHakAksesData') }}/" + hakAksesKode,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Cek apakah menu ada dalam data yang dikembalikan
+                if (data[menuId]) {
+                    // Set nilai checkbox berdasarkan pengaturan yang ada
+                    $('#edit_hak_menu').prop('checked', data[menuId].ha_menu === 1);
+                    $('#edit_hak_view').prop('checked', data[menuId].ha_view === 1);
+                    $('#edit_hak_create').prop('checked', data[menuId].ha_create === 1);
+                    $('#edit_hak_update').prop('checked', data[menuId].ha_update === 1);
+                    $('#edit_hak_delete').prop('checked', data[menuId].ha_delete === 1);
+                } else {
+                    // Reset checkbox jika tidak ada pengaturan
+                    $('#edit_hak_menu').prop('checked', false);
+                    $('#edit_hak_view').prop('checked', false);
+                    $('#edit_hak_create').prop('checked', false);
+                    $('#edit_hak_update').prop('checked', false);
+                    $('#edit_hak_delete').prop('checked', false);
+                }
+            },
+            error: function(xhr) {
+                console.error('Error loading hak akses data:', xhr.responseText);
+                // Reset checkbox jika terjadi error
+                $('#edit_hak_menu').prop('checked', false);
+                $('#edit_hak_view').prop('checked', false);
+                $('#edit_hak_create').prop('checked', false);
+                $('#edit_hak_update').prop('checked', false);
+                $('#edit_hak_delete').prop('checked', false);
+            }
+        });
+    } else {
+        $('#edit-hak-akses-table-container').hide();
     }
 });
 
@@ -237,6 +354,11 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
         return false;
     }
 
+    // Disable button selama pengiriman
+    const $submitBtn = $('#submitEditMenu');
+    const originalBtnText = $submitBtn.html();
+    $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+    
     // Persiapkan data form
     let formData = $(this).serializeArray();
     
@@ -258,30 +380,61 @@ $('#editMenuForm').off('submit').on('submit', function(e) {
         data: $.param(formData),
         success: function(response) {
             if (response.success) {
-                toastr.success(response.message);
-                setTimeout(() => window.location.reload(), 1000);
+                // Jika update menu berhasil, periksa apakah perlu update hak akses
+                const hakAksesKode = $('#edit_hak_akses_kode').val();
+                
+                if (hakAksesKode) {
+                    // Siapkan data hak akses
+                    const hakAksesData = {
+                        _token: "{{ csrf_token() }}",
+                        hak_akses_kode: hakAksesKode,
+                        menu_akses: {}
+                    };
+                    
+                    // Tambahkan izin menu
+                    hakAksesData.menu_akses[menuId] = {
+                        menu: $('#edit_hak_menu').is(':checked') ? 1 : 0,
+                        view: $('#edit_hak_view').is(':checked') ? 1 : 0,
+                        create: $('#edit_hak_create').is(':checked') ? 1 : 0,
+                        update: $('#edit_hak_update').is(':checked') ? 1 : 0,
+                        delete: $('#edit_hak_delete').is(':checked') ? 1 : 0
+                    };
+                    
+                    // Kirim permintaan update hak akses
+                    $.ajax({
+                        url: "{{ url('/HakAkses/updateData') }}",
+                        type: 'POST',
+                        data: hakAksesData,
+                        success: function(hakAksesResponse) {
+                            toastr.success(response.message + ' dan hak akses berhasil diperbarui');
+                            setTimeout(() => window.location.reload(), 1500);
+                        },
+                        error: function(xhr) {
+                            toastr.success(response.message);
+                            toastr.warning('Namun terjadi kesalahan saat memperbarui hak akses');
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    });
+                } else {
+                    toastr.success(response.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                }
             } else {
                 toastr.error(response.message);
+                $submitBtn.html(originalBtnText).prop('disabled', false);
             }
         },
         error: function(xhr) {
             console.error('Error updating menu:', xhr.responseText);
+            toastr.error('Terjadi kesalahan saat memperbarui menu');
+            $submitBtn.html(originalBtnText).prop('disabled', false);
+            
+            // Handle validation errors
             if (xhr.status === 422) {
                 let errors = xhr.responseJSON.errors;
                 Object.keys(errors).forEach(key => {
                     toastr.error(errors[key][0]);
-                    // Tandai field yang error
-                    if (key.startsWith('web_menu.')) {
-                        const fieldName = key.replace('web_menu.', '');
-                        $(`#edit_${fieldName}`).addClass('is-invalid');
-                        $(`#edit_${fieldName}`).siblings('.invalid-feedback').text(errors[key][0]).show();
-                    } else {
-                        $(`[name="${key}"]`).addClass('is-invalid');
-                        $(`[name="${key}"]`).siblings('.invalid-feedback').text(errors[key][0]).show();
-                    }
                 });
-            } else {
-                toastr.error('Error updating menu: ' + xhr.statusText);
             }
         }
     });
@@ -302,6 +455,9 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
                 $('#edit_level_menu').val(response.menu.fk_m_hak_akses || '');
                 $('#edit_menu_alias').val(response.menu.wm_menu_nama);
                 $('#edit_status_menu').val(response.menu.wm_status_menu);
+                
+                // Simpan level asli menu untuk validasi
+                originalMenuLevel = response.menu.hak_akses_kode;
                 
                 // Tentukan kategori menu berdasarkan data
                 if (response.menu.wm_parent_id) {
@@ -335,6 +491,11 @@ $(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
                 // Trigger change event untuk setup form sesuai kategori
                 $('#edit_kategori_menu').trigger('change');
                 
+                // Set the hak akses dropdown to the menu's level code
+                if (response.menu.hak_akses_kode) {
+                    $('#edit_hak_akses_kode').val(response.menu.hak_akses_kode).trigger('change');
+                }
+                
                 // Show edit modal
                 $('#editMenuModal').modal('show');
             } else {
@@ -354,6 +515,8 @@ $('#editMenuModal').on('hidden.bs.modal', function() {
     $('.is-invalid').removeClass('is-invalid');
     $('.invalid-feedback').hide();
     $('#edit_level_menu').prop('disabled', false);
+    $('#edit_hak_akses_kode').val('');
+    $('#edit-hak-akses-table-container').hide();
     originalMenuLevel = '';
 });
 </script>
