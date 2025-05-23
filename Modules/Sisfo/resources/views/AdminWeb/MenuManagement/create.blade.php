@@ -26,13 +26,13 @@
                         <table class="table table-bordered table-striped" id="menu-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 5%">No</th>
-                                    <th style="width: 15%">Hak Akses</th>
-                                    <th style="width: 18%">Kategori Menu</th>
-                                    <th style="width: 18%">Nama Group Menu</th>
-                                    <th style="width: 24%">Nama Menu</th>
-                                    <th style="width: 10%">Status</th>
-                                    <th style="width: 10%">Pilih</th>
+                                    <th class="text-center" style="width: 5%">No</th>
+                                    <th class="text-center" style="width: 15%">Hak Akses</th>
+                                    <th class="text-center" style="width: 18%">Kategori Menu</th>
+                                    <th class="text-center" style="width: 18%">Nama Group Menu</th>
+                                    <th class="text-center" style="width: 24%">Nama Menu</th>
+                                    <th class="text-center" style="width: 10%">Status</th>
+                                    <th class="text-center" style="width: 10%">Atur Hak Akses</th>
                                 </tr>
                             </thead>
                             <tbody id="menu-table-body">
@@ -172,9 +172,16 @@ function bindLevelChangeEvents() {
         const selectedText = $(this).find('option:selected').text();
         const selectedKode = $(this).find('option:selected').data('kode');
         const rowIndex = $(this).data('index');
+        const $row = $(this).closest('tr');
         
         // Set kode hak akses pada input hidden di baris yang sama
         $(`input[name="menus[${rowIndex}][hak_akses_kode]"]`).val(selectedKode);
+        
+        // Jika kategori menu adalah sub menu, filter parent menu berdasarkan level yang baru dipilih
+        const kategoriMenu = $row.find('.kategori-menu').val();
+        if (kategoriMenu === 'sub_menu' && selectedValue) {
+            filterParentMenusByLevel(selectedValue, $row);
+        }
         
         // Perbarui tampilan jika menu ini dipilih
         if ($(`#select_menu_${rowIndex}`).is(':checked')) {
@@ -188,14 +195,21 @@ function bindCategoryChangeEvents() {
     $('.kategori-menu').off('change').on('change', function() {
         const selectedValue = $(this).val();
         const $row = $(this).closest('tr');
+        const rowIndex = $(this).data('index');
         
         const $namaGroupMenu = $row.find('.nama-group-menu');
         const $namaMenu = $row.find('.nama-menu');
+        const $checkboxSelect = $row.find('.select-menu-checkbox');
+        const hakAksesId = $row.find('.level-menu').val();
+        
+        // Reset pesan informasi jika ada
+        $row.find('.group-menu-info').remove();
         
         if (selectedValue === 'menu_biasa') {
             // Set sebagai menu biasa
             $namaGroupMenu.prop('disabled', true).val('');
             $namaMenu.prop('disabled', false);
+            $checkboxSelect.prop('disabled', false);
             
             // Tampilkan opsi yang sesuai
             $row.find('.group-menu-options').show();
@@ -206,6 +220,16 @@ function bindCategoryChangeEvents() {
             $namaMenu.prop('disabled', true).val('');
             $namaGroupMenu.prop('disabled', false);
             
+            // Nonaktifkan checkbox pilih dan tambahkan pesan informasi
+            $checkboxSelect.prop('checked', false).prop('disabled', true);
+            
+            // Tambahkan pesan informasi setelah checkbox
+            if ($row.find('.group-menu-info').length === 0) {
+                $row.find('.custom-control').after(
+                    '<div class="group-menu-info text-muted small mt-2">Group menu tidak memerlukan hak akses</div>'
+                );
+            }
+            
             // Tampilkan opsi untuk group menu
             $row.find('.group-menu-options').show();
             $row.find('.sub-menu-options').hide();
@@ -214,19 +238,97 @@ function bindCategoryChangeEvents() {
             // Set sebagai sub menu
             $namaMenu.prop('disabled', false);
             $namaGroupMenu.prop('disabled', false);
+            $checkboxSelect.prop('disabled', false);
             
             // Tampilkan opsi untuk sub menu
             $row.find('.group-menu-options').hide();
             $row.find('.sub-menu-options').show();
+            
+            // Filter menu berdasarkan hak akses yang dipilih
+            if (hakAksesId) {
+                filterParentMenusByLevel(hakAksesId, $row);
+            } else {
+                // Jika belum ada hak akses yang dipilih, kosongkan dropdown sub menu
+                $namaGroupMenu.find('optgroup.sub-menu-options').empty();
+                $namaGroupMenu.find('optgroup.sub-menu-options').append(
+                    `<option value="" disabled>Pilih hak akses terlebih dahulu</option>`
+                );
+            }
         }
         
         // Perbarui tampilan jika menu ini dipilih
-        const rowIndex = $(this).data('index');
         if ($(`#select_menu_${rowIndex}`).is(':checked')) {
             updateHakAksesDisplay();
         }
     });
 }
+
+
+// Fungsi untuk memfilter menu parent berdasarkan level hak akses
+function filterParentMenusByLevel(hakAksesId, $row) {
+    const $namaGroupMenu = $row.find('.nama-group-menu');
+    
+    // Reset nilai dropdown terlebih dahulu
+    $namaGroupMenu.val('');
+    
+    // Tampilkan loading state
+    $namaGroupMenu.find('optgroup.sub-menu-options').empty();
+    $namaGroupMenu.find('optgroup.sub-menu-options').append(
+        `<option value="" disabled>Memuat data...</option>`
+    );
+    
+    $.ajax({
+        url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}/" + hakAksesId,
+        type: 'GET',
+        success: function(response) {
+            if (response.success && response.parentMenus) {
+                // Reset dropdown
+                $namaGroupMenu.find('optgroup.sub-menu-options').empty();
+                
+                // Tambahkan opsi default
+                $namaGroupMenu.find('optgroup.sub-menu-options').append(
+                    `<option value="">Pilih Nama Group Menu</option>`
+                );
+                
+                // Tambahkan opsi baru berdasarkan data dari server
+                $.each(response.parentMenus, function(index, menu) {
+                    const optionText = menu.display_name;
+                    const optionValue = menu.web_menu_id;
+                    
+                    $namaGroupMenu.find('optgroup.sub-menu-options').append(
+                        `<option value="${optionValue}" data-menu-type="parent">${optionText}</option>`
+                    );
+                });
+                
+                // Jika tidak ada menu parent untuk level ini, tambahkan pesan
+                if (response.parentMenus.length === 0) {
+                    $namaGroupMenu.find('optgroup.sub-menu-options').empty();
+                    $namaGroupMenu.find('optgroup.sub-menu-options').append(
+                        `<option value="" disabled>Tidak ada menu utama untuk level ini</option>`
+                    );
+                }
+            } else {
+                // Jika response tidak berhasil
+                $namaGroupMenu.find('optgroup.sub-menu-options').empty();
+                $namaGroupMenu.find('optgroup.sub-menu-options').append(
+                    `<option value="" disabled>Gagal memuat data menu</option>`
+                );
+            }
+        },
+        error: function(xhr) {
+            console.error('Error fetching parent menus:', xhr.responseText);
+            toastr.error('Terjadi kesalahan saat mengambil data menu utama');
+            
+            // Tampilkan pesan error di dropdown
+            $namaGroupMenu.find('optgroup.sub-menu-options').empty();
+            $namaGroupMenu.find('optgroup.sub-menu-options').append(
+                `<option value="" disabled>Error memuat data</option>`
+            );
+        }
+    });
+}
+
+
 
 // Event handler untuk checkbox pilih menu
 function bindSelectMenuEvents() {
@@ -393,6 +495,7 @@ function updateHakAksesDisplay() {
 }
 
 // Form submission
+// Form submission
 $('#addMenuForm').off('submit').on('submit', function(e) {
     e.preventDefault();
     
@@ -401,6 +504,50 @@ $('#addMenuForm').off('submit').on('submit', function(e) {
     
     // Validasi form
     let isValid = true;
+    let hasError = false;
+    
+    // Validasi khusus untuk setiap baris menu
+    $('#menu-table-body tr').each(function(index) {
+        const $row = $(this);
+        const kategoriMenu = $row.find('.kategori-menu').val();
+        
+        // Validasi level menu
+        if (!$row.find('.level-menu').val()) {
+            $row.find('.level-menu').addClass('is-invalid');
+            hasError = true;
+        }
+        
+        // Validasi kategori menu
+        if (!kategoriMenu) {
+            $row.find('.kategori-menu').addClass('is-invalid');
+            hasError = true;
+        }
+        
+        // Validasi nama menu berdasarkan kategori
+        if (kategoriMenu === 'menu_biasa' || kategoriMenu === 'sub_menu') {
+            if (!$row.find('.nama-menu').val()) {
+                $row.find('.nama-menu').addClass('is-invalid');
+                hasError = true;
+            }
+        } else if (kategoriMenu === 'group_menu') {
+            if (!$row.find('.nama-group-menu').val()) {
+                $row.find('.nama-group-menu').addClass('is-invalid');
+                hasError = true;
+            }
+            // Untuk group menu, tidak perlu validasi nama menu
+        }
+        
+        // Validasi status menu
+        if (!$row.find('.status-menu').val()) {
+            $row.find('.status-menu').addClass('is-invalid');
+            hasError = true;
+        }
+    });
+    
+    if (hasError) {
+        toastr.error('Mohon lengkapi semua field yang wajib diisi');
+        return false;
+    }
     
     // Siapkan data untuk dikirim
     const formData = new FormData(this);
