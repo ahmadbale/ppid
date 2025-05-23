@@ -14,10 +14,10 @@
      <thead>
          <tr>
              <th width="5%">Nomor</th>
-             <th width="30%">Kategori Regulasi</th>
-             <th width="30%">Judul</th>
+             <th width="40%">Kategori Regulasi</th>
+             <th width="20%">Judul</th>
              <th width="10%">Tipe</th>
-             <th width="15%">Aksi</th>
+             <th width="25%">Aksi</th>
          </tr>
      </thead>
      <tbody>
@@ -33,17 +33,18 @@
                      <span class="badge badge-info">Link</span>
                  @endif
              </td>
-             <td>
+             <td class="text-center">
+    <div class="btn-group" role="group">
                 @if(
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $regulasiDinamisUrl, 'update')
                 )
-                    <button class="btn btn-sm btn-warning"
+                    <button class="btn btn-sm btn-warning mx-1"
                         onclick="modalAction('{{ url($regulasiDinamisUrl . '/editData/' . $item->regulasi_id) }}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
                 @endif
-                <button class="btn btn-sm btn-info"
+                <button class="btn btn-sm btn-info mx-1"
                     onclick="modalAction('{{ url($regulasiDinamisUrl . '/detailData/' . $item->regulasi_id) }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
@@ -51,11 +52,12 @@
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $regulasiDinamisUrl, 'delete')
                 )
-                    <button class="btn btn-sm btn-danger"
+                    <button class="btn btn-sm btn-danger mx-1"
                         onclick="modalAction('{{ url($regulasiDinamisUrl . '/deleteData/' . $item->regulasi_id) }}')">
                         <i class="fas fa-trash"></i> Hapus
                     </button>
                 @endif
+                </div>
             </td>
          </tr>
          @empty
