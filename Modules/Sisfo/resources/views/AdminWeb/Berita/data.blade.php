@@ -31,17 +31,18 @@
                     {{ $item->status_berita }}
                 </span>
             </td>
-            <td>
+            <td class="text-center">
+    <div class="btn-group" role="group">
                 @if(
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $detailBeritaUrl, 'update')
                 )
-                    <button class="btn btn-sm btn-warning"
+                    <button class="btn btn-sm btn-warning mx-1"
                         onclick="modalAction('{{ url($detailBeritaUrl . '/editData/' . $item->berita_id) }}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
                 @endif
-                <button class="btn btn-sm btn-info"
+                <button class="btn btn-sm btn-info mx-1"
                     onclick="modalAction('{{ url($detailBeritaUrl . '/detailData/' . $item->berita_id) }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
@@ -49,11 +50,12 @@
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $detailBeritaUrl, 'delete')
                 )
-                    <button class="btn btn-sm btn-danger"
+                    <button class="btn btn-sm btn-danger mx-1"
                         onclick="modalAction('{{ url($detailBeritaUrl . '/deleteData/' . $item->berita_id) }}')">
                         <i class="fas fa-trash"></i> Hapus
                     </button>
                 @endif
+                </div>
             </td>
         </tr>
         @empty

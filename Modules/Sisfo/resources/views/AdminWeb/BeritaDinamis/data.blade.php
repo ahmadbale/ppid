@@ -24,17 +24,18 @@
             <tr>
                 <td>{{ ($kategoriBerita->currentPage() - 1) * $kategoriBerita->perPage() + $key + 1 }}</td>
                 <td>{{ $item->bd_nama_submenu }}</td>
-                <td>
+                <td class="text-center">
+    <div class="btn-group" role="group">
                     @if(
                         Auth::user()->level->hak_akses_kode === 'SAR' ||
                         SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriBeritaUrl, 'update')
                     )
-                        <button class="btn btn-sm btn-warning"
+                        <button class="btn btn-sm btn-warning mx-1"
                             onclick="modalAction('{{ url($kategoriBeritaUrl . '/editData/' . $item->berita_dinamis_id) }}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
                     @endif
-                    <button class="btn btn-sm btn-info"
+                    <button class="btn btn-sm btn-info mx-1"
                         onclick="modalAction('{{ url($kategoriBeritaUrl . '/detailData/' . $item->berita_dinamis_id) }}')">
                         <i class="fas fa-eye"></i> Detail
                     </button>
@@ -42,11 +43,12 @@
                         Auth::user()->level->hak_akses_kode === 'SAR' ||
                         SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriBeritaUrl, 'delete')
                     )
-                        <button class="btn btn-sm btn-danger"
+                        <button class="btn btn-sm btn-danger mx-1"
                             onclick="modalAction('{{ url($kategoriBeritaUrl . '/deleteData/' . $item->berita_dinamis_id) }}')">
                             <i class="fas fa-trash"></i> Hapus
                         </button>
                     @endif
+                    </div>
                 </td>
             </tr>
         @empty

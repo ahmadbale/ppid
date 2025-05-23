@@ -22,17 +22,18 @@
          <tr>
              <td>{{ ($kategoriAkses->currentPage() - 1) * $kategoriAkses->perPage() + $key + 1 }}</td>
              <td>{{ $item->mka_judul_kategori }}</td>
-             <td>
+             <td class="text-center">
+    <div class="btn-group" role="group">
                 @if(
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $kategoriAksesCepatUrl, 'update')
                 )
-                    <button class="btn btn-sm btn-warning"
+                    <button class="btn btn-sm btn-warning mx-1"
                         onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/editData/' . $item->kategori_akses_id) }}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
                 @endif
-                <button class="btn btn-sm btn-info"
+                <button class="btn btn-sm btn-info mx-1"
                     onclick="modalAction('{{ url($kategoriAksesCepatUrl . '/detailData/' . $item->kategori_akses_id) }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
@@ -46,6 +47,7 @@
                     </button> --}}
                 @endif
             </td>
+            </div>
          </tr>
          @empty
          <tr>
