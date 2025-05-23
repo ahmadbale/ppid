@@ -262,7 +262,142 @@ class WebMenuModel extends Model
         ];
     }
 
+    // Tambahkan di bagian createData pada WebMenuModel.php
+
     public static function createData($request)
+    {
+        // Cek apakah request berisi multiple menu
+        if ($request->has('menus')) {
+            $createdMenuIds = [];
+            $hasError = false;
+            $errorMessage = '';
+
+            DB::beginTransaction();
+            try {
+                // Proses setiap entri menu
+                foreach ($request->menus as $index => $menuData) {
+                    // Siapkan data menu untuk model
+                    $menuRequest = new \Illuminate\Http\Request();
+
+                    // Gunakan method merge() untuk menambahkan data ke request
+                    $menuRequest->merge([
+                        'web_menu' => $menuData,
+                        'kategori_menu' => $menuData['kategori_menu']
+                    ]);
+
+                    // Gunakan implementasi createData yang sudah ada untuk single menu
+                    $result = self::createSingleMenu($menuRequest);
+
+                    if ($result['success']) {
+                        $createdMenuIds[] = $result['data']->web_menu_id;
+
+                        // Tambahkan pengaturan hak akses untuk menu yang baru dibuat
+                        self::setHakAksesForNewMenu($result['data']->web_menu_id, $menuData);
+                    } else {
+                        $hasError = true;
+                        $errorMessage = 'Error membuat menu #' . ($index + 1) . ': ' . $result['message'];
+                        break;
+                    }
+                }
+
+                if ($hasError) {
+                    DB::rollBack();
+                    return [
+                        'success' => false,
+                        'message' => $errorMessage
+                    ];
+                } else {
+                    DB::commit();
+                    return [
+                        'success' => true,
+                        'message' => count($createdMenuIds) . ' menu berhasil dibuat',
+                        'data' => [
+                            'ids' => $createdMenuIds
+                        ]
+                    ];
+                }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error creating multiple menus: ' . $e->getMessage());
+                return [
+                    'success' => false,
+                    'message' => 'Error saat membuat menu: ' . $e->getMessage()
+                ];
+            }
+        }
+        // Jika bukan multiple menu, gunakan implementasi yang sudah ada
+        else {
+            return self::createSingleMenu($request);
+        }
+    }
+
+    // Tambahkan method baru untuk mengatur hak akses menu baru
+    private static function setHakAksesForNewMenu($menuId, $menuData)
+    {
+        // Ambil level berdasarkan menu
+        $hakAksesId = $menuData['fk_m_hak_akses'] ?? null;
+
+        if (!$hakAksesId) {
+            return;
+        }
+
+        // Ambil semua user dengan level tersebut
+        $userIds = DB::table('set_user_hak_akses')
+            ->where('fk_m_hak_akses', $hakAksesId)
+            ->where('isDeleted', 0)
+            ->pluck('fk_m_user');
+
+        if ($userIds->isEmpty()) {
+            return;
+        }
+
+        // Tentukan nilai hak akses default
+        $hakAksesValues = [
+            'ha_menu' => 0,
+            'ha_view' => 0,
+            'ha_create' => 0,
+            'ha_update' => 0,
+            'ha_delete' => 0
+        ];
+
+        // Jika ada pengaturan hak akses yang dikirim dari form
+        if (isset($menuData['hak_akses'])) {
+            $hakAksesValues = [
+                'ha_menu' => isset($menuData['hak_akses']['menu']) ? 1 : 0,
+                'ha_view' => isset($menuData['hak_akses']['view']) ? 1 : 0,
+                'ha_create' => isset($menuData['hak_akses']['create']) ? 1 : 0,
+                'ha_update' => isset($menuData['hak_akses']['update']) ? 1 : 0,
+                'ha_delete' => isset($menuData['hak_akses']['delete']) ? 1 : 0
+            ];
+        }
+
+        // Buat hak akses untuk setiap user dengan level tersebut
+        foreach ($userIds as $userId) {
+            $hakAkses = SetHakAksesModel::firstOrNew([
+                'ha_pengakses' => $userId,
+                'fk_web_menu' => $menuId
+            ]);
+
+            $hakAkses->ha_menu = $hakAksesValues['ha_menu'];
+            $hakAkses->ha_view = $hakAksesValues['ha_view'];
+            $hakAkses->ha_create = $hakAksesValues['ha_create'];
+            $hakAkses->ha_update = $hakAksesValues['ha_update'];
+            $hakAkses->ha_delete = $hakAksesValues['ha_delete'];
+
+            // Set created_by jika record baru
+            if (!$hakAkses->exists) {
+                $hakAkses->created_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
+            } else {
+                $hakAkses->updated_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
+            }
+
+            $hakAkses->save();
+        }
+    }
+
+
+    // Method baru untuk memproses single menu (dipecah dari createData asli)
+    private static function createSingleMenu($request)
     {
         DB::beginTransaction();
         try {
@@ -310,6 +445,11 @@ class WebMenuModel extends Model
                     ->where('isDeleted', 0)
                     ->count() + 1
             ]);
+
+            if ($saveData) {
+                // Tambahkan pengaturan hak akses untuk menu yang baru dibuat
+                self::setHakAksesForNewMenu($saveData->web_menu_id, $data);
+            }
 
             TransactionModel::createData(
                 'CREATED',

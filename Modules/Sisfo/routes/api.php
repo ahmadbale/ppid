@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SystemAuthController;
 use Modules\Sisfo\App\Http\Controllers\Api\ApiAuthController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiWBSController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMenuController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLhkpnController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
@@ -10,21 +11,21 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
-use Modules\Sisfo\App\Http\Controllers\Api\Auth\BeritaPengumumanController;
-use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPengaduanMasyarakatController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\HakAkses\ApiSetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiIpDinamisKontenController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiHakAksesController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaPengumumanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaLandingPageController;
+use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPengaduanMasyarakatController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanPerawatanController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPernyataanKeberatanController;
-use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiWBSController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaPengumumanController;
+use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiUserController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
+use Modules\Sisfo\App\Http\Controllers\Api\MenuManagement\ApiWebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
 
 /*
@@ -65,7 +66,7 @@ Route::prefix('auth')->group(function () {
             Route::delete('/delete/{id}', [ApiHakAksesController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiHakAksesController::class, 'detailData']);
         });
-        // Api EForm
+        // Route Api EForm
         // permohonan informasi
         Route::prefix('permohonan-informasi')->group(function () {
             Route::post('/create', [ApiPermohonanInformasiController::class, 'createData']);
@@ -85,6 +86,23 @@ Route::prefix('auth')->group(function () {
         // WBS
         Route::prefix('wbs')->group(function () {
             Route::post('/create', [ApiWBSController::class, 'createData']);
+        });
+        // Route Api WebMenuGlobal
+        Route::prefix('management-menu-global')->group(function () {
+            Route::get('/', [ApiWebMenuGlobalController::class, 'index']);
+            Route::post('/create', [ApiWebMenuGlobalController::class, 'createData']);
+            Route::put('/update/{id}', [ApiWebMenuGlobalController::class, 'updateData']);
+            Route::delete('/delete/{id}', [ApiWebMenuGlobalController::class, 'deleteData']);
+            Route::get('/detail/{id}', [ApiWebMenuGlobalController::class, 'detailData']);
+            Route::get('/getMenuUrl', [ApiWebMenuGlobalController::class, 'getMenuUrl']);
+        });
+        // Routr Api UserController
+        Route::prefix('user')->group(function () {
+            Route::get('/', [ApiUserController::class, 'index']);
+            Route::post('/create', [ApiUserController::class, 'createData']);
+            Route::put('/update/{id}', [ApiUserController::class, 'updateData']);
+            Route::delete('/delete/{id}', [ApiUserController::class, 'deleteData']);
+            Route::get('/detail/{id}', [ApiUserController::class, 'detailData']);
         });
     });
 });
@@ -111,4 +129,4 @@ Route::prefix('public')->middleware('jwt.system')->group(function () {
     Route::get('getDataKetentuanPelaporan', [ApiKetentuanPelaporanController::class, 'getDataKetentuanPelaporan']);
     Route::get('getDataRegulasi', [ApiRegulasiController::class, 'getDataRegulasi']);
     Route::get('getDataIPDaftarInformasi', [ApiIpDinamisKontenController::class, 'getDataIPDaftarInformasi']);
-}); 
+});
