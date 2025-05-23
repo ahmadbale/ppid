@@ -14,10 +14,10 @@
      <thead>
          <tr>
              <th width="5%">No</th>
-             <th width="20%">Nama Karyawan</th>
-             <th width="15%">Tahun</th>
+             <th width="30%">Nama Karyawan</th>
+             <th width="10%">Tahun</th>
              <th width="30%">Judul Informasi</th>
-             <th width="30%">Aksi</th>
+             <th width="25%">Aksi</th>
          </tr>
      </thead>
      <tbody>
@@ -27,17 +27,18 @@
              <td>{{ $item->dl_nama_karyawan }}</td>
              <td>{{ $item->lhkpn->lhkpn_tahun }}</td>
              <td>{{ $item->lhkpn->lhkpn_judul_informasi }}</td>
-             <td>
+             <td class="text-center">
+    <div class="btn-group" role="group">
                 @if(
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $detailLHKPNUrl, 'update')
                 )
-                    <button class="btn btn-sm btn-warning"
+                    <button class="btn btn-sm btn-warning mx-1"
                         onclick="modalAction('{{ url($detailLHKPNUrl . '/editData/' . $item->detail_lhkpn_id) }}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
                 @endif
-                <button class="btn btn-sm btn-info"
+                <button class="btn btn-sm btn-info mx-1"
                     onclick="modalAction('{{ url($detailLHKPNUrl . '/detailData/' . $item->detail_lhkpn_id) }}')">
                     <i class="fas fa-eye"></i> Detail
                 </button>
@@ -45,11 +46,12 @@
                     Auth::user()->level->hak_akses_kode === 'SAR' ||
                     SetHakAksesModel::cekHakAkses(Auth::user()->user_id, $detailLHKPNUrl, 'delete')
                 )
-                    <button class="btn btn-sm btn-danger"
+                    <button class="btn btn-sm btn-danger mx-1"
                         onclick="modalAction('{{ url($detailLHKPNUrl . '/deleteData/' . $item->detail_lhkpn_id) }}')">
                         <i class="fas fa-trash"></i> Hapus
                     </button>
                 @endif
+                </div>
             </td>
          </tr>
          @empty

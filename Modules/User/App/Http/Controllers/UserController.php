@@ -43,8 +43,6 @@ class UserController extends Controller
 
             $data = $response->json();
 
-            // Log full response for debugging
-            Log::info('Login API Response', ['response' => $data]);
 
             // Cek apakah login berhasil dengan berbagai struktur response
             $success = $data['success'] ?? false;

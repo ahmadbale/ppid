@@ -52,8 +52,6 @@ class LHKPNController extends Controller
     public function index(Request $request)
     {
         try {
-            Log::info('Mengambil data LHKPN dari API');
-
             $page = $request->get('page', 1);
             $tahunDipilih = $request->get('tahun');
             $detailPage = $request->get('detail_page', []);

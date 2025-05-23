@@ -53,8 +53,6 @@ class BeritaController extends Controller
     public function index(Request $request)
     {
         try {
-            Log::info('Mengambil data dari API');
-    
             // Ambil halaman saat ini dari request, default ke 1
             $page = $request->get('page', 1);
             
@@ -171,8 +169,6 @@ class BeritaController extends Controller
         try {
             // Dekripsi ID dari URL
             $beritaId = Crypt::decryptString(urldecode($encryptedId));
-
-            Log::info('Mengambil detail berita dari API', ['berita_id' => $beritaId]);
 
             // Ambil data detail berita dari API berdasarkan ID
             $detailResponse = $this->makeAuthenticatedRequest("public/getDetailBeritaById/{$slug}/{$beritaId}");
