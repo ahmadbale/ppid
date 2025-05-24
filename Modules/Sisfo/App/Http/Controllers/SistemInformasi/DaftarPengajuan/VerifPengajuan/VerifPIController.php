@@ -6,10 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
-use Modules\Sisfo\App\Models\SistemInformasi\EForm\PernyataanKeberatanModel;
-use Modules\Sisfo\App\Models\SistemInformasi\EForm\PengaduanMasyarakatModel;
-use Modules\Sisfo\App\Models\SistemInformasi\EForm\WBSModel;
-use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanPerawatanModel;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 
 class VerifPIController extends Controller
@@ -36,45 +32,17 @@ class VerifPIController extends Controller
             'title' => $this->pagename
         ];
 
-        // Hitung jumlah data untuk badge notifikasi
-        $jumlahDaftarVerifPermohonanInformasi = PermohonanInformasiModel::where('pi_status', 'Masuk')
-            ->where('isDeleted', 0)
-            ->where('pi_verif_isDeleted', 0)
-            ->whereNull('pi_sudah_dibaca')
-            ->count();
-
-        $jumlahDaftarVerifPernyataanKeberatan = PernyataanKeberatanModel::where('pk_status', 'Masuk')
-            ->where('isDeleted', 0)
-            ->where('pk_verif_isDeleted', 0)
-            ->whereNull('pk_sudah_dibaca')
-            ->count();
-
-        $jumlahDaftarVerifPengaduanMasyarakat = PengaduanMasyarakatModel::where('pm_status', 'Masuk')
-            ->where('isDeleted', 0)
-            ->where('pm_verif_isDeleted', 0)
-            ->whereNull('pm_sudah_dibaca')
-            ->count();
-
-        $jumlahDaftarVerifWBS = WBSModel::where('wbs_status', 'Masuk')
-            ->where('isDeleted', 0)
-            ->where('wbs_verif_isDeleted', 0)
-            ->whereNull('wbs_sudah_dibaca')
-            ->count();
-
-        $jumlahDaftarVerifPermohonanPerawatan = PermohonanPerawatanModel::where('pp_status', 'Masuk')
-            ->where('isDeleted', 0)
-            ->where('pp_verif_isDeleted', 0)
-            ->whereNull('pp_sudah_dibaca')
-            ->count();
+        // Ambil jumlah verifikasi dari model
+        $jumlahVerifikasi = PermohonanInformasiModel::hitungJumlahVerifikasi();
 
         return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
-            'jumlahDaftarVerifPermohonanInformasi' => $jumlahDaftarVerifPermohonanInformasi,
-            'jumlahDaftarVerifPernyataanKeberatan' => $jumlahDaftarVerifPernyataanKeberatan,
-            'jumlahDaftarVerifPengaduanMasyarakat' => $jumlahDaftarVerifPengaduanMasyarakat,
-            'jumlahDaftarVerifWBS' => $jumlahDaftarVerifWBS,
-            'jumlahDaftarVerifPermohonanPerawatan' => $jumlahDaftarVerifPermohonanPerawatan,
+            'jumlahDaftarVerifPermohonanInformasi' => $jumlahVerifikasi['permohonanInformasi'],
+            'jumlahDaftarVerifPernyataanKeberatan' => $jumlahVerifikasi['pernyataanKeberatan'],
+            'jumlahDaftarVerifPengaduanMasyarakat' => $jumlahVerifikasi['pengaduanMasyarakat'],
+            'jumlahDaftarVerifWBS' => $jumlahVerifikasi['wbs'],
+            'jumlahDaftarVerifPermohonanPerawatan' => $jumlahVerifikasi['permohonanPerawatan'],
             'daftarPengajuanUrl' => $this->daftarPengajuanUrl
         ]);
     }
@@ -90,12 +58,8 @@ class VerifPIController extends Controller
             'title' => 'Verifikasi Permohonan Informasi'
         ];
 
-        // Ambil semua data permohonan informasi dengan kriteria minimal
-        $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
-            ->where('isDeleted', 0)
-            ->where('pi_verif_isDeleted', 0)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Ambil daftar permohonan dari model
+        $permohonanInformasi = PermohonanInformasiModel::getDaftarVerifikasi();
 
         return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.index', [
             'breadcrumb' => $breadcrumb,
@@ -139,19 +103,8 @@ class VerifPIController extends Controller
     {
         try {
             $permohonan = PermohonanInformasiModel::findOrFail($id);
-
-            // Validasi status
-            if ($permohonan->pi_status !== 'Masuk') {
-                return $this->jsonError(new \Exception('Permohonan sudah diverifikasi sebelumnya'), 'Error');
-            }
-
-            // Update status menjadi Verifikasi
-            $permohonan->pi_status = 'Verifikasi';
-            $permohonan->pi_review = session('alias') ?? 'System';
-            $permohonan->pi_tanggal_review = now();
-            $permohonan->save();
-
-            return $this->jsonSuccess($permohonan, 'Permohonan informasi berhasil disetujui');
+            $result = $permohonan->validasiDanSetujuiPermohonan();
+            return $this->jsonSuccess($result, 'Permohonan informasi berhasil disetujui');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menyetujui permohonan');
         }
@@ -160,29 +113,9 @@ class VerifPIController extends Controller
     public function tolakPermohonan(Request $request, $id)
     {
         try {
-            // Validasi input
-            $request->validate([
-                'alasan_penolakan' => 'required|string|max:255'
-            ], [
-                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
-                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
-            ]);
-
             $permohonan = PermohonanInformasiModel::findOrFail($id);
-
-            // Validasi status
-            if ($permohonan->pi_status !== 'Masuk') {
-                return $this->jsonError(new \Exception('Permohonan sudah diverifikasi sebelumnya'), 'Error');
-            }
-
-            // Update status menjadi Ditolak
-            $permohonan->pi_status = 'Ditolak';
-            $permohonan->pi_alasan_penolakan = $request->alasan_penolakan;
-            $permohonan->pi_review = session('alias') ?? 'System';
-            $permohonan->pi_tanggal_review = now();
-            $permohonan->save();
-
-            return $this->jsonSuccess($permohonan, 'Permohonan informasi berhasil ditolak');
+            $result = $permohonan->validasiDanTolakPermohonan($request->alasan_penolakan);
+            return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditolak');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menolak permohonan');
         }
@@ -192,21 +125,8 @@ class VerifPIController extends Controller
     {
         try {
             $permohonan = PermohonanInformasiModel::findOrFail($id);
-
-            // Validasi bahwa permohonan sudah disetujui/ditolak
-            if (!in_array($permohonan->pi_status, ['Verifikasi', 'Ditolak'])) {
-                return $this->jsonError(
-                    new \Exception('Anda harus menyetujui/menolak permohonan ini terlebih dahulu'),
-                    'Perhatian'
-                );
-            }
-
-            // Tandai sebagai dibaca
-            $permohonan->pi_sudah_dibaca = session('alias') ?? 'System';
-            $permohonan->pi_tanggal_dibaca = now();
-            $permohonan->save();
-
-            return $this->jsonSuccess($permohonan, 'Permohonan informasi berhasil ditandai dibaca');
+            $result = $permohonan->validasiDanTandaiDibaca();
+            return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditandai dibaca');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menandai permohonan dibaca');
         }
@@ -216,21 +136,8 @@ class VerifPIController extends Controller
     {
         try {
             $permohonan = PermohonanInformasiModel::findOrFail($id);
-
-            // Validasi bahwa permohonan sudah dibaca
-            if (empty($permohonan->pi_sudah_dibaca)) {
-                return $this->jsonError(
-                    new \Exception('Anda harus menandai pengajuan ini telah dibaca terlebih dahulu'),
-                    'Perhatian'
-                );
-            }
-
-            // Update flag pi_verif_isDeleted dan pi_tanggal_dijawab
-            $permohonan->pi_verif_isDeleted = 1;
-            $permohonan->pi_tanggal_dijawab = now();
-            $permohonan->save();
-
-            return $this->jsonSuccess($permohonan, 'Pengajuan ini telah dihapus dari halaman daftar Verifikasi Pengajuan');
+            $result = $permohonan->validasiDanHapusPermohonan();
+            return $this->jsonSuccess($result, 'Pengajuan ini telah dihapus dari halaman daftar Verifikasi Pengajuan');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menghapus permohonan');
         }

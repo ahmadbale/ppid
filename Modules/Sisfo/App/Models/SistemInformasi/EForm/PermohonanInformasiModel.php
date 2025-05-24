@@ -219,4 +219,127 @@ class PermohonanInformasiModel extends Model
         // Menggunakan fungsi dari BaseModelFunction
         return self::getKetentuanPelaporanByKategoriForm('Permohonan Informasi');
     }
+
+    public static function hitungJumlahVerifikasi()
+    {
+        // Menghitung jumlah verifikasi untuk semua tipe pengajuan
+        return [
+            'permohonanInformasi' => self::where('pi_status', 'Masuk')
+                ->where('isDeleted', 0)
+                ->where('pi_verif_isDeleted', 0)
+                ->whereNull('pi_sudah_dibaca')
+                ->count(),
+
+            'pernyataanKeberatan' => PernyataanKeberatanModel::where('pk_status', 'Masuk')
+                ->where('isDeleted', 0)
+                ->where('pk_verif_isDeleted', 0)
+                ->whereNull('pk_sudah_dibaca')
+                ->count(),
+
+            'pengaduanMasyarakat' => PengaduanMasyarakatModel::where('pm_status', 'Masuk')
+                ->where('isDeleted', 0)
+                ->where('pm_verif_isDeleted', 0)
+                ->whereNull('pm_sudah_dibaca')
+                ->count(),
+
+            'wbs' => WBSModel::where('wbs_status', 'Masuk')
+                ->where('isDeleted', 0)
+                ->where('wbs_verif_isDeleted', 0)
+                ->whereNull('wbs_sudah_dibaca')
+                ->count(),
+
+            'permohonanPerawatan' => PermohonanPerawatanModel::where('pp_status', 'Masuk')
+                ->where('isDeleted', 0)
+                ->where('pp_verif_isDeleted', 0)
+                ->whereNull('pp_sudah_dibaca')
+                ->count()
+        ];
+    }
+
+    public static function getDaftarVerifikasi()
+    {
+        // Mengambil daftar permohonan untuk verifikasi
+        return self::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            ->where('isDeleted', 0)
+            ->where('pi_verif_isDeleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiPermohonan()
+    {
+        // Validasi status
+        if ($this->pi_status !== 'Masuk') {
+            throw new \Exception('Permohonan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Verifikasi
+        $this->pi_status = 'Verifikasi';
+        $this->pi_review = session('alias') ?? 'System';
+        $this->pi_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanTolakPermohonan($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pi_status !== 'Masuk') {
+            throw new \Exception('Permohonan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Ditolak
+        $this->pi_status = 'Ditolak';
+        $this->pi_alasan_penolakan = $alasanPenolakan;
+        $this->pi_review = session('alias') ?? 'System';
+        $this->pi_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibaca()
+    {
+        // Validasi status permohonan
+        if (!in_array($this->pi_status, ['Verifikasi', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak permohonan ini terlebih dahulu');
+        }
+
+        // Tandai sebagai dibaca
+        $this->pi_sudah_dibaca = session('alias') ?? 'System';
+        $this->pi_tanggal_dibaca = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanHapusPermohonan()
+    {
+        // Validasi status dibaca
+        if (empty($this->pi_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai pengajuan ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->pi_verif_isDeleted = 1;
+        $this->pi_tanggal_dijawab = now();
+        $this->save();
+
+        return $this;
+    }
 }
