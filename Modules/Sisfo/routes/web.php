@@ -46,9 +46,13 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\Regulas
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPengajuanController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController;
 
 /*
 |--------------------------------------------------------------------------
