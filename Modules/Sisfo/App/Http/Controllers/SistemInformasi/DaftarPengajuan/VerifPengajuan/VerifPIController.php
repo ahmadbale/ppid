@@ -12,8 +12,8 @@ class VerifPIController extends Controller
 {
     use TraitsController;
 
-    public $breadcrumb = 'Daftar Verifikasi Pengajuan';
-    public $pagename = 'Verifikasi Pengajuan';
+    public $breadcrumb = 'Daftar Verifikasi Pengajuan Permohonan Informasi';
+    public $pagename = 'Verifikasi Pengajuan Permohonan Informasi';
     public $daftarPengajuanUrl;
 
     public function __construct()
@@ -22,32 +22,6 @@ class VerifPIController extends Controller
     }
 
     public function index()
-    {
-        $breadcrumb = (object) [
-            'title' => $this->pagename,
-            'list' => ['Home', $this->pagename]
-        ];
-
-        $page = (object) [
-            'title' => $this->pagename
-        ];
-
-        // Ambil jumlah verifikasi dari model
-        $jumlahVerifikasi = PermohonanInformasiModel::hitungJumlahVerifikasi();
-
-        return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.index', [
-            'breadcrumb' => $breadcrumb,
-            'page' => $page,
-            'jumlahDaftarVerifPermohonanInformasi' => $jumlahVerifikasi['permohonanInformasi'],
-            'jumlahDaftarVerifPernyataanKeberatan' => $jumlahVerifikasi['pernyataanKeberatan'],
-            'jumlahDaftarVerifPengaduanMasyarakat' => $jumlahVerifikasi['pengaduanMasyarakat'],
-            'jumlahDaftarVerifWBS' => $jumlahVerifikasi['wbs'],
-            'jumlahDaftarVerifPermohonanPerawatan' => $jumlahVerifikasi['permohonanPerawatan'],
-            'daftarPengajuanUrl' => $this->daftarPengajuanUrl
-        ]);
-    }
-
-    public function daftarVerifPermohonanInformasi()
     {
         $breadcrumb = (object) [
             'title' => 'Verifikasi Permohonan Informasi',

@@ -47,7 +47,9 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDUploadContro
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuUrlController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
 
 /*
@@ -498,17 +500,27 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan')], function () {
         // Route utama - menampilkan index semua kategori verifikasi
-        Route::get('/', [VerifPIController::class, 'index'])->middleware('permission:view');
+        Route::get('/', [VerifPengajuanController::class, 'index'])->middleware('permission:view');
         
         // Route untuk Verifikasi Permohonan Informasi
         Route::group(['prefix' => 'permohonan-informasi'], function() {
-            Route::get('/', [VerifPIController::class, 'daftarVerifPermohonanInformasi'])->middleware('permission:view');
+            Route::get('/', [VerifPIController::class, 'index'])->middleware('permission:view');
             Route::get('/approve-modal/{id}', [VerifPIController::class, 'getApproveModal'])->middleware('permission:update');
             Route::get('/decline-modal/{id}', [VerifPIController::class, 'getDeclineModal'])->middleware('permission:update');
             Route::post('/setujuiPermohonan/{id}', [VerifPIController::class, 'setujuiPermohonan'])->middleware('permission:update');
             Route::post('/tolakPermohonan/{id}', [VerifPIController::class, 'tolakPermohonan'])->middleware('permission:update');
             Route::post('/tandaiDibaca/{id}', [VerifPIController::class, 'tandaiDibaca'])->middleware('permission:update');
             Route::post('/hapusPermohonan/{id}', [VerifPIController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'pernyataan-keberatan'], function() {
+            Route::get('/', [VerifPKController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [VerifPKController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [VerifPKController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [VerifPKController::class, 'setujuiPermohonan'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [VerifPKController::class, 'tolakPermohonan'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [VerifPKController::class, 'tandaiDibaca'])->middleware('permission:update');
+            Route::post('/hapusPermohonan/{id}', [VerifPKController::class, 'hapusPermohonan'])->middleware('permission:delete');
         });
         
         // Tambahkan grup route untuk kategori pengajuan lainnya disini
