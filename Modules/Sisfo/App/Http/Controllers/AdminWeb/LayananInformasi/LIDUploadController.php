@@ -56,7 +56,9 @@ class LIDUploadController extends Controller
      {
           // Get all active LI Dinamis for dropdown
           $liDinamis = LIDinamisModel::where('isDeleted', 0)->get();
-          return view("sisfo::AdminWeb/LayananInformasi/LIDUpload.create", compact('liDinamis'));
+          return view("sisfo::AdminWeb/LayananInformasi/LIDUpload.create", [
+               'liDinamis' => $liDinamis
+          ]);
      }
      
      public function createData(Request $request)
