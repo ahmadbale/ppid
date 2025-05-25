@@ -1,32 +1,35 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Sisfo\App\Http\Controllers\SwitchRoleController;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Http\Controllers\AuthController;
 use Modules\Sisfo\App\Http\Controllers\ProfileController;
 use Modules\Sisfo\App\Http\Controllers\SummernoteController;
+use Modules\Sisfo\App\Http\Controllers\SwitchRoleController;
 use Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
 use Modules\Sisfo\App\Http\Controllers\DashboardSARController;
 use Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
-use Modules\Sisfo\App\Http\Controllers\HakAkses\SetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
+use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
 use Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
-use Modules\Sisfo\App\Http\Controllers\ManagePengguna\HakAksesController;
+use Modules\Sisfo\App\Http\Controllers\HakAkses\SetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
+use Modules\Sisfo\App\Http\Controllers\ManagePengguna\HakAksesController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuUrlController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDinamisController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDUploadController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
@@ -42,13 +45,12 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\DetailPintasanLain
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDUploadController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuUrlController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuGlobalController;
-use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController;
 
 /*
 |--------------------------------------------------------------------------
@@ -561,5 +563,28 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [LIDUploadController::class, 'detailData']);
         Route::get('/deleteData/{id}', [LIDUploadController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [LIDUploadController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('penyelesaian-sengketa')], function (){
+        Route::get('/', [PenyelesaianSengketaController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [PenyelesaianSengketaController::class, 'getData']);
+        Route::get('/addData', [PenyelesaianSengketaController::class, 'addData']);
+        Route::post('/createData', [PenyelesaianSengketaController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [PenyelesaianSengketaController::class, 'editData']);
+        Route::post('/updateData/{id}', [PenyelesaianSengketaController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [PenyelesaianSengketaController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [PenyelesaianSengketaController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [PenyelesaianSengketaController::class, 'deleteData'])->middleware('permission:delete');
+    });
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('upload-penyelesaian-sengketa')], function (){
+        Route::get('/', [UploadPSController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [UploadPSController::class, 'getData']);
+        Route::get('/addData', [UploadPSController::class, 'addData']);
+        Route::post('/createData', [UploadPSController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [UploadPSController::class, 'editData']);
+        Route::post('/updateData/{id}', [UploadPSController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [UploadPSController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [UploadPSController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [UploadPSController::class, 'deleteData'])->middleware('permission:delete');
     });
 });

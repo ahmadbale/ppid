@@ -37,7 +37,7 @@
              <div class="invalid-feedback" id="lhkpn_deskripsi_informasi_error"></div>
          </div>
          
-         @if(isset($lhkpn->status))
+         {{-- @if(isset($lhkpn->status))
          <div class="form-group">
              <label for="status">Status <span class="text-danger">*</span></label>
              <select class="form-control" id="status" name="m_lhkpn[status]">
@@ -47,7 +47,7 @@
              </select>
              <div class="invalid-feedback" id="status_error"></div>
          </div>
-         @endif
+         @endif --}}
      </form>
  </div>
  
