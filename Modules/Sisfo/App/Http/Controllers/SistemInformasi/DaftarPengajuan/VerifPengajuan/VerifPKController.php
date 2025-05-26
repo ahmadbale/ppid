@@ -32,7 +32,7 @@ class VerifPKController extends Controller
             'title' => 'Verifikasi Pernyataan Keberatan'
         ];
 
-        // Ambil daftar pernyataan keberataan dari model
+        // Ambil daftar pernyataan keberatan dari model
         $pernyataanKeberatan = PernyataanKeberatanModel::getDaftarVerifikasi();
 
         return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.index', [
@@ -46,7 +46,7 @@ class VerifPKController extends Controller
     public function getApproveModal($id)
     {
         try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PiDiriSendiri', 'PiOrangLain'])
+            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
                 ->findOrFail($id);
 
             return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.approve', [
@@ -61,7 +61,7 @@ class VerifPKController extends Controller
     public function getDeclineModal($id)
     {
         try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
                 ->findOrFail($id);
 
             return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.decline', [
@@ -88,7 +88,8 @@ class VerifPKController extends Controller
     {
         try {
             $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            $result = $pernyataanKeberatan->validasiDanTolakPermohonan($request->alasan_penolakan);
+            $alasanPenolakan = $request->input('alasan_penolakan');
+            $result = $pernyataanKeberatan->validasiDanTolakPermohonan($alasanPenolakan);
             return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil ditolak');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menolak Pernyataan Keberatan');
@@ -102,7 +103,7 @@ class VerifPKController extends Controller
             $result = $pernyataanKeberatan->validasiDanTandaiDibaca();
             return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil ditandai dibaca');
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai Pernyataan Keberatan dibaca');
+            return $this->jsonError($e, 'Gagal menandai dibaca Pernyataan Keberatan');
         }
     }
 

@@ -46,11 +46,11 @@ class VerifPIController extends Controller
     public function getApproveModal($id)
     {
         try {
-            $permohonan = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
                 ->findOrFail($id);
 
             return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.approve', [
-                'permohonan' => $permohonan,
+                'permohonanInformasi' => $permohonanInformasi,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -61,11 +61,11 @@ class VerifPIController extends Controller
     public function getDeclineModal($id)
     {
         try {
-            $permohonan = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
                 ->findOrFail($id);
 
             return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.decline', [
-                'permohonan' => $permohonan,
+                'permohonanInformasi' => $permohonanInformasi,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -76,8 +76,8 @@ class VerifPIController extends Controller
     public function setujuiPermohonan($id)
     {
         try {
-            $permohonan = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonan->validasiDanSetujuiPermohonan();
+            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
+            $result = $permohonanInformasi->validasiDanSetujuiPermohonan();
             return $this->jsonSuccess($result, 'Permohonan informasi berhasil disetujui');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menyetujui permohonan');
@@ -87,8 +87,8 @@ class VerifPIController extends Controller
     public function tolakPermohonan(Request $request, $id)
     {
         try {
-            $permohonan = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonan->validasiDanTolakPermohonan($request->alasan_penolakan);
+            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
+            $result = $permohonanInformasi->validasiDanTolakPermohonan($request->alasan_penolakan);
             return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditolak');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menolak permohonan');
@@ -98,8 +98,8 @@ class VerifPIController extends Controller
     public function tandaiDibaca($id)
     {
         try {
-            $permohonan = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonan->validasiDanTandaiDibaca();
+            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
+            $result = $permohonanInformasi->validasiDanTandaiDibaca();
             return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditandai dibaca');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menandai permohonan dibaca');
@@ -109,8 +109,8 @@ class VerifPIController extends Controller
     public function hapusPermohonan($id)
     {
         try {
-            $permohonan = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonan->validasiDanHapusPermohonan();
+            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
+            $result = $permohonanInformasi->validasiDanHapusPermohonan();
             return $this->jsonSuccess($result, 'Pengajuan ini telah dihapus dari halaman daftar Verifikasi Pengajuan');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menghapus permohonan');

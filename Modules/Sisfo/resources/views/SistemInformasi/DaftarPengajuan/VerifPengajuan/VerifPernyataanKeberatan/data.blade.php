@@ -12,25 +12,25 @@
                 <div class="mr-3">
                     @switch($PK->pk_status)
                         @case('Masuk')
-                            <span class="badge badge-pkll badge-primary px-3 py-2"><i class="fas fa-inbox mr-1"></i> Masuk</span>
+                            <span class="badge badge-pill badge-primary px-3 py-2"><i class="fas fa-inbox mr-1"></i> Masuk</span>
                             @break
                         @case('Verifikasi')
-                            <span class="badge badge-pkll badge-warning px-3 py-2"><i class="fas fa-check-circle mr-1"></i> Verifikasi</span>
+                            <span class="badge badge-pill badge-warning px-3 py-2"><i class="fas fa-check-circle mr-1"></i> Verifikasi</span>
                             @break
                         @case('Disetujui')
-                            <span class="badge badge-pkll badge-success px-3 py-2"><i class="fas fa-check-double mr-1"></i> Disetujui</span>
+                            <span class="badge badge-pill badge-success px-3 py-2"><i class="fas fa-check-double mr-1"></i> Disetujui</span>
                             @break
                         @case('Ditolak')
-                            <span class="badge badge-pkll badge-danger px-3 py-2"><i class="fas fa-times-circle mr-1"></i> Ditolak</span>
+                            <span class="badge badge-pill badge-danger px-3 py-2"><i class="fas fa-times-circle mr-1"></i> Ditolak</span>
                             @break
                         @default
-                            <span class="badge badge-pkll badge-secondary px-3 py-2">{{ $PK->pk_status }}</span>
+                            <span class="badge badge-pill badge-secondary px-3 py-2">{{ $PK->pk_status }}</span>
                     @endswitch
                     
                     @if($PK->pk_sudah_dibaca)
-                        <span class="badge badge-pkll badge-success px-3 py-2"><i class="fas fa-eye mr-1"></i> Sudah Dibaca</span>
+                        <span class="badge badge-pill badge-success px-3 py-2"><i class="fas fa-eye mr-1"></i> Sudah Dibaca</span>
                     @else
-                        <span class="badge badge-pkll badge-info px-3 py-2"><i class="fas fa-eye-slash mr-1"></i> Belum Dibaca</span>
+                        <span class="badge badge-pill badge-info px-3 py-2"><i class="fas fa-eye-slash mr-1"></i> Belum Dibaca</span>
                     @endif
                 </div>
                 <div class="text-muted">
@@ -42,31 +42,31 @@
 
     <div class="card-body">
         <!-- Sistem Tab untuk Informasi Berbeda -->
-        <ul class="nav nav-tabs mb-3" id="myTab-{{ $PK->pernyataan_keberataan_id }}" role="tablist">
+        <ul class="nav nav-tabs mb-3" id="myTab-{{ $PK->pernyataan_keberatan_id }}" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="general-tab-{{ $PK->pernyataan_keberataan_id }}" data-toggle="tab" 
-                   href="#general-{{ $PK->pernyataan_keberataan_id }}" role="tab" aria-controls="general" aria-selected="true">
+                <a class="nav-link active" id="general-tab-{{ $PK->pernyataan_keberatan_id }}" data-toggle="tab" 
+                   href="#general-{{ $PK->pernyataan_keberatan_id }}" role="tab" aria-controls="general" aria-selected="true">
                    <i class="fas fa-info-circle mr-1"></i> Informasi Umum
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="requester-tab-{{ $PK->pernyataan_keberataan_id }}" data-toggle="tab" 
-                   href="#requester-{{ $PK->pernyataan_keberataan_id }}" role="tab" aria-controls="requester" aria-selected="false">
+                <a class="nav-link" id="requester-tab-{{ $PK->pernyataan_keberatan_id }}" data-toggle="tab" 
+                   href="#requester-{{ $PK->pernyataan_keberatan_id }}" role="tab" aria-controls="requester" aria-selected="false">
                    <i class="fas fa-user mr-1"></i> Data Pemohon
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="status-tab-{{ $PK->pernyataan_keberataan_id }}" data-toggle="tab" 
-                   href="#status-{{ $PK->pernyataan_keberataan_id }}" role="tab" aria-controls="status" aria-selected="false">
+                <a class="nav-link" id="status-tab-{{ $PK->pernyataan_keberatan_id }}" data-toggle="tab" 
+                   href="#status-{{ $PK->pernyataan_keberatan_id }}" role="tab" aria-controls="status" aria-selected="false">
                    <i class="fas fa-tasks mr-1"></i> Status & Tanggal
                 </a>
             </li>
         </ul>
 
-        <div class="tab-content" id="myTabContent-{{ $PK->pernyataan_keberataan_id }}">
+        <div class="tab-content" id="myTabContent-{{ $PK->pernyataan_keberatan_id }}">
             <!-- Tab Informasi Umum -->
-            <div class="tab-pane fade show active" id="general-{{ $PK->pernyataan_keberataan_id }}" role="tabpanel" 
-                aria-labelledby="general-tab-{{ $PK->pernyataan_keberataan_id }}">
+            <div class="tab-pane fade show active" id="general-{{ $PK->pernyataan_keberatan_id }}" role="tabpanel" 
+                aria-labelledby="general-tab-{{ $PK->pernyataan_keberatan_id }}">
                 <div class="row">
                     <!-- Informasi Permohonan -->
                     <div class="col-md-6">
@@ -89,7 +89,7 @@
                                         <td>: 
                                             @if($PK->pk_bukti_aduan)
                                                 <a href="{{ asset('storage/' . $PK->pk_bukti_aduan) }}" target="_blank" 
-                                                   class="btn btn-sm btn-info rounded-pkll">
+                                                   class="btn btn-sm btn-info rounded-pill">
                                                     <i class="fas fa-file-download"></i> Lihat Dokumen
                                                 </a>
                                             @else
@@ -111,16 +111,12 @@
                             <div class="card-body">
                                 <table class="table table-borderless table-sm">
                                     <tr>
-                                        <td width="40%" class="font-weight-bold">Informasi yang Dibutuhkan</td>
-                                        <td>: {{ $PK->pk_informasi_yang_dibutuhkan }}</td>
+                                        <td class="font-weight-bold">Alasan Pengajuan Keberatan</td>
+                                        <td>: {{ $PK->pk_alasan_pengajuan_keberatan }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="font-weight-bold">Alasan Permohonan</td>
-                                        <td>: {{ $PK->pk_alasan_pernyataan_keberataan }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-weight-bold">Alamat Sumber</td>
-                                        <td>: {{ $PK->pk_alamat_sumber_informasi }}</td>
+                                        <td class="font-weight-bold">Kasus Posisi</td>
+                                        <td>: {{ $PK->pk_kasus_posisi }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -130,8 +126,8 @@
             </div>
             
             <!-- Tab Data Pemohon -->
-            <div class="tab-pane fade" id="requester-{{ $PK->pernyataan_keberataan_id }}" role="tabpanel" 
-                aria-labelledby="requester-tab-{{ $PK->pernyataan_keberataan_id }}">
+            <div class="tab-pane fade" id="requester-{{ $PK->pernyataan_keberatan_id }}" role="tabpanel" 
+                aria-labelledby="requester-tab-{{ $PK->pernyataan_keberatan_id }}">
                 
                 @if($PK->pk_kategori_pemohon == 'Diri Sendiri' && $PK->PkDiriSendiri)
                     <div class="card bg-light mb-3">
@@ -163,10 +159,14 @@
                                             <td>: {{ $PK->PkDiriSendiri->pk_email_pengguna }}</td>
                                         </tr>
                                         <tr>
+                                            <td width="35%" class="font-weight-bold">Pekerjaan</td>
+                                            <td>: {{ $PK->PkDiriSendiri->pk_pekerjaan_pengguna }}</td>
+                                        </tr>
+                                        <tr>
                                             <td class="font-weight-bold">KTP</td>
                                             <td>: 
                                                 <a href="{{ asset('storage/' . $PK->PkDiriSendiri->pk_upload_nik_pengguna) }}" 
-                                                   target="_blank" class="btn btn-sm btn-info rounded-pkll">
+                                                   target="_blank" class="btn btn-sm btn-info rounded-pill">
                                                     <i class="fas fa-id-card"></i> Lihat KTP
                                                 </a>
                                             </td>
@@ -209,10 +209,14 @@
                                                     <td>: {{ $PK->PkOrangLain->pk_email_pengguna_penginput }}</td>
                                                 </tr>
                                                 <tr>
+                                                    <td width="35%" class="font-weight-bold">Pekerjaan Penginput</td>
+                                                    <td>: {{ $PK->PkOrangLain->pk_pekerjaan_pengguna_penginput }}</td>
+                                                </tr>
+                                                <tr>
                                                     <td class="font-weight-bold">KTP Penginput</td>
                                                     <td>: 
                                                         <a href="{{ asset('storage/' . $PK->PkOrangLain->pk_upload_nik_pengguna_penginput) }}" 
-                                                           target="_blank" class="btn btn-sm btn-info rounded-pkll">
+                                                           target="_blank" class="btn btn-sm btn-info rounded-pill">
                                                             <i class="fas fa-id-card"></i> Lihat KTP
                                                         </a>
                                                     </td>
@@ -226,37 +230,37 @@
                         <div class="col-md-12">
                             <div class="card bg-light">
                                 <div class="card-header bg-info text-white">
-                                    <h6 class="m-0"><i class="fas fa-user-check mr-1"></i> Informasi Penerima Informasi</h6>
+                                    <h6 class="m-0"><i class="fas fa-user-check mr-1"></i> Informasi Kuasa Pemohon</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <table class="table table-borderless table-sm">
                                                 <tr>
-                                                    <td width="35%" class="font-weight-bold">Nama Penerima</td>
-                                                    <td>: {{ $PK->PkOrangLain->pk_nama_pengguna_informasi }}</td>
+                                                    <td width="35%" class="font-weight-bold">Nama Kuasa Pemohon</td>
+                                                    <td>: {{ $PK->PkOrangLain->pk_nama_kuasa_pemohon }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="font-weight-bold">Alamat Penerima</td>
-                                                    <td>: {{ $PK->PkOrangLain->pk_alamat_pengguna_informasi }}</td>
+                                                    <td class="font-weight-bold">Alamat Kuasa Pemohon</td>
+                                                    <td>: {{ $PK->PkOrangLain->pk_alamat_kuasa_pemohon }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="font-weight-bold">No HP Penerima</td>
-                                                    <td>: {{ $PK->PkOrangLain->pk_no_hp_pengguna_informasi }}</td>
+                                                    <td class="font-weight-bold">No HP Kuasa Pemohon</td>
+                                                    <td>: {{ $PK->PkOrangLain->pk_no_hp_kuasa_pemohon }}</td>
                                                 </tr>
                                             </table>
                                         </div>
                                         <div class="col-md-6">
                                             <table class="table table-borderless table-sm">
                                                 <tr>
-                                                    <td width="35%" class="font-weight-bold">Email Penerima</td>
-                                                    <td>: {{ $PK->PkOrangLain->pk_email_pengguna_informasi }}</td>
+                                                    <td width="35%" class="font-weight-bold">Email Kuasa Pemohon</td>
+                                                    <td>: {{ $PK->PkOrangLain->pk_email_kuasa_pemohon }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="font-weight-bold">KTP Penerima</td>
                                                     <td>: 
-                                                        <a href="{{ asset('storage/' . $PK->PkOrangLain->pk_upload_nik_pengguna_informasi) }}" 
-                                                           target="_blank" class="btn btn-sm btn-info rounded-pkll">
+                                                        <a href="{{ asset('storage/' . $PK->PkOrangLain->pk_upload_nik_kuasa_pemohon) }}" 
+                                                           target="_blank" class="btn btn-sm btn-info rounded-pill">
                                                             <i class="fas fa-id-card"></i> Lihat KTP
                                                         </a>
                                                     </td>
@@ -272,8 +276,8 @@
             </div>
             
             <!-- Tab Status & Tanggal -->
-            <div class="tab-pane fade" id="status-{{ $PK->pernyataan_keberataan_id }}" role="tabpanel" 
-                aria-labelledby="status-tab-{{ $PK->pernyataan_keberataan_id }}">
+            <div class="tab-pane fade" id="status-{{ $PK->pernyataan_keberatan_id }}" role="tabpanel" 
+                aria-labelledby="status-tab-{{ $PK->pernyataan_keberatan_id }}">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card bg-light mb-3">
@@ -346,20 +350,20 @@
                 <div class="col-12">
                     <div class="d-flex flex-wrap">
                         @if($PK->pk_status == 'Masuk')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $PK->pernyataan_keberataan_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $PK->pernyataan_keberatan_id }})">
                                 <i class="fas fa-check"></i> Setujui
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $PK->pernyataan_keberataan_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $PK->pernyataan_keberatan_id }})">
                                 <i class="fas fa-times"></i> Tolak
                             </button>
                         @endif
 
-                        <button class="btn btn-info btn-sm mr-2 mb-2" onclick="tandaiDibaca({{ $PK->pernyataan_keberataan_id }}, '{{ $PK->pk_status }}', {{ $PK->pk_sudah_dibaca ? 'true' : 'false' }})" 
+                        <button class="btn btn-info btn-sm mr-2 mb-2" onclick="tandaiDibaca({{ $PK->pernyataan_keberatan_id }}, '{{ $PK->pk_status }}', {{ $PK->pk_sudah_dibaca ? 'true' : 'false' }})" 
                             data-status="{{ $PK->pk_status }}" data-dibaca="{{ $PK->pk_sudah_dibaca ? 'true' : 'false' }}">
                             <i class="fas fa-book-reader"></i> Tandai Dibaca
                         </button>
                         
-                        <button class="btn btn-warning btn-sm mb-2" onclick="hapusPermohonan({{ $PK->pernyataan_keberataan_id }}, {{ $PK->pk_sudah_dibaca ? 'true' : 'false' }})" 
+                        <button class="btn btn-warning btn-sm mb-2" onclick="hapusPermohonan({{ $PK->pernyataan_keberatan_id }}, {{ $PK->pk_sudah_dibaca ? 'true' : 'false' }})" 
                             data-dibaca="{{ $PK->pk_sudah_dibaca ? 'true' : 'false' }}">
                             <i class="fas fa-trash"></i> Hapus
                         </button>
