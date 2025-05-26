@@ -236,7 +236,7 @@ class PernyataanKeberatanModel extends Model
 
         // Validasi status
         if ($this->pk_status !== 'Masuk') {
-            throw new \Exception('Permohonan sudah diverifikasi sebelumnya');
+            throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
         }
 
         // Update status menjadi Ditolak
@@ -253,7 +253,7 @@ class PernyataanKeberatanModel extends Model
     {
         // Validasi status permohonan
         if (!in_array($this->pk_status, ['Verifikasi', 'Ditolak'])) {
-            throw new \Exception('Anda harus menyetujui/menolak permohonan ini terlebih dahulu');
+            throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
         // Tandai sebagai dibaca
