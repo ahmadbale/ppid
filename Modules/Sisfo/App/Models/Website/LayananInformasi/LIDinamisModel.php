@@ -25,6 +25,63 @@ class LIDinamisModel extends Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
+   // select api
+   public static function getDataLayananInformasiDinamis()
+   {
+       $arr_data = self::query()
+           ->from('m_li_dinamis')
+           ->select([
+               'li_dinamis_id',
+               'li_dinamis_kode',
+               'li_dinamis_nama',
+               'created_at'
+           ])
+           ->where('isDeleted', 0)
+           ->get()
+           ->map(function($liDinamis){
+               // Store the original LI Dinamis record data
+               $liDinamisData = [
+                   'li_dinamis_id' => $liDinamis->li_dinamis_id,
+                   'li_dinamis_kode' => $liDinamis->li_dinamis_kode,
+                   'li_dinamis_nama' => $liDinamis->li_dinamis_nama,
+                   'tanggal_dibuat' => $liDinamis->created_at
+               ];
+               
+               // Get upload details for this LI Dinamis
+               $uploadDetails = DB::table('t_lid_upload')
+                   ->select([
+                       'lid_upload_id',
+                       'fk_m_li_dinamis',
+                       'lid_upload_type',
+                       'lid_upload_value'
+                   ])
+                   ->where('fk_m_li_dinamis', $liDinamis->li_dinamis_id)
+                   ->where('isDeleted', 0)
+                   ->get()
+                   ->map(function($upload){
+                       // Only include 'dokumen' property for file type
+                       $result = [
+                           'upload_detail_id' => $upload->lid_upload_id,
+                           'upload_type' => $upload->lid_upload_type,
+                       ];
+                       
+                       if ($upload->lid_upload_type == 'file') {
+                           $result['dokumen'] = asset('storage/' . $upload->lid_upload_value);
+                       }
+                       
+                       return $result;
+                   });
+               
+               // Add upload details to the result
+               $liDinamisData['upload_detail'] = $uploadDetails;
+               
+               return $liDinamisData;
+           })
+           ->toArray();
+       
+       return $arr_data;   
+   }
+
 
     public static function selectData($perPage = null, $search = '')
     {

@@ -26,7 +26,66 @@ class PenyelesaianSengketaModel extends Model
         parent::__construct($attributes);
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
-
+    // select api
+    public static function getDataPenyelesaianSengketa()
+    {
+        $arr_data = self::query()
+            ->from('m_penyelesaian_sengketa')
+            ->select([
+                'penyelesaian_sengketa_id',
+                'ps_kode',
+                'ps_nama',
+                'ps_deskripsi',
+                'created_at'
+            ])
+            ->where('isDeleted', 0)
+            ->get()
+            ->map(function($penyelesaianSengketa){
+                // Store the original Penyelesaian Sengketa record data
+                $penyelesaianSengketaData = [
+                    'penyelesaian_sengketa_id' => $penyelesaianSengketa->penyelesaian_sengketa_id,
+                    'ps_kode' => $penyelesaianSengketa->ps_kode,
+                    'ps_nama' => $penyelesaianSengketa->ps_nama,
+                    'ps_deskripsi' => $penyelesaianSengketa->ps_deskripsi,
+                    'tanggal_dibuat' => $penyelesaianSengketa->created_at
+                ];
+                
+                // Get upload details for this Penyelesaian Sengketa
+                $uploadDetails = DB::table('t_upload_ps') // Changed from t_ps_upload to match your model
+                    ->select([
+                        'upload_ps_id', // Changed from ps_upload_id to match your model
+                        'fk_m_penyelesaian_sengketa',
+                        'kategori_upload_ps',
+                        'upload_ps'
+                    ])
+                    ->where('fk_m_penyelesaian_sengketa', $penyelesaianSengketa->penyelesaian_sengketa_id)
+                    ->where('isDeleted', 0)
+                    ->get()
+                    ->map(function($upload){
+                        $result = [
+                            'upload_ps_id' => $upload->upload_ps_id, // Changed from ps_upload_id
+                            'kategori_upload_ps' => $upload->kategori_upload_ps,
+                        ];
+                        
+                        if ($upload->kategori_upload_ps == 'file') {
+                            $result['dokumen'] = asset('storage/' . $upload->upload_ps);
+                        } else if ($upload->kategori_upload_ps == 'link') {
+                            $result['link'] = $upload->upload_ps;
+                        }
+                        
+                        return $result;
+                    });
+                
+                // Add the upload details to the penyelesaian sengketa data
+                $penyelesaianSengketaData['uploads'] = $uploadDetails;
+                
+                return $penyelesaianSengketaData;
+            })
+            ->toArray();
+        
+        return $arr_data;
+    }         
+    
     public static function selectData($perPage = null, $search = '')
     {
       $query = self::query()
