@@ -10,7 +10,9 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiBeritaController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiFooterController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiRegulasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiTimelineController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiLIDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
+use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiUserController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\HakAkses\ApiSetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiIpDinamisKontenController;
@@ -22,11 +24,11 @@ use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPengaduanMasyarakatControlle
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanPerawatanController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPernyataanKeberatanController;
-use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiUserController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
 use Modules\Sisfo\App\Http\Controllers\Api\MenuManagement\ApiWebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPenyelesaianSengketaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,4 +131,6 @@ Route::prefix('public')->middleware('jwt.system')->group(function () {
     Route::get('getDataKetentuanPelaporan', [ApiKetentuanPelaporanController::class, 'getDataKetentuanPelaporan']);
     Route::get('getDataRegulasi', [ApiRegulasiController::class, 'getDataRegulasi']);
     Route::get('getDataIPDaftarInformasi', [ApiIpDinamisKontenController::class, 'getDataIPDaftarInformasi']);
+    Route::get('getDataLayananInformasiDinamis', [ApiLIDinamisController::class, 'getDataLayananInformasiDinamis']);
+    Route::get('getDataPenyelesaianSengketa', [ApiPenyelesaianSengketaController::class, 'getDataPenyelesaianSengketa']);
 });
