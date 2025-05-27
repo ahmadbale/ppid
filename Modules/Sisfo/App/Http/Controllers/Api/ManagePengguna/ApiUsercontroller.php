@@ -83,135 +83,204 @@ class ApiUserController extends BaseApiController
     }
 
 
-public function updateData(Request $request, $id)
-{
-    return $this->executeWithAuthAndValidation(
-        function ($user) use ($request, $id) {
-            try {
-                // Cek apakah user yang diedit memiliki hak akses SAR
-                $userToUpdate = UserModel::findOrFail($id);
-                $isSAR = $userToUpdate->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
-                
-                if ($isSAR && Auth::user()->level->hak_akses_kode !== 'SAR') {
-                    return $this->errorResponse(
-                        self::AUTH_FORBIDDEN,
-                        'Anda tidak memiliki izin untuk mengedit pengguna dengan level Super Administrator',
-                        403
-                    );
-                }
-                
-                // DEBUGGING: Log data request yang diterima
-               Log::info('Request update data: ', $request->all());
-                
-                // Check if we have partial update
-                $requestData = $request->all();
-                $isPartialUpdate = !isset($requestData['m_user']) || 
-                                  (isset($requestData['m_user']) && count($requestData['m_user']) < 5);
-                
-                $result = null;
-                
-                if ($isPartialUpdate) {
-                    // Get existing data
-                    $existingUser = UserModel::find($id);
-                   Log::info('Data existing user: ', $existingUser->toArray());
+    public function updateData(Request $request, $id)
+    {
+        return $this->executeWithAuthAndValidation(
+            function ($user) use ($request, $id) {
+                try {
+                    // Cek apakah user yang diedit memiliki hak akses SAR
+                    $userToUpdate = UserModel::findOrFail($id);
+                    $isSAR = $userToUpdate->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
                     
-                    // Create a new request with merged data
-                    $mergedRequest = new Request();
+                    if ($isSAR && Auth::user()->level->hak_akses_kode !== 'SAR') {
+                        return $this->errorResponse(
+                            self::AUTH_FORBIDDEN,
+                            'Anda tidak memiliki izin untuk mengedit pengguna dengan level Super Administrator',
+                            403
+                        );
+                    }
                     
-                    // Create proper m_user structure
-                    $m_user = [
-                        'nama_pengguna' => $existingUser->nama_pengguna,
-                        'email_pengguna' => $existingUser->email_pengguna,
-                        'no_hp_pengguna' => $existingUser->no_hp_pengguna,
-                        'alamat_pengguna' => $existingUser->alamat_pengguna,
-                        'pekerjaan_pengguna' => $existingUser->pekerjaan_pengguna,
-                        'nik_pengguna' => $existingUser->nik_pengguna
-                    ];
+                    // DEBUGGING: Log semua data request
+                    Log::info('All Request Data: ', [
+                        'all' => $request->all(),
+                        'input' => $request->input(),
+                        'keys' => $request->keys(),
+                        'method' => $request->method(),
+                        'content_type' => $request->header('Content-Type')
+                    ]);
                     
-                    // Merge with the data from request
-                    if (isset($requestData['m_user'])) {
-                        // PERBAIKAN: Pastikan data dari request masuk ke m_user
-                       Log::info('Merging with request data: ', $requestData['m_user']);
-                        foreach ($requestData['m_user'] as $key => $value) {
-                            $m_user[$key] = $value;
+                    // Handle form-data format yang benar
+                    $formDataKeys = $request->keys();
+                    $isFormDataFormat = false;
+                    $formDataValues = [];
+                    
+                    // Deteksi dan ekstrak form-data
+                    foreach ($formDataKeys as $key) {
+                        if (strpos($key, 'm_user[') === 0 && substr($key, -1) === ']') {
+                            $isFormDataFormat = true;
+                            $fieldName = substr($key, 7, -1);
+                            $formDataValues[$fieldName] = $request->input($key);
                         }
                     }
                     
-                    // Build the final request data
-                    $mergedData = [
-                        'm_user' => $m_user
+                    Log::info('Form data detection: ', [
+                        'is_form_data' => $isFormDataFormat,
+                        'form_values' => $formDataValues
+                    ]);
+                    
+                    // Restrukturisasi request jika form-data
+                    if ($isFormDataFormat && !empty($formDataValues)) {
+                        $restructuredData = ['m_user' => $formDataValues];
+                        
+                        // Tambahkan field tambahan
+                        if ($request->has('password')) {
+                            $restructuredData['password'] = $request->input('password');
+                        }
+                        if ($request->has('password_confirmation')) {
+                            $restructuredData['password_confirmation'] = $request->input('password_confirmation');
+                        }
+                        if ($request->has('hak_akses_id')) {
+                            $restructuredData['hak_akses_id'] = $request->input('hak_akses_id');
+                        }
+                        
+                        // Create new request
+                        $newRequest = new Request();
+                        $newRequest->replace($restructuredData);
+                        
+                        // Handle file uploads
+                        if ($request->hasFile('upload_nik_pengguna')) {
+                            $newRequest->files->set('upload_nik_pengguna', $request->file('upload_nik_pengguna'));
+                        }
+                        
+                        $request = $newRequest;
+                        Log::info('Restructured request: ', $request->all());
+                    }
+                    
+                    // Jika tidak ada data m_user sama sekali, buat dari form-data langsung
+                    $requestData = $request->all();
+                    if (!isset($requestData['m_user']) && !$isFormDataFormat) {
+                        // Mungkin data dikirim langsung tanpa struktur m_user
+                        $possibleFields = [
+                            'nama_pengguna', 'email_pengguna', 'no_hp_pengguna', 
+                            'alamat_pengguna', 'pekerjaan_pengguna', 'nik_pengguna'
+                        ];
+                        
+                        $directData = [];
+                        foreach ($possibleFields as $field) {
+                            if ($request->has($field)) {
+                                $directData[$field] = $request->input($field);
+                            }
+                        }
+                        
+                        if (!empty($directData)) {
+                            $requestData['m_user'] = $directData;
+                            $request->replace($requestData);
+                            Log::info('Direct field mapping: ', $request->all());
+                        }
+                    }
+                    
+                    // PARTIAL UPDATE IMPLEMENTATION
+                    $requestData = $request->all();
+                    
+                    // Selalu lakukan partial update untuk PUT method
+                    if (isset($requestData['m_user']) && !empty($requestData['m_user'])) {
+                        // Get existing user data
+                        $existingUser = UserModel::findOrFail($id);
+                        
+                        // Merge existing data dengan data baru
+                        $mergedUserData = [
+                            'nama_pengguna' => $existingUser->nama_pengguna,
+                            'email_pengguna' => $existingUser->email_pengguna,
+                            'no_hp_pengguna' => $existingUser->no_hp_pengguna,
+                            'alamat_pengguna' => $existingUser->alamat_pengguna,
+                            'pekerjaan_pengguna' => $existingUser->pekerjaan_pengguna,
+                            'nik_pengguna' => $existingUser->nik_pengguna
+                        ];
+                        
+                        // Override dengan data dari request
+                        foreach ($requestData['m_user'] as $key => $value) {
+                            if (!empty($value)) { // Hanya update jika value tidak kosong
+                                $mergedUserData[$key] = $value;
+                            }
+                        }
+                        
+                        // Create final request dengan data lengkap
+                        $finalRequest = new Request();
+                        $finalData = [
+                            'm_user' => $mergedUserData
+                        ];
+                        
+                        // Tambahkan field lain jika ada
+                        if (isset($requestData['password'])) {
+                            $finalData['password'] = $requestData['password'];
+                        }
+                        if (isset($requestData['password_confirmation'])) {
+                            $finalData['password_confirmation'] = $requestData['password_confirmation'];
+                        }
+                        if (isset($requestData['hak_akses_id'])) {
+                            $finalData['hak_akses_id'] = $requestData['hak_akses_id'];
+                        }
+                        
+                        $finalRequest->replace($finalData);
+                        
+                        // Handle file upload
+                        if ($request->hasFile('upload_nik_pengguna')) {
+                            $finalRequest->files->set('upload_nik_pengguna', $request->file('upload_nik_pengguna'));
+                        }
+                        
+                        Log::info('Final merged request: ', $finalRequest->all());
+                        
+                        // Update dengan data yang sudah dimergre
+                        $result = UserModel::updateData($finalRequest, $id);
+                    } else {
+                        return $this->errorResponse(
+                            'Data tidak valid',
+                            'Tidak ada data yang dikirim untuk update',
+                            422
+                        );
+                    }
+                    
+                    // Log hasil update
+                    Log::info('Update result: ', $result ?: ['null']);
+                    
+                    // Check hasil update
+                    if (!$result || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
+                        $errors = isset($result['errors']) ? $result['errors'] : null;
+                        $message = isset($result['message']) ? $result['message'] : 'Gagal memperbarui pengguna';
+                        
+                        return $this->errorResponse(
+                            $message,
+                            null,
+                            422,
+                            $errors
+                        );
+                    }
+                    
+                    // Ambil data user terbaru
+                    $updatedUser = UserModel::findOrFail($id);
+                    
+                    return [
+                        'success' => true,
+                        'message' => 'Data pengguna berhasil diperbarui.',
+                        'data' => $updatedUser
                     ];
                     
-                    // Add password if present in request
-                    if (isset($requestData['password'])) {
-                        $mergedData['password'] = $requestData['password'];
-                    }
-                    if (isset($requestData['password_confirmation'])) {
-                        $mergedData['password_confirmation'] = $requestData['password_confirmation'];
-                    }
-                    
-                    // Add uploaded file if present
-                    if ($request->hasFile('upload_nik_pengguna')) {
-                        $mergedRequest->files->set('upload_nik_pengguna', $request->file('upload_nik_pengguna'));
-                    }
-                    
-                    // Replace request with merged data
-                    $mergedRequest->replace($mergedData);
-                    
-                    // DEBUGGING: Log merged data yang akan diupdate
-                   Log::info('Merged data sebelum update: ', $mergedRequest->all());
-                    
-                    // Update with merged data
-                    $result = UserModel::updateData($mergedRequest, $id);
-                } else {
-                    // Jika semua field sudah ada, langsung update
-                    $result = UserModel::updateData($request, $id);
-                }
-                
-                // DEBUGGING: Log hasil update
-               Log::info('Hasil update: ', $result ?: ['null']);
-                
-                // PERBAIKAN: Cek jika result adalah array dan memiliki kunci 'success' yang false
-                if (!$result || isset($result['error']) || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
-                    // Jika ada errors, sertakan dalam response
-                    $errors = isset($result['errors']) ? $result['errors'] : null;
-                    $message = isset($result['message']) ? $result['message'] : 'Gagal mengupdate pengguna';
-                    
+                } catch (ValidationException $e) {
+                    Log::error('Validation Exception: ', $e->errors());
+                    return $this->jsonValidationError($e);
+                } catch (\Exception $e) {
+                    Log::error('Exception in updateData: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
                     return $this->errorResponse(
-                        $message,
-                        null,
-                        422,
-                        $errors
+                        self::SERVER_ERROR,
+                        $e->getMessage(),
+                        500
                     );
                 }
-                
-                // PERBAIKAN: Ambil data terbaru dari database untuk response
-                // Refresh dari database untuk mendapatkan data yang benar-benar terbaru
-                $updatedUser = UserModel::findOrFail($id);
-               Log::info('Data user setelah update: ', $updatedUser->toArray());
-                
-                return [
-                    'success' => true,
-                    'message' => 'Data pengguna berhasil diperbarui.',
-                    'data' => $updatedUser
-                ];
-                
-            } catch (ValidationException $e) {
-               Log::error('Validation Exception: ' . $e->getMessage());
-                return $this->jsonValidationError($e);
-            } catch (\Exception $e) {
-               Log::error('Exception: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
-                return $this->errorResponse(
-                    self::SERVER_ERROR,
-                    $e->getMessage(),
-                    500
-                );
-            }
-        },
-        'pengguna',
-        self::ACTION_UPDATE
-    );
-}
+            },
+            'pengguna',
+            self::ACTION_UPDATE
+        );
+    }
 
     public function deleteData($id)
     {

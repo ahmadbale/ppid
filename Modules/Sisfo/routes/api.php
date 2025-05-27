@@ -102,7 +102,7 @@ Route::prefix('auth')->group(function () {
         Route::prefix('user')->group(function () {
             Route::get('/', [ApiUserController::class, 'index']);
             Route::post('/create', [ApiUserController::class, 'createData']);
-            Route::put('/update/{id}', [ApiUserController::class, 'updateData']);
+            Route::post('/update/{id}', [ApiUserController::class, 'updateData']);
             Route::delete('/delete/{id}', [ApiUserController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiUserController::class, 'detailData']);
         });
