@@ -173,52 +173,57 @@ class WebMenuGlobalModel extends Model
     }
 
 
-/**
- * Mengambil data menu dengan struktur hierarkis normal (tanpa pencarian)
- */
-public static function getMenusByKategori($kategori = null)
-{
-    // Jika 'Sub Menu' dipilih, tampilkan semua submenu dan parent mereka
-    if ($kategori === 'Sub Menu') {
-        // Ambil semua submenu
-        $subMenus = self::where('isDeleted', 0)
-            ->where('wmg_kategori_menu', 'Sub Menu')
-            ->with(['WebMenuUrl.application', 'parentMenu'])
-            ->orderBy('wmg_urutan_menu')
-            ->get();
-        
-        // Kumpulkan parent_id
-        $parentIds = $subMenus->pluck('wmg_parent_id')->filter()->unique()->toArray();
-        
-        // Ambil parent menu jika ada
-        $parentMenus = self::whereIn('web_menu_global_id', $parentIds)
-            ->where('isDeleted', 0)
-            ->with(['WebMenuUrl.application'])
-            ->get();
-        
-        // Gabungkan keduanya
-        return $subMenus->concat($parentMenus)->unique('web_menu_global_id');
+    /**
+     * Mengambil data menu dengan struktur hierarkis normal (tanpa pencarian)
+     */
+    public static function getMenusByKategori($kategori = null)
+    {
+        if (empty($kategori)) {
+            // Jika tidak ada kategori (filter "Semua"), tampilkan semua menu dengan hierarki
+            return self::where('isDeleted', 0)
+                ->whereNull('wmg_parent_id') // Hanya menu utama
+                ->with([
+                    'WebMenuUrl.application',
+                    'children' => function ($query) {
+                        $query->where('isDeleted', 0)
+                            ->with('WebMenuUrl.application')
+                            ->orderBy('wmg_urutan_menu');
+                    }
+                ])
+                ->orderBy('wmg_urutan_menu')
+                ->get();
+        }
+
+        if ($kategori === 'Group Menu') {
+            // Tampilkan hanya Group Menu tanpa submenu
+            return self::where('isDeleted', 0)
+                ->where('wmg_kategori_menu', 'Group Menu')
+                ->with(['WebMenuUrl.application'])
+                ->orderBy('wmg_urutan_menu')
+                ->get();
+        }
+
+        if ($kategori === 'Sub Menu') {
+            // Tampilkan hanya Sub Menu
+            return self::where('isDeleted', 0)
+                ->where('wmg_kategori_menu', 'Sub Menu')
+                ->with(['WebMenuUrl.application', 'parentMenu'])
+                ->orderBy('wmg_urutan_menu')
+                ->get();
+        }
+
+        if ($kategori === 'Menu Biasa') {
+            // Tampilkan hanya Menu Biasa
+            return self::where('isDeleted', 0)
+                ->where('wmg_kategori_menu', 'Menu Biasa')
+                ->with(['WebMenuUrl.application'])
+                ->orderBy('wmg_urutan_menu')
+                ->get();
+        }
+
+        // Default fallback
+        return collect();
     }
-    
-    // PERBAIKAN: Jika kategori lain atau semua kategori
-    $query = self::where('isDeleted', 0)
-        ->whereNull('wmg_parent_id') // Hanya menu utama
-        ->with([
-            'WebMenuUrl.application', 
-            'children' => function ($query) {
-                $query->where('isDeleted', 0)
-                      ->with('WebMenuUrl.application')
-                      ->orderBy('wmg_urutan_menu');
-            }
-        ]);
-        
-    if ($kategori) {
-        // Filter berdasarkan kategori jika ada
-        $query->where('wmg_kategori_menu', $kategori);
-    }
-    
-    return $query->orderBy('wmg_urutan_menu')->get();
-}
 
     public static function getParentMenus($kategori = 'Group Menu')
     {
