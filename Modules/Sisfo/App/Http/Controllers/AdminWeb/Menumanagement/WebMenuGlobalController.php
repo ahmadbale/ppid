@@ -36,6 +36,9 @@ class WebMenuGlobalController extends Controller
         
         // Ambil menu URLs untuk dropdown di form create/update
         $menuUrls = WebMenuUrlModel::with('application')->where('isDeleted', 0)->get();
+        
+        // Ambil parent menus untuk dropdown sub menu
+        $parentMenus = WebMenuGlobalModel::getParentMenus();
 
         return view("sisfo::AdminWeb.WebMenuGlobal.index", [
             'breadcrumb' => $breadcrumb,
@@ -43,7 +46,8 @@ class WebMenuGlobalController extends Controller
             'activeMenu' => $activeMenu,
             'webMenuGlobals' => $webMenuGlobals,
             'search' => $search,
-            'menuUrls' => $menuUrls
+            'menuUrls' => $menuUrls,
+            'parentMenus' => $parentMenus
         ]);
     }
 
@@ -64,8 +68,12 @@ class WebMenuGlobalController extends Controller
         // Ambil daftar URL menu untuk dropdown
         $menuUrls = WebMenuUrlModel::with('application')->where('isDeleted', 0)->get();
         
+        // Ambil parent menus untuk dropdown sub menu
+        $parentMenus = WebMenuGlobalModel::getParentMenus();
+        
         return view("sisfo::AdminWeb.WebMenuGlobal.create", [
-            'menuUrls' => $menuUrls
+            'menuUrls' => $menuUrls,
+            'parentMenus' => $parentMenus
         ]);
     }
 
@@ -93,10 +101,19 @@ class WebMenuGlobalController extends Controller
         
         // Ambil daftar URL menu untuk dropdown
         $menuUrls = WebMenuUrlModel::with('application')->where('isDeleted', 0)->get();
+        
+        // Ambil parent menus untuk dropdown sub menu (exclude current menu)
+        $parentMenus = WebMenuGlobalModel::where('wmg_kategori_menu', 'Group Menu')
+            ->where('wmg_status_menu', 'aktif')
+            ->where('isDeleted', 0)
+            ->where('web_menu_global_id', '!=', $id) // Exclude current menu
+            ->orderBy('wmg_nama_default')
+            ->get();
 
         return view("sisfo::AdminWeb.WebMenuGlobal.update", [
             'webMenuGlobal' => $webMenuGlobal,
-            'menuUrls' => $menuUrls
+            'menuUrls' => $menuUrls,
+            'parentMenus' => $parentMenus
         ]);
     }
 

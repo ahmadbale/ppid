@@ -15,6 +15,25 @@
             <td>{{ $webMenuGlobal->wmg_nama_default }}</td>
           </tr>
           <tr>
+            <th>Kategori Menu</th>
+            <td>
+              @php
+                  $badgeClass = [
+                      'Menu Biasa' => 'badge-primary',
+                      'Group Menu' => 'badge-success',  
+                      'Sub Menu' => 'badge-info'
+                  ][$webMenuGlobal->wmg_kategori_menu] ?? 'badge-secondary';
+              @endphp
+              <span class="badge {{ $badgeClass }}">{{ $webMenuGlobal->wmg_kategori_menu }}</span>
+            </td>
+          </tr>
+          @if($webMenuGlobal->wmg_parent_id)
+          <tr>
+            <th>Menu Induk</th>
+            <td>{{ $webMenuGlobal->parentMenu->wmg_nama_default ?? 'N/A' }}</td>
+          </tr>
+          @endif
+          <tr>
             <th>URL Menu</th>
             <td>
               @if($webMenuGlobal->fk_web_menu_url)
@@ -24,10 +43,40 @@
                       <strong>Keterangan:</strong> {{ $webMenuGlobal->WebMenuUrl->wmu_keterangan }}
                   @endif
               @else
-                  <span class="badge badge-info">Group Menu</span>
+                  <span class="badge badge-warning">Group Menu (Tanpa URL)</span>
               @endif
             </td>
           </tr>
+          <tr>
+            <th>Urutan Menu</th>
+            <td>{{ $webMenuGlobal->wmg_urutan_menu ?? 'Auto' }}</td>
+          </tr>
+          <tr>
+            <th>Status Menu</th>
+            <td>
+              <span class="badge {{ $webMenuGlobal->wmg_status_menu === 'aktif' ? 'badge-success' : 'badge-danger' }}">
+                {{ ucfirst($webMenuGlobal->wmg_status_menu) }}
+              </span>
+            </td>
+          </tr>
+          @if($webMenuGlobal->children->count() > 0)
+          <tr>
+            <th>Sub Menu</th>
+            <td>
+              <ul class="list-unstyled mb-0">
+                @foreach($webMenuGlobal->children->sortBy('wmg_urutan_menu') as $child)
+                <li>
+                  <i class="fas fa-angle-right text-muted"></i> 
+                  {{ $child->wmg_nama_default }}
+                  <span class="badge badge-sm {{ $child->wmg_status_menu === 'aktif' ? 'badge-success' : 'badge-danger' }}">
+                    {{ $child->wmg_status_menu }}
+                  </span>
+                </li>
+                @endforeach
+              </ul>
+            </td>
+          </tr>
+          @endif
           <tr>
             <th>Tanggal Dibuat</th>
             <td>{{ date('d-m-Y H:i:s', strtotime($webMenuGlobal->created_at)) }}</td>

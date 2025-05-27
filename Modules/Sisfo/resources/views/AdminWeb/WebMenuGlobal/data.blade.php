@@ -16,9 +16,12 @@
         <thead>
             <tr>
                 <th width="5%">No</th>
-                <th width="25%">Nama Default</th>
-                <th width="40%">Menu URL</th>
-                <th width="30%">Aksi</th>
+                <th width="20%">Nama Default</th>
+                <th width="15%">Kategori</th>
+                <th width="20%">Menu URL</th>
+                <th width="15%">Parent/Urutan</th>
+                <th width="10%">Status</th>
+                <th width="15%">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -27,12 +30,35 @@
                     <td>{{ ($webMenuGlobals->currentPage() - 1) * $webMenuGlobals->perPage() + $key + 1 }}</td>
                     <td>{{ $item->wmg_nama_default }}</td>
                     <td>
+                        @php
+                            $badgeClass = [
+                                'Menu Biasa' => 'badge-primary',
+                                'Group Menu' => 'badge-success',
+                                'Sub Menu' => 'badge-info'
+                            ][$item->wmg_kategori_menu] ?? 'badge-secondary';
+                        @endphp
+                        <span class="badge {{ $badgeClass }}">{{ $item->wmg_kategori_menu }}</span>
+                    </td>
+                    <td>
                         @if($item->fk_web_menu_url)
-                            <strong>{{ $item->WebMenuUrl->application->app_nama }}</strong> | 
-                            {{ $item->WebMenuUrl->wmu_nama }}
+                            <strong>{{ $item->WebMenuUrl->application->app_nama }}</strong><br>
+                            <small>{{ $item->WebMenuUrl->wmu_nama }}</small>
                         @else
-                            <span class="badge badge-info">Group Menu</span>
+                            <span class="badge badge-warning">Group Menu</span>
                         @endif
+                    </td>
+                    <td>
+                        @if($item->wmg_parent_id)
+                            <small class="text-muted">
+                                Parent: {{ $item->parentMenu->wmg_nama_default ?? 'N/A' }}<br>
+                            </small>
+                        @endif
+                        <span class="badge badge-light">Urutan: {{ $item->wmg_urutan_menu ?? 'Auto' }}</span>
+                    </td>
+                    <td>
+                        <span class="badge {{ $item->wmg_status_menu === 'aktif' ? 'badge-success' : 'badge-danger' }}">
+                            {{ ucfirst($item->wmg_status_menu) }}
+                        </span>
                     </td>
                     <td>
                         @if(
@@ -41,12 +67,12 @@
                         )
                             <button class="btn btn-sm btn-warning"
                                 onclick="modalAction('{{ url($webMenuGlobalPath . '/editData/' . $item->web_menu_global_id) }}')">
-                                <i class="fas fa-edit"></i> Edit
+                                <i class="fas fa-edit"></i>
                             </button>
                         @endif
                         <button class="btn btn-sm btn-info"
                             onclick="modalAction('{{ url($webMenuGlobalPath . '/detailData/' . $item->web_menu_global_id) }}')">
-                            <i class="fas fa-eye"></i> Detail
+                            <i class="fas fa-eye"></i>
                         </button>
                         @if(
                             Auth::user()->level->hak_akses_kode === 'SAR' ||
@@ -54,14 +80,14 @@
                         )
                             <button class="btn btn-sm btn-danger"
                                 onclick="modalAction('{{ url($webMenuGlobalPath . '/deleteData/' . $item->web_menu_global_id) }}')">
-                                <i class="fas fa-trash"></i> Hapus
+                                <i class="fas fa-trash"></i>
                             </button>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="text-center">
+                    <td colspan="7" class="text-center">
                         @if(!empty($search))
                             Tidak ada data yang cocok dengan pencarian "{{ $search }}"
                         @else
