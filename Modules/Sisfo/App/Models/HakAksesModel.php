@@ -90,6 +90,7 @@ class HakAksesModel extends Model
         }
     }
 
+  
     public static function deleteData($id)
     {
         try {
@@ -107,7 +108,9 @@ class HakAksesModel extends Model
 
             DB::commit();
 
+            
             return self::responFormatSukses($level, 'Level berhasil dihapus');
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return self::responFormatError($e, 'Gagal menghapus level');

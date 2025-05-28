@@ -16,10 +16,11 @@ class ApiHakAksesController extends BaseApiController
                 $perPage = $request->query('per_page', 10);
                 return HakAksesModel::selectData($perPage, $search);
             },
-            'level',
+            'hak akses',
             self::ACTION_GET
         );
     }
+
     public function createData(Request $request)
     {
         return $this->executeWithAuthAndValidation(
@@ -28,12 +29,12 @@ class ApiHakAksesController extends BaseApiController
                 $hakAksesKode = $request->input('hak_akses_kode') ?? $request->json('hak_akses_kode');
                 $hakAksesNama = $request->input('hak_akses_nama') ?? $request->json('hak_akses_nama');
     
-                // Validasi data dasar
+                // Validasi data dasar menggunakan konstanta dari BaseApiController
                 if (empty($hakAksesKode) || empty($hakAksesNama)) {
                     return $this->errorResponse(
                         self::AUTH_INVALID_INPUT,
                         'Data hak_akses_kode dan hak_akses_nama harus diisi',
-                        422
+                        self::HTTP_UNPROCESSABLE_ENTITY
                     );
                 }
     
@@ -50,9 +51,23 @@ class ApiHakAksesController extends BaseApiController
                 
                 // Buat data baru
                 $result = HakAksesModel::createData($request);
-                return $result['data'];
+                
+                // Cek hasil dengan pola yang konsisten
+                if (!$result || isset($result['error']) || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
+                    $errors = isset($result['errors']) ? $result['errors'] : null;
+                    $message = isset($result['message']) ? $result['message'] : 'Gagal membuat hak akses';
+                    
+                    return $this->errorResponse(
+                        $message,
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY,
+                        $errors
+                    );
+                }
+                
+                return $result['data'] ?? $result;
             },
-            'hak akses', // Nama resource yang lebih spesifik
+            'hak akses',
             self::ACTION_CREATE
         );
     }
@@ -71,11 +86,11 @@ class ApiHakAksesController extends BaseApiController
                         ]
                     ]);
                 } elseif (!$request->has('m_hak_akses')) {
-                    // Format request tidak valid
+                    // Format request tidak valid - gunakan konstanta dari BaseApiController
                     return $this->errorResponse(
-                        self::INVALID_REQUEST_FORMAT . '. Harap sertakan hak_akses_kode dan hak_akses_nama',
-                        null,
-                        422
+                        self::INVALID_REQUEST_FORMAT,
+                        'Harap sertakan hak_akses_kode dan hak_akses_nama',
+                        self::HTTP_UNPROCESSABLE_ENTITY
                     );
                 }
 
@@ -85,23 +100,46 @@ class ApiHakAksesController extends BaseApiController
                 // Proses update data
                 $result = HakAksesModel::updateData($request, $id);
 
+                // Cek hasil update dengan pola yang konsisten
+                if (!$result || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
+                    $errors = isset($result['errors']) ? $result['errors'] : null;
+                    $message = isset($result['message']) ? $result['message'] : 'Gagal memperbarui hak akses';
+                    
+                    return $this->errorResponse(
+                        $message,
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY,
+                        $errors
+                    );
+                }
+
                 // Return data hasil update atau null jika tidak ada
-                return $result['data'] ?? null;
+                return $result['data'] ?? $result;
             },
             'hak akses',
             self::ACTION_UPDATE
         );
     }
 
-
+    
     public function deleteData($id)
     {
         return $this->executeWithAuthentication(
             function () use ($id) {
                 $result = HakAksesModel::deleteData($id);
-                return $result['data'];
+                
+                // Cek hasil dengan pola yang konsisten
+                if (is_array($result) && isset($result['success']) && $result['success'] === false) {
+                    return $this->errorResponse(
+                        $result['message'] ?? 'Gagal menghapus hak akses',
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY
+                    );
+                }
+                
+                return $result['data'] ?? $result;
             },
-            'level',
+            'hak akses',
             self::ACTION_DELETE
         );
     }
@@ -112,7 +150,7 @@ class ApiHakAksesController extends BaseApiController
             function () use ($id) {
                 return HakAksesModel::detailData($id);
             },
-            'level',
+            'hak akses',
             self::ACTION_GET
         );
     }

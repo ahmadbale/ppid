@@ -64,7 +64,7 @@ Route::prefix('auth')->group(function () {
         Route::prefix('hak-akses')->group(function () {
             Route::get('/', [ApiHakAksesController::class, 'index']);
             Route::post('/create', [ApiHakAksesController::class, 'createData']);
-            Route::put('/update/{id}', [ApiHakAksesController::class, 'updateData']);
+            Route::post('/update/{id}', [ApiHakAksesController::class, 'updateData']);
             Route::delete('/delete/{id}', [ApiHakAksesController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiHakAksesController::class, 'detailData']);
         });

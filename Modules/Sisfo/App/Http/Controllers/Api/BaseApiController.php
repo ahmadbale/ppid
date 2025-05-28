@@ -271,86 +271,91 @@ class BaseApiController extends Controller
         }
     }
     
-    /**
-     * Menjalankan aksi API yang memerlukan autentikasi user (jwt.user)
-     * 
-     * @param callable $action Fungsi yang akan dieksekusi, menerima user terautentikasi
-     * @param string $resourceName Nama resource (contoh: 'menu', 'user')
-     * @param string $actionType Jenis aksi (get, create, update, delete, dll)
-     * @return JsonResponse
-     */
-    protected function executeWithAuthentication(callable $action, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
-    {
-        try {
-            // Periksa keberadaan token
-            if (!$token = JWTAuth::getToken()) {
-                return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
-            }
-    
-            // Autentikasi token dan dapatkan user
-            $user = JWTAuth::parseToken()->authenticate();
-            if (!$user) {
-                return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
-            }
-            
-            // Eksekusi aksi dengan user terautentikasi
-            $result = $action($user);
-    
-            // Jika hasil adalah instance JsonResponse, langsung kembalikan
-            if ($result instanceof JsonResponse) {
-                return $result;
-            }
-    
-            // Definisi pesan error untuk hasil null
-            $notFoundMessages = [
-                self::ACTION_GET => '%s tidak ditemukan.',
-                self::ACTION_UPDATE => 'Data %s yang akan diupdate tidak ditemukan.',
-                self::ACTION_DELETE => 'Data %s yang akan dihapus tidak ditemukan.',
-                self::ACTION_CREATE => 'Gagal membuat data %s.',
-            ];
-    
-            // Cek hasil null dengan pesan sesuai tipe aksi
-            if ($result === null) {
-                $errorMessage = isset($notFoundMessages[$actionType]) 
-                    ? sprintf($notFoundMessages[$actionType], $resourceName)
-                    : sprintf('%s tidak ditemukan.', $resourceName);
-                
-                return $this->errorResponse($errorMessage, null, self::HTTP_NOT_FOUND);
-            }
-    
-            // Pastikan action type valid, jika tidak gunakan pesan default
-            $message = self::RESOURCE_NOT_FOUND;
-            if (isset($this->messageTemplates[$actionType])) {
-                $message = sprintf($this->messageTemplates[$actionType]['success'], $resourceName);
-            }
-            
-            // Tentukan status code berdasarkan action type
-            $statusCode = match($actionType) {
-                self::ACTION_CREATE => self::HTTP_CREATED,
-                self::ACTION_DELETE => self::HTTP_NO_CONTENT,
-                default => self::HTTP_OK
-            };
-            
-            return $this->successResponse($result, $message, $statusCode);
-            
-        } catch (TokenExpiredException $e) {
-            $this->logError('Token expired', $e);
-            return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, self::HTTP_UNAUTHORIZED);
-        } catch (TokenInvalidException $e) {
-            $this->logError('Token invalid', $e);
-            return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, self::HTTP_UNAUTHORIZED);
-        } catch (JWTException $e) {
-            $this->logError('JWT Error: ' . $resourceName, $e);
-            return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), self::HTTP_UNAUTHORIZED);
-        } catch (\Exception $e) {
-            $this->logError('Authentication action error: ' . $resourceName, $e);
-            $message = isset($this->messageTemplates[$actionType]) 
-                ? sprintf($this->messageTemplates[$actionType]['error'], $resourceName)
-                : sprintf('Terjadi kesalahan saat memproses %s.', $resourceName);
-            return $this->errorResponse($message, $e->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
 
+/**
+ * Menjalankan aksi API yang memerlukan autentikasi user (jwt.user)
+ * 
+ * @param callable $action Fungsi yang akan dieksekusi, menerima user terautentikasi
+ * @param string $resourceName Nama resource (contoh: 'menu', 'user')
+ * @param string $actionType Jenis aksi (get, create, update, delete, dll)
+ * @return JsonResponse
+ */
+protected function executeWithAuthentication(callable $action, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
+{
+    try {
+        // Periksa keberadaan token
+        if (!$token = JWTAuth::getToken()) {
+            return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
+        }
+
+        // Autentikasi token dan dapatkan user
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
+        }
+        
+        // Eksekusi aksi dengan user terautentikasi
+        $result = $action($user);
+
+        // Jika hasil adalah instance JsonResponse, langsung kembalikan
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
+        // Definisi pesan error untuk hasil null
+        $notFoundMessages = [
+            self::ACTION_GET => '%s tidak ditemukan.',
+            self::ACTION_UPDATE => 'Data %s yang akan diupdate tidak ditemukan.',
+            self::ACTION_DELETE => 'Data %s yang akan dihapus tidak ditemukan.',
+            self::ACTION_CREATE => 'Gagal membuat data %s.',
+        ];
+
+        // Cek hasil null dengan pesan sesuai tipe aksi
+        if ($result === null) {
+            $errorMessage = isset($notFoundMessages[$actionType]) 
+                ? sprintf($notFoundMessages[$actionType], $resourceName)
+                : sprintf('%s tidak ditemukan.', $resourceName);
+            
+            return $this->errorResponse($errorMessage, null, self::HTTP_NOT_FOUND);
+        }
+
+        // Pastikan action type valid, jika tidak gunakan pesan default
+        $message = self::RESOURCE_NOT_FOUND;
+        if (isset($this->messageTemplates[$actionType])) {
+            $message = sprintf($this->messageTemplates[$actionType]['success'], $resourceName);
+        }
+        
+    
+        $statusCode = match($actionType) {
+            self::ACTION_CREATE => self::HTTP_CREATED,
+            self::ACTION_DELETE => self::HTTP_OK, 
+            default => self::HTTP_OK
+        };
+        
+        // PERBAIKAN: Untuk DELETE, jangan kirim data dalam response
+        if ($actionType === self::ACTION_DELETE) {
+            return $this->successResponse(null, $message, $statusCode);
+        }
+        
+        return $this->successResponse($result, $message, $statusCode);
+        
+    } catch (TokenExpiredException $e) {
+        $this->logError('Token expired', $e);
+        return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, self::HTTP_UNAUTHORIZED);
+    } catch (TokenInvalidException $e) {
+        $this->logError('Token invalid', $e);
+        return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, self::HTTP_UNAUTHORIZED);
+    } catch (JWTException $e) {
+        $this->logError('JWT Error: ' . $resourceName, $e);
+        return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), self::HTTP_UNAUTHORIZED);
+    } catch (\Exception $e) {
+        $this->logError('Authentication action error: ' . $resourceName, $e);
+        $message = isset($this->messageTemplates[$actionType]) 
+            ? sprintf($this->messageTemplates[$actionType]['error'], $resourceName)
+            : sprintf('Terjadi kesalahan saat memproses %s.', $resourceName);
+        return $this->errorResponse($message, $e->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
+    }
+}
     /**
      * Menjalankan aksi API yang memerlukan validasi dan autentikasi sekaligus
      * 
