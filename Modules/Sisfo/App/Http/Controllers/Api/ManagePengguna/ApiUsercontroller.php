@@ -3,7 +3,6 @@
 namespace Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Models\UserModel;
 use Modules\Sisfo\App\Models\HakAksesModel;
@@ -125,7 +124,6 @@ class ApiUserController extends BaseApiController
                     }
                     
                     $request = $newRequest;
-                    Log::info('Restructured request: ', $request->all());
                 }
                 
                 // Jika tidak ada data m_user sama sekali, buat dari form-data langsung
