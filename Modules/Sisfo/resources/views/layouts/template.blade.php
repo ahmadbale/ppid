@@ -42,6 +42,25 @@
     
     <!-- Flatpicker -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        .info-message {
+            position: relative;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid #bee5eb;
+            border-radius: 0.25rem;
+            color: #fffff;
+        }
+
+        .info-message .fa-info-circle {
+            margin-right: 8px;
+        }
+
+        .info-content {
+            line-height: 1.5;
+        }
+    </style>
     
     @stack('css') <!-- Digunakan untuk memanggil custom css dari perintah push('css') pada masing-masing view -->
 </head>
@@ -184,7 +203,6 @@
             }
         });
     </script>
-
     @stack('js')
 </body>
 </html>
