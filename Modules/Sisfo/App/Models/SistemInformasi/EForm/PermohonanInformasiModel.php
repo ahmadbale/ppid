@@ -300,7 +300,7 @@ class PermohonanInformasiModel extends Model
 
         // Validasi status
         if ($this->pi_status !== 'Masuk') {
-            throw new \Exception('Permohonan sudah diverifikasi sebelumnya');
+            throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
         }
 
         // Update status menjadi Ditolak
@@ -317,7 +317,7 @@ class PermohonanInformasiModel extends Model
     {
         // Validasi status permohonan
         if (!in_array($this->pi_status, ['Verifikasi', 'Ditolak'])) {
-            throw new \Exception('Anda harus menyetujui/menolak permohonan ini terlebih dahulu');
+            throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
         // Tandai sebagai dibaca

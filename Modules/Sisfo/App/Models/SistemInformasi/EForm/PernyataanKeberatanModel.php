@@ -54,7 +54,7 @@ class PernyataanKeberatanModel extends Model
 
     public static function selectData()
     {
-      //
+        //
     }
 
     public static function createData($request)
@@ -190,5 +190,92 @@ class PernyataanKeberatanModel extends Model
     {
         // Menggunakan fungsi dari BaseModelFunction
         return self::getKetentuanPelaporanByKategoriForm('Pernyataan Keberatan');
+    }
+
+    public static function getDaftarVerifikasi()
+    {
+        // Mengambil daftar pernyaataan Keberatan untuk verifikasi
+        return self::with(['PkDiriSendiri', 'PkOrangLain'])
+            ->where('isDeleted', 0)
+            ->where('pk_verif_isDeleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiPermohonan()
+    {
+        // Validasi status
+        if ($this->pk_status !== 'Masuk') {
+            throw new \Exception('Pengajuan Keberatan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Verifikasi
+        $this->pk_status = 'Verifikasi';
+        $this->pk_review = session('alias') ?? 'System';
+        $this->pk_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }    
+
+    public function validasiDanTolakPermohonan($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pk_status !== 'Masuk') {
+            throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Ditolak
+        $this->pk_status = 'Ditolak';
+        $this->pk_alasan_penolakan = $alasanPenolakan;
+        $this->pk_review = session('alias') ?? 'System';
+        $this->pk_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibaca()
+    {
+        // Validasi status permohonan
+        if (!in_array($this->pk_status, ['Verifikasi', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
+        }
+
+        // Tandai sebagai dibaca
+        $this->pk_sudah_dibaca = session('alias') ?? 'System';
+        $this->pk_tanggal_dibaca = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanHapusPermohonan()
+    {
+        // Validasi status dibaca
+        if (empty($this->pk_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai pengajuan ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->pk_verif_isDeleted = 1;
+        $this->pk_tanggal_dijawab = now();
+        $this->save();
+
+        return $this;
     }
 }

@@ -30,12 +30,15 @@ class WebMenuGlobalController extends Controller
         ];
 
         $activeMenu = 'menumanagement';
-        
+
         // Gunakan pagination dan pencarian
         $webMenuGlobals = WebMenuGlobalModel::selectData(10, $search);
-        
+
         // Ambil menu URLs untuk dropdown di form create/update
         $menuUrls = WebMenuUrlModel::with('application')->where('isDeleted', 0)->get();
+
+        // Ambil parent menus untuk dropdown sub menu
+        $parentMenus = WebMenuGlobalModel::getParentMenus();
 
         return view("sisfo::AdminWeb.WebMenuGlobal.index", [
             'breadcrumb' => $breadcrumb,
@@ -43,19 +46,28 @@ class WebMenuGlobalController extends Controller
             'activeMenu' => $activeMenu,
             'webMenuGlobals' => $webMenuGlobals,
             'search' => $search,
-            'menuUrls' => $menuUrls
+            'menuUrls' => $menuUrls,
+            'parentMenus' => $parentMenus
         ]);
     }
 
     public function getData(Request $request)
     {
         $search = $request->query('search', '');
-        $webMenuGlobals = WebMenuGlobalModel::selectData(10, $search);
-        
+        $kategori = $request->query('kategori', '');
+
+        if ($kategori) {
+            // Filter berdasarkan kategori
+            $webMenuGlobals = WebMenuGlobalModel::getMenusByKategori($kategori);
+        } else {
+            // Gunakan filter cerdas dengan pencarian
+            $webMenuGlobals = WebMenuGlobalModel::selectData(null, $search);
+        }
+
         if ($request->ajax()) {
             return view('sisfo::AdminWeb.WebMenuGlobal.data', compact('webMenuGlobals', 'search'))->render();
         }
-        
+
         return redirect()->back();
     }
 
@@ -63,9 +75,13 @@ class WebMenuGlobalController extends Controller
     {
         // Ambil daftar URL menu untuk dropdown
         $menuUrls = WebMenuUrlModel::with('application')->where('isDeleted', 0)->get();
-        
+
+        // Ambil parent menus untuk dropdown sub menu
+        $parentMenus = WebMenuGlobalModel::getParentMenus();
+
         return view("sisfo::AdminWeb.WebMenuGlobal.create", [
-            'menuUrls' => $menuUrls
+            'menuUrls' => $menuUrls,
+            'parentMenus' => $parentMenus
         ]);
     }
 
@@ -76,7 +92,7 @@ class WebMenuGlobalController extends Controller
             $result = WebMenuGlobalModel::createData($request);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Menu global berhasil dibuat'
             );
         } catch (ValidationException $e) {
@@ -90,13 +106,22 @@ class WebMenuGlobalController extends Controller
     {
         // Ambil data menu global
         $webMenuGlobal = WebMenuGlobalModel::detailData($id);
-        
+
         // Ambil daftar URL menu untuk dropdown
         $menuUrls = WebMenuUrlModel::with('application')->where('isDeleted', 0)->get();
 
+        // Ambil parent menus untuk dropdown sub menu (exclude current menu)
+        $parentMenus = WebMenuGlobalModel::where('wmg_kategori_menu', 'Group Menu')
+            ->where('wmg_status_menu', 'aktif')
+            ->where('isDeleted', 0)
+            ->where('web_menu_global_id', '!=', $id) // Exclude current menu
+            ->orderBy('wmg_nama_default')
+            ->get();
+
         return view("sisfo::AdminWeb.WebMenuGlobal.update", [
             'webMenuGlobal' => $webMenuGlobal,
-            'menuUrls' => $menuUrls
+            'menuUrls' => $menuUrls,
+            'parentMenus' => $parentMenus
         ]);
     }
 
@@ -107,7 +132,7 @@ class WebMenuGlobalController extends Controller
             $result = WebMenuGlobalModel::updateData($request, $id);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Menu global berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -120,7 +145,7 @@ class WebMenuGlobalController extends Controller
     public function detailData($id)
     {
         $webMenuGlobal = WebMenuGlobalModel::detailData($id);
-        
+
         return view("sisfo::AdminWeb.WebMenuGlobal.detail", [
             'webMenuGlobal' => $webMenuGlobal,
             'title' => 'Detail Menu Global'
@@ -131,17 +156,17 @@ class WebMenuGlobalController extends Controller
     {
         if ($request->isMethod('get')) {
             $webMenuGlobal = WebMenuGlobalModel::detailData($id);
-            
+
             return view("sisfo::AdminWeb.WebMenuGlobal.delete", [
                 'webMenuGlobal' => $webMenuGlobal
             ]);
         }
-        
+
         try {
             $result = WebMenuGlobalModel::deleteData($id);
-            
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'Menu global berhasil dihapus'
             );
         } catch (\Exception $e) {

@@ -283,7 +283,7 @@
             if (status !== 'Verifikasi' && status !== 'Ditolak') {
                 Swal.fire({
                     title: 'Perhatian!',
-                    text: 'Anda harus menyetujui/menolak permohonan ini terlebih dahulu',
+                    text: 'Anda harus menyetujui/menolak pengajuan ini terlebih dahulu',
                     icon: 'warning'
                 });
                 return;

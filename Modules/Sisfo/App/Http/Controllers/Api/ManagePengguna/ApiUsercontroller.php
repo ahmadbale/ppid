@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Modules\Sisfo\App\Models\UserModel;
 use Modules\Sisfo\App\Models\HakAksesModel;
-use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 
 class ApiUserController extends BaseApiController
@@ -35,59 +34,46 @@ class ApiUserController extends BaseApiController
     {
         return $this->executeWithAuthAndValidation(
             function ($user) use ($request) {
-                try {
-                    // Validasi apakah pengguna mencoba menambahkan ke level SAR
-                    if ($request->has('hak_akses_id')) {
-                        $level = HakAksesModel::findOrFail($request->hak_akses_id);
-                        if (Auth::user()->level->hak_akses_kode !== 'SAR' && $level->hak_akses_kode === 'SAR') {
-                            return $this->errorResponse(
-                                self::AUTH_FORBIDDEN,
-                                'Anda tidak memiliki izin untuk menambahkan pengguna ke level Super Administrator',
-                                403
-                            );
-                        }
-                    }
-                    
-                    // Buat data baru
-                    $result = UserModel::createData($request);
-                    
-                    // PERBAIKAN: Cek jika result adalah array dan memiliki kunci 'success' yang false
-                    if (!$result || isset($result['error']) || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
-                        // Jika ada errors, sertakan dalam response
-                        $errors = isset($result['errors']) ? $result['errors'] : null;
-                        $message = isset($result['message']) ? $result['message'] : 'Gagal membuat pengguna';
-                        
+                // Validasi apakah pengguna mencoba menambahkan ke level SAR
+                if ($request->has('hak_akses_id')) {
+                    $level = HakAksesModel::findOrFail($request->hak_akses_id);
+                    if (Auth::user()->level->hak_akses_kode !== 'SAR' && $level->hak_akses_kode === 'SAR') {
                         return $this->errorResponse(
-                            $message,
-                            null,
-                            422,
-                            $errors
+                            self::AUTH_FORBIDDEN,
+                            'Anda tidak memiliki izin untuk menambahkan pengguna ke level Super Administrator',
+                            self::HTTP_FORBIDDEN
                         );
                     }
+                }
+                
+                // Buat data baru
+                $result = UserModel::createData($request);
+                
+                // Cek jika result adalah array dan memiliki kunci 'success' yang false
+                if (!$result || isset($result['error']) || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
+                    // Jika ada errors, sertakan dalam response
+                    $errors = isset($result['errors']) ? $result['errors'] : null;
+                    $message = isset($result['message']) ? $result['message'] : 'Gagal membuat pengguna';
                     
-                    return $result['data'] ?? $result;
-                    
-                } catch (ValidationException $e) {
-                    return $this->jsonValidationError($e);
-                } catch (\Exception $e) {
                     return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        $e->getMessage(),
-                        500
+                        $message,
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY,
+                        $errors
                     );
                 }
+                
+                return $result['data'] ?? $result;
             },
             'pengguna',
             self::ACTION_CREATE
         );
     }
 
-
-public function updateData(Request $request, $id)
-{
-    return $this->executeWithAuthAndValidation(
-        function ($user) use ($request, $id) {
-            try {
+    public function updateData(Request $request, $id)
+    {
+        return $this->executeWithAuthAndValidation(
+            function ($user) use ($request, $id) {
                 // Cek apakah user yang diedit memiliki hak akses SAR
                 $userToUpdate = UserModel::findOrFail($id);
                 $isSAR = $userToUpdate->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
@@ -96,30 +82,84 @@ public function updateData(Request $request, $id)
                     return $this->errorResponse(
                         self::AUTH_FORBIDDEN,
                         'Anda tidak memiliki izin untuk mengedit pengguna dengan level Super Administrator',
-                        403
+                        self::HTTP_FORBIDDEN
                     );
                 }
                 
-                // DEBUGGING: Log data request yang diterima
-               Log::info('Request update data: ', $request->all());
+                // Handle form-data format yang benar
+                $formDataKeys = $request->keys();
+                $isFormDataFormat = false;
+                $formDataValues = [];
                 
-                // Check if we have partial update
+                // Deteksi dan ekstrak form-data
+                foreach ($formDataKeys as $key) {
+                    if (strpos($key, 'm_user[') === 0 && substr($key, -1) === ']') {
+                        $isFormDataFormat = true;
+                        $fieldName = substr($key, 7, -1);
+                        $formDataValues[$fieldName] = $request->input($key);
+                    }
+                }
+                
+                // Restrukturisasi request jika form-data
+                if ($isFormDataFormat && !empty($formDataValues)) {
+                    $restructuredData = ['m_user' => $formDataValues];
+                    
+                    // Tambahkan field tambahan
+                    if ($request->has('password')) {
+                        $restructuredData['password'] = $request->input('password');
+                    }
+                    if ($request->has('password_confirmation')) {
+                        $restructuredData['password_confirmation'] = $request->input('password_confirmation');
+                    }
+                    if ($request->has('hak_akses_id')) {
+                        $restructuredData['hak_akses_id'] = $request->input('hak_akses_id');
+                    }
+                    
+                    // Create new request
+                    $newRequest = new Request();
+                    $newRequest->replace($restructuredData);
+                    
+                    // Handle file uploads
+                    if ($request->hasFile('upload_nik_pengguna')) {
+                        $newRequest->files->set('upload_nik_pengguna', $request->file('upload_nik_pengguna'));
+                    }
+                    
+                    $request = $newRequest;
+                    Log::info('Restructured request: ', $request->all());
+                }
+                
+                // Jika tidak ada data m_user sama sekali, buat dari form-data langsung
                 $requestData = $request->all();
-                $isPartialUpdate = !isset($requestData['m_user']) || 
-                                  (isset($requestData['m_user']) && count($requestData['m_user']) < 5);
-                
-                $result = null;
-                
-                if ($isPartialUpdate) {
-                    // Get existing data
-                    $existingUser = UserModel::find($id);
-                   Log::info('Data existing user: ', $existingUser->toArray());
+                if (!isset($requestData['m_user']) && !$isFormDataFormat) {
+                    // Mungkin data dikirim langsung tanpa struktur m_user
+                    $possibleFields = [
+                        'nama_pengguna', 'email_pengguna', 'no_hp_pengguna', 
+                        'alamat_pengguna', 'pekerjaan_pengguna', 'nik_pengguna'
+                    ];
                     
-                    // Create a new request with merged data
-                    $mergedRequest = new Request();
+                    $directData = [];
+                    foreach ($possibleFields as $field) {
+                        if ($request->has($field)) {
+                            $directData[$field] = $request->input($field);
+                        }
+                    }
                     
-                    // Create proper m_user structure
-                    $m_user = [
+                    if (!empty($directData)) {
+                        $requestData['m_user'] = $directData;
+                        $request->replace($requestData);
+                    }
+                }
+                
+                // PARTIAL UPDATE IMPLEMENTATION
+                $requestData = $request->all();
+                
+                // Selalu lakukan partial update untuk PUT method
+                if (isset($requestData['m_user']) && !empty($requestData['m_user'])) {
+                    // Get existing user data
+                    $existingUser = UserModel::findOrFail($id);
+                    
+                    // Merge existing data dengan data baru
+                    $mergedUserData = [
                         'nama_pengguna' => $existingUser->nama_pengguna,
                         'email_pengguna' => $existingUser->email_pengguna,
                         'no_hp_pengguna' => $existingUser->no_hp_pengguna,
@@ -128,128 +168,102 @@ public function updateData(Request $request, $id)
                         'nik_pengguna' => $existingUser->nik_pengguna
                     ];
                     
-                    // Merge with the data from request
-                    if (isset($requestData['m_user'])) {
-                        // PERBAIKAN: Pastikan data dari request masuk ke m_user
-                       Log::info('Merging with request data: ', $requestData['m_user']);
-                        foreach ($requestData['m_user'] as $key => $value) {
-                            $m_user[$key] = $value;
+                    // Override dengan data dari request
+                    foreach ($requestData['m_user'] as $key => $value) {
+                        if (!empty($value)) { // Hanya update jika value tidak kosong
+                            $mergedUserData[$key] = $value;
                         }
                     }
                     
-                    // Build the final request data
-                    $mergedData = [
-                        'm_user' => $m_user
+                    // Create final request dengan data lengkap
+                    $finalRequest = new Request();
+                    $finalData = [
+                        'm_user' => $mergedUserData
                     ];
                     
-                    // Add password if present in request
+                    // Tambahkan field lain jika ada
                     if (isset($requestData['password'])) {
-                        $mergedData['password'] = $requestData['password'];
+                        $finalData['password'] = $requestData['password'];
                     }
                     if (isset($requestData['password_confirmation'])) {
-                        $mergedData['password_confirmation'] = $requestData['password_confirmation'];
+                        $finalData['password_confirmation'] = $requestData['password_confirmation'];
+                    }
+                    if (isset($requestData['hak_akses_id'])) {
+                        $finalData['hak_akses_id'] = $requestData['hak_akses_id'];
                     }
                     
-                    // Add uploaded file if present
+                    $finalRequest->replace($finalData);
+                    
+                    // Handle file upload
                     if ($request->hasFile('upload_nik_pengguna')) {
-                        $mergedRequest->files->set('upload_nik_pengguna', $request->file('upload_nik_pengguna'));
+                        $finalRequest->files->set('upload_nik_pengguna', $request->file('upload_nik_pengguna'));
                     }
                     
-                    // Replace request with merged data
-                    $mergedRequest->replace($mergedData);
-                    
-                    // DEBUGGING: Log merged data yang akan diupdate
-                   Log::info('Merged data sebelum update: ', $mergedRequest->all());
-                    
-                    // Update with merged data
-                    $result = UserModel::updateData($mergedRequest, $id);
+                    // Update dengan data yang sudah dimergre
+                    $result = UserModel::updateData($finalRequest, $id);
                 } else {
-                    // Jika semua field sudah ada, langsung update
-                    $result = UserModel::updateData($request, $id);
+                    return $this->errorResponse(
+                        self::INVALID_REQUEST_FORMAT,
+                        'Tidak ada data yang dikirim untuk update',
+                        self::HTTP_UNPROCESSABLE_ENTITY
+                    );
                 }
                 
-                // DEBUGGING: Log hasil update
-               Log::info('Hasil update: ', $result ?: ['null']);
-                
-                // PERBAIKAN: Cek jika result adalah array dan memiliki kunci 'success' yang false
-                if (!$result || isset($result['error']) || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
-                    // Jika ada errors, sertakan dalam response
+                // Check hasil update
+                if (!$result || (is_array($result) && isset($result['success']) && $result['success'] === false)) {
                     $errors = isset($result['errors']) ? $result['errors'] : null;
-                    $message = isset($result['message']) ? $result['message'] : 'Gagal mengupdate pengguna';
+                    $message = isset($result['message']) ? $result['message'] : 'Gagal memperbarui pengguna';
                     
                     return $this->errorResponse(
                         $message,
                         null,
-                        422,
+                        self::HTTP_UNPROCESSABLE_ENTITY,
                         $errors
                     );
                 }
                 
-                // PERBAIKAN: Ambil data terbaru dari database untuk response
-                // Refresh dari database untuk mendapatkan data yang benar-benar terbaru
+                // Ambil data user terbaru
                 $updatedUser = UserModel::findOrFail($id);
-               Log::info('Data user setelah update: ', $updatedUser->toArray());
                 
                 return [
                     'success' => true,
                     'message' => 'Data pengguna berhasil diperbarui.',
                     'data' => $updatedUser
                 ];
-                
-            } catch (ValidationException $e) {
-               Log::error('Validation Exception: ' . $e->getMessage());
-                return $this->jsonValidationError($e);
-            } catch (\Exception $e) {
-               Log::error('Exception: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
-                return $this->errorResponse(
-                    self::SERVER_ERROR,
-                    $e->getMessage(),
-                    500
-                );
-            }
-        },
-        'pengguna',
-        self::ACTION_UPDATE
-    );
-}
+            },
+            'pengguna',
+            self::ACTION_UPDATE
+        );
+    }
 
     public function deleteData($id)
     {
         return $this->executeWithAuthentication(
             function () use ($id) {
-                try {
-                    // Cek apakah user yang dihapus memiliki hak akses SAR
-                    $userToDelete = UserModel::findOrFail($id);
-                    $isSAR = $userToDelete->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
-                    
-                    if ($isSAR && Auth::user()->level->hak_akses_kode !== 'SAR') {
-                        return $this->errorResponse(
-                            self::AUTH_FORBIDDEN,
-                            'Anda tidak memiliki izin untuk menghapus pengguna dengan level Super Administrator',
-                            403
-                        );
-                    }
-                    
-                    $result = UserModel::deleteData($id);
-                    
-                    // PERBAIKAN: Cek jika result adalah array dan memiliki kunci 'success' yang false
-                    if (is_array($result) && isset($result['success']) && $result['success'] === false) {
-                        return $this->errorResponse(
-                            $result['message'] ?? 'Gagal menghapus pengguna',
-                            null,
-                            422
-                        );
-                    }
-                    
-                    return $result['data'] ?? $result;
-                    
-                } catch (\Exception $e) {
+                // Cek apakah user yang dihapus memiliki hak akses SAR
+                $userToDelete = UserModel::findOrFail($id);
+                $isSAR = $userToDelete->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if ($isSAR && Auth::user()->level->hak_akses_kode !== 'SAR') {
                     return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        $e->getMessage(),
-                        500
+                        self::AUTH_FORBIDDEN,
+                        'Anda tidak memiliki izin untuk menghapus pengguna dengan level Super Administrator',
+                        self::HTTP_FORBIDDEN
                     );
                 }
+                
+                $result = UserModel::deleteData($id);
+                
+                // Cek jika result adalah array dan memiliki kunci 'success' yang false
+                if (is_array($result) && isset($result['success']) && $result['success'] === false) {
+                    return $this->errorResponse(
+                        $result['message'] ?? 'Gagal menghapus pengguna',
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY
+                    );
+                }
+                
+                return $result['data'] ?? $result;
             },
             'pengguna',
             self::ACTION_DELETE
@@ -260,15 +274,7 @@ public function updateData(Request $request, $id)
     {
         return $this->executeWithAuthentication(
             function () use ($id) {
-                try {
-                    return UserModel::detailData($id);
-                } catch (\Exception $e) {
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        $e->getMessage(),
-                        500
-                    );
-                }
+                return UserModel::detailData($id);
             },
             'pengguna',
             self::ACTION_GET
@@ -279,47 +285,38 @@ public function updateData(Request $request, $id)
     {
         return $this->executeWithAuthAndValidation(
             function ($user) use ($request, $userId) {
-                try {
-                    if (!$request->has('hak_akses_id')) {
-                        return $this->errorResponse(
-                            self::AUTH_INVALID_INPUT,
-                            'ID hak akses harus disediakan',
-                            422
-                        );
-                    }
-                    
-                    $hakAksesId = $request->hak_akses_id;
-                    
-                    // Cek apakah mencoba menambah hak akses SAR
-                    $hakAkses = HakAksesModel::findOrFail($hakAksesId);
-                    if (Auth::user()->level->hak_akses_kode !== 'SAR' && $hakAkses->hak_akses_kode === 'SAR') {
-                        return $this->errorResponse(
-                            self::AUTH_FORBIDDEN,
-                            'Anda tidak memiliki izin untuk menambahkan hak akses Super Administrator',
-                            403
-                        );
-                    }
-                    
-                    $result = UserModel::addHakAkses($userId, $hakAksesId);
-                    
-                    // PERBAIKAN: Cek jika result adalah array dan memiliki kunci 'success' yang false
-                    if (!$result || !isset($result['success']) || $result['success'] === false) {
-                        return $this->errorResponse(
-                            $result['message'] ?? 'Gagal menambahkan hak akses',
-                            null,
-                            422
-                        );
-                    }
-                    
-                    return $result['data'] ?? $result;
-                    
-                } catch (\Exception $e) {
+                if (!$request->has('hak_akses_id')) {
                     return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        $e->getMessage(),
-                        500
+                        self::AUTH_INVALID_INPUT,
+                        'ID hak akses harus disediakan',
+                        self::HTTP_UNPROCESSABLE_ENTITY
                     );
                 }
+                
+                $hakAksesId = $request->hak_akses_id;
+                
+                // Cek apakah mencoba menambah hak akses SAR
+                $hakAkses = HakAksesModel::findOrFail($hakAksesId);
+                if (Auth::user()->level->hak_akses_kode !== 'SAR' && $hakAkses->hak_akses_kode === 'SAR') {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Anda tidak memiliki izin untuk menambahkan hak akses Super Administrator',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+                
+                $result = UserModel::addHakAkses($userId, $hakAksesId);
+                
+                // Cek jika result adalah array dan memiliki kunci 'success' yang false
+                if (!$result || !isset($result['success']) || $result['success'] === false) {
+                    return $this->errorResponse(
+                        $result['message'] ?? 'Gagal menambahkan hak akses',
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY
+                    );
+                }
+                
+                return $result['data'] ?? $result;
             },
             'hak akses pengguna',
             self::ACTION_CREATE
@@ -330,47 +327,38 @@ public function updateData(Request $request, $id)
     {
         return $this->executeWithAuthAndValidation(
             function ($user) use ($request, $userId) {
-                try {
-                    if (!$request->has('hak_akses_id')) {
-                        return $this->errorResponse(
-                            self::AUTH_INVALID_INPUT,
-                            'ID hak akses harus disediakan',
-                            422
-                        );
-                    }
-                    
-                    $hakAksesId = $request->hak_akses_id;
-                    
-                    // Cek apakah mencoba menghapus hak akses SAR
-                    $hakAkses = HakAksesModel::findOrFail($hakAksesId);
-                    if (Auth::user()->level->hak_akses_kode !== 'SAR' && $hakAkses->hak_akses_kode === 'SAR') {
-                        return $this->errorResponse(
-                            self::AUTH_FORBIDDEN,
-                            'Anda tidak memiliki izin untuk menghapus hak akses Super Administrator',
-                            403
-                        );
-                    }
-                    
-                    $result = UserModel::removeHakAkses($userId, $hakAksesId);
-                    
-                    // PERBAIKAN: Cek jika result adalah array dan memiliki kunci 'success' yang false
-                    if (!$result || !isset($result['success']) || $result['success'] === false) {
-                        return $this->errorResponse(
-                            $result['message'] ?? 'Gagal menghapus hak akses',
-                            null,
-                            422
-                        );
-                    }
-                    
-                    return $result['data'] ?? $result;
-                    
-                } catch (\Exception $e) {
+                if (!$request->has('hak_akses_id')) {
                     return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        $e->getMessage(),
-                        500
+                        self::AUTH_INVALID_INPUT,
+                        'ID hak akses harus disediakan',
+                        self::HTTP_UNPROCESSABLE_ENTITY
                     );
                 }
+                
+                $hakAksesId = $request->hak_akses_id;
+                
+                // Cek apakah mencoba menghapus hak akses SAR
+                $hakAkses = HakAksesModel::findOrFail($hakAksesId);
+                if (Auth::user()->level->hak_akses_kode !== 'SAR' && $hakAkses->hak_akses_kode === 'SAR') {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Anda tidak memiliki izin untuk menghapus hak akses Super Administrator',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+                
+                $result = UserModel::removeHakAkses($userId, $hakAksesId);
+                
+                // Cek jika result adalah array dan memiliki kunci 'success' yang false
+                if (!$result || !isset($result['success']) || $result['success'] === false) {
+                    return $this->errorResponse(
+                        $result['message'] ?? 'Gagal menghapus hak akses',
+                        null,
+                        self::HTTP_UNPROCESSABLE_ENTITY
+                    );
+                }
+                
+                return $result['data'] ?? $result;
             },
             'hak akses pengguna',
             self::ACTION_DELETE
@@ -381,25 +369,17 @@ public function updateData(Request $request, $id)
     {
         return $this->executeWithAuthentication(
             function () use ($userId) {
-                try {
-                    $user = UserModel::detailData($userId);
-                    
-                    // Ambil semua hak akses yang bisa ditambahkan ke user
-                    $availableHakAkses = HakAksesModel::where('isDeleted', 0)
-                        ->when(Auth::user()->level->hak_akses_kode !== 'SAR', function ($query) {
-                            return $query->where('hak_akses_kode', '!=', 'SAR');
-                        })
-                        ->whereNotIn('hak_akses_id', $user->hakAkses->pluck('hak_akses_id'))
-                        ->get();
-                    
-                    return $availableHakAkses;
-                } catch (\Exception $e) {
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        $e->getMessage(),
-                        500
-                    );
-                }
+                $user = UserModel::detailData($userId);
+                
+                // Ambil semua hak akses yang bisa ditambahkan ke user
+                $availableHakAkses = HakAksesModel::where('isDeleted', 0)
+                    ->when(Auth::user()->level->hak_akses_kode !== 'SAR', function ($query) {
+                        return $query->where('hak_akses_kode', '!=', 'SAR');
+                    })
+                    ->whereNotIn('hak_akses_id', $user->hakAkses->pluck('hak_akses_id'))
+                    ->get();
+                
+                return $availableHakAkses;
             },
             'hak akses tersedia',
             self::ACTION_GET

@@ -23,17 +23,67 @@
         </div>
 
         <div class="form-group">
-            <label for="fk_web_menu_url">Menu URL</label>
+            <label for="wmg_kategori_menu">Kategori Menu <span class="text-danger">*</span></label>
+            <select class="form-control" id="wmg_kategori_menu" name="web_menu_global[wmg_kategori_menu]">
+                <option value="">Pilih Kategori Menu</option>
+                <option value="Menu Biasa" {{ $webMenuGlobal->wmg_kategori_menu === 'Menu Biasa' ? 'selected' : '' }}>Menu Biasa</option>
+                <option value="Group Menu" {{ $webMenuGlobal->wmg_kategori_menu === 'Group Menu' ? 'selected' : '' }}>Group Menu</option>
+                <option value="Sub Menu" {{ $webMenuGlobal->wmg_kategori_menu === 'Sub Menu' ? 'selected' : '' }}>Sub Menu</option>
+            </select>
+            <div class="invalid-feedback" id="wmg_kategori_menu_error"></div>
+            <small class="form-text text-muted">
+                <strong>Menu Biasa:</strong> Menu standalone tanpa submenu<br>
+                <strong>Group Menu:</strong> Menu kelompok yang memiliki submenu<br>
+                <strong>Sub Menu:</strong> Menu anak dari Group Menu
+            </small>
+        </div>
+
+        <div class="form-group" id="parent_menu_group" style="display: none;">
+            <label for="wmg_parent_id">Menu Induk <span class="text-danger">*</span></label>
+            <select class="form-control" id="wmg_parent_id" name="web_menu_global[wmg_parent_id]">
+                <option value="">Pilih Menu Induk</option>
+                @foreach($parentMenus as $parent)
+                    <option value="{{ $parent->web_menu_global_id }}" {{ $webMenuGlobal->wmg_parent_id == $parent->web_menu_global_id ? 'selected' : '' }}>
+                        {{ $parent->wmg_nama_default }}
+                    </option>
+                @endforeach
+            </select>
+            <div class="invalid-feedback" id="wmg_parent_id_error"></div>
+        </div>
+
+        <div class="form-group" id="menu_url_group">
+            <label for="fk_web_menu_url">Menu URL <span class="text-danger">*</span></label>
             <select class="form-control" id="fk_web_menu_url" name="web_menu_global[fk_web_menu_url]">
-                <option value="null" {{ $webMenuGlobal->fk_web_menu_url === null ? 'selected' : '' }}>Group Menu</option>
+                <option value="">Pilih Menu URL</option>
                 @foreach($menuUrls as $url)
                     <option value="{{ $url->web_menu_url_id }}" {{ $webMenuGlobal->fk_web_menu_url == $url->web_menu_url_id ? 'selected' : '' }}>
                         {{ $url->application->app_nama }} | {{ $url->wmu_nama }} | {{ $url->wmu_keterangan ?? '-' }}
                     </option>
                 @endforeach
             </select>
-            <small class="form-text text-muted">Pilih "Group Menu" untuk menu tanpa URL spesifik.</small>
             <div class="invalid-feedback" id="fk_web_menu_url_error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="wmg_status_menu">Status Menu <span class="text-danger">*</span></label>
+            <select class="form-control" id="wmg_status_menu" name="web_menu_global[wmg_status_menu]">
+                <option value="">Pilih Status</option>
+                <option value="aktif" {{ $webMenuGlobal->wmg_status_menu === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                <option value="nonaktif" {{ $webMenuGlobal->wmg_status_menu === 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
+            </select>
+            <div class="invalid-feedback" id="wmg_status_menu_error"></div>
+        </div>
+
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            <strong>Informasi:</strong> 
+            @if($webMenuGlobal->wmg_parent_id)
+                Menu ini adalah <strong>Sub Menu</strong> dari {{ $webMenuGlobal->parentMenu->wmg_nama_default }} dengan urutan ke-{{ $webMenuGlobal->wmg_urutan_menu }}.
+            @else
+                Menu ini adalah <strong>{{ $webMenuGlobal->wmg_kategori_menu }}</strong> dengan urutan ke-{{ $webMenuGlobal->wmg_urutan_menu }} di menu utama.
+            @endif
+            <br>
+            Jika mengubah kategori atau parent menu, urutan akan disesuaikan otomatis oleh sistem.
         </div>
     </form>
 </div>
@@ -47,6 +97,43 @@
 
 <script>
     $(document).ready(function () {
+        // Function untuk mengatur tampilan berdasarkan kategori
+        function toggleFieldsByKategori(kategori) {
+            if (kategori === 'Sub Menu') {
+                $('#parent_menu_group').show();
+                $('#menu_url_group').show();
+                $('#wmg_parent_id').attr('required', true);
+                $('#fk_web_menu_url').attr('required', true);
+            } else if (kategori === 'Group Menu') {
+                $('#parent_menu_group').hide();
+                $('#menu_url_group').hide();
+                $('#wmg_parent_id').attr('required', false).val('');
+                $('#fk_web_menu_url').attr('required', false).val('');
+            } else if (kategori === 'Menu Biasa') {
+                $('#parent_menu_group').hide();
+                $('#menu_url_group').show();
+                $('#wmg_parent_id').attr('required', false).val('');
+                $('#fk_web_menu_url').attr('required', true);
+            } else {
+                $('#parent_menu_group').hide();
+                $('#menu_url_group').hide();
+                $('#wmg_parent_id').attr('required', false);
+                $('#fk_web_menu_url').attr('required', false);
+            }
+        }
+
+        // Inisialisasi tampilan berdasarkan kategori yang sudah dipilih
+        const initialKategori = $('#wmg_kategori_menu').val();
+        if (initialKategori) {
+            toggleFieldsByKategori(initialKategori);
+        }
+
+        // Handle kategori menu change
+        $('#wmg_kategori_menu').on('change', function() {
+            const kategori = $(this).val();
+            toggleFieldsByKategori(kategori);
+        });
+
         // Hapus error ketika input berubah
         $(document).on('input change', 'input, select, textarea', function() {
             $(this).removeClass('is-invalid');
