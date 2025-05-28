@@ -15,7 +15,40 @@ class BaseApiController extends Controller
 {
     use TraitsController;
     
-    // Konstanta untuk berbagai jenis aksi API
+    // =============================
+    // HTTP STATUS CODE CONSTANTS
+    // =============================
+    
+    // Success Status Codes (2xx)
+    protected const HTTP_OK = 200;                    // Request berhasil
+    protected const HTTP_CREATED = 201;              // Resource berhasil dibuat
+    protected const HTTP_ACCEPTED = 202;             // Request diterima untuk processing
+    protected const HTTP_NO_CONTENT = 204;           // Request berhasil tanpa content
+    
+    // Client Error Status Codes (4xx)
+    protected const HTTP_BAD_REQUEST = 400;          // Request tidak valid
+    protected const HTTP_UNAUTHORIZED = 401;         // Authentication diperlukan
+    protected const HTTP_FORBIDDEN = 403;            // Access ditolak
+    protected const HTTP_NOT_FOUND = 404;            // Resource tidak ditemukan
+    protected const HTTP_METHOD_NOT_ALLOWED = 405;   // Method tidak diizinkan
+    protected const HTTP_NOT_ACCEPTABLE = 406;       // Format response tidak acceptable
+    protected const HTTP_REQUEST_TIMEOUT = 408;      // Request timeout
+    protected const HTTP_CONFLICT = 409;             // Conflict dengan state saat ini
+    protected const HTTP_GONE = 410;                 // Resource sudah tidak tersedia
+    protected const HTTP_UNPROCESSABLE_ENTITY = 422; // Validation error
+    protected const HTTP_TOO_MANY_REQUESTS = 429;    // Rate limit exceeded
+    
+    // Server Error Status Codes (5xx)
+    protected const HTTP_INTERNAL_SERVER_ERROR = 500; // Server error
+    protected const HTTP_NOT_IMPLEMENTED = 501;       // Feature belum diimplementasi
+    protected const HTTP_BAD_GATEWAY = 502;           // Bad gateway
+    protected const HTTP_SERVICE_UNAVAILABLE = 503;   // Service tidak tersedia
+    protected const HTTP_GATEWAY_TIMEOUT = 504;       // Gateway timeout
+    
+    // =============================
+    // ACTION TYPE CONSTANTS
+    // =============================
+    
     protected const ACTION_GET = 'get';
     protected const ACTION_CREATE = 'create';
     protected const ACTION_UPDATE = 'update';
@@ -24,7 +57,10 @@ class BaseApiController extends Controller
     protected const ACTION_REGISTER = 'register';
     protected const ACTION_LOGOUT = 'logout';
     
-    // Konstanta untuk pesan error dan respons
+    // =============================
+    // MESSAGE CONSTANTS
+    // =============================
+    
     protected const AUTH_TOKEN_NOT_FOUND = 'Token tidak ditemukan';
     protected const AUTH_USER_NOT_FOUND = 'User tidak ditemukan';
     protected const AUTH_SYSTEM_NOT_FOUND = 'System tidak ditemukan';
@@ -43,8 +79,17 @@ class BaseApiController extends Controller
     protected const SERVER_ERROR = 'Terjadi kesalahan pada server';
     protected const RESOURCE_NOT_FOUND = 'Data tidak ditemukan';
     protected const INVALID_REQUEST_FORMAT = 'Format request tidak valid';
-    protected const AUTH_FORBIDDEN = 'Anda tidak memiliki izin untuk melakukan akse ini';
-    // Konstanta untuk jenis autentikasi
+    protected const AUTH_FORBIDDEN = 'Anda tidak memiliki izin untuk melakukan aksi ini';
+    protected const SUCCESS_OPERATION = 'Operasi berhasil dilakukan';
+    protected const RATE_LIMIT_EXCEEDED = 'Terlalu banyak request, silakan coba lagi nanti';
+    protected const MAINTENANCE_MODE = 'Sistem sedang dalam maintenance';
+    protected const DUPLICATE_ENTRY = 'Data sudah ada, tidak dapat menambah duplikat';
+    protected const DEPENDENCY_CONFLICT = 'Data tidak dapat dihapus karena masih digunakan';
+    
+    // =============================
+    // AUTH TYPE CONSTANTS
+    // =============================
+    
     protected const AUTH_TYPE_USER = 'user';
     protected const AUTH_TYPE_SYSTEM = 'system';
    
@@ -113,7 +158,7 @@ class BaseApiController extends Controller
                     ? sprintf($notFoundMessages[$actionType], $resourceName)
                     : sprintf('%s tidak ditemukan.', $resourceName);
                 
-                return $this->errorResponse($errorMessage, null, 404);
+                return $this->errorResponse($errorMessage, null, self::HTTP_NOT_FOUND);
             }
 
             // Pastikan action type valid, jika tidak gunakan pesan default
@@ -122,7 +167,14 @@ class BaseApiController extends Controller
                 $message = sprintf($this->messageTemplates[$actionType]['success'], $resourceName);
             }
             
-            return $this->successResponse($result, $message);
+            // Tentukan status code berdasarkan action type
+            $statusCode = match($actionType) {
+                self::ACTION_CREATE => self::HTTP_CREATED,
+                self::ACTION_DELETE => self::HTTP_NO_CONTENT,
+                default => self::HTTP_OK
+            };
+            
+            return $this->successResponse($result, $message, $statusCode);
 
         } catch (\Exception $e) {
             $this->logError('Execution error: ' . $resourceName, $e);
@@ -132,7 +184,7 @@ class BaseApiController extends Controller
                 ? sprintf($this->messageTemplates[$actionType]['error'], $resourceName)
                 : sprintf('Terjadi kesalahan saat memproses %s.', $resourceName);
             
-            return $this->errorResponse($message, $e->getMessage(), 500);
+            return $this->errorResponse($message, $e->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -146,71 +198,79 @@ class BaseApiController extends Controller
      * @return JsonResponse
      */
     protected function executeWithSystemAuth(callable $action, string $resourceName, string $actionType = self::ACTION_GET): JsonResponse
-{
-    try {
-        // Get active system token using JwtTokenService
-        $jwtService = new \App\Services\JwtTokenService();
-        $tokenData = $jwtService->getActiveToken();
-
-        if (!$tokenData || !isset($tokenData['token'])) {
-            return $this->errorResponse(self::AUTH_SYSTEM_NOT_FOUND, null, 401);
-        }
-
-        // Set token for request
-        JWTAuth::setToken($tokenData['token']);
-
-        // Execute action without passing system parameter
-        $result = $action();
-            
-        // Handle JsonResponse result
-        if ($result instanceof JsonResponse) {
-            return $result;
-        }
-
-        // Handle null result
-        if ($result === null) {
-            $errorMessage = match($actionType) {
-                self::ACTION_GET => sprintf('%s tidak ditemukan.', $resourceName),
-                self::ACTION_UPDATE => sprintf('Data %s yang akan diupdate tidak ditemukan.', $resourceName),
-                self::ACTION_DELETE => sprintf('Data %s yang akan dihapus tidak ditemukan.', $resourceName),
-                self::ACTION_CREATE => sprintf('Gagal membuat data %s.', $resourceName),
-                default => sprintf('%s tidak ditemukan.', $resourceName)
-            };
-            
-            return $this->errorResponse($errorMessage, null, 404);
-        }
-
-        // Get success message from templates
-        $message = isset($this->messageTemplates[$actionType]) 
-            ? sprintf($this->messageTemplates[$actionType]['success'], $resourceName)
-            : sprintf('Data %s berhasil diproses.', $resourceName);
-            
-        return $this->successResponse($result, $message);
-            
-    } catch (TokenExpiredException $e) {
-        // Generate new token if expired
+    {
         try {
-            $newToken = $jwtService->generateSystemToken();
-            JWTAuth::setToken($newToken['token']);
-            return $this->execute($action, $resourceName, $actionType);
+            // Get active system token using JwtTokenService
+            $jwtService = new \App\Services\JwtTokenService();
+            $tokenData = $jwtService->getActiveToken();
+
+            if (!$tokenData || !isset($tokenData['token'])) {
+                return $this->errorResponse(self::AUTH_SYSTEM_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
+            }
+
+            // Set token for request
+            JWTAuth::setToken($tokenData['token']);
+
+            // Execute action without passing system parameter
+            $result = $action();
+                
+            // Handle JsonResponse result
+            if ($result instanceof JsonResponse) {
+                return $result;
+            }
+
+            // Handle null result
+            if ($result === null) {
+                $errorMessage = match($actionType) {
+                    self::ACTION_GET => sprintf('%s tidak ditemukan.', $resourceName),
+                    self::ACTION_UPDATE => sprintf('Data %s yang akan diupdate tidak ditemukan.', $resourceName),
+                    self::ACTION_DELETE => sprintf('Data %s yang akan dihapus tidak ditemukan.', $resourceName),
+                    self::ACTION_CREATE => sprintf('Gagal membuat data %s.', $resourceName),
+                    default => sprintf('%s tidak ditemukan.', $resourceName)
+                };
+                
+                return $this->errorResponse($errorMessage, null, self::HTTP_NOT_FOUND);
+            }
+
+            // Get success message from templates
+            $message = isset($this->messageTemplates[$actionType]) 
+                ? sprintf($this->messageTemplates[$actionType]['success'], $resourceName)
+                : sprintf('Data %s berhasil diproses.', $resourceName);
+            
+            // Tentukan status code berdasarkan action type
+            $statusCode = match($actionType) {
+                self::ACTION_CREATE => self::HTTP_CREATED,
+                self::ACTION_DELETE => self::HTTP_NO_CONTENT,
+                default => self::HTTP_OK
+            };
+                
+            return $this->successResponse($result, $message, $statusCode);
+                
+        } catch (TokenExpiredException $e) {
+            // Generate new token if expired
+            try {
+                $newToken = $jwtService->generateSystemToken();
+                JWTAuth::setToken($newToken['token']);
+                return $this->execute($action, $resourceName, $actionType);
+            } catch (\Exception $e) {
+                return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, self::HTTP_UNAUTHORIZED);
+            }
+        } catch (TokenInvalidException $e) {
+            $this->logError('System token invalid', $e);
+            return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, self::HTTP_UNAUTHORIZED);
+        } catch (JWTException $e) {
+            $this->logError('JWT Error: ' . $resourceName, $e);
+            return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), self::HTTP_UNAUTHORIZED);
         } catch (\Exception $e) {
-            return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, 401);
+            $this->logError('System auth error: ' . $resourceName, $e);
+            return $this->errorResponse(
+                sprintf($this->messageTemplates[$actionType]['error'] ?? 'Terjadi kesalahan saat memproses %s.', $resourceName),
+                config('app.debug') ? $e->getMessage() : null,
+                self::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
-    } catch (TokenInvalidException $e) {
-        $this->logError('System token invalid', $e);
-        return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
-    } catch (JWTException $e) {
-        $this->logError('JWT Error: ' . $resourceName, $e);
-        return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), 401);
-    } catch (\Exception $e) {
-        $this->logError('System auth error: ' . $resourceName, $e);
-        return $this->errorResponse(
-            sprintf($this->messageTemplates[$actionType]['error'] ?? 'Terjadi kesalahan saat memproses %s.', $resourceName),
-            config('app.debug') ? $e->getMessage() : null,
-            500
-        );
     }
-}
+    
     /**
      * Menjalankan aksi API yang memerlukan autentikasi user (jwt.user)
      * 
@@ -224,13 +284,13 @@ class BaseApiController extends Controller
         try {
             // Periksa keberadaan token
             if (!$token = JWTAuth::getToken()) {
-                return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, 401);
+                return $this->errorResponse(self::AUTH_TOKEN_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
             }
     
             // Autentikasi token dan dapatkan user
             $user = JWTAuth::parseToken()->authenticate();
             if (!$user) {
-                return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, 401);
+                return $this->errorResponse(self::AUTH_USER_NOT_FOUND, null, self::HTTP_UNAUTHORIZED);
             }
             
             // Eksekusi aksi dengan user terautentikasi
@@ -255,7 +315,7 @@ class BaseApiController extends Controller
                     ? sprintf($notFoundMessages[$actionType], $resourceName)
                     : sprintf('%s tidak ditemukan.', $resourceName);
                 
-                return $this->errorResponse($errorMessage, null, 404);
+                return $this->errorResponse($errorMessage, null, self::HTTP_NOT_FOUND);
             }
     
             // Pastikan action type valid, jika tidak gunakan pesan default
@@ -264,58 +324,65 @@ class BaseApiController extends Controller
                 $message = sprintf($this->messageTemplates[$actionType]['success'], $resourceName);
             }
             
-            return $this->successResponse($result, $message);
+            // Tentukan status code berdasarkan action type
+            $statusCode = match($actionType) {
+                self::ACTION_CREATE => self::HTTP_CREATED,
+                self::ACTION_DELETE => self::HTTP_NO_CONTENT,
+                default => self::HTTP_OK
+            };
+            
+            return $this->successResponse($result, $message, $statusCode);
             
         } catch (TokenExpiredException $e) {
             $this->logError('Token expired', $e);
-            return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, 401);
+            return $this->errorResponse(self::AUTH_TOKEN_EXPIRED, null, self::HTTP_UNAUTHORIZED);
         } catch (TokenInvalidException $e) {
             $this->logError('Token invalid', $e);
-            return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, 401);
+            return $this->errorResponse(self::AUTH_TOKEN_INVALID, null, self::HTTP_UNAUTHORIZED);
         } catch (JWTException $e) {
             $this->logError('JWT Error: ' . $resourceName, $e);
-            return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), 401);
+            return $this->errorResponse(self::AUTH_TOKEN_ERROR, $e->getMessage(), self::HTTP_UNAUTHORIZED);
         } catch (\Exception $e) {
             $this->logError('Authentication action error: ' . $resourceName, $e);
             $message = isset($this->messageTemplates[$actionType]) 
                 ? sprintf($this->messageTemplates[$actionType]['error'], $resourceName)
                 : sprintf('Terjadi kesalahan saat memproses %s.', $resourceName);
-            return $this->errorResponse($message, $e->getMessage(), 500);
+            return $this->errorResponse($message, $e->getMessage(), self::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
- 
     /**
- * Menjalankan aksi API yang memerlukan validasi dan autentikasi sekaligus
- * 
- * @param callable $action Fungsi yang akan dieksekusi jika autentikasi berhasil
- * @param string $resourceName Nama resource
- * @param string $actionType Jenis aksi
- * @return JsonResponse
- */
-protected function executeWithAuthAndValidation(callable $action, string $resourceName, string $actionType): JsonResponse
-{
-    return $this->executeWithAuthentication(
-        function ($user) use ($action, $resourceName, $actionType) {
-            try {
-                // Jalankan action dengan user
-                $result = $action($user);
-                
-                // Jika result adalah response, kembalikan langsung
-                if ($result instanceof JsonResponse) {
+     * Menjalankan aksi API yang memerlukan validasi dan autentikasi sekaligus
+     * 
+     * @param callable $action Fungsi yang akan dieksekusi jika autentikasi berhasil
+     * @param string $resourceName Nama resource
+     * @param string $actionType Jenis aksi
+     * @return JsonResponse
+     */
+    protected function executeWithAuthAndValidation(callable $action, string $resourceName, string $actionType): JsonResponse
+    {
+        return $this->executeWithAuthentication(
+            function ($user) use ($action, $resourceName, $actionType) {
+                try {
+                    // Jalankan action dengan user
+                    $result = $action($user);
+                    
+                    // Jika result adalah response, kembalikan langsung
+                    if ($result instanceof JsonResponse) {
+                        return $result;
+                    }
+                    
                     return $result;
+                } catch (\Exception $e) {
+                    $this->logError('Validation error in authenticated context: ' . $resourceName, $e);
+                    return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), self::HTTP_UNPROCESSABLE_ENTITY);
                 }
-                
-                return $result;
-            } catch (\Exception $e) {
-                $this->logError('Validation error in authenticated context: ' . $resourceName, $e);
-                return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), 422);
-            }
-        },
-        $resourceName,
-        $actionType
-    );
-}
+            },
+            $resourceName,
+            $actionType
+        );
+    }
+    
     protected function executeWithValidation(callable $validator, callable $action, string $resourceName, string $actionType): JsonResponse
     {
         try {
@@ -329,7 +396,7 @@ protected function executeWithAuthAndValidation(callable $action, string $resour
             
             // Jika validator mengembalikan pesan error string
             if (is_string($validationResult)) {
-                return $this->errorResponse($validationResult, null, 422);
+                return $this->errorResponse($validationResult, null, self::HTTP_UNPROCESSABLE_ENTITY);
             }
             
             // Jalankan aksi sukses
@@ -341,7 +408,7 @@ protected function executeWithAuthAndValidation(callable $action, string $resour
             
         } catch (\Exception $e) {
             $this->logError('Validation error: ' . $resourceName, $e);
-            return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), 422);
+            return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), self::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 
@@ -368,44 +435,44 @@ protected function executeWithAuthAndValidation(callable $action, string $resour
         return response()->json($response, $statusCode);
     }
 
-   /**
- * Return error response in JSON format.
- * 
- * @param string $message Pesan error
- * @param mixed $error Detail error (hanya tampil jika debug mode aktif)
- * @param int $statusCode HTTP status code
- * @param array|null $validationErrors Error validasi yang akan ditampilkan
- * @return JsonResponse
- */
-protected function errorResponse(string $message = 'An error occurred', $error = null, int $statusCode = 500, ?array $validationErrors = null): JsonResponse
-{
-    $response = [
-        'success' => false,
-        'message' => $message
-    ];
-    
-    // Tambahkan validation errors jika ada
-    if ($validationErrors !== null) {
-        $response['errors'] = $validationErrors;
-    }
-    
-    // Tambahkan detail error jika debug mode aktif
-    if ($error !== null && config('app.debug')) {
-        $errorDetail = $error;
-        // Jika error adalah Exception, ambil pesan dan stacktrace
-        if ($error instanceof \Exception) {
-            $errorDetail = [
-                'message' => $error->getMessage(),
-                'code' => $error->getCode(),
-                'file' => $error->getFile(),
-                'line' => $error->getLine()
-            ];
+    /**
+     * Return error response in JSON format.
+     * 
+     * @param string $message Pesan error
+     * @param mixed $error Detail error (hanya tampil jika debug mode aktif)
+     * @param int $statusCode HTTP status code
+     * @param array|null $validationErrors Error validasi yang akan ditampilkan
+     * @return JsonResponse
+     */
+    protected function errorResponse(string $message = 'An error occurred', $error = null, int $statusCode = 500, ?array $validationErrors = null): JsonResponse
+    {
+        $response = [
+            'success' => false,
+            'message' => $message
+        ];
+        
+        // Tambahkan validation errors jika ada
+        if ($validationErrors !== null) {
+            $response['errors'] = $validationErrors;
         }
-        $response['error_detail'] = $errorDetail;
+        
+        // Tambahkan detail error jika debug mode aktif
+        if ($error !== null && config('app.debug')) {
+            $errorDetail = $error;
+            // Jika error adalah Exception, ambil pesan dan stacktrace
+            if ($error instanceof \Exception) {
+                $errorDetail = [
+                    'message' => $error->getMessage(),
+                    'code' => $error->getCode(),
+                    'file' => $error->getFile(),
+                    'line' => $error->getLine()
+                ];
+            }
+            $response['error_detail'] = $errorDetail;
+        }
+        
+        return response()->json($response, $statusCode);
     }
-    
-    return response()->json($response, $statusCode);
-}
 
     /**
      * Log error ke system log.
