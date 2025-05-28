@@ -44,7 +44,7 @@ class FormPiOrangLainModel extends Model
         $userLevel = Auth::user()->level->hak_akses_kode;
         
         // Tambahkan log untuk debugging
-        \Log::info("User level yang aktif: " . $userLevel);
+        //Log::info("User level yang aktif: " . $userLevel);
 
         if ($userLevel === 'RPN') {
             // Pastikan data user ada sebelum menggunakan
@@ -137,7 +137,7 @@ class FormPiOrangLainModel extends Model
             't_form_pi_orang_lain.pi_alamat_pengguna_informasi' => 'required',
             't_form_pi_orang_lain.pi_no_hp_pengguna_informasi' => 'required',
             't_form_pi_orang_lain.pi_email_pengguna_informasi' => 'required|email',
-            'pi_upload_nik_pengguna_informasi' => 'required|image|max:10240',
+            'pi_upload_nik_pengguna_informasi' => 'required|image|max:2048',
         ]);
 
         $message = array_merge($message, [

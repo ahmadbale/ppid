@@ -111,7 +111,7 @@ Route::get('system/get-token', [SystemAuthController::class, 'getToken']);
 Route::post('system/refresh-token', [SystemAuthController::class, 'refreshToken']);
 // Route api konten untuk halaman web frontend
 Route::prefix('public')->middleware('jwt.system')->group(function () {
-    Route::get('berita-pengumuman', [ApiBeritaPengumumanController::class, 'getBeritaPengumuman']);
+    Route::get('getBeritaPengumuman', [ApiBeritaPengumumanController::class, 'getBeritaPengumuman']);
     Route::get('getDataFooter', [ApiFooterController::class, 'getDataFooter']);
     Route::get('getDataLhkpn', [ApiLhkpnController::class, 'getDataLhkpn']);
     Route::get('getDataPintasanLainnya', [ApiPintasanLainnyaController::class, 'getDataPintasanLainnya']);

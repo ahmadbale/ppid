@@ -54,7 +54,7 @@
         </div>
     </section>
 
-    <section class="container">
+    <section class="container mb-5">
         <div class="row">
             <div class="col-md-10 mx-auto">
                 <div class="raised-content">
@@ -64,16 +64,40 @@
                     </div>
                     
                     <!-- Konten Berita -->
-                    <div class="berita-content">
+                    <div class="berita-content mb-4">
                         {!! $beritaDetail['konten'] !!}
                     </div>
                     
-                    <!-- Navigasi kembali -->
-                    {{-- <div class="mt-5 pt-3 border-top">
-                        <a href="{{ route('berita.index') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left"></i> Kembali ke Daftar Berita
-                        </a>
-                    </div> --}}
+                    <!-- Navigasi Previous/Next Post -->
+<div class="row mt-5 pt-4 border-top align-items-center justify-content-center">
+    <div class="col-md-5 text-start">
+        @if(isset($previousPost))
+            <a href="{{ route('berita.detail', [$previousPost['slug'], Crypt::encryptString($previousPost['berita_id'])]) }}" class="text-decoration-none text-dark">
+                <div class="fw-bold mb-1" style="font-size: 14px;">
+                    <i class="bi bi-arrow-left-circle"></i> PREVIOUS POST
+                </div>
+                <div class="text-muted" style="font-size: 15px;">
+                    {{ \Illuminate\Support\Str::limit($previousPost['judul'], 60) }}
+                </div>
+            </a>
+        @endif
+    </div>
+    <div class="col-md-2 text-center d-none d-md-block">
+        <div style="border-left:1px solid #ccc;height:50px;margin:auto;"></div>
+    </div>
+    <div class="col-md-5 text-end">
+        @if(isset($nextPost))
+            <a href="{{ route('berita.detail', [$nextPost['slug'], Crypt::encryptString($nextPost['berita_id'])]) }}" class="text-decoration-none text-dark">
+                <div class="fw-bold mb-1" style="font-size: 14px;">
+                    NEXT POST <i class="bi bi-arrow-right-circle"></i>
+                </div>
+                <div class="text-muted" style="font-size: 15px;">
+                    {{ \Illuminate\Support\Str::limit($nextPost['judul'], 60) }}
+                </div>
+            </a>
+        @endif
+    </div>
+</div>
                 </div>
             </div>
         </div>
