@@ -93,7 +93,7 @@ Route::prefix('auth')->group(function () {
         Route::prefix('management-menu-global')->group(function () {
             Route::get('/', [ApiWebMenuGlobalController::class, 'index']);
             Route::post('/create', [ApiWebMenuGlobalController::class, 'createData']);
-            Route::put('/update/{id}', [ApiWebMenuGlobalController::class, 'updateData']);
+            Route::post('/update/{id}', [ApiWebMenuGlobalController::class, 'updateData']);
             Route::delete('/delete/{id}', [ApiWebMenuGlobalController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiWebMenuGlobalController::class, 'detailData']);
             Route::get('/getMenuUrl', [ApiWebMenuGlobalController::class, 'getMenuUrl']);
