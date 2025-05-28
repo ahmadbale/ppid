@@ -105,6 +105,9 @@ Route::prefix('auth')->group(function () {
             Route::post('/update/{id}', [ApiUserController::class, 'updateData']);
             Route::delete('/delete/{id}', [ApiUserController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiUserController::class, 'detailData']);
+            Route::post('/add-hak-akses/{userId}', [ApiUserController::class, 'addHakAkses']);
+            Route::delete('/remove-hak-akses/{userId}', [ApiUserController::class, 'removeHakAkses']);
+            Route::get('/available-hak-akses/{userId}', [ApiUserController::class, 'getAvailableHakAkses']);
         });
     });
 });
