@@ -1,184 +1,135 @@
 @php
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
-    use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 @endphp
 
-<!-- Edit Menu Modal -->
+<!-- Modal Update Menu -->
 <div class="modal fade" id="editMenuModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Menu</h5>
+                <h5 class="modal-title">Update Menu</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="editMenuForm">
+            <form id="editMenuForm" method="POST" action="">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="web_menu[web_menu_id]" id="edit_menu_id">
-                <input type="hidden" name="web_menu[set_akses_menu_id]" id="edit_set_akses_menu_id">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Hak Akses<span class="text-danger">*</span></label>
-                        <select class="form-control" name="web_menu[fk_m_hak_akses]" id="edit_level_menu">
-                            <option value="">Pilih Hak Akses</option>
-                            @foreach($levels as $level)
-                                <option value="{{ $level->hak_akses_id }}">{{ $level->hak_akses_nama }}</option>
-                            @endforeach
-                        </select>
-                        <div class="invalid-feedback">Hak Akses wajib diisi</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Kategori Menu<span class="text-danger">*</span></label>
-                        <select class="form-control" name="kategori_menu" id="edit_kategori_menu">
-                            <option value="menu_biasa">- Set sebagai menu biasa</option>
-                            <option value="group_menu">- Set sebagai group menu</option>
-                            <option value="sub_menu">- Set sebagai sub menu</option>
-                        </select>
-                        <div class="invalid-feedback">Kategori menu wajib dipilih</div>
-                    </div>
-                    
-                    <div class="form-group" id="edit_nama_group_menu_wrapper">
-                        <label>Nama Group Menu<span class="text-danger">*</span></label>
-                        <select class="form-control" name="web_menu[wm_parent_id]" id="edit_nama_group_menu" disabled>
-                            <option value="">Pilih Nama Group Menu</option>
-                            <!-- Untuk "Set sebagai group menu" -->
-                            <optgroup label="Group Menu" id="edit_group_menu_options">
-                                @foreach($groupMenusGlobal as $menu)
-                                    <option value="{{ $menu->web_menu_global_id }}" data-menu-type="global">
-                                        {{ $menu->wmg_nama_default }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
-                            
-                            <!-- Untuk "Set sebagai sub menu" -->
-                            <optgroup label="Menu Utama" id="edit_sub_menu_options" style="display:none;">
-                                @foreach($groupMenusFromWebMenu as $menu)
-                                    <option value="{{ $menu->web_menu_id }}" data-menu-type="parent">
-                                        {{ $menu->wm_menu_nama ?: $menu->WebMenuGlobal->wmg_nama_default }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
-                        </select>
-                        <div class="invalid-feedback">Nama group menu wajib dipilih</div>
-                        <small class="form-text text-muted" id="edit_group_menu_help">
-                            Silahkan pilih group menu yang sesuai
-                        </small>
-                    </div>
-                    
-                    <div class="form-group" id="edit_nama_menu_wrapper">
-                        <label>Nama Menu<span class="text-danger">*</span></label>
-                        <select class="form-control" name="web_menu[fk_web_menu_global]" id="edit_nama_menu">
-                            <option value="">Pilih Nama Menu</option>
-                            @foreach($nonGroupMenus as $menu)
-                                <option value="{{ $menu->web_menu_global_id }}">
-                                    {{ $menu->wmg_nama_default }} 
-                                    @if($menu->WebMenuUrl && $menu->WebMenuUrl->application)
-                                        ({{ $menu->WebMenuUrl->application->app_nama }})
-                                    @endif
-                                </option>
-                            @endforeach
-                        </select>
-                        <div class="invalid-feedback">Nama menu wajib dipilih</div>
-                        <small class="form-text text-muted" id="edit_menu_help">
-                            Silahkan pilih nama menu biasa
-                        </small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Alias</label>
-                        <input type="text" class="form-control" name="web_menu[wm_menu_nama]" id="edit_menu_alias">
-                        <small class="form-text text-muted">
-                            Alias akan ditampilkan sebagai nama menu. Jika kosong, nama default akan digunakan.
-                        </small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Status <span class="text-danger">*</span></label>
-                        <select class="form-control" name="web_menu[wm_status_menu]" id="edit_status_menu">
-                            <option value="">Pilih Status</option>
-                            <option value="aktif">Aktif</option>
-                            <option value="nonaktif">Non-Aktif</option>
-                        </select>
-                        <div class="invalid-feedback">Status menu wajib diisi</div>
-                    </div>
-
-                    <hr>
-                    
-                    <!-- Pengaturan Hak Akses -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Pengaturan Hak Akses untuk Menu Ini</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="row">
+                        <!-- Informasi Menu -->
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label>Level Hak Akses:</label>
-                                <select class="form-control" id="edit_hak_akses_kode" name="hak_akses_kode">
-                                    <option value="">-- Pilih Level --</option>
+                                <label>Nama Menu Global</label>
+                                <input type="text" class="form-control" id="edit_menu_global_name" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Alias -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Alias (Opsional)</label>
+                                <input type="text" class="form-control" id="edit_alias" name="web_menu[wm_menu_nama]" placeholder="Masukkan alias menu">
+                                <span class="text-muted">Kosongkan jika ingin menggunakan nama default</span>
+                            </div>
+                        </div>
+
+                        <!-- Kategori Menu -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Kategori Menu</label>
+                                <select class="form-control" id="edit_kategori_menu" name="kategori_menu">
+                                    <!-- Options akan diisi secara dinamis -->
+                                </select>
+                                <span class="text-muted" id="kategori_info"></span>
+                            </div>
+                        </div>
+
+                        <!-- Nama Group Menu (untuk sub menu) -->
+                        <div class="col-md-12" id="edit_group_menu_container" style="display: none;">
+                            <div class="form-group">
+                                <label>Nama Group Menu</label>
+                                <select class="form-control" id="edit_parent_id" name="web_menu[wm_parent_id]">
+                                    <option value="">-- Pilih Group Menu --</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Nama group menu wajib dipilih untuk sub menu
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Level Menu -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Level Menu</label>
+                                <select class="form-control" id="edit_level_menu" name="web_menu[fk_m_hak_akses]" required>
                                     @foreach($levels as $level)
-                                        <option value="{{ $level->hak_akses_kode }}">{{ $level->hak_akses_nama }}</option>
+                                        <option value="{{ $level->hak_akses_id }}">{{ $level->hak_akses_nama }}</option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback">
+                                    Level menu wajib dipilih
+                                </div>
                             </div>
-                            
-                            <div id="edit-hak-akses-table-container" style="display: none;">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Tampil Menu</th>
-                                            <th>Lihat</th>
-                                            <th>Tambah</th>
-                                            <th>Ubah</th>
-                                            <th>Hapus</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="text-center">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_menu" name="hak_menu" value="1">
-                                                    <label class="custom-control-label" for="edit_hak_menu"></label>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_view" name="hak_view" value="1">
-                                                    <label class="custom-control-label" for="edit_hak_view"></label>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_create" name="hak_create" value="1">
-                                                    <label class="custom-control-label" for="edit_hak_create"></label>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_update" name="hak_update" value="1">
-                                                    <label class="custom-control-label" for="edit_hak_update"></label>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="edit_hak_delete" name="hak_delete" value="1">
-                                                    <label class="custom-control-label" for="edit_hak_delete"></label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i> Pengaturan hak akses ini akan diterapkan untuk semua pengguna dengan level yang dipilih.
+                        </div>
+
+                        <!-- Hak Akses (tidak untuk group menu) -->
+                        <div class="col-md-12" id="edit_permissions_container">
+                            <div class="form-group">
+                                <label>Hak Akses</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="mb-0 mr-3">Tampil Menu | Lihat | Tambah | Ubah | Hapus</label>
+                                </div>
+                                <div>
+                                    <div class="custom-control custom-checkbox custom-control-inline">
+                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                               id="edit_perm_menu" name="web_menu[permissions][menu]" data-level="1">
+                                        <label class="custom-control-label" for="edit_perm_menu"></label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox custom-control-inline">
+                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                               id="edit_perm_view" name="web_menu[permissions][view]" data-level="2">
+                                        <label class="custom-control-label" for="edit_perm_view"></label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox custom-control-inline">
+                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                               id="edit_perm_create" name="web_menu[permissions][create]" data-level="3">
+                                        <label class="custom-control-label" for="edit_perm_create"></label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox custom-control-inline">
+                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                               id="edit_perm_update" name="web_menu[permissions][update]" data-level="3">
+                                        <label class="custom-control-label" for="edit_perm_update"></label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox custom-control-inline">
+                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                               id="edit_perm_delete" name="web_menu[permissions][delete]" data-level="3">
+                                        <label class="custom-control-label" for="edit_perm_delete"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control" id="edit_status" name="web_menu[wm_status_menu]" required>
+                                    <option value="aktif">Aktif</option>
+                                    <option value="nonaktif">Nonaktif</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Status menu wajib dipilih
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="submitEditMenu">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
                 </div>
             </form>
         </div>
@@ -187,337 +138,257 @@
 
 @push('js')
 <script>
-// Variabel untuk menyimpan level asli dari menu
-let originalMenuLevel = '';
+$(document).ready(function() {
+    let originalMenuType = '';
+    let currentMenuId = null;
+    let currentMenuGlobalId = null;
+    let currentWebMenuUrl = null;
 
-// Event handler untuk dropdown Kategori Menu
-$('#edit_kategori_menu').off('change').on('change', function() {
-    const selectedValue = $(this).val();
-    
-    if (selectedValue === 'menu_biasa') {
-        // Set sebagai menu biasa
-        $('#edit_nama_group_menu').prop('disabled', true).val('');
-        $('#edit_nama_menu').prop('disabled', false);
-        $('#edit_menu_help').text('Silahkan pilih nama menu biasa');
+    // Edit Menu Handler - Use delegated event handler
+    $(document).on('click', '.edit-menu', function() {
+        const menuId = $(this).data('id');
+        currentMenuId = menuId;
         
-        // Update wajib/tidak wajib
-        $('#edit_nama_menu').siblings('label').find('.text-danger').show();
-        $('#edit_nama_group_menu').siblings('label').find('.text-danger').hide();
+        // Reset form
+        $('#editMenuForm')[0].reset();
+        $('.is-invalid').removeClass('is-invalid');
         
-        // Tampilkan opsi yang sesuai
-        $('#edit_group_menu_options').show();
-        $('#edit_sub_menu_options').hide();
-    } 
-    else if (selectedValue === 'group_menu') {
-        // Set sebagai group menu
-        $('#edit_nama_menu').prop('disabled', true).val('');
-        $('#edit_nama_group_menu').prop('disabled', false);
-        $('#edit_group_menu_help').text('Silahkan pilih nama group menu');
-        
-        // Update wajib/tidak wajib
-        $('#edit_nama_menu').siblings('label').find('.text-danger').hide();
-        $('#edit_nama_group_menu').siblings('label').find('.text-danger').show();
-        
-        // Tampilkan opsi yang sesuai
-        $('#edit_group_menu_options').show();
-        $('#edit_sub_menu_options').hide();
-    }
-    else if (selectedValue === 'sub_menu') {
-        // Set sebagai sub menu
-        $('#edit_nama_menu').prop('disabled', false);
-        $('#edit_nama_group_menu').prop('disabled', false);
-        $('#edit_menu_help').text('Silahkan pilih nama sub menu');
-        $('#edit_group_menu_help').text('Silahkan pilih group menu induk');
-        
-        // Update wajib/tidak wajib
-        $('#edit_nama_menu').siblings('label').find('.text-danger').show();
-        $('#edit_nama_group_menu').siblings('label').find('.text-danger').show();
-        
-        // Tampilkan opsi yang sesuai
-        $('#edit_group_menu_options').hide();
-        $('#edit_sub_menu_options').show();
-    }
-});
-
-// Event handler untuk hak akses dropdown di form edit
-$('#edit_hak_akses_kode').change(function() {
-    const menuId = $('#edit_menu_id').val();
-    const hakAksesKode = $(this).val();
-    
-    if (hakAksesKode) {
-        // Tampilkan tabel hak akses
-        $('#edit-hak-akses-table-container').show();
-        
-        // Ambil pengaturan hak akses yang sudah ada untuk menu ini dan level
+        // Load menu data
         $.ajax({
-            url: "{{ url('/HakAkses/getHakAksesData') }}/" + hakAksesKode,
+            url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/edit`,
             type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                // Cek apakah menu ada dalam data yang dikembalikan
-                if (data[menuId]) {
-                    // Set nilai checkbox berdasarkan pengaturan yang ada
-                    $('#edit_hak_menu').prop('checked', data[menuId].ha_menu === 1);
-                    $('#edit_hak_view').prop('checked', data[menuId].ha_view === 1);
-                    $('#edit_hak_create').prop('checked', data[menuId].ha_create === 1);
-                    $('#edit_hak_update').prop('checked', data[menuId].ha_update === 1);
-                    $('#edit_hak_delete').prop('checked', data[menuId].ha_delete === 1);
+            success: function(response) {
+                if (response.success) {
+                    const menu = response.menu;
+                    currentMenuGlobalId = menu.fk_web_menu_global;
+                    currentWebMenuUrl = menu.fk_web_menu_url;
+                    
+                    // Set form action
+                    $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}`);
+                    
+                    // Fill form fields
+                    $('#edit_menu_global_name').val(menu.menu_global_name);
+                    $('#edit_alias').val(menu.wm_menu_nama || '');
+                    $('#edit_status').val(menu.wm_status_menu);
+                    $('#edit_level_menu').val(menu.fk_m_hak_akses);
+                    
+                    // Determine kategori menu
+                    originalMenuType = menu.kategori_menu;
+                    
+                    // Setup kategori menu options
+                    setupKategoriOptions(originalMenuType);
+                    $('#edit_kategori_menu').val(originalMenuType);
+                    
+                    // Handle parent menu if sub menu
+                    if (originalMenuType === 'sub_menu') {
+                        $('#edit_group_menu_container').show();
+                        updateParentMenuOptions(menu.fk_m_hak_akses, $('#edit_parent_id'), menuId);
+                        
+                        // Set parent value after dropdown is loaded
+                        setTimeout(() => {
+                            $('#edit_parent_id').val(menu.wm_parent_id);
+                        }, 500);
+                    } else {
+                        $('#edit_group_menu_container').hide();
+                    }
+                    
+                    // Handle permissions
+                    if (originalMenuType !== 'group_menu') {
+                        $('#edit_permissions_container').show();
+                        
+                        // Load permissions for this menu
+                        if (menu.permissions) {
+                            $('#edit_perm_menu').prop('checked', menu.permissions.menu);
+                            $('#edit_perm_view').prop('checked', menu.permissions.view);
+                            $('#edit_perm_create').prop('checked', menu.permissions.create);
+                            $('#edit_perm_update').prop('checked', menu.permissions.update);
+                            $('#edit_perm_delete').prop('checked', menu.permissions.delete);
+                        }
+                    } else {
+                        $('#edit_permissions_container').hide();
+                    }
+                    
+                    // Disable level menu if sub menu (will inherit from parent)
+                    if (originalMenuType === 'sub_menu') {
+                        $('#edit_level_menu').prop('disabled', true);
+                    } else {
+                        $('#edit_level_menu').prop('disabled', false);
+                    }
+                }
+            },
+            error: function() {
+                toastr.error('Gagal memuat data menu');
+            }
+        });
+    });
+
+    // Setup kategori options based on current menu type
+    function setupKategoriOptions(currentType) {
+        const $select = $('#edit_kategori_menu');
+        $select.empty();
+        
+        if (currentType === 'group_menu') {
+            // Group menu tidak bisa berubah kategori
+            $select.append('<option value="group_menu">Group Menu</option>');
+            $select.prop('disabled', true);
+            $('#kategori_info').text('Group menu tidak dapat diubah kategori');
+        } else {
+            $select.prop('disabled', false);
+            $('#kategori_info').text('');
+            
+            // Menu biasa dan sub menu bisa diubah, tapi tidak bisa menjadi group menu
+            $select.append('<option value="menu_biasa">Menu Biasa</option>');
+            $select.append('<option value="sub_menu">Sub Menu</option>');
+        }
+    }
+
+    // Handle kategori menu change
+    $('#edit_kategori_menu').on('change', function() {
+        const selectedKategori = $(this).val();
+        const hakAksesId = $('#edit_level_menu').val();
+        
+        if (selectedKategori === 'sub_menu') {
+            $('#edit_group_menu_container').show();
+            $('#edit_level_menu').prop('disabled', true);
+            updateParentMenuOptions(hakAksesId, $('#edit_parent_id'), currentMenuId);
+        } else {
+            $('#edit_group_menu_container').hide();
+            $('#edit_parent_id').val('');
+            $('#edit_level_menu').prop('disabled', false);
+        }
+        
+        // Hide/show permissions based on kategori
+        if (selectedKategori === 'group_menu') {
+            $('#edit_permissions_container').hide();
+        } else {
+            $('#edit_permissions_container').show();
+        }
+    });
+
+    // Handle level menu change
+    $('#edit_level_menu').on('change', function() {
+        const hakAksesId = $(this).val();
+        const kategori = $('#edit_kategori_menu').val();
+        
+        if (kategori === 'sub_menu') {
+            updateParentMenuOptions(hakAksesId, $('#edit_parent_id'), currentMenuId);
+        }
+    });
+
+    // Permission checkbox hierarchy
+    $('#editMenuModal .permission-checkbox').on('change', function() {
+        const $this = $(this);
+        const level = parseInt($this.data('level'));
+        const isChecked = $this.is(':checked');
+        
+        if (!isChecked) {
+            // Uncheck all lower level permissions
+            $('#editMenuModal .permission-checkbox').each(function() {
+                const thisLevel = parseInt($(this).data('level'));
+                if (thisLevel > level) {
+                    $(this).prop('checked', false);
+                }
+            });
+        }
+        
+        if (isChecked) {
+            // Check all higher level permissions
+            $('#editMenuModal .permission-checkbox').each(function() {
+                const thisLevel = parseInt($(this).data('level'));
+                if (thisLevel < level) {
+                    $(this).prop('checked', true);
+                }
+            });
+        }
+    });
+
+    // Form submission
+    $('#editMenuForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Remove validation errors
+        $('.is-invalid').removeClass('is-invalid');
+        
+        // Validate
+        let isValid = true;
+        
+        // Add web_menu_global_id to form data
+        $('<input>')
+            .attr('type', 'hidden')
+            .attr('name', 'web_menu[fk_web_menu_global]')
+            .val(currentMenuGlobalId)
+            .appendTo(this);
+
+        // Enable level menu temporarily for submission
+        $('#edit_level_menu').prop('disabled', false);
+        
+        // Validate parent menu for sub menu
+        if ($('#edit_kategori_menu').val() === 'sub_menu' && !$('#edit_parent_id').val()) {
+            $('#edit_parent_id').addClass('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
+        // Submit form
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    $('#editMenuModal').modal('hide');
+                    toastr.success(response.message);
+                    setTimeout(() => window.location.reload(), 1000);
                 } else {
-                    // Reset checkbox jika tidak ada pengaturan
-                    $('#edit_hak_menu').prop('checked', false);
-                    $('#edit_hak_view').prop('checked', false);
-                    $('#edit_hak_create').prop('checked', false);
-                    $('#edit_hak_update').prop('checked', false);
-                    $('#edit_hak_delete').prop('checked', false);
+                    toastr.error(response.message);
                 }
             },
             error: function(xhr) {
-                console.error('Error loading hak akses data:', xhr.responseText);
-                // Reset checkbox jika terjadi error
-                $('#edit_hak_menu').prop('checked', false);
-                $('#edit_hak_view').prop('checked', false);
-                $('#edit_hak_create').prop('checked', false);
-                $('#edit_hak_update').prop('checked', false);
-                $('#edit_hak_delete').prop('checked', false);
-            }
-        });
-    } else {
-        $('#edit-hak-akses-table-container').hide();
-    }
-});
-
-// Form editMenu
-$('#editMenuForm').off('submit').on('submit', function(e) {
-    e.preventDefault();
-
-    // Reset validasi
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').hide();
-
-    let isValid = true;
-    let kategoriMenu = $('#edit_kategori_menu').val();
-    let namaMenu = $('#edit_nama_menu').val();
-    let namaGroupMenu = $('#edit_nama_group_menu').val();
-    let statusMenu = $('#edit_status_menu').val();
-    let levelMenu = $('#edit_level_menu').val();
-
-    // Validasi Level Menu
-    if (!levelMenu) {
-        $('#edit_level_menu').addClass('is-invalid');
-        $('#edit_level_menu').siblings('.invalid-feedback').show();
-        isValid = false;
-    }
-    
-    // Validasi berdasarkan kategori menu yang dipilih
-    if (kategoriMenu === 'menu_biasa') {
-        // Jika menu biasa, nama menu wajib diisi
-        if (!namaMenu) {
-            $('#edit_nama_menu').addClass('is-invalid');
-            $('#edit_nama_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-    } else if (kategoriMenu === 'group_menu') {
-        // Jika group menu, nama group menu wajib diisi
-        if (!namaGroupMenu) {
-            $('#edit_nama_group_menu').addClass('is-invalid');
-            $('#edit_nama_group_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-    } else if (kategoriMenu === 'sub_menu') {
-        // Jika sub menu, nama menu dan nama group menu wajib diisi
-        if (!namaMenu) {
-            $('#edit_nama_menu').addClass('is-invalid');
-            $('#edit_nama_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-        if (!namaGroupMenu) {
-            $('#edit_nama_group_menu').addClass('is-invalid');
-            $('#edit_nama_group_menu').siblings('.invalid-feedback').show();
-            isValid = false;
-        }
-    }
-
-    // Validasi Status
-    if (!statusMenu) {
-        $('#edit_status_menu').addClass('is-invalid');
-        $('#edit_status_menu').siblings('.invalid-feedback').show();
-        isValid = false;
-    }
-
-    if (!isValid) {
-        return false;
-    }
-
-    // Validasi menu SAR
-    if (originalMenuLevel === 'SAR' && '{{ Auth::user()->level->hak_akses_kode }}' !== 'SAR') {
-        toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-        return false;
-    }
-
-    // Disable button selama pengiriman
-    const $submitBtn = $('#submitEditMenu');
-    const originalBtnText = $submitBtn.html();
-    $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
-    
-    // Persiapkan data form
-    let formData = $(this).serializeArray();
-    
-    // Jika kategori menu adalah group_menu, set fk_web_menu_global sesuai
-    if (kategoriMenu === 'group_menu') {
-        // Tambahkan field untuk fk_web_menu_global
-        formData = formData.filter(item => item.name !== 'web_menu[fk_web_menu_global]');
-        formData.push({
-            name: 'web_menu[fk_web_menu_global]',
-            value: namaGroupMenu
-        });
-    }
-    
-    let menuId = $('#edit_menu_id').val();
-    
-    $.ajax({
-        url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/update`,
-        type: 'PUT',
-        data: $.param(formData),
-        success: function(response) {
-            if (response.success) {
-                // Jika update menu berhasil, periksa apakah perlu update hak akses
-                const hakAksesKode = $('#edit_hak_akses_kode').val();
-                
-                if (hakAksesKode) {
-                    // Siapkan data hak akses
-                    const hakAksesData = {
-                        _token: "{{ csrf_token() }}",
-                        hak_akses_kode: hakAksesKode,
-                        menu_akses: {}
-                    };
-                    
-                    // Tambahkan izin menu
-                    hakAksesData.menu_akses[menuId] = {
-                        menu: $('#edit_hak_menu').is(':checked') ? 1 : 0,
-                        view: $('#edit_hak_view').is(':checked') ? 1 : 0,
-                        create: $('#edit_hak_create').is(':checked') ? 1 : 0,
-                        update: $('#edit_hak_update').is(':checked') ? 1 : 0,
-                        delete: $('#edit_hak_delete').is(':checked') ? 1 : 0
-                    };
-                    
-                    // Kirim permintaan update hak akses
-                    $.ajax({
-                        url: "{{ url('/HakAkses/updateData') }}",
-                        type: 'POST',
-                        data: hakAksesData,
-                        success: function(hakAksesResponse) {
-                            toastr.success(response.message + ' dan hak akses berhasil diperbarui');
-                            setTimeout(() => window.location.reload(), 1500);
-                        },
-                        error: function(xhr) {
-                            toastr.success(response.message);
-                            toastr.warning('Namun terjadi kesalahan saat memperbarui hak akses');
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    Object.keys(xhr.responseJSON.errors).forEach(function(key) {
+                        toastr.error(xhr.responseJSON.errors[key][0]);
                     });
                 } else {
-                    toastr.success(response.message);
-                    setTimeout(() => window.location.reload(), 1500);
+                    toastr.error('Terjadi kesalahan saat memperbarui menu');
                 }
-            } else {
-                toastr.error(response.message);
-                $submitBtn.html(originalBtnText).prop('disabled', false);
             }
-        },
-        error: function(xhr) {
-            console.error('Error updating menu:', xhr.responseText);
-            toastr.error('Terjadi kesalahan saat memperbarui menu');
-            $submitBtn.html(originalBtnText).prop('disabled', false);
-            
-            // Handle validation errors
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-                Object.keys(errors).forEach(key => {
-                    toastr.error(errors[key][0]);
-                });
-            }
-        }
+        });
     });
-});
 
-// Modifikasi fungsi edit untuk menampilkan data dengan benar
-$(document).off('click', '.edit-menu').on('click', '.edit-menu', function() {
-    let menuId = $(this).data('id');
-    
-    $('#edit_menu_id').val(menuId);
-
-    $.ajax({
-        url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/edit`,
-        type: 'GET',
-        success: function(response) {
-            if (response.success) {
-                // Set nilai form berdasarkan data dari response
-                $('#edit_level_menu').val(response.menu.fk_m_hak_akses || '');
-                $('#edit_menu_alias').val(response.menu.wm_menu_nama);
-                $('#edit_status_menu').val(response.menu.wm_status_menu);
-                
-                // Simpan level asli menu untuk validasi
-                originalMenuLevel = response.menu.hak_akses_kode;
-                
-                // Tentukan kategori menu berdasarkan data
-                if (response.menu.wm_parent_id) {
-                    // Ini adalah sub menu
-                    $('#edit_kategori_menu').val('sub_menu');
-                    // Pilih opsi yang sesuai berdasarkan web_menu_id, bukan web_menu_global_id
-                    $('#edit_nama_group_menu').val(response.menu.wm_parent_id);
-                    $('#edit_nama_menu').val(response.menu.fk_web_menu_global);
-                    
-                    // Tampilkan opsi sub menu
-                    $('#edit_group_menu_options').hide();
-                    $('#edit_sub_menu_options').show();
-                } else if (response.menu.fk_web_menu_url === null) {
-                    // Ini adalah group menu
-                    $('#edit_kategori_menu').val('group_menu');
-                    $('#edit_nama_group_menu').val(response.menu.fk_web_menu_global);
-                    
-                    // Tampilkan opsi group menu
-                    $('#edit_group_menu_options').show();
-                    $('#edit_sub_menu_options').hide();
-                } else {
-                    // Ini adalah menu biasa
-                    $('#edit_kategori_menu').val('menu_biasa');
-                    $('#edit_nama_menu').val(response.menu.fk_web_menu_global);
-                    
-                    // Tampilkan opsi menu biasa
-                    $('#edit_group_menu_options').show();
-                    $('#edit_sub_menu_options').hide();
+    // Function to update parent menu options
+    function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
+        targetSelect.empty().append('<option value="">-- Pilih Group Menu --</option>');
+        
+        if (!hakAksesId) return;
+        
+        const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
+        
+        $.ajax({
+            url: `${dynamicUrl}/${hakAksesId}`,
+            type: 'GET',
+            data: { exclude_id: excludeId },
+            success: function(response) {
+                if (response.success && response.parentMenus) {
+                    response.parentMenus.forEach(function(menu) {
+                        // Only add if it's a group menu
+                        if (menu.fk_web_menu_global && !menu.WebMenuUrl) {
+                            targetSelect.append(`
+                                <option value="${menu.web_menu_id}">
+                                    ${menu.display_name}
+                                </option>
+                            `);
+                        }
+                    });
                 }
-                
-                // Trigger change event untuk setup form sesuai kategori
-                $('#edit_kategori_menu').trigger('change');
-                
-                // Set the hak akses dropdown to the menu's level code
-                if (response.menu.hak_akses_kode) {
-                    $('#edit_hak_akses_kode').val(response.menu.hak_akses_kode).trigger('change');
-                }
-                
-                // Show edit modal
-                $('#editMenuModal').modal('show');
-            } else {
-                toastr.error(response.message || 'Gagal mengambil data menu');
+            },
+            error: function() {
+                toastr.error('Gagal memuat menu induk');
             }
-        },
-        error: function(xhr) {
-            console.error('Error fetching menu data:', xhr.responseText);
-            toastr.error('Error mengambil data menu');
-        }
-    });
-});
-
-// Reset form saat modal ditutup
-$('#editMenuModal').on('hidden.bs.modal', function() {
-    $('#editMenuForm')[0].reset();
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').hide();
-    $('#edit_level_menu').prop('disabled', false);
-    $('#edit_hak_akses_kode').val('');
-    $('#edit-hak-akses-table-container').hide();
-    originalMenuLevel = '';
+        });
+    }
 });
 </script>
 @endpush
