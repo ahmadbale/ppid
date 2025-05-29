@@ -115,6 +115,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/detail_menu', [MenuManagementController::class, 'detail_menu']);
         Route::post('/reorder', [MenuManagementController::class, 'reorder']); // New route for drag-drop reordering
         Route::get('/get-parent-menus/{hakAksesId}', [MenuManagementController::class, 'getParentMenus']);
+        Route::get('/set-menu/{hakAksesId}', [MenuManagementController::class, 'setMenu'])->middleware('permission:create');
+        Route::post('/store-set-menu', [MenuManagementController::class, 'storeSetMenu'])->middleware('permission:create');
     });
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('kategori-footer')], function () {
         Route::get('/', [KategoriFooterController::class, 'index'])->middleware('permission:view');

@@ -483,7 +483,7 @@ class WebMenuModel extends Model
 
             $saveData = self::findOrFail($id);
             $data = $request->web_menu;
-            $kategoriMenu = $request->kategori_menu; // Ambil kategori menu dari form
+            $kategoriMenu = $request->kategori_menu;
 
             // Periksa level menu
             $level = HakAksesModel::find($saveData->fk_m_hak_akses);
@@ -494,18 +494,53 @@ class WebMenuModel extends Model
                 ];
             }
 
+            // Dapatkan kategori menu sebelumnya
+            $oldKategoriMenu = 'menu_biasa';
+            if ($saveData->wm_parent_id) {
+                $oldKategoriMenu = 'sub_menu';
+            } elseif ($saveData->WebMenuGlobal && is_null($saveData->WebMenuGlobal->fk_web_menu_url)) {
+                $oldKategoriMenu = 'group_menu';
+            }
+
+            // Validasi perubahan kategori menu
+            if ($oldKategoriMenu === 'group_menu' && $kategoriMenu !== 'group_menu') {
+                return [
+                    'success' => false,
+                    'message' => 'Group menu tidak dapat diubah ke kategori lain'
+                ];
+            }
+
+            // Menu biasa dan sub menu tidak bisa diubah menjadi group menu
+            if ($oldKategoriMenu !== 'group_menu' && $kategoriMenu === 'group_menu') {
+                return [
+                    'success' => false,
+                    'message' => 'Menu tidak dapat diubah menjadi group menu'
+                ];
+            }
+
             // Tentukan wm_parent_id dan fk_web_menu_global berdasarkan kategori menu
             $parentId = null;
             $webMenuGlobalId = $data['fk_web_menu_global'];
 
             if ($kategoriMenu === 'sub_menu') {
-                // Jika sub menu, ambil parent_id dari field nama_group_menu
-                // PERUBAHAN: Gunakan langsung web_menu_id yang dipilih, bukan web_menu_global_id
+                // Jika sub menu, wm_parent_id wajib diisi
                 $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
+
+                if (!$parentId) {
+                    return [
+                        'success' => false,
+                        'message' => 'Sub menu harus memiliki menu induk'
+                    ];
+                }
+
+                // Ambil level dari parent menu
+                $parentMenu = self::find($parentId);
+                if ($parentMenu) {
+                    $data['fk_m_hak_akses'] = $parentMenu->fk_m_hak_akses;
+                }
             } else if ($kategoriMenu === 'group_menu') {
-                // Jika group menu, ambil web_menu_global_id dari field nama_group_menu
-                $parentId = null; // Group menu tidak memiliki parent
-                $webMenuGlobalId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : $webMenuGlobalId;
+                // Group menu tidak memiliki parent
+                $parentId = null;
             } else {
                 // Menu biasa, tidak memiliki parent
                 $parentId = null;
@@ -515,10 +550,50 @@ class WebMenuModel extends Model
             $saveData->update([
                 'fk_web_menu_global' => $webMenuGlobalId,
                 'fk_m_hak_akses' => $data['fk_m_hak_akses'],
-                'wm_parent_id' => $parentId, // Set nilai wm_parent_id berdasarkan kategori
-                'wm_menu_nama' => $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null, // Alias (opsional)
+                'wm_parent_id' => $parentId,
+                'wm_menu_nama' => isset($data['wm_menu_nama']) && $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null,
                 'wm_status_menu' => $data['wm_status_menu']
             ]);
+
+            // Update permissions jika bukan group menu
+            if (isset($data['permissions']) && $kategoriMenu !== 'group_menu') {
+                // Ambil semua user dengan level yang sama
+                $userIds = DB::table('set_user_hak_akses')
+                    ->where('fk_m_hak_akses', $saveData->fk_m_hak_akses)
+                    ->where('isDeleted', 0)
+                    ->pluck('fk_m_user');
+
+                foreach ($userIds as $userId) {
+                    $hakAkses = SetHakAksesModel::firstOrNew([
+                        'ha_pengakses' => $userId,
+                        'fk_web_menu' => $saveData->web_menu_id
+                    ]);
+
+                    $hakAkses->ha_menu = isset($data['permissions']['menu']) ? 1 : 0;
+                    $hakAkses->ha_view = isset($data['permissions']['view']) ? 1 : 0;
+                    $hakAkses->ha_create = isset($data['permissions']['create']) ? 1 : 0;
+                    $hakAkses->ha_update = isset($data['permissions']['update']) ? 1 : 0;
+                    $hakAkses->ha_delete = isset($data['permissions']['delete']) ? 1 : 0;
+
+                    // Set created_by atau updated_by
+                    if (!$hakAkses->exists) {
+                        $hakAkses->created_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
+                        $hakAkses->isDeleted = 0;
+                    } else {
+                        $hakAkses->updated_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
+                    }
+
+                    $hakAkses->save();
+                }
+            }
+
+            // Jika kategori berubah dari group menu ke yang lain, hapus submenu relationship
+            if ($oldKategoriMenu === 'group_menu' && $kategoriMenu !== 'group_menu') {
+                // Update semua submenu yang memiliki parent ini
+                self::where('wm_parent_id', $saveData->web_menu_id)
+                    ->where('isDeleted', 0)
+                    ->update(['wm_parent_id' => null]);
+            }
 
             TransactionModel::createData(
                 'UPDATED',
@@ -712,11 +787,16 @@ class WebMenuModel extends Model
 
     public static function getParentMenusByLevel($hakAksesId, $excludeId = null)
     {
-        // Dapatkan menu-menu untuk level tertentu
-        $query = self::where('fk_m_hak_akses', $hakAksesId)
+        // Dapatkan menu-menu untuk level tertentu yang merupakan group menu
+        $query = self::with(['WebMenuGlobal.WebMenuUrl'])
+            ->where('fk_m_hak_akses', $hakAksesId)
             ->whereNull('wm_parent_id')
             ->where('isDeleted', 0)
-            ->where('wm_status_menu', 'aktif');
+            ->where('wm_status_menu', 'aktif')
+            // Hanya ambil menu yang merupakan group menu (tidak memiliki web_menu_url)
+            ->whereHas('WebMenuGlobal', function ($q) {
+                $q->whereNull('fk_web_menu_url');
+            });
 
         // Jika ada ID yang perlu dikecualikan (menu yang sedang diupdate)
         if ($excludeId) {
@@ -750,21 +830,64 @@ class WebMenuModel extends Model
     {
         try {
             // Dapatkan menu dengan relasi yang diperlukan
-            $menu = self::with(['WebMenuGlobal.WebMenuUrl'])->findOrFail($id);
+            $menu = self::with(['WebMenuGlobal.WebMenuUrl', 'Level', 'parentMenu'])->findOrFail($id);
 
-            // Dapatkan parent menu untuk level tersebut
-            $parentMenus = self::getParentMenusByLevel($menu->fk_m_hak_akses);
+            // Tentukan kategori menu
+            $kategoriMenu = 'menu_biasa'; // Default
+
+            // Jika menu memiliki parent, maka ini adalah sub menu
+            if ($menu->wm_parent_id) {
+                $kategoriMenu = 'sub_menu';
+            }
+            // Jika menu global tidak memiliki URL (fk_web_menu_url null), maka ini adalah group menu
+            elseif ($menu->WebMenuGlobal && is_null($menu->WebMenuGlobal->fk_web_menu_url)) {
+                $kategoriMenu = 'group_menu';
+            }
+
+            // Dapatkan permissions untuk menu ini
+            $permissions = [
+                'menu' => false,
+                'view' => false,
+                'create' => false,
+                'update' => false,
+                'delete' => false
+            ];
+
+            // Ambil permission dari set_hak_akses untuk user tertentu (bisa diperluas untuk semua user)
+            // Untuk sementara, kita ambil permission dari user yang sedang login
+            $userId = Auth::user()->user_id;
+            $hakAkses = SetHakAksesModel::where('ha_pengakses', $userId)
+                ->where('fk_web_menu', $id)
+                ->where('isDeleted', 0)
+                ->first();
+
+            if ($hakAkses) {
+                $permissions = [
+                    'menu' => $hakAkses->ha_menu == 1,
+                    'view' => $hakAkses->ha_view == 1,
+                    'create' => $hakAkses->ha_create == 1,
+                    'update' => $hakAkses->ha_update == 1,
+                    'delete' => $hakAkses->ha_delete == 1
+                ];
+            }
+
+            // Dapatkan parent menus untuk level tersebut
+            $parentMenus = self::getParentMenusByLevel($menu->fk_m_hak_akses, $id);
 
             $result = [
                 'success' => true,
                 'menu' => [
                     'web_menu_id' => $menu->web_menu_id,
-                    'wm_menu_nama' => $menu->wm_menu_nama ?: ($menu->WebMenuGlobal ? $menu->WebMenuGlobal->wmg_nama_default : ''),
+                    'wm_menu_nama' => $menu->wm_menu_nama,
+                    'menu_global_name' => $menu->WebMenuGlobal ? $menu->WebMenuGlobal->wmg_nama_default : '',
                     'wm_status_menu' => $menu->wm_status_menu,
                     'wm_parent_id' => $menu->wm_parent_id,
+                    'fk_web_menu_global' => $menu->fk_web_menu_global,
                     'fk_web_menu_url' => $menu->WebMenuGlobal ? $menu->WebMenuGlobal->fk_web_menu_url : null,
                     'fk_m_hak_akses' => $menu->fk_m_hak_akses,
-                    'hak_akses_kode' => $menu->Level ? $menu->Level->hak_akses_kode : null
+                    'hak_akses_kode' => $menu->Level ? $menu->Level->hak_akses_kode : null,
+                    'kategori_menu' => $kategoriMenu,
+                    'permissions' => $permissions
                 ],
                 'parentMenus' => $parentMenus
             ];
@@ -777,6 +900,7 @@ class WebMenuModel extends Model
             ];
         }
     }
+    
     public static function getDetailData($id)
     {
         try {
