@@ -25,7 +25,7 @@ class ApiWebMenuGlobalController extends BaseApiController
 
     public function createData(Request $request)
     {
-        return $this->executeWithAuthentication( // ✅ Gunakan method yang ada
+        return $this->executeWithAuthentication( 
             function () use ($request) {
                 try {
                     // Ambil data dari request
@@ -112,7 +112,7 @@ class ApiWebMenuGlobalController extends BaseApiController
     return $this->executeWithAuthentication(
         function () use ($request, $id) {
             try {
-                // 1. Ambil data existing dari database
+                //  Ambil data existing dari database
                 $existingData = WebMenuGlobalModel::find($id);
                 
                 if (!$existingData) {
@@ -123,14 +123,14 @@ class ApiWebMenuGlobalController extends BaseApiController
                     );
                 }
 
-                // 2. Merge dengan data existing (untuk partial update)
+                // Merge dengan data existing (untuk partial update)
                 $wmgNamaDefault = $request->input('wmg_nama_default') ?? $existingData->wmg_nama_default;
                 $wmgKategoriMenu = $request->input('wmg_kategori_menu') ?? $existingData->wmg_kategori_menu;
                 $fkWebMenuUrl = $request->input('fk_web_menu_url') ?? $existingData->fk_web_menu_url;
                 $wmgParentId = $request->input('wmg_parent_id') ?? $existingData->wmg_parent_id;
                 $wmgStatusMenu = $request->input('wmg_status_menu') ?? $existingData->wmg_status_menu;
 
-                // 3. Validasi data dasar
+                // Validasi data dasar
                 if (empty($wmgNamaDefault) && $wmgNamaDefault !== '0') {
                     return $this->errorResponse(
                         self::AUTH_INVALID_INPUT,
@@ -139,7 +139,7 @@ class ApiWebMenuGlobalController extends BaseApiController
                     );
                 }
 
-                // 4. Validasi berdasarkan kategori menu
+                // Validasi berdasarkan kategori menu
                 if ($wmgKategoriMenu === 'Sub Menu' && empty($wmgParentId)) {
                     return $this->errorResponse(
                         self::AUTH_INVALID_INPUT,
@@ -156,7 +156,7 @@ class ApiWebMenuGlobalController extends BaseApiController
                     );
                 }
 
-                // 5. Struktur ulang data dengan data lengkap
+                // Struktur ulang data dengan data lengkap
                 $request->merge([
                     'web_menu_global' => [
                         'wmg_nama_default' => $wmgNamaDefault,
@@ -168,10 +168,10 @@ class ApiWebMenuGlobalController extends BaseApiController
                     ]
                 ]);
 
-                // 6. Validasi menggunakan model
+                //  Validasi menggunakan model
                 WebMenuGlobalModel::validasiData($request);
 
-                // 7. Update data
+                // Update data
                 $result = WebMenuGlobalModel::updateData($request, $id);
 
                 if (!$result['success']) {
@@ -201,35 +201,7 @@ class ApiWebMenuGlobalController extends BaseApiController
         self::ACTION_UPDATE
     );
 }
-    public function deleteData($id)
-    {
-        return $this->executeWithAuthentication(
-            function () use ($id) {
-                try {
-                    $result = WebMenuGlobalModel::deleteData($id);
-                    
-                    if (!$result['success']) {
-                        return $this->errorResponse(
-                            self::SERVER_ERROR,
-                            $result['message'] ?? 'Gagal menghapus menu global',
-                            self::HTTP_INTERNAL_SERVER_ERROR
-                        );
-                    }
-
-                    return true; // Return boolean untuk delete operation
-                } catch (\Exception $e) {
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        'Terjadi kesalahan saat menghapus menu global: ' . $e->getMessage(),
-                        self::HTTP_INTERNAL_SERVER_ERROR
-                    );
-                }
-            },
-            'menu global',
-            self::ACTION_DELETE
-        );
-    }
-
+ 
     public function detailData($id)
     {
         return $this->executeWithAuthentication(
@@ -248,7 +220,34 @@ class ApiWebMenuGlobalController extends BaseApiController
             self::ACTION_GET
         );
     }
+    public function deleteData($id)
+    {
+        return $this->executeWithAuthentication(
+            function () use ($id) {
+                try {
+                    $result = WebMenuGlobalModel::deleteData($id);
+                    
+                    if (!$result['success']) {
+                        return $this->errorResponse(
+                            self::SERVER_ERROR,
+                            $result['message'] ?? 'Gagal menghapus menu global',
+                            self::HTTP_INTERNAL_SERVER_ERROR
+                        );
+                    }
 
+                    return true;
+                } catch (\Exception $e) {
+                    return $this->errorResponse(
+                        self::SERVER_ERROR,
+                        'Terjadi kesalahan saat menghapus menu global: ' . $e->getMessage(),
+                        self::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+            },
+            'menu global',
+            self::ACTION_DELETE
+        );
+    }
     public function getMenuUrl()
     {
         return $this->executeWithAuthentication(

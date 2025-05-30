@@ -24,11 +24,13 @@ use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPengaduanMasyarakatControlle
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanInformasiController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPermohonanPerawatanController;
 use Modules\Sisfo\App\Http\Controllers\Api\EForm\ApiPernyataanKeberatanController;
+use Modules\Sisfo\App\Http\Controllers\Api\MenuManagement\ApiWebMenuUrlController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiKetentuanPelaporanController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiDashboardStatisticsController;
+use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPenyelesaianSengketaController;
 use Modules\Sisfo\App\Http\Controllers\Api\MenuManagement\ApiWebMenuGlobalController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPengumumanLandingPageController;
-use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPenyelesaianSengketaController;
+use Modules\Sisfo\App\Http\Controllers\Api\MenuManagement\ApiMenuManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +100,13 @@ Route::prefix('auth')->group(function () {
             Route::get('/detail/{id}', [ApiWebMenuGlobalController::class, 'detailData']);
             Route::get('/getMenuUrl', [ApiWebMenuGlobalController::class, 'getMenuUrl']);
         });
+        Route::prefix('management-menu-url')->group(function () {
+            Route::get('/', [ApiWebMenuUrlController::class, 'index']);
+            Route::post('/create', [ApiWebMenuUrlController::class, 'createData']);
+            Route::post('/update/{id}', [ApiWebMenuUrlController::class, 'updateData']);
+            Route::delete('/delete/{id}', [ApiWebMenuUrlController::class, 'deleteData']);
+            Route::get('/detail/{id}', [ApiWebMenuUrlController::class, 'detailData']);
+        });
         // Routr Api UserController
         Route::prefix('user')->group(function () {
             Route::get('/', [ApiUserController::class, 'index']);
@@ -108,6 +117,15 @@ Route::prefix('auth')->group(function () {
             Route::post('/add-hak-akses/{userId}', [ApiUserController::class, 'addHakAkses']);
             Route::delete('/remove-hak-akses/{userId}', [ApiUserController::class, 'removeHakAkses']);
             Route::get('/available-hak-akses/{userId}', [ApiUserController::class, 'getAvailableHakAkses']);
+        });
+        // Route Api untuk Menu Management
+        Route::prefix('menu-management')->group (function (){
+            Route::get('/', [ApiMenuManagementController::class, 'index']);
+            Route::post('/create', [ApiMenuManagementController::class, 'createData']);
+            Route::post('/update/{id}', [ApiMenuManagementController::class, 'updateData']);
+            Route::delete('/delete/{id}', [ApiMenuManagementController::class, 'deleteData']);
+            Route::get('/detail/{id}', [ApiMenuManagementController::class, 'detailData']);
+            
         });
     });
 });
