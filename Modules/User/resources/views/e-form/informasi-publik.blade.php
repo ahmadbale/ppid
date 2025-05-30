@@ -356,19 +356,20 @@
                                                 @if (!empty($pertanyaan['required'])) required @endif>
 
                                             {{-- Jika input type checkbox --}}
-                                       @elseif ($pertanyaan['type'] === 'radiobutton')
-    @foreach ($pertanyaan['options'] as $option)
-        <div class="form-check">
-            <input class="form-check-input" type="radio"
-                name="t_permohonan_informasi[{{ $pertanyaan['name'] }}]"
-                id="{{ $pertanyaan['name'] }}_{{ $loop->index }}"
-                value="{{ $option }}"
-                @if (!empty($pertanyaan['required'])) required @endif>
-            <label class="form-check-label" for="{{ $pertanyaan['name'] }}_{{ $loop->index }}">
-                {{ $option }}
-            </label>
-        </div>
-    @endforeach
+                                        @elseif ($pertanyaan['type'] === 'radiobutton')
+                                            @foreach ($pertanyaan['options'] as $option)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="t_permohonan_informasi[{{ $pertanyaan['name'] }}]"
+                                                        id="{{ $pertanyaan['name'] }}_{{ $loop->index }}"
+                                                        value="{{ $option }}"
+                                                        @if (!empty($pertanyaan['required'])) required @endif>
+                                                    <label class="form-check-label"
+                                                        for="{{ $pertanyaan['name'] }}_{{ $loop->index }}">
+                                                        {{ $option }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
 
                                             {{-- Jika input type select (dropdown) --}}
                                         @elseif ($pertanyaan['type'] === 'select')

@@ -49,14 +49,17 @@ Route::prefix('form-permohonan-informasi')->group(function () {
     Route::get('/', [InformasiController::class, 'index'])->name('form-informasi-publik');
     Route::post('/store', [InformasiController::class, 'store'])->name('form-informasi-publik.store');
 });
+
 Route::prefix('form-pernyataan-keberatan')->group(function () {
-    Route::get('/', [KeberatanController::class, 'index'])->name('form-keberatan');
+   Route::get('/', [KeberatanController::class, 'index'])->name('form-pernyataan-keberatan');
+    Route::post('/store', [KeberatanController::class, 'store'])->name('form-pernyataan-keberatan.store');
 });
 Route::prefix('form-whistle-blowing')->group(function () {
     Route::get('/', [WBSController::class, 'index'])->name('form-wbs');
 });
 Route::prefix('form-pengaduan-masyarakat')->group(function () {
-    Route::get('/', [PengaduanMasyarakatController::class, 'index'])->name('form-aduanmasyarakat');
+  Route::get('/', [PengaduanMasyarakatController::class, 'index'])->name('form-aduan-masyarakat');
+    Route::post('/store', [PengaduanMasyarakatController::class, 'store'])->name('form-aduan-masyarakat.store');
 });
 // ---- form dinamis untuk self made new form -----
 
