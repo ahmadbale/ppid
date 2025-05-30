@@ -144,6 +144,38 @@ $(document).ready(function() {
     let currentWebMenuUrl = null;
     let currentLevelId = null;
 
+    // Function untuk menampilkan modal dengan fallback
+    function showModal(modalId) {
+        const $modal = $(modalId);
+        if ($.fn.modal && typeof $.fn.modal === 'function') {
+            // Bootstrap modal tersedia
+            $modal.modal('show');
+        } else {
+            // Fallback: tampilkan manual
+            $modal.addClass('show').css('display', 'block');
+            $('body').addClass('modal-open');
+            
+            // Tambahkan backdrop
+            if (!$('.modal-backdrop').length) {
+                $('<div class="modal-backdrop fade show"></div>').appendTo('body');
+            }
+        }
+    }
+
+    // Function untuk menyembunyikan modal dengan fallback
+    function hideModal(modalId) {
+        const $modal = $(modalId);
+        if ($.fn.modal && typeof $.fn.modal === 'function') {
+            // Bootstrap modal tersedia
+            $modal.modal('hide');
+        } else {
+            // Fallback: sembunyikan manual
+            $modal.removeClass('show').css('display', 'none');
+            $('body').removeClass('modal-open').css('padding-right', '');
+            $('.modal-backdrop').remove();
+        }
+    }
+
     // Edit Menu Handler - Use delegated event handler
     $(document).on('click', '.edit-menu', function() {
         const menuId = $(this).data('id');
@@ -214,10 +246,11 @@ $(document).ready(function() {
                     }
                     
                     // Show modal after data is loaded
-                    $('#editMenuModal').modal('show');
+                    showModal('#editMenuModal');
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('Error loading menu data:', error);
                 toastr.error('Gagal memuat data menu');
             }
         });
@@ -291,7 +324,7 @@ $(document).ready(function() {
         }
     });
 
-    // Form submission
+    // PERBAIKAN: Form submission dengan penanganan modal yang lebih robust
     $('#editMenuForm').on('submit', function(e) {
         e.preventDefault();
         
@@ -311,12 +344,30 @@ $(document).ready(function() {
             return;
         }
         
-        // Add fk_web_menu_global to form data
-        const formData = $(this).serializeArray();
+        // Collect form data
+        let formData = $(this).serializeArray();
+        
+        // PERBAIKAN: Pastikan kategori_menu selalu dikirim
+        const kategoriMenu = $('#edit_kategori_menu').val();
+        
+        // Hapus kategori_menu yang mungkin sudah ada di formData
+        formData = formData.filter(item => item.name !== 'kategori_menu');
+        
+        // Tambahkan kategori_menu dengan nilai yang benar
         formData.push({
-            name: 'web_menu[fk_web_menu_global]',
-            value: currentMenuGlobalId
+            name: 'kategori_menu',
+            value: kategoriMenu
         });
+        
+        // PERBAIKAN: Hanya tambahkan fk_web_menu_global untuk menu_biasa dan sub_menu
+        if (kategoriMenu !== 'group_menu') {
+            formData.push({
+                name: 'web_menu[fk_web_menu_global]',
+                value: currentMenuGlobalId
+            });
+        }
+        
+        console.log('Data yang akan dikirim:', formData); // Untuk debug
         
         // Submit form
         $.ajax({
@@ -328,20 +379,12 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    // PERBAIKAN: Gunakan metode alternatif untuk menutup modal
+                    // PERBAIKAN: Gunakan function hideModal yang aman
                     try {
-                        // Coba metode Bootstrap standar terlebih dahulu
-                        if ($.fn.modal) {
-                            $('#editMenuModal').modal('hide');
-                        } else {
-                            // Fallback jika modal function tidak tersedia
-                            $('#editMenuModal').hide();
-                            $('.modal-backdrop').remove();
-                            $('body').removeClass('modal-open').css('padding-right', '');
-                        }
+                        hideModal('#editMenuModal');
                     } catch (error) {
-                        console.error('Gagal menutup modal:', error);
-                        // Fallback kedua jika terjadi error
+                        console.error('Error saat menutup modal:', error);
+                        // Fallback manual jika semua cara gagal
                         $('#editMenuModal').hide();
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open').css('padding-right', '');
@@ -350,14 +393,20 @@ $(document).ready(function() {
                     toastr.success(response.message);
                     setTimeout(() => window.location.reload(), 1000);
                 } else {
-                    toastr.error(response.message);
+                    console.error('Error response:', response);
+                    toastr.error(response.message || 'Terjadi kesalahan saat memperbarui menu');
                 }
             },
             error: function(xhr) {
+                console.error('AJAX Error:', xhr);
+                
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     Object.keys(xhr.responseJSON.errors).forEach(function(key) {
                         toastr.error(xhr.responseJSON.errors[key][0]);
+                        console.error('Validation error [' + key + ']:', xhr.responseJSON.errors[key][0]);
                     });
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    toastr.error(xhr.responseJSON.message);
                 } else {
                     toastr.error('Terjadi kesalahan saat memperbarui menu');
                 }
@@ -388,20 +437,53 @@ $(document).ready(function() {
                     });
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('Error loading parent menus:', error);
                 toastr.error('Gagal memuat menu induk');
             }
         });
     }
     
-    // Reset modal on close
-    $('#editMenuModal').on('hidden.bs.modal', function() {
-        $(this).find('form')[0].reset();
-        $('.is-invalid').removeClass('is-invalid');
-        $('#edit_kategori_menu').prop('disabled', false);
-        $('#edit_parent_id').empty().append('<option value="">-- Pilih Group Menu --</option>');
-        $('#kategori_info').text('');
+    // PERBAIKAN: Event handler untuk tombol close modal
+    $(document).on('click', '[data-dismiss="modal"]', function() {
+        const targetModal = $(this).closest('.modal');
+        hideModal('#' + targetModal.attr('id'));
     });
+    
+    // PERBAIKAN: Event handler untuk backdrop click
+    $(document).on('click', '.modal', function(e) {
+        if (e.target === this) {
+            hideModal('#' + $(this).attr('id'));
+        }
+    });
+    
+    // PERBAIKAN: Event handler untuk ESC key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $('.modal.show').length) {
+            const modalId = '#' + $('.modal.show').attr('id');
+            hideModal(modalId);
+        }
+    });
+    
+    // Reset modal on close dengan event yang lebih umum
+    $(document).on('hidden.bs.modal', '.modal', function() {
+        resetModal(this);
+    });
+    
+    // PERBAIKAN: Function untuk reset modal
+    function resetModal(modal) {
+        const $modal = $(modal);
+        const $form = $modal.find('form');
+        
+        if ($form.length) {
+            $form[0].reset();
+        }
+        
+        $modal.find('.is-invalid').removeClass('is-invalid');
+        $modal.find('#edit_kategori_menu').prop('disabled', false);
+        $modal.find('#edit_parent_id').empty().append('<option value="">-- Pilih Group Menu --</option>');
+        $modal.find('#kategori_info').text('');
+    }
 });
 </script>
 @endpush
