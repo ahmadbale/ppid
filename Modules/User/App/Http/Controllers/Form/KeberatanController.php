@@ -25,7 +25,7 @@ class KeberatanController extends Controller
     {
         try {
             // Get active token
-            $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHBpZC1wb2xpbmVtYS50ZXN0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ4NTkzNzE3LCJleHAiOjE3NDg1OTczMTcsIm5iZiI6MTc0ODU5MzcxNywianRpIjoidnpnNXNaOFAwUklVUmtOQiIsInN1YiI6IjUiLCJwcnYiOiI3MDBmMzdkN2Q5MDU2MmQyYTYyNTU3ZDg4OWRlZTJlMDA5ODI3NzM1IiwidHlwZSI6InVzZXIiLCJ1c2VyX2lkIjo1LCJyb2xlIjoiUmVzcG9uZGVuIn0.g5dg7IblAYU2NxqAARvzfYJTl-gygLCWPibt2mTDBPU';
+            $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHBpZC1wb2xpbmVtYS50ZXN0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ4NTk0NDI2LCJleHAiOjE3NDg1OTgwMjYsIm5iZiI6MTc0ODU5NDQyNiwianRpIjoibzg4Z1YyWmowamcwY25PUiIsInN1YiI6IjUiLCJwcnYiOiI3MDBmMzdkN2Q5MDU2MmQyYTYyNTU3ZDg4OWRlZTJlMDA5ODI3NzM1IiwidHlwZSI6InVzZXIiLCJ1c2VyX2lkIjo1LCJyb2xlIjoiUmVzcG9uZGVuIn0.9EZX6PJe1j3okzYSW52KePaFquxLzyIx5OsoSe9Z9z4';
 
             // Create HTTP client with authorization
             $httpClient = Http::withOptions(['verify' => false])
