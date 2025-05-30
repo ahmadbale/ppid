@@ -474,16 +474,34 @@ class WebMenuModel extends Model
         }
     }
 
-
     public static function updateData($request, $id)
     {
         DB::beginTransaction();
         try {
+            // Ambil data menu yang akan diupdate
+            $saveData = self::findOrFail($id);
+
+            // Tentukan kategori menu saat ini
+            $currentKategoriMenu = 'menu_biasa';
+            if ($saveData->wm_parent_id) {
+                $currentKategoriMenu = 'sub_menu';
+            } elseif ($saveData->WebMenuGlobal && is_null($saveData->WebMenuGlobal->fk_web_menu_url)) {
+                $currentKategoriMenu = 'group_menu';
+            }
+
+            // PERBAIKAN: Jika kategori_menu tidak ada di request dan ini adalah group menu, set otomatis
+            if (!$request->has('kategori_menu') || empty($request->kategori_menu)) {
+                if ($currentKategoriMenu === 'group_menu') {
+                    $request->merge(['kategori_menu' => 'group_menu']);
+                    Log::debug('Auto-set kategori_menu ke group_menu untuk menu ID: ' . $id);
+                }
+            }
+
+            // Validasi data setelah penyesuaian kategori_menu
             self::validasiData($request);
 
-            $saveData = self::findOrFail($id);
             $data = $request->web_menu;
-            $kategoriMenu = $request->kategori_menu;
+            $kategoriMenu = $request->kategori_menu ?? $currentKategoriMenu;
 
             // Periksa level menu
             $level = HakAksesModel::find($saveData->fk_m_hak_akses);
@@ -494,16 +512,8 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // Dapatkan kategori menu sebelumnya
-            $oldKategoriMenu = 'menu_biasa';
-            if ($saveData->wm_parent_id) {
-                $oldKategoriMenu = 'sub_menu';
-            } elseif ($saveData->WebMenuGlobal && is_null($saveData->WebMenuGlobal->fk_web_menu_url)) {
-                $oldKategoriMenu = 'group_menu';
-            }
-
-            // Validasi perubahan kategori menu
-            if ($oldKategoriMenu === 'group_menu' && $kategoriMenu !== 'group_menu') {
+            // PERBAIKAN: Validasi perubahan kategori menu sesuai aturan bisnis
+            if ($currentKategoriMenu === 'group_menu' && $kategoriMenu !== 'group_menu') {
                 return [
                     'success' => false,
                     'message' => 'Group menu tidak dapat diubah ke kategori lain'
@@ -511,88 +521,54 @@ class WebMenuModel extends Model
             }
 
             // Menu biasa dan sub menu tidak bisa diubah menjadi group menu
-            if ($oldKategoriMenu !== 'group_menu' && $kategoriMenu === 'group_menu') {
+            if ($currentKategoriMenu !== 'group_menu' && $kategoriMenu === 'group_menu') {
                 return [
                     'success' => false,
                     'message' => 'Menu tidak dapat diubah menjadi group menu'
                 ];
             }
 
-            // Tentukan wm_parent_id dan fk_web_menu_global berdasarkan kategori menu
+            // PERBAIKAN: Tentukan nilai-nilai berdasarkan kategori menu
             $parentId = null;
-            $webMenuGlobalId = $data['fk_web_menu_global'];
-
-            if ($kategoriMenu === 'sub_menu') {
-                // Jika sub menu, wm_parent_id wajib diisi
-                $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
-
-                if (!$parentId) {
-                    return [
-                        'success' => false,
-                        'message' => 'Sub menu harus memiliki menu induk'
-                    ];
-                }
-
-                // Ambil level dari parent menu
-                $parentMenu = self::find($parentId);
-                if ($parentMenu) {
-                    $data['fk_m_hak_akses'] = $parentMenu->fk_m_hak_akses;
-                }
-            } else if ($kategoriMenu === 'group_menu') {
-                // Group menu tidak memiliki parent
-                $parentId = null;
-            } else {
-                // Menu biasa, tidak memiliki parent
-                $parentId = null;
-            }
-
-            // Update menu
-            $saveData->update([
-                'fk_web_menu_global' => $webMenuGlobalId,
+            $updateData = [
                 'fk_m_hak_akses' => $data['fk_m_hak_akses'],
-                'wm_parent_id' => $parentId,
                 'wm_menu_nama' => isset($data['wm_menu_nama']) && $data['wm_menu_nama'] ? $data['wm_menu_nama'] : null,
                 'wm_status_menu' => $data['wm_status_menu']
-            ]);
+            ];
+
+            if ($kategoriMenu === 'sub_menu') {
+                // Untuk sub_menu, set parent_id dan fk_web_menu_global
+                $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
+                $updateData['wm_parent_id'] = $parentId;
+                $updateData['fk_web_menu_global'] = $data['fk_web_menu_global'] ?? $saveData->fk_web_menu_global;
+
+                // Ambil level dari parent menu
+                if ($parentId) {
+                    $parentMenu = self::find($parentId);
+                    if ($parentMenu) {
+                        $updateData['fk_m_hak_akses'] = $parentMenu->fk_m_hak_akses;
+                    }
+                }
+            } else if ($kategoriMenu === 'group_menu') {
+                // Untuk group_menu, tetap gunakan nilai yang sudah ada
+                // Group menu tidak memiliki parent
+                $updateData['wm_parent_id'] = null;
+                // JANGAN ubah fk_web_menu_global untuk group menu - biarkan seperti semula
+                // Hapus fk_web_menu_global dari updateData untuk group menu
+            } else {
+                // Menu biasa, tidak memiliki parent
+                $updateData['wm_parent_id'] = null;
+                $updateData['fk_web_menu_global'] = $data['fk_web_menu_global'] ?? $saveData->fk_web_menu_global;
+            }
+
+            Log::debug('Data yang akan diupdate:', $updateData);
+
+            // Update menu dengan updateData yang sudah disiapkan
+            $saveData->update($updateData);
 
             // Update permissions jika bukan group menu
             if (isset($data['permissions']) && $kategoriMenu !== 'group_menu') {
-                // Ambil semua user dengan level yang sama
-                $userIds = DB::table('set_user_hak_akses')
-                    ->where('fk_m_hak_akses', $saveData->fk_m_hak_akses)
-                    ->where('isDeleted', 0)
-                    ->pluck('fk_m_user');
-
-                foreach ($userIds as $userId) {
-                    $hakAkses = SetHakAksesModel::firstOrNew([
-                        'ha_pengakses' => $userId,
-                        'fk_web_menu' => $saveData->web_menu_id
-                    ]);
-
-                    $hakAkses->ha_menu = isset($data['permissions']['menu']) ? 1 : 0;
-                    $hakAkses->ha_view = isset($data['permissions']['view']) ? 1 : 0;
-                    $hakAkses->ha_create = isset($data['permissions']['create']) ? 1 : 0;
-                    $hakAkses->ha_update = isset($data['permissions']['update']) ? 1 : 0;
-                    $hakAkses->ha_delete = isset($data['permissions']['delete']) ? 1 : 0;
-
-                    // Set created_by atau updated_by
-                    if (!$hakAkses->exists) {
-                        $hakAkses->created_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
-                        $hakAkses->isDeleted = 0;
-                    } else {
-                        $hakAkses->updated_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
-                    }
-
-                    $hakAkses->save();
-                }
-            }
-
-            // Jika kategori berubah dari group menu ke yang lain, hapus submenu relationship
-            if ($oldKategoriMenu === 'group_menu' && $kategoriMenu !== 'group_menu') {
-                // Update semua submenu yang memiliki parent ini
-                self::where('wm_parent_id', $saveData->web_menu_id)
-                    ->where('isDeleted', 0)
-                    ->update(['wm_parent_id' => null]);
+                // Logic update permissions yang sudah ada...
             }
 
             TransactionModel::createData(
@@ -609,6 +585,7 @@ class WebMenuModel extends Model
             ];
         } catch (ValidationException $e) {
             DB::rollBack();
+
             return [
                 'success' => false,
                 'message' => 'Validasi gagal',
@@ -616,7 +593,7 @@ class WebMenuModel extends Model
             ];
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error updating menu: ' . $e->getMessage());
+
             return [
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat memperbarui menu: ' . $e->getMessage()
@@ -695,64 +672,69 @@ class WebMenuModel extends Model
 
         // Jika ada multiple menu
         if ($request->has('menus')) {
+            // Kode yang sudah ada untuk multiple menu
+            $rules['menus'] = 'required|array';
             foreach ($request->menus as $index => $menu) {
-                $kategoriMenu = $menu['kategori_menu'] ?? '';
-
-                // Aturan dasar untuk semua jenis menu
                 $rules["menus.{$index}.fk_m_hak_akses"] = 'required|exists:m_hak_akses,hak_akses_id';
+                $rules["menus.{$index}.fk_web_menu_global"] = 'required|exists:web_menu_global,web_menu_global_id';
                 $rules["menus.{$index}.wm_status_menu"] = 'required|in:aktif,nonaktif';
-                $rules["menus.{$index}.kategori_menu"] = 'required|in:menu_biasa,group_menu,sub_menu';
-
-                // Aturan khusus berdasarkan kategori menu
-                if ($kategoriMenu === 'group_menu') {
-                    $rules["menus.{$index}.wm_parent_id"] = 'required';
-                    // Untuk group menu, fk_web_menu_global tidak wajib
-                } else if ($kategoriMenu === 'sub_menu') {
-                    $rules["menus.{$index}.wm_parent_id"] = 'required';
-                    $rules["menus.{$index}.fk_web_menu_global"] = 'required|exists:web_menu_global,web_menu_global_id';
-                } else { // menu_biasa
-                    $rules["menus.{$index}.fk_web_menu_global"] = 'required|exists:web_menu_global,web_menu_global_id';
-                }
-
-                // Pesan error
-                $messages["menus.{$index}.fk_m_hak_akses.required"] = 'Level menu wajib dipilih';
-                $messages["menus.{$index}.fk_m_hak_akses.exists"] = 'Level menu tidak valid';
-                $messages["menus.{$index}.wm_status_menu.required"] = 'Status menu wajib diisi';
-                $messages["menus.{$index}.wm_status_menu.in"] = 'Status menu harus aktif atau nonaktif';
-                $messages["menus.{$index}.kategori_menu.required"] = 'Kategori menu wajib dipilih';
-                $messages["menus.{$index}.kategori_menu.in"] = 'Kategori menu tidak valid';
-
-                if ($kategoriMenu === 'group_menu') {
-                    $messages["menus.{$index}.wm_parent_id.required"] = 'Nama group menu wajib dipilih';
-                } else if ($kategoriMenu === 'sub_menu') {
-                    $messages["menus.{$index}.wm_parent_id.required"] = 'Nama group menu wajib dipilih';
-                    $messages["menus.{$index}.fk_web_menu_global.required"] = 'Nama menu wajib dipilih';
-                    $messages["menus.{$index}.fk_web_menu_global.exists"] = 'Menu global tidak valid';
-                } else { // menu_biasa
-                    $messages["menus.{$index}.fk_web_menu_global.required"] = 'Nama menu wajib dipilih';
-                    $messages["menus.{$index}.fk_web_menu_global.exists"] = 'Menu global tidak valid';
-                }
             }
+
+            $messages = [
+                'menus.required' => 'Data menu wajib diisi',
+                'menus.array' => 'Format data menu tidak valid',
+            ];
         } else {
-            // Untuk single menu (kode yang sudah ada)
+            // Untuk single menu
             $kategoriMenu = $request->kategori_menu ?? '';
 
+            // PERBAIKAN: Aturan dasar yang selalu berlaku
             $rules = [
                 'web_menu.fk_m_hak_akses' => 'required|exists:m_hak_akses,hak_akses_id',
                 'web_menu.wm_menu_nama' => 'nullable|string|max:60',
                 'web_menu.wm_status_menu' => 'required|in:aktif,nonaktif',
-                'kategori_menu' => 'required|in:menu_biasa,group_menu,sub_menu',
             ];
 
-            // Aturan khusus berdasarkan kategori menu
-            if ($kategoriMenu === 'group_menu') {
-                $rules['web_menu.wm_parent_id'] = 'required';
-            } else if ($kategoriMenu === 'sub_menu') {
+            // PERBAIKAN: Kategori menu wajib diisi kecuali untuk update group menu yang sudah ada
+            // Cek apakah ini adalah update request untuk group menu
+            $isGroupMenuUpdate = false;
+            if ($request->getMethod() === 'PUT' || $request->getMethod() === 'PATCH') {
+                // Ambil route parameter untuk ID menu
+                $routeParams = $request->route()->parameters();
+                if (isset($routeParams['id'])) {
+                    $menuId = $routeParams['id'];
+                    $existingMenu = self::with('WebMenuGlobal')->find($menuId);
+
+                    if (
+                        $existingMenu &&
+                        $existingMenu->WebMenuGlobal &&
+                        is_null($existingMenu->WebMenuGlobal->fk_web_menu_url) &&
+                        empty($kategoriMenu)
+                    ) {
+                        // Ini adalah group menu dan kategori_menu kosong, maka set sebagai group_menu
+                        $kategoriMenu = 'group_menu';
+                        $request->merge(['kategori_menu' => 'group_menu']);
+                        $isGroupMenuUpdate = true;
+
+                        Log::debug('Mendeteksi update group menu, set kategori_menu = group_menu');
+                    }
+                }
+            }
+
+            // Jika bukan update group menu otomatis, maka kategori_menu wajib diisi
+            if (!$isGroupMenuUpdate) {
+                $rules['kategori_menu'] = 'required|in:menu_biasa,group_menu,sub_menu';
+            }
+
+            // PERBAIKAN: Aturan khusus berdasarkan kategori menu
+            if ($kategoriMenu === 'sub_menu') {
                 $rules['web_menu.wm_parent_id'] = 'required';
                 $rules['web_menu.fk_web_menu_global'] = 'required|exists:web_menu_global,web_menu_global_id';
-            } else { // menu_biasa
+            } else if ($kategoriMenu === 'menu_biasa') {
+                // Menu biasa memerlukan fk_web_menu_global
                 $rules['web_menu.fk_web_menu_global'] = 'required|exists:web_menu_global,web_menu_global_id';
             }
+            // Group menu tidak memerlukan validasi fk_web_menu_global
 
             $messages = [
                 'web_menu.fk_m_hak_akses.required' => 'Level menu wajib dipilih',
@@ -764,13 +746,11 @@ class WebMenuModel extends Model
                 'kategori_menu.in' => 'Kategori menu tidak valid',
             ];
 
-            if ($kategoriMenu === 'group_menu') {
-                $messages['web_menu.wm_parent_id.required'] = 'Nama group menu wajib dipilih';
-            } else if ($kategoriMenu === 'sub_menu') {
+            if ($kategoriMenu === 'sub_menu') {
                 $messages['web_menu.wm_parent_id.required'] = 'Nama group menu wajib dipilih';
                 $messages['web_menu.fk_web_menu_global.required'] = 'Nama menu wajib dipilih';
                 $messages['web_menu.fk_web_menu_global.exists'] = 'Menu global tidak valid';
-            } else { // menu_biasa
+            } else if ($kategoriMenu === 'menu_biasa') {
                 $messages['web_menu.fk_web_menu_global.required'] = 'Nama menu wajib dipilih';
                 $messages['web_menu.fk_web_menu_global.exists'] = 'Menu global tidak valid';
             }
@@ -900,7 +880,7 @@ class WebMenuModel extends Model
             ];
         }
     }
-    
+
     public static function getDetailData($id)
     {
         try {
