@@ -24,8 +24,8 @@ class WBSController extends Controller
     private function makeAuthenticatedRequest($endpoint, $method = 'GET', $data = [], $files = [])
     {
         try {
-            // Get active token
-            $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHBpZC1wb2xpbmVtYS50ZXN0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ4NTk0NDI2LCJleHAiOjE3NDg1OTgwMjYsIm5iZiI6MTc0ODU5NDQyNiwianRpIjoibzg4Z1YyWmowamcwY25PUiIsInN1YiI6IjUiLCJwcnYiOiI3MDBmMzdkN2Q5MDU2MmQyYTYyNTU3ZDg4OWRlZTJlMDA5ODI3NzM1IiwidHlwZSI6InVzZXIiLCJ1c2VyX2lkIjo1LCJyb2xlIjoiUmVzcG9uZGVuIn0.9EZX6PJe1j3okzYSW52KePaFquxLzyIx5OsoSe9Z9z4';
+            // Get active token - gunakan token yang valid
+            $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHBpZC1wb2xpbmVtYS50ZXN0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ4NjA2NjMyLCJleHAiOjE3NDg2MTAyMzIsIm5iZiI6MTc0ODYwNjYzMiwianRpIjoieERUQUhxNEtFcm1Pa0pOUSIsInN1YiI6IjUiLCJwcnYiOiI3MDBmMzdkN2Q5MDU2MmQyYTYyNTU3ZDg4OWRlZTJlMDA5ODI3NzM1IiwidHlwZSI6InVzZXIiLCJ1c2VyX2lkIjo1LCJyb2xlIjoiUmVzcG9uZGVuIn0.o27Xlk5NC0BvW-SxcnMQQnYvEOo2ViVkDfJPXeUhgzQ';
 
             // Create HTTP client with authorization
             $httpClient = Http::withOptions(['verify' => false])
@@ -34,22 +34,22 @@ class WBSController extends Controller
                     'Accept' => 'application/json'
                 ]);
 
-            // Handle request based on method and if we have files
-            if ($method === 'POST') {
-                if (!empty($files)) {
-                    // Use multipart for file uploads
-                    foreach ($data as $key => $value) {
-                        if (is_array($value)) {
-                            foreach ($value as $nestedKey => $nestedValue) {
-                                $httpClient = $httpClient->attach("{$key}[{$nestedKey}]", $nestedValue);
-                            }
-                        } else {
-                            $httpClient = $httpClient->attach($key, $value);
+            // Handle POST request with multipart data
+            if ($method === 'POST' && !empty($files)) {
+                // Add text fields
+                foreach ($data as $key => $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $nestedKey => $nestedValue) {
+                            $httpClient = $httpClient->attach("{$key}[{$nestedKey}]", $nestedValue);
                         }
+                    } else {
+                        $httpClient = $httpClient->attach($key, $value);
                     }
+                }
 
-                    // Attach all files
-                    foreach ($files as $key => $file) {
+                // Add file fields
+                foreach ($files as $key => $file) {
+                    if ($file && $file->isValid()) {
                         $httpClient = $httpClient->attach(
                             $key,
                             file_get_contents($file->getRealPath()),
@@ -57,62 +57,13 @@ class WBSController extends Controller
                             ['Content-Type' => $file->getMimeType()]
                         );
                     }
-
-                    $response = $httpClient->post($this->baseUrl . '/api/' . $endpoint);
-                } else {
-                    // Regular JSON request without files
-                    $response = $httpClient->withHeaders(['Content-Type' => 'application/json'])
-                        ->post($this->baseUrl . '/api/' . $endpoint, $data);
                 }
+
+                $response = $httpClient->post($this->baseUrl . '/api/' . $endpoint);
             } else {
-                // GET request
-                $response = $httpClient->get($this->baseUrl . '/api/' . $endpoint);
-            }
-
-            // Check if token expired
-            if ($response->status() === 401) {
-                // Generate new token and retry
-                $tokenData = $this->jwtTokenService->generateSystemToken();
-
-                // Recreate client with new token
-                $httpClient = Http::withOptions(['verify' => false])
-                    ->withHeaders([
-                        'Authorization' => 'Bearer ' . $tokenData['token'],
-                        'Accept' => 'application/json'
-                    ]);
-
-                // Repeat request with new token
-                if ($method === 'POST') {
-                    if (!empty($files)) {
-                        // Repeat multipart upload with new token
-                        foreach ($data as $key => $value) {
-                            if (is_array($value)) {
-                                foreach ($value as $nestedKey => $nestedValue) {
-                                    $httpClient = $httpClient->attach("{$key}[{$nestedKey}]", $nestedValue);
-                                }
-                            } else {
-                                $httpClient = $httpClient->attach($key, $value);
-                            }
-                        }
-
-                        foreach ($files as $key => $file) {
-                            $httpClient = $httpClient->attach(
-                                $key,
-                                file_get_contents($file->getRealPath()),
-                                $file->getClientOriginalName(),
-                                ['Content-Type' => $file->getMimeType()]
-                            );
-                        }
-
-                        $response = $httpClient->post($this->baseUrl . '/api/' . $endpoint);
-                    } else {
-                        // Regular JSON request
-                        $response = $httpClient->withHeaders(['Content-Type' => 'application/json'])
-                            ->post($this->baseUrl . '/api/' . $endpoint, $data);
-                    }
-                } else {
-                    $response = $httpClient->get($this->baseUrl . '/api/' . $endpoint);
-                }
+                // Regular JSON request
+                $response = $httpClient->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($this->baseUrl . '/api/' . $endpoint, $data);
             }
 
             return $response;
@@ -126,18 +77,11 @@ class WBSController extends Controller
         }
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // Return view for WBS form
         return view('user::e-form.wbs');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): RedirectResponse
     {
         try {
@@ -154,8 +98,7 @@ class WBSController extends Controller
                 'wbs_lokasi_kejadian' => 'required|string',
                 'wbs_kronologis_kejadian' => 'required|string',
                 'wbs_upload_nik_pelapor' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-                'wbs_bukti_pendukung' => 'nullable|array',
-                'wbs_bukti_pendukung.*' => 'nullable|file|max:5120', // 5MB per file
+                'wbs_bukti_pendukung' => 'required|file|max:51200', // 50MB max
                 'wbs_catatan' => 'nullable|string',
             ]);
 
@@ -179,23 +122,16 @@ class WBSController extends Controller
             // Array untuk file yang akan dikirim
             $files = [];
 
-            // Upload KTP/NIK pengguna
+            // Upload KTP/NIK pengguna (untuk Admin)
             if ($request->hasFile('wbs_upload_nik_pelapor')) {
                 $files['wbs_upload_nik_pengguna'] = $request->file('wbs_upload_nik_pelapor');
             }
 
-            // Proses upload file bukti pendukung jika ada
+            // ✅ PERBAIKAN UTAMA: Upload bukti pendukung (WAJIB untuk semua user)
             if ($request->hasFile('wbs_bukti_pendukung')) {
-                if (count($request->file('wbs_bukti_pendukung')) > 0) {
-                    // PENTING: Kirim bukti pendukung pertama sebagai field utama
-                    $files['wbs_bukti_pendukung'] = $request->file('wbs_bukti_pendukung')[0];
-                    
-                    // Kirim bukti pendukung tambahan (jika ada)
-                    $additionalFiles = array_slice($request->file('wbs_bukti_pendukung'), 1);
-                    foreach ($additionalFiles as $index => $file) {
-                        $files['wbs_bukti_pendukung_' . ($index + 1)] = $file;
-                    }
-                }
+                $files['wbs_bukti_pendukung'] = $request->file('wbs_bukti_pendukung');
+            } else {
+                return redirect()->back()->with('error', 'File bukti pendukung wajib diupload!');
             }
 
             // Log data yang akan dikirim ke API
@@ -213,18 +149,19 @@ class WBSController extends Controller
                     'response' => $responseData
                 ]);
                 
-                return redirect()->back()->with('success', 'Laporan berhasil dikirim!');
+                return redirect()->back()->with('success', 'Laporan WBS berhasil dikirim!');
             } else {
                 Log::error('API Error Response', [
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);
                 
-                $errorMessage = 'Gagal mengirim laporan. ';
-                if ($response->status() === 401) {
-                    $errorMessage .= 'Token authentication error.';
+                $errorMessage = 'Gagal mengirim laporan WBS. ';
+                if ($response->status() === 422) {
+                    $responseData = $response->json();
+                    $errorMessage .= $responseData['message'] ?? 'Validasi gagal.';
                 } else {
-                    $errorMessage .= 'Silakan coba lagi. ' . $response->body();
+                    $errorMessage .= 'Silakan coba lagi.';
                 }
                 
                 return redirect()->back()->with('error', $errorMessage);
