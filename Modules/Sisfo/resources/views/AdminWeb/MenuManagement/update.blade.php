@@ -58,18 +58,17 @@
                             </div>
                         </div>
 
-                        <!-- Level Menu -->
+                        <!-- Level Menu (Read Only) -->
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Level Menu</label>
-                                <select class="form-control" id="edit_level_menu" name="web_menu[fk_m_hak_akses]" required>
+                                <select class="form-control" id="edit_level_menu" name="web_menu[fk_m_hak_akses]" readonly disabled>
                                     @foreach($levels as $level)
                                         <option value="{{ $level->hak_akses_id }}">{{ $level->hak_akses_nama }}</option>
                                     @endforeach
                                 </select>
-                                <div class="invalid-feedback">
-                                    Level menu wajib dipilih
-                                </div>
+                                <input type="hidden" id="edit_level_menu_hidden" name="web_menu[fk_m_hak_akses]">
+                                <span class="text-muted">Level menu tidak dapat diubah setelah dibuat</span>
                             </div>
                         </div>
 
@@ -143,6 +142,7 @@ $(document).ready(function() {
     let currentMenuId = null;
     let currentMenuGlobalId = null;
     let currentWebMenuUrl = null;
+    let currentLevelId = null;
 
     // Edit Menu Handler - Use delegated event handler
     $(document).on('click', '.edit-menu', function() {
@@ -162,15 +162,19 @@ $(document).ready(function() {
                     const menu = response.menu;
                     currentMenuGlobalId = menu.fk_web_menu_global;
                     currentWebMenuUrl = menu.fk_web_menu_url;
+                    currentLevelId = menu.fk_m_hak_akses;
                     
-                    // Set form action
-                    $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}`);
+                    // Set form action dengan path yang benar
+                    $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/update`);
                     
                     // Fill form fields
                     $('#edit_menu_global_name').val(menu.menu_global_name);
                     $('#edit_alias').val(menu.wm_menu_nama || '');
                     $('#edit_status').val(menu.wm_status_menu);
+                    
+                    // Set level menu (read only)
                     $('#edit_level_menu').val(menu.fk_m_hak_akses);
+                    $('#edit_level_menu_hidden').val(menu.fk_m_hak_akses);
                     
                     // Determine kategori menu
                     originalMenuType = menu.kategori_menu;
@@ -182,6 +186,7 @@ $(document).ready(function() {
                     // Handle parent menu if sub menu
                     if (originalMenuType === 'sub_menu') {
                         $('#edit_group_menu_container').show();
+                        // Load parent menus untuk level yang sama
                         updateParentMenuOptions(menu.fk_m_hak_akses, $('#edit_parent_id'), menuId);
                         
                         // Set parent value after dropdown is loaded
@@ -208,12 +213,8 @@ $(document).ready(function() {
                         $('#edit_permissions_container').hide();
                     }
                     
-                    // Disable level menu if sub menu (will inherit from parent)
-                    if (originalMenuType === 'sub_menu') {
-                        $('#edit_level_menu').prop('disabled', true);
-                    } else {
-                        $('#edit_level_menu').prop('disabled', false);
-                    }
+                    // Show modal after data is loaded
+                    $('#editMenuModal').modal('show');
                 }
             },
             error: function() {
@@ -236,7 +237,7 @@ $(document).ready(function() {
             $select.prop('disabled', false);
             $('#kategori_info').text('');
             
-            // Menu biasa dan sub menu bisa diubah, tapi tidak bisa menjadi group menu
+            // Menu biasa dan sub menu bisa saling berubah, tapi tidak bisa menjadi group menu
             $select.append('<option value="menu_biasa">Menu Biasa</option>');
             $select.append('<option value="sub_menu">Sub Menu</option>');
         }
@@ -245,16 +246,14 @@ $(document).ready(function() {
     // Handle kategori menu change
     $('#edit_kategori_menu').on('change', function() {
         const selectedKategori = $(this).val();
-        const hakAksesId = $('#edit_level_menu').val();
         
         if (selectedKategori === 'sub_menu') {
             $('#edit_group_menu_container').show();
-            $('#edit_level_menu').prop('disabled', true);
-            updateParentMenuOptions(hakAksesId, $('#edit_parent_id'), currentMenuId);
+            // Load parent menus untuk level yang sama (tidak berubah)
+            updateParentMenuOptions(currentLevelId, $('#edit_parent_id'), currentMenuId);
         } else {
             $('#edit_group_menu_container').hide();
             $('#edit_parent_id').val('');
-            $('#edit_level_menu').prop('disabled', false);
         }
         
         // Hide/show permissions based on kategori
@@ -262,16 +261,6 @@ $(document).ready(function() {
             $('#edit_permissions_container').hide();
         } else {
             $('#edit_permissions_container').show();
-        }
-    });
-
-    // Handle level menu change
-    $('#edit_level_menu').on('change', function() {
-        const hakAksesId = $(this).val();
-        const kategori = $('#edit_kategori_menu').val();
-        
-        if (kategori === 'sub_menu') {
-            updateParentMenuOptions(hakAksesId, $('#edit_parent_id'), currentMenuId);
         }
     });
 
@@ -312,16 +301,6 @@ $(document).ready(function() {
         // Validate
         let isValid = true;
         
-        // Add web_menu_global_id to form data
-        $('<input>')
-            .attr('type', 'hidden')
-            .attr('name', 'web_menu[fk_web_menu_global]')
-            .val(currentMenuGlobalId)
-            .appendTo(this);
-
-        // Enable level menu temporarily for submission
-        $('#edit_level_menu').prop('disabled', false);
-        
         // Validate parent menu for sub menu
         if ($('#edit_kategori_menu').val() === 'sub_menu' && !$('#edit_parent_id').val()) {
             $('#edit_parent_id').addClass('is-invalid');
@@ -332,14 +311,42 @@ $(document).ready(function() {
             return;
         }
         
+        // Add fk_web_menu_global to form data
+        const formData = $(this).serializeArray();
+        formData.push({
+            name: 'web_menu[fk_web_menu_global]',
+            value: currentMenuGlobalId
+        });
+        
         // Submit form
         $.ajax({
             url: $(this).attr('action'),
-            type: 'POST',
-            data: $(this).serialize(),
+            type: 'PUT',
+            data: $.param(formData),
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(response) {
                 if (response.success) {
-                    $('#editMenuModal').modal('hide');
+                    // PERBAIKAN: Gunakan metode alternatif untuk menutup modal
+                    try {
+                        // Coba metode Bootstrap standar terlebih dahulu
+                        if ($.fn.modal) {
+                            $('#editMenuModal').modal('hide');
+                        } else {
+                            // Fallback jika modal function tidak tersedia
+                            $('#editMenuModal').hide();
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass('modal-open').css('padding-right', '');
+                        }
+                    } catch (error) {
+                        console.error('Gagal menutup modal:', error);
+                        // Fallback kedua jika terjadi error
+                        $('#editMenuModal').hide();
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css('padding-right', '');
+                    }
+                    
                     toastr.success(response.message);
                     setTimeout(() => window.location.reload(), 1000);
                 } else {
@@ -373,14 +380,11 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success && response.parentMenus) {
                     response.parentMenus.forEach(function(menu) {
-                        // Only add if it's a group menu
-                        if (menu.fk_web_menu_global && !menu.WebMenuUrl) {
-                            targetSelect.append(`
-                                <option value="${menu.web_menu_id}">
-                                    ${menu.display_name}
-                                </option>
-                            `);
-                        }
+                        targetSelect.append(`
+                            <option value="${menu.web_menu_id}">
+                                ${menu.display_name}
+                            </option>
+                        `);
                     });
                 }
             },
@@ -389,6 +393,15 @@ $(document).ready(function() {
             }
         });
     }
+    
+    // Reset modal on close
+    $('#editMenuModal').on('hidden.bs.modal', function() {
+        $(this).find('form')[0].reset();
+        $('.is-invalid').removeClass('is-invalid');
+        $('#edit_kategori_menu').prop('disabled', false);
+        $('#edit_parent_id').empty().append('<option value="">-- Pilih Group Menu --</option>');
+        $('#kategori_info').text('');
+    });
 });
 </script>
 @endpush
