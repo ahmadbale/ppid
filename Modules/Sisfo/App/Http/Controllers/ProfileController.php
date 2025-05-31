@@ -25,7 +25,7 @@ class ProfileController extends Controller
             'title' => 'Data Profil Pengguna'
         ];
 
-        $activeMenu = 'profile'; // Set the active menu
+        $activeMenu = 'profile';
 
         return view('sisfo::profile.index', [
             'breadcrumb' => $breadcrumb,
@@ -44,48 +44,135 @@ class ProfileController extends Controller
             'email_pengguna' => 'required|email|unique:m_user,email_pengguna,' . $id . ',user_id',
             'pekerjaan_pengguna' => 'required|string',
             'nik_pengguna' => 'required|string|unique:m_user,nik_pengguna,' . $id . ',user_id',
-            'upload_nik_pengguna' => 'nullable|image|max:10240', // 10MB max
+            'upload_nik_pengguna' => 'nullable|image|mimes:jpeg,png,jpg|max:10240', // 10MB max
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // 5MB max untuk foto profil
+        ], [
+            'foto_profil.image' => 'File foto profil harus berupa gambar.',
+            'foto_profil.mimes' => 'Format foto profil harus jpeg, png, atau jpg.',
+            'foto_profil.max' => 'Ukuran foto profil maksimal 5MB.',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
-                ->withInput();
+                ->withInput()
+                ->with('error_type', 'update_profil');
         }
 
-        // Mengambil pengguna berdasarkan ID
-        $user = UserModel::find($id);
+        try {
+            // Mengambil pengguna berdasarkan ID
+            $user = UserModel::find($id);
 
-        // Update data pengguna
-        $user->nama_pengguna = $request->nama_pengguna;
-        $user->email_pengguna = $request->email_pengguna;
-        $user->no_hp_pengguna = $request->no_hp_pengguna;
-        $user->pekerjaan_pengguna = $request->pekerjaan_pengguna;
-        $user->nik_pengguna = $request->nik_pengguna;
-        $user->alamat_pengguna = $request->alamat_pengguna;
+            if (!$user) {
+                return redirect()->back()->with('error', 'Pengguna tidak ditemukan');
+            }
 
-        // Handle file upload
-        if ($request->hasFile('upload_nik_pengguna')) {
-            // Delete old file if exists
-            if ($user->upload_nik_pengguna) {
+            // Update data pengguna
+            $user->nama_pengguna = $request->nama_pengguna;
+            $user->email_pengguna = $request->email_pengguna;
+            $user->no_hp_pengguna = $request->no_hp_pengguna;
+            $user->pekerjaan_pengguna = $request->pekerjaan_pengguna;
+            $user->nik_pengguna = $request->nik_pengguna;
+            $user->alamat_pengguna = $request->alamat_pengguna;
+
+            // Handle upload foto profil
+            if ($request->hasFile('foto_profil')) {
+                // Delete old foto profil if exists
+                if ($user->foto_profil && Storage::exists('public/' . $user->foto_profil)) {
+                    Storage::delete('public/' . $user->foto_profil);
+                }
+
+                // Generate unique filename untuk foto profil
+                $file = $request->file('foto_profil');
+                $filename = 'foto_profil/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
+                
+                // Store file
+                $file->storeAs('public', $filename);
+                
+                // Save filename to database
+                $user->foto_profil = $filename;
+            }
+
+            // Handle upload foto KTP
+            if ($request->hasFile('upload_nik_pengguna')) {
+                // Delete old file if exists
+                if ($user->upload_nik_pengguna && Storage::exists('public/' . $user->upload_nik_pengguna)) {
+                    Storage::delete('public/' . $user->upload_nik_pengguna);
+                }
+
+                // Generate unique filename untuk KTP
+                $file = $request->file('upload_nik_pengguna');
+                $filename = 'upload_nik/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
+                
+                // Store file
+                $file->storeAs('public', $filename);
+                
+                // Save filename to database
+                $user->upload_nik_pengguna = $filename;
+            }
+
+            // Simpan perubahan
+            $user->save();
+
+            return redirect()->back()->with('success', 'Data pengguna berhasil diperbarui');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    // Method baru untuk hapus foto profil
+    public function delete_foto_profil(string $id)
+    {
+        try {
+            $user = UserModel::find($id);
+
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Pengguna tidak ditemukan']);
+            }
+
+            // Hapus file foto profil jika ada
+            if ($user->foto_profil && Storage::exists('public/' . $user->foto_profil)) {
+                Storage::delete('public/' . $user->foto_profil);
+            }
+
+            // Reset foto profil di database
+            $user->foto_profil = null;
+            $user->save();
+
+            return response()->json(['success' => true, 'message' => 'Foto profil berhasil dihapus']);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+    }
+
+    // Method baru untuk hapus foto KTP
+    public function delete_foto_ktp(string $id)
+    {
+        try {
+            $user = UserModel::find($id);
+
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Pengguna tidak ditemukan']);
+            }
+
+            // Hapus file foto KTP jika ada
+            if ($user->upload_nik_pengguna && Storage::exists('public/' . $user->upload_nik_pengguna)) {
                 Storage::delete('public/' . $user->upload_nik_pengguna);
             }
 
-            // Generate unique filename
-            $file = $request->file('upload_nik_pengguna');
-            $filename = 'upload_nik/' . Str::random(40) . '.' . $file->getClientOriginalExtension();
-            
-            // Store file
-            $file->storeAs('public', $filename);
-            
-            // Save filename to database
-            $user->upload_nik_pengguna = $filename;
+            // Reset foto KTP di database
+            $user->upload_nik_pengguna = null;
+            $user->save();
+
+            return response()->json(['success' => true, 'message' => 'Foto KTP berhasil dihapus']);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
-
-        // Simpan perubahan
-        $user->save();
-
-        return redirect()->back()->with('success', 'Data pengguna berhasil diperbarui');
     }
 
     public function update_password(Request $request, string $id)
@@ -93,42 +180,44 @@ class ProfileController extends Controller
         // Custom validation rules
         $validator = Validator::make($request->all(), [
             'current_password' => 'required',
-            'new_password' => 'required|min:5', // Password minimal 5 karakter
-            'new_password_confirmation' => 'required|same:new_password', // Verifikasi password harus sama dengan password baru
+            'new_password' => 'required|min:5',
+            'new_password_confirmation' => 'required|same:new_password',
         ], [
-            'new_password.min' => 'Password minimal harus 5 karakter', // Pesan kesalahan kustom
-            'new_password_confirmation.same' => 'Verifikasi password yang anda masukkan tidak sesuai dengan password baru', // Pesan kesalahan kustom
+            'new_password.min' => 'Password minimal harus 5 karakter',
+            'new_password_confirmation.same' => 'Verifikasi password yang anda masukkan tidak sesuai dengan password baru',
         ]);
 
-        // Jika validasi gagal
         if ($validator->fails()) {
-            // Cek error untuk new_password dan new_password_confirmation
-            if ($validator->errors()->has('new_password')) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->with('error_type', 'new_password'); // Tetap di tab "Ubah Password"
-            }
-
-            if ($validator->errors()->has('new_password_confirmation')) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->with('error_type', 'new_password_confirmation'); // Tetap di tab "Ubah Password"
-            }
+            return redirect()->back()
+                ->withErrors($validator)
+                ->with('error_type', 'update_password');
         }
 
-        // Ambil user berdasarkan ID
-        $user = UserModel::find($id);
+        try {
+            // Ambil user berdasarkan ID
+            $user = UserModel::find($id);
 
-        // Cek apakah password lama cocok
-        if (!Hash::check($request->current_password, $user->password)) {
-            return redirect()->back()->withErrors(['current_password' => 'Password lama tidak sesuai'])
-                ->with('error_type', 'current_password'); // Tetap di tab "Ubah Password"
+            if (!$user) {
+                return redirect()->back()->with('error', 'Pengguna tidak ditemukan');
+            }
+
+            // Cek apakah password lama cocok
+            if (!Hash::check($request->current_password, $user->password)) {
+                return redirect()->back()
+                    ->withErrors(['current_password' => 'Password lama tidak sesuai'])
+                    ->with('error_type', 'update_password');
+            }
+
+            // Ubah password user
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return redirect()->back()->with('success', 'Password berhasil diubah');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->with('error_type', 'update_password');
         }
-
-        // Jika validasi lolos, ubah password user
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return redirect()->back()->with('success', 'Password berhasil diubah');
     }
 }
