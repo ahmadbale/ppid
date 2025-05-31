@@ -98,10 +98,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/css/summernote.css', [SummernoteController::class, 'getSummernoteCSS']);
     Route::get('/switch-role/{hakAksesId}', [SwitchRoleController::class, 'index'])->name('switch.role');
 
+    // Route::group(['prefix' => 'profile'], function () {
+    //     Route::get('/', [ProfileController::class, 'index']);
+    //     Route::put('/update_pengguna/{id}', [ProfileController::class, 'update_pengguna']);
+    //     Route::put('/update_password/{id}', [ProfileController::class, 'update_password']);
+    // });
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);
         Route::put('/update_pengguna/{id}', [ProfileController::class, 'update_pengguna']);
         Route::put('/update_password/{id}', [ProfileController::class, 'update_password']);
+        Route::delete('/delete_foto_profil/{id}', [ProfileController::class, 'delete_foto_profil']); // Tambah ini
+        Route::delete('/delete_foto_ktp/{id}', [ProfileController::class, 'delete_foto_ktp']); // Tambah ini
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('menu-management'), 'middleware' => 'authorize:ADM,SAR'], function () {
