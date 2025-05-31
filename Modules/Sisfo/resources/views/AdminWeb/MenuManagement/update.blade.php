@@ -144,48 +144,37 @@ $(document).ready(function() {
     let currentWebMenuUrl = null;
     let currentLevelId = null;
 
-    // Function untuk menampilkan modal dengan fallback
     function showModal(modalId) {
         const $modal = $(modalId);
         if ($.fn.modal && typeof $.fn.modal === 'function') {
-            // Bootstrap modal tersedia
             $modal.modal('show');
         } else {
-            // Fallback: tampilkan manual
             $modal.addClass('show').css('display', 'block');
             $('body').addClass('modal-open');
-            
-            // Tambahkan backdrop
             if (!$('.modal-backdrop').length) {
                 $('<div class="modal-backdrop fade show"></div>').appendTo('body');
             }
         }
     }
 
-    // Function untuk menyembunyikan modal dengan fallback
     function hideModal(modalId) {
         const $modal = $(modalId);
         if ($.fn.modal && typeof $.fn.modal === 'function') {
-            // Bootstrap modal tersedia
             $modal.modal('hide');
         } else {
-            // Fallback: sembunyikan manual
             $modal.removeClass('show').css('display', 'none');
             $('body').removeClass('modal-open').css('padding-right', '');
             $('.modal-backdrop').remove();
         }
     }
 
-    // Edit Menu Handler - Use delegated event handler
     $(document).on('click', '.edit-menu', function() {
         const menuId = $(this).data('id');
         currentMenuId = menuId;
         
-        // Reset form
         $('#editMenuForm')[0].reset();
         $('.is-invalid').removeClass('is-invalid');
         
-        // Load menu data
         $.ajax({
             url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/edit`,
             type: 'GET',
@@ -196,32 +185,23 @@ $(document).ready(function() {
                     currentWebMenuUrl = menu.fk_web_menu_url;
                     currentLevelId = menu.fk_m_hak_akses;
                     
-                    // Set form action dengan path yang benar
                     $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/update`);
                     
-                    // Fill form fields
                     $('#edit_menu_global_name').val(menu.menu_global_name);
                     $('#edit_alias').val(menu.wm_menu_nama || '');
                     $('#edit_status').val(menu.wm_status_menu);
                     
-                    // Set level menu (read only)
                     $('#edit_level_menu').val(menu.fk_m_hak_akses);
                     $('#edit_level_menu_hidden').val(menu.fk_m_hak_akses);
                     
-                    // Determine kategori menu
                     originalMenuType = menu.kategori_menu;
                     
-                    // Setup kategori menu options
                     setupKategoriOptions(originalMenuType);
                     $('#edit_kategori_menu').val(originalMenuType);
                     
-                    // Handle parent menu if sub menu
                     if (originalMenuType === 'sub_menu') {
                         $('#edit_group_menu_container').show();
-                        // Load parent menus untuk level yang sama
                         updateParentMenuOptions(menu.fk_m_hak_akses, $('#edit_parent_id'), menuId);
-                        
-                        // Set parent value after dropdown is loaded
                         setTimeout(() => {
                             $('#edit_parent_id').val(menu.wm_parent_id);
                         }, 500);
@@ -229,67 +209,58 @@ $(document).ready(function() {
                         $('#edit_group_menu_container').hide();
                     }
                     
-                    // Handle permissions
                     if (originalMenuType !== 'group_menu') {
                         $('#edit_permissions_container').show();
                         
-                        // Load permissions for this menu
+                        $('#edit_perm_menu, #edit_perm_view, #edit_perm_create, #edit_perm_update, #edit_perm_delete').prop('checked', false);
+                        
                         if (menu.permissions) {
-                            $('#edit_perm_menu').prop('checked', menu.permissions.menu);
-                            $('#edit_perm_view').prop('checked', menu.permissions.view);
-                            $('#edit_perm_create').prop('checked', menu.permissions.create);
-                            $('#edit_perm_update').prop('checked', menu.permissions.update);
-                            $('#edit_perm_delete').prop('checked', menu.permissions.delete);
+                            $('#edit_perm_menu').prop('checked', menu.permissions.menu === true || menu.permissions.menu === 1);
+                            $('#edit_perm_view').prop('checked', menu.permissions.view === true || menu.permissions.view === 1);
+                            $('#edit_perm_create').prop('checked', menu.permissions.create === true || menu.permissions.create === 1);
+                            $('#edit_perm_update').prop('checked', menu.permissions.update === true || menu.permissions.update === 1);
+                            $('#edit_perm_delete').prop('checked', menu.permissions.delete === true || menu.permissions.delete === 1);
                         }
                     } else {
                         $('#edit_permissions_container').hide();
                     }
                     
-                    // Show modal after data is loaded
                     showModal('#editMenuModal');
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Error loading menu data:', error);
                 toastr.error('Gagal memuat data menu');
             }
         });
     });
 
-    // Setup kategori options based on current menu type
     function setupKategoriOptions(currentType) {
         const $select = $('#edit_kategori_menu');
         $select.empty();
         
         if (currentType === 'group_menu') {
-            // Group menu tidak bisa berubah kategori
             $select.append('<option value="group_menu">Group Menu</option>');
             $select.prop('disabled', true);
             $('#kategori_info').text('Group menu tidak dapat diubah kategori');
         } else {
             $select.prop('disabled', false);
             $('#kategori_info').text('');
-            
-            // Menu biasa dan sub menu bisa saling berubah, tapi tidak bisa menjadi group menu
             $select.append('<option value="menu_biasa">Menu Biasa</option>');
             $select.append('<option value="sub_menu">Sub Menu</option>');
         }
     }
 
-    // Handle kategori menu change
     $('#edit_kategori_menu').on('change', function() {
         const selectedKategori = $(this).val();
         
         if (selectedKategori === 'sub_menu') {
             $('#edit_group_menu_container').show();
-            // Load parent menus untuk level yang sama (tidak berubah)
             updateParentMenuOptions(currentLevelId, $('#edit_parent_id'), currentMenuId);
         } else {
             $('#edit_group_menu_container').hide();
             $('#edit_parent_id').val('');
         }
         
-        // Hide/show permissions based on kategori
         if (selectedKategori === 'group_menu') {
             $('#edit_permissions_container').hide();
         } else {
@@ -297,14 +268,12 @@ $(document).ready(function() {
         }
     });
 
-    // Permission checkbox hierarchy
     $('#editMenuModal .permission-checkbox').on('change', function() {
         const $this = $(this);
         const level = parseInt($this.data('level'));
         const isChecked = $this.is(':checked');
         
         if (!isChecked) {
-            // Uncheck all lower level permissions
             $('#editMenuModal .permission-checkbox').each(function() {
                 const thisLevel = parseInt($(this).data('level'));
                 if (thisLevel > level) {
@@ -314,7 +283,6 @@ $(document).ready(function() {
         }
         
         if (isChecked) {
-            // Check all higher level permissions
             $('#editMenuModal .permission-checkbox').each(function() {
                 const thisLevel = parseInt($(this).data('level'));
                 if (thisLevel < level) {
@@ -324,17 +292,12 @@ $(document).ready(function() {
         }
     });
 
-    // PERBAIKAN: Form submission dengan penanganan modal yang lebih robust
     $('#editMenuForm').on('submit', function(e) {
         e.preventDefault();
         
-        // Remove validation errors
         $('.is-invalid').removeClass('is-invalid');
         
-        // Validate
         let isValid = true;
-        
-        // Validate parent menu for sub menu
         if ($('#edit_kategori_menu').val() === 'sub_menu' && !$('#edit_parent_id').val()) {
             $('#edit_parent_id').addClass('is-invalid');
             isValid = false;
@@ -344,47 +307,58 @@ $(document).ready(function() {
             return;
         }
         
-        // Collect form data
-        let formData = $(this).serializeArray();
-        
-        // PERBAIKAN: Pastikan kategori_menu selalu dikirim
         const kategoriMenu = $('#edit_kategori_menu').val();
         
-        // Hapus kategori_menu yang mungkin sudah ada di formData
-        formData = formData.filter(item => item.name !== 'kategori_menu');
-        
-        // Tambahkan kategori_menu dengan nilai yang benar
-        formData.push({
-            name: 'kategori_menu',
-            value: kategoriMenu
-        });
-        
-        // PERBAIKAN: Hanya tambahkan fk_web_menu_global untuk menu_biasa dan sub_menu
+        const formDataObj = {
+            '_token': $('meta[name="csrf-token"]').attr('content'),
+            '_method': 'PUT',
+            'kategori_menu': kategoriMenu,
+            'web_menu[wm_menu_nama]': $('#edit_alias').val(),
+            'web_menu[wm_status_menu]': $('#edit_status').val(),
+            'web_menu[fk_m_hak_akses]': $('#edit_level_menu_hidden').val()
+        };
+
+        if (kategoriMenu === 'sub_menu') {
+            formDataObj['web_menu[wm_parent_id]'] = $('#edit_parent_id').val();
+        }
+
         if (kategoriMenu !== 'group_menu') {
-            formData.push({
-                name: 'web_menu[fk_web_menu_global]',
-                value: currentMenuGlobalId
+            formDataObj['web_menu[fk_web_menu_global]'] = currentMenuGlobalId;
+        }
+
+        if (kategoriMenu !== 'group_menu') {
+            const permissions = {};
+            
+            if ($('#edit_perm_menu').is(':checked')) {
+                permissions['menu'] = '1';
+            }
+            if ($('#edit_perm_view').is(':checked')) {
+                permissions['view'] = '1';
+            }
+            if ($('#edit_perm_create').is(':checked')) {
+                permissions['create'] = '1';
+            }
+            if ($('#edit_perm_update').is(':checked')) {
+                permissions['update'] = '1';
+            }
+            if ($('#edit_perm_delete').is(':checked')) {
+                permissions['delete'] = '1';
+            }
+
+            Object.keys(permissions).forEach(key => {
+                formDataObj[`web_menu[permissions][${key}]`] = permissions[key];
             });
         }
         
-        console.log('Data yang akan dikirim:', formData); // Untuk debug
-        
-        // Submit form
         $.ajax({
             url: $(this).attr('action'),
             type: 'PUT',
-            data: $.param(formData),
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
+            data: formDataObj,
             success: function(response) {
                 if (response.success) {
-                    // PERBAIKAN: Gunakan function hideModal yang aman
                     try {
                         hideModal('#editMenuModal');
                     } catch (error) {
-                        console.error('Error saat menutup modal:', error);
-                        // Fallback manual jika semua cara gagal
                         $('#editMenuModal').hide();
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open').css('padding-right', '');
@@ -393,17 +367,13 @@ $(document).ready(function() {
                     toastr.success(response.message);
                     setTimeout(() => window.location.reload(), 1000);
                 } else {
-                    console.error('Error response:', response);
                     toastr.error(response.message || 'Terjadi kesalahan saat memperbarui menu');
                 }
             },
             error: function(xhr) {
-                console.error('AJAX Error:', xhr);
-                
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     Object.keys(xhr.responseJSON.errors).forEach(function(key) {
                         toastr.error(xhr.responseJSON.errors[key][0]);
-                        console.error('Validation error [' + key + ']:', xhr.responseJSON.errors[key][0]);
                     });
                 } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     toastr.error(xhr.responseJSON.message);
@@ -414,7 +384,6 @@ $(document).ready(function() {
         });
     });
 
-    // Function to update parent menu options
     function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
         targetSelect.empty().append('<option value="">-- Pilih Group Menu --</option>');
         
@@ -438,26 +407,22 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Error loading parent menus:', error);
                 toastr.error('Gagal memuat menu induk');
             }
         });
     }
     
-    // PERBAIKAN: Event handler untuk tombol close modal
     $(document).on('click', '[data-dismiss="modal"]', function() {
         const targetModal = $(this).closest('.modal');
         hideModal('#' + targetModal.attr('id'));
     });
     
-    // PERBAIKAN: Event handler untuk backdrop click
     $(document).on('click', '.modal', function(e) {
         if (e.target === this) {
             hideModal('#' + $(this).attr('id'));
         }
     });
     
-    // PERBAIKAN: Event handler untuk ESC key
     $(document).on('keydown', function(e) {
         if (e.key === 'Escape' && $('.modal.show').length) {
             const modalId = '#' + $('.modal.show').attr('id');
@@ -465,12 +430,10 @@ $(document).ready(function() {
         }
     });
     
-    // Reset modal on close dengan event yang lebih umum
     $(document).on('hidden.bs.modal', '.modal', function() {
         resetModal(this);
     });
     
-    // PERBAIKAN: Function untuk reset modal
     function resetModal(modal) {
         const $modal = $(modal);
         const $form = $modal.find('form');
