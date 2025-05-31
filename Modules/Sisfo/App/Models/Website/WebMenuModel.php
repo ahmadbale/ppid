@@ -466,7 +466,6 @@ class WebMenuModel extends Model
             ];
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error creating menu: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat membuat menu: ' . $e->getMessage()
@@ -489,11 +488,10 @@ class WebMenuModel extends Model
                 $currentKategoriMenu = 'group_menu';
             }
 
-            // PERBAIKAN: Jika kategori_menu tidak ada di request dan ini adalah group menu, set otomatis
+            // Jika kategori_menu tidak ada di request dan ini adalah group menu, set otomatis
             if (!$request->has('kategori_menu') || empty($request->kategori_menu)) {
                 if ($currentKategoriMenu === 'group_menu') {
                     $request->merge(['kategori_menu' => 'group_menu']);
-                    Log::debug('Auto-set kategori_menu ke group_menu untuk menu ID: ' . $id);
                 }
             }
 
@@ -512,7 +510,7 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // PERBAIKAN: Validasi perubahan kategori menu sesuai aturan bisnis
+            // Validasi perubahan kategori menu sesuai aturan bisnis
             if ($currentKategoriMenu === 'group_menu' && $kategoriMenu !== 'group_menu') {
                 return [
                     'success' => false,
@@ -528,7 +526,7 @@ class WebMenuModel extends Model
                 ];
             }
 
-            // PERBAIKAN: Tentukan nilai-nilai berdasarkan kategori menu
+            // Tentukan nilai-nilai berdasarkan kategori menu
             $parentId = null;
             $updateData = [
                 'fk_m_hak_akses' => $data['fk_m_hak_akses'],
@@ -537,12 +535,10 @@ class WebMenuModel extends Model
             ];
 
             if ($kategoriMenu === 'sub_menu') {
-                // Untuk sub_menu, set parent_id dan fk_web_menu_global
                 $parentId = isset($data['wm_parent_id']) && $data['wm_parent_id'] !== '' ? $data['wm_parent_id'] : null;
                 $updateData['wm_parent_id'] = $parentId;
                 $updateData['fk_web_menu_global'] = $data['fk_web_menu_global'] ?? $saveData->fk_web_menu_global;
 
-                // Ambil level dari parent menu
                 if ($parentId) {
                     $parentMenu = self::find($parentId);
                     if ($parentMenu) {
@@ -550,25 +546,55 @@ class WebMenuModel extends Model
                     }
                 }
             } else if ($kategoriMenu === 'group_menu') {
-                // Untuk group_menu, tetap gunakan nilai yang sudah ada
-                // Group menu tidak memiliki parent
                 $updateData['wm_parent_id'] = null;
-                // JANGAN ubah fk_web_menu_global untuk group menu - biarkan seperti semula
-                // Hapus fk_web_menu_global dari updateData untuk group menu
             } else {
-                // Menu biasa, tidak memiliki parent
                 $updateData['wm_parent_id'] = null;
                 $updateData['fk_web_menu_global'] = $data['fk_web_menu_global'] ?? $saveData->fk_web_menu_global;
             }
-
-            Log::debug('Data yang akan diupdate:', $updateData);
 
             // Update menu dengan updateData yang sudah disiapkan
             $saveData->update($updateData);
 
             // Update permissions jika bukan group menu
-            if (isset($data['permissions']) && $kategoriMenu !== 'group_menu') {
-                // Logic update permissions yang sudah ada...
+            if ($kategoriMenu !== 'group_menu') {
+                $userIds = DB::table('set_user_hak_akses')
+                    ->where('fk_m_hak_akses', $saveData->fk_m_hak_akses)
+                    ->where('isDeleted', 0)
+                    ->pluck('fk_m_user');
+
+                if ($userIds->isNotEmpty()) {
+                    $permissions = $data['permissions'] ?? [];
+
+                    $permissionValues = [
+                        'ha_menu' => isset($permissions['menu']) ? 1 : 0,
+                        'ha_view' => isset($permissions['view']) ? 1 : 0,
+                        'ha_create' => isset($permissions['create']) ? 1 : 0,
+                        'ha_update' => isset($permissions['update']) ? 1 : 0,
+                        'ha_delete' => isset($permissions['delete']) ? 1 : 0,
+                    ];
+
+                    foreach ($userIds as $userId) {
+                        $hakAkses = SetHakAksesModel::firstOrNew([
+                            'ha_pengakses' => $userId,
+                            'fk_web_menu' => $saveData->web_menu_id
+                        ]);
+
+                        $hakAkses->ha_menu = $permissionValues['ha_menu'];
+                        $hakAkses->ha_view = $permissionValues['ha_view'];
+                        $hakAkses->ha_create = $permissionValues['ha_create'];
+                        $hakAkses->ha_update = $permissionValues['ha_update'];
+                        $hakAkses->ha_delete = $permissionValues['ha_delete'];
+
+                        if (!$hakAkses->exists) {
+                            $hakAkses->created_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
+                        } else {
+                            $hakAkses->updated_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
+                        }
+
+                        $hakAkses->isDeleted = 0;
+                        $hakAkses->save();
+                    }
+                }
             }
 
             TransactionModel::createData(
@@ -585,7 +611,6 @@ class WebMenuModel extends Model
             ];
         } catch (ValidationException $e) {
             DB::rollBack();
-
             return [
                 'success' => false,
                 'message' => 'Validasi gagal',
@@ -593,7 +618,6 @@ class WebMenuModel extends Model
             ];
         } catch (\Exception $e) {
             DB::rollBack();
-
             return [
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat memperbarui menu: ' . $e->getMessage()
