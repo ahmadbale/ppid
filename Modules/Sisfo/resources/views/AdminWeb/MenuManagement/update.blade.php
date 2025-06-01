@@ -325,7 +325,7 @@
                 $('.permission-item').removeClass('selected');
 
                 $.ajax({
-                    url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/edit`,
+                    url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/editData`,
                     type: 'GET',
                     success: function (response) {
                         if (response.success) {
@@ -334,7 +334,7 @@
                             currentWebMenuUrl = menu.fk_web_menu_url;
                             currentLevelId = menu.fk_m_hak_akses;
 
-                            $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/update`);
+                            $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/updateData`);
 
                             $('#edit_menu_global_name').val(menu.menu_global_name);
                             $('#edit_alias').val(menu.wm_menu_nama || '');

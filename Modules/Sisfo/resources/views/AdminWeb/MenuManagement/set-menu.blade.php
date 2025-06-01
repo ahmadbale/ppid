@@ -35,26 +35,65 @@
         </div>
         
         <!-- Info Panel -->
-        <div class="card-body p-0">
-            <div class="info-message alert-info m-3 mb-4">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h6><i class="fas fa-info-circle mr-2"></i>Panduan Pengaturan Menu</h6>
-                        <ul class="mb-0 pl-3">
-                            <li>Centang <strong>"Menu"</strong> untuk menampilkan menu di sidebar</li>
-                            <li>Centang <strong>"Lihat"</strong> untuk memberikan akses melihat halaman</li>
-                            <li>Centang <strong>"Tambah/Ubah/Hapus"</strong> untuk memberikan akses operasi data</li>
-                            <li>Gunakan <strong>"Alias"</strong> untuk mengubah nama tampilan menu (opsional)</li>
-                            <li>Toggle <strong>"Status"</strong> untuk mengaktifkan/nonaktifkan menu</li>
-                        </ul>
+            <div class="card-body p-0">
+                <div class="info-message alert-info m-3 mb-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Panduan Pengaturan Menu</h6>
+                            <ul class="mb-0 pl-3">
+                                <li>Centang <strong>"Menu"</strong> untuk menampilkan menu di sidebar</li>
+                                <li>Centang <strong>"Lihat"</strong> untuk memberikan akses melihat halaman</li>
+                                <li>Centang <strong>"Tambah/Ubah/Hapus"</strong> untuk memberikan akses operasi data</li>
+                                <li>Gunakan <strong>"Alias"</strong> untuk mengubah nama tampilan menu (opsional)</li>
+                                <li>Toggle <strong>"Status"</strong> untuk mengaktifkan/nonaktifkan menu</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="menu-statistics">
+                                <h6><i class="fas fa-chart-pie mr-2"></i>Statistik Menu</h6>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="stat-card bg-primary text-white rounded p-2 mb-2">
+                                            <div class="stat-number">{{ $menuGlobal->count() }}</div>
+                                            <small class="stat-label">Total Menu</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        @php
+                                            // Hitung menu yang sudah dibuat untuk hak akses ini
+                                            $createdMenusCount = WebMenuModel::where('fk_m_hak_akses', $level->hak_akses_id)
+                                                ->where('isDeleted', 0)
+                                                ->count();
+                                        @endphp
+                                        <div class="stat-card bg-success text-white rounded p-2 mb-2">
+                                            <div class="stat-number">{{ $createdMenusCount }}</div>
+                                            <small class="stat-label">Menu Dibuat</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="progress progress-sm">
+                                    @php
+                                        $percentage = $menuGlobal->count() > 0 ? round(($createdMenusCount / $menuGlobal->count()) * 100, 1) : 0;
+                                    @endphp
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                        style="width: {{ $percentage }}%" 
+                                        aria-valuenow="{{ $percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block text-center mt-1">
+                                    Kelengkapan: {{ $percentage }}%
+                                </small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <!-- Form Container -->
-    <form id="setMenuForm" method="POST" action="{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/store-set-menu') }}">
+    <form id="setMenuForm" method="POST" action="{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/createData') }}">
         @csrf
         <input type="hidden" name="hak_akses_id" value="{{ $level->hak_akses_id }}">
         
@@ -123,10 +162,11 @@
                                         <thead class="bg-light">
                                             <tr>
                                                 <th width="5%" class="text-center">No</th>
-                                                <th width="25%">Nama Menu</th>
-                                                <th width="20%">Alias</th>
+                                                <th width="20%">Nama Menu</th>
+                                                <th width="15%">Alias</th>
                                                 <th width="30%" class="text-center">Hak Akses</th>
-                                                <th width="20%" class="text-center">Status</th>
+                                                <th width="15%" class="text-center">Akses Cepat</th>
+                                                <th width="15%" class="text-center">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -169,7 +209,7 @@
                                                                value="{{ $existingMenus[$subMenu->web_menu_global_id]['alias'] ?? '' }}">
                                                     </td>
                                                     <td class="text-center align-middle">
-                                                        <div class="permission-group">
+                                                        <div class="permission-group" data-menu-id="{{ $subMenu->web_menu_global_id }}">
                                                             <div class="row text-center">
                                                                 <div class="col">
                                                                     <small class="d-block text-muted mb-1">Menu</small>
@@ -235,6 +275,16 @@
                                                         </div>
                                                     </td>
                                                     <td class="text-center align-middle">
+                                                        <div class="btn-group-vertical btn-group-sm">
+                                                            <button type="button" class="btn btn-outline-success btn-sm quick-select-all" data-menu-id="{{ $subMenu->web_menu_global_id }}">
+                                                                <i class="fas fa-check-square"></i> Pilih Semua
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-warning btn-sm quick-clear-all" data-menu-id="{{ $subMenu->web_menu_global_id }}">
+                                                                <i class="fas fa-square"></i> Bersihkan
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center align-middle">
                                                         <button type="button" class="btn btn-sm status-toggle track-change {{ $subDefaultStatus == 'aktif' ? 'btn-success' : 'btn-danger' }}"
                                                                 data-menu-id="{{ $subMenu->web_menu_global_id }}">
                                                             <i class="fas fa-{{ $subDefaultStatus == 'aktif' ? 'check' : 'times' }} mr-1"></i>
@@ -292,7 +342,7 @@
                                     <input type="hidden" name="menus[{{ $menu->web_menu_global_id }}][type]" value="single">
                                     <input type="hidden" class="menu-modified" name="menus[{{ $menu->web_menu_global_id }}][modified]" value="0">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group mb-0">
                                         <label class="text-muted mb-1">Nama Alias</label>
                                         <input type="text" class="form-control form-control-sm track-change" 
@@ -304,7 +354,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="text-muted d-block mb-2">Hak Akses</label>
-                                    <div class="permission-group">
+                                    <div class="permission-group" data-menu-id="{{ $menu->web_menu_global_id }}">
                                         <div class="row text-center">
                                             <div class="col">
                                                 <small class="d-block text-muted mb-1">Menu</small>
@@ -370,6 +420,17 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2 text-center">
+                                    <label class="text-muted d-block mb-1">Akses Cepat</label>
+                                    <div class="btn-group-vertical btn-group-sm mb-2">
+                                        <button type="button" class="btn btn-outline-success btn-sm quick-select-all" data-menu-id="{{ $menu->web_menu_global_id }}">
+                                            <i class="fas fa-check-square"></i> Pilih Semua
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning btn-sm quick-clear-all" data-menu-id="{{ $menu->web_menu_global_id }}">
+                                            <i class="fas fa-square"></i> Bersihkan
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 text-center">
                                     <label class="text-muted d-block mb-1">Status Menu</label>
                                     <button type="button" class="btn btn-sm status-toggle track-change {{ $singleDefaultStatus == 'aktif' ? 'btn-success' : 'btn-danger' }}"
                                             data-menu-id="{{ $menu->web_menu_global_id }}">
@@ -464,21 +525,59 @@
         background-color: #e9ecef;
     }
     
+    .menu-statistics {
+        background: rgba(255,255,255,0.8);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        border: 1px solid rgba(0,123,255,0.2);
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+        cursor: default;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        display: block;
+        margin-top: 0.25rem;
+    }
+    
+    .progress-sm {
+        height: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .progress-bar {
+        transition: width 0.6s ease;
+    }
+    
+    .menu-statistics h6 {
+        color: #495057;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+    
     @media (max-width: 768px) {
-        .permission-group .row {
-            flex-direction: column;
+        .menu-statistics {
+            margin-top: 1rem;
         }
         
-        .permission-group .col {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .permission-group .col:last-child {
-            border-bottom: none;
+        .stat-number {
+            font-size: 1.25rem;
         }
     }
 </style>
@@ -487,14 +586,26 @@
 @push('js')
 <script>
 $(document).ready(function() {
-    // Track changes
+    let changeNotificationShown = false; // Flag untuk tracking notifikasi
+    
+    // Track changes dengan throttling untuk notifikasi
     $('.track-change').on('change', function() {
         var menuId = $(this).data('menu-id');
         $('input[name="menus[' + menuId + '][modified]"]').val('1');
         
         // Visual feedback
         $(this).closest('.card').addClass('border-warning');
-        showToast('Perubahan terdeteksi', 'Jangan lupa simpan perubahan Anda', 'warning');
+        
+        // Show notification only once per session atau setelah delay
+        if (!changeNotificationShown) {
+            showToast('Perubahan terdeteksi', 'Jangan lupa simpan perubahan Anda', 'warning');
+            changeNotificationShown = true;
+            
+            // Reset flag setelah 3 detik
+            setTimeout(() => {
+                changeNotificationShown = false;
+            }, 3000);
+        }
     });
     
     // Toggle status button with animation
@@ -615,6 +726,95 @@ $(document).ready(function() {
             }
         });
     });
+    
+    // Quick Select All button for individual menu - Modified untuk single notification
+    $('.quick-select-all').on('click', function() {
+        const menuId = $(this).data('menu-id');
+        const $btn = $(this);
+        
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Memproses...');
+        
+        // Temporarily disable change notification untuk bulk action
+        const originalFlag = changeNotificationShown;
+        changeNotificationShown = true;
+        
+        // Select all permissions for this specific menu
+        $(`input.permission-checkbox[data-menu-id="${menuId}"]`).each(function() {
+            $(this).prop('checked', true);
+            $(this).trigger('change');
+        });
+        
+        // Show single notification for bulk action
+        showToast('Pilih Semua', 'Semua hak akses untuk menu ini telah dipilih', 'success');
+        
+        setTimeout(() => {
+            $btn.prop('disabled', false).html('<i class="fas fa-check-square"></i> Pilih Semua');
+            
+            // Reset notification flag setelah bulk action selesai
+            changeNotificationShown = originalFlag;
+        }, 500);
+    });
+    
+    // Quick Clear All button for individual menu - Modified untuk single notification
+    $('.quick-clear-all').on('click', function() {
+        const menuId = $(this).data('menu-id');
+        const $btn = $(this);
+        
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Membersihkan...');
+        
+        // Temporarily disable change notification untuk bulk action
+        const originalFlag = changeNotificationShown;
+        changeNotificationShown = true;
+        
+        // Clear all permissions for this specific menu
+        $(`input.permission-checkbox[data-menu-id="${menuId}"]`).each(function() {
+            $(this).prop('checked', false);
+            $(this).trigger('change');
+        });
+        
+        // Show single notification for bulk action
+        showToast('Bersihkan', 'Semua hak akses untuk menu ini telah dibersihkan', 'info');
+        
+        setTimeout(() => {
+            $btn.prop('disabled', false).html('<i class="fas fa-square"></i> Bersihkan');
+            
+            // Reset notification flag setelah bulk action selesai
+            changeNotificationShown = originalFlag;
+        }, 500);
+    });
+
+    // Function to update statistics
+    function updateMenuStatistics() {
+        const totalMenus = {{ $menuGlobal->count() }};
+        const currentCreatedMenus = {{ $createdMenusCount }};
+        
+        // Update display numbers (jika diperlukan untuk update real-time)
+        $('.stat-number').first().text(totalMenus);
+        $('.stat-number').last().text(currentCreatedMenus);
+        
+        // Update progress bar
+        const percentage = totalMenus > 0 ? Math.round((currentCreatedMenus / totalMenus) * 100 * 10) / 10 : 0;
+        $('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage);
+        $('.text-muted').text('Kelengkapan: ' + percentage + '%');
+    }
+    
+    // Add tooltip for better UX
+    $('.stat-card').tooltip({
+        title: function() {
+            if ($(this).find('.stat-label').text() === 'Total Menu') {
+                return 'Jumlah seluruh menu yang tersedia di sistem (Group Menu + Sub Menu + Menu Biasa)';
+            } else {
+                return 'Jumlah menu yang sudah dibuat untuk hak akses {{ $level->hak_akses_nama }}';
+            }
+        },
+        placement: 'top'
+    });
+    
+    // Optional: Add animation when page loads
+    setTimeout(function() {
+        $('.stat-card').addClass('animate__animated animate__fadeInUp');
+        $('.progress-bar').addClass('animate__animated animate__slideInLeft');
+    }, 500);
     
     // Utility function for toast notifications
     function showToast(title, message, type) {
