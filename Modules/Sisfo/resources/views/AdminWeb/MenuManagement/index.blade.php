@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\MenuManagement\index.blade.php -->
 {{-- resources/views/adminweb/MenuManagement/index.blade.php --}}
 @php
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
@@ -177,6 +176,9 @@
 <script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
 <script>
 $(function () {
+    // Dapatkan hak akses user dari PHP
+    const userHakAksesKode = '{{ $userHakAksesKode }}';
+    
     // Sembunyikan tombol simpan urutan saat belum pilih kategori
     $('#saveOrderBtn').hide();
 
@@ -205,10 +207,9 @@ $(function () {
                     const $newContainer = $item.closest('.dd');
                     const newJenis = $newContainer.data('jenis');
                     const originalJenis = $item.data('original-container');
-                    const userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
 
                     // Validasi SAR
-                    if (userhakAksesKode !== 'SAR') {
+                    if (userHakAksesKode !== 'SAR') {
                         // Cek jika menu SAR dipindahkan ke container non-SAR
                         if (originalJenis === 'SAR' && newJenis !== 'SAR') {
                             toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
@@ -330,7 +331,6 @@ $(function () {
     // Handler untuk simpan urutan
     $('#saveOrderBtn').off('click').on('click', function () {
         const data = collectAllMenuData();
-        const userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
 
         // Validasi data sebelum kirim
         if (data.length === 0) {
@@ -339,7 +339,7 @@ $(function () {
         }
 
         // Validasi SAR untuk keamanan ekstra
-        if (userhakAksesKode !== 'SAR') {
+        if (userHakAksesKode !== 'SAR') {
             let hasSARChange = false;
             
             data.forEach(item => {
