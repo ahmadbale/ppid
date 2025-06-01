@@ -75,35 +75,119 @@
                         <!-- Hak Akses (tidak untuk group menu) -->
                         <div class="col-md-12" id="edit_permissions_container">
                             <div class="form-group">
-                                <label>Hak Akses</label>
-                                <div class="d-flex align-items-center">
-                                    <label class="mb-0 mr-3">Tampil Menu | Lihat | Tambah | Ubah | Hapus</label>
-                                </div>
-                                <div>
-                                    <div class="custom-control custom-checkbox custom-control-inline">
-                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
-                                               id="edit_perm_menu" name="web_menu[permissions][menu]" data-level="1">
-                                        <label class="custom-control-label" for="edit_perm_menu"></label>
-                                    </div>
-                                    <div class="custom-control custom-checkbox custom-control-inline">
-                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
-                                               id="edit_perm_view" name="web_menu[permissions][view]" data-level="2">
-                                        <label class="custom-control-label" for="edit_perm_view"></label>
-                                    </div>
-                                    <div class="custom-control custom-checkbox custom-control-inline">
-                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
-                                               id="edit_perm_create" name="web_menu[permissions][create]" data-level="3">
-                                        <label class="custom-control-label" for="edit_perm_create"></label>
-                                    </div>
-                                    <div class="custom-control custom-checkbox custom-control-inline">
-                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
-                                               id="edit_perm_update" name="web_menu[permissions][update]" data-level="3">
-                                        <label class="custom-control-label" for="edit_perm_update"></label>
-                                    </div>
-                                    <div class="custom-control custom-checkbox custom-control-inline">
-                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
-                                               id="edit_perm_delete" name="web_menu[permissions][delete]" data-level="3">
-                                        <label class="custom-control-label" for="edit_perm_delete"></label>
+                                <label class="font-weight-bold">
+                                    <i class="fas fa-shield-alt mr-2 text-primary"></i>
+                                    Pengaturan Hak Akses
+                                </label>
+                                <small class="text-muted d-block mb-3">Pilih hak akses yang diinginkan untuk menu ini</small>
+                                
+                                <div class="card border-light">
+                                    <div class="card-body p-3">
+                                        <div class="row">
+                                            <!-- Tampil Menu -->
+                                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                <div class="permission-item text-center">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                                            id="edit_perm_menu" name="web_menu[permissions][menu]" data-level="1">
+                                                        <label class="custom-control-label" for="edit_perm_menu"></label>
+                                                    </div>
+                                                    <div class="permission-info mt-2">
+                                                        <i class="fas fa-bars text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                                        <div class="permission-title font-weight-bold">Tampil Menu</div>
+                                                        <small class="text-muted">Menu tampil di sidebar</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Lihat -->
+                                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                <div class="permission-item text-center">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                                            id="edit_perm_view" name="web_menu[permissions][view]" data-level="2">
+                                                        <label class="custom-control-label" for="edit_perm_view"></label>
+                                                    </div>
+                                                    <div class="permission-info mt-2">
+                                                        <i class="fas fa-eye text-info mb-2" style="font-size: 1.5rem;"></i>
+                                                        <div class="permission-title font-weight-bold">Lihat</div>
+                                                        <small class="text-muted">Akses melihat halaman</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Tambah -->
+                                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                <div class="permission-item text-center">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                                            id="edit_perm_create" name="web_menu[permissions][create]" data-level="3">
+                                                        <label class="custom-control-label" for="edit_perm_create"></label>
+                                                    </div>
+                                                    <div class="permission-info mt-2">
+                                                        <i class="fas fa-plus text-success mb-2" style="font-size: 1.5rem;"></i>
+                                                        <div class="permission-title font-weight-bold">Tambah</div>
+                                                        <small class="text-muted">Membuat data baru</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Ubah -->
+                                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                <div class="permission-item text-center">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                                            id="edit_perm_update" name="web_menu[permissions][update]" data-level="3">
+                                                        <label class="custom-control-label" for="edit_perm_update"></label>
+                                                    </div>
+                                                    <div class="permission-info mt-2">
+                                                        <i class="fas fa-edit text-warning mb-2" style="font-size: 1.5rem;"></i>
+                                                        <div class="permission-title font-weight-bold">Ubah</div>
+                                                        <small class="text-muted">Mengubah data</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Hapus -->
+                                            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                                                <div class="permission-item text-center">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input permission-checkbox" 
+                                                            id="edit_perm_delete" name="web_menu[permissions][delete]" data-level="3">
+                                                        <label class="custom-control-label" for="edit_perm_delete"></label>
+                                                    </div>
+                                                    <div class="permission-info mt-2">
+                                                        <i class="fas fa-trash text-danger mb-2" style="font-size: 1.5rem;"></i>
+                                                        <div class="permission-title font-weight-bold">Hapus</div>
+                                                        <small class="text-muted">Menghapus data</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Quick Actions -->
+                                            <div class="col-lg-2 col-md-12 col-sm-12 mb-3">
+                                                <div class="quick-actions text-center">
+                                                    <div class="mb-2">
+                                                        <small class="text-muted font-weight-bold">Aksi Cepat:</small>
+                                                    </div>
+                                                    <button type="button" class="btn btn-outline-success btn-sm btn-block mb-1" id="edit_select_all">
+                                                        <i class="fas fa-check-double mr-1"></i>Pilih Semua
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm btn-block" id="edit_clear_all">
+                                                        <i class="fas fa-times mr-1"></i>Bersihkan
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Permission Level Info -->
+                                        <div class="alert alert-info mt-3 mb-0" style="background-color: #f8f9fa; border-color: #dee2e6;">
+                                            <small>
+                                                <i class="fas fa-info-circle mr-2"></i>
+                                                <strong>Catatan:</strong> 
+                                                Hak akses bersifat hierarkis. Memilih akses tingkat tinggi akan otomatis memilih akses tingkat rendah.
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

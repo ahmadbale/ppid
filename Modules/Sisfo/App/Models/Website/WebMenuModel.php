@@ -951,7 +951,6 @@ class WebMenuModel extends Model
             $menuIds = [];
             foreach ($data as $item) {
                 $menuIds[] = $item['id'];
-
                 if (isset($item['children'])) {
                     foreach ($item['children'] as $child) {
                         $menuIds[] = $child['id'];
@@ -960,65 +959,61 @@ class WebMenuModel extends Model
             }
 
             // Ambil informasi menu asli dari database
-            $originalMenus = self::whereIn('web_menu_id', $menuIds)->get()->keyBy('web_menu_id');
+            $originalMenus = self::whereIn('web_menu_id', $menuIds)
+                ->with('Level')
+                ->get()
+                ->keyBy('web_menu_id');
 
-            // Untuk memeriksa duplikasi nama menu dalam satu level
-            $menuNamesByLevel = [];
-
-            // Cek apakah ada menu SAR yang dimodifikasi oleh non-SAR
             $userhakAksesKode = Auth::user()->level->hak_akses_kode;
-            $hasSARMenuModification = false;
 
-            // Map dari menu ID ke level kode untuk validasi
-            $menuLevelMap = [];
-            foreach ($originalMenus as $menu) {
-                if ($menu->Level) {
-                    $menuLevelMap[$menu->web_menu_id] = $menu->Level->hak_akses_kode;
-                }
-            }
+            // VALIDASI: Cek apakah user non-SAR mencoba mengubah menu SAR
+            if ($userhakAksesKode !== 'SAR') {
+                // Cek setiap item dalam data untuk melihat apakah ada menu SAR yang diubah
+                foreach ($data as $position => $item) {
+                    $menuId = $item['id'];
+                    $originalMenu = $originalMenus[$menuId] ?? null;
+                    
+                    if (!$originalMenu) continue;
 
-            // Cek perubahan pada menu SAR
-            foreach ($data as $item) {
-                $menuId = $item['id'];
-                $originalLevel = $menuLevelMap[$menuId] ?? null;
-
-                // Jika menu adalah SAR tapi user bukan SAR, tandai ada modifikasi menu SAR
-                if ($originalLevel === 'SAR' && $userhakAksesKode !== 'SAR') {
-                    if (isset($item['parent_id']) && $item['parent_id'] != null) {
-                        $hasSARMenuModification = true;
-                        break;
-                    }
-                }
-
-                // Cek juga submenu
-                if (isset($item['children'])) {
-                    foreach ($item['children'] as $child) {
-                        $childId = $child['id'];
-                        $childOriginalLevel = $menuLevelMap[$childId] ?? null;
-
-                        // Jika child menu adalah SAR tapi user bukan SAR, tandai ada modifikasi
-                        if ($childOriginalLevel === 'SAR' && $userhakAksesKode !== 'SAR') {
-                            $hasSARMenuModification = true;
-                            break;
-                        }
-
-                        // Jika parent bukan SAR tapi child SAR, ini juga modifikasi tidak valid
-                        if ($originalLevel !== 'SAR' && $childOriginalLevel === 'SAR' && $userhakAksesKode !== 'SAR') {
-                            $hasSARMenuModification = true;
-                            break;
+                    // Jika menu adalah SAR dan ada perubahan urutan/parent
+                    if ($originalMenu->Level && $originalMenu->Level->hak_akses_kode === 'SAR') {
+                        // Cek perubahan urutan (posisi berbeda)
+                        $originalPosition = null;
+                        $originalParentId = $originalMenu->wm_parent_id;
+                        
+                        // Bandingkan dengan posisi asli dan parent asli
+                        if ($position !== ($originalMenu->wm_urutan_menu - 1) || 
+                            ($item['parent_id'] ?? null) !== $originalParentId) {
+                            DB::rollBack();
+                            return [
+                                'success' => false,
+                                'message' => 'Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR'
+                            ];
                         }
                     }
-                    if ($hasSARMenuModification) break;
-                }
-            }
 
-            // Jika ada modifikasi menu SAR oleh non-SAR, tolak request
-            if ($hasSARMenuModification) {
-                DB::rollBack();
-                return [
-                    'success' => false,
-                    'message' => 'Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR'
-                ];
+                    // Cek juga submenu SAR
+                    if (isset($item['children'])) {
+                        foreach ($item['children'] as $childPosition => $child) {
+                            $childId = $child['id'];
+                            $originalChild = $originalMenus[$childId] ?? null;
+                            
+                            if (!$originalChild) continue;
+
+                            if ($originalChild->Level && $originalChild->Level->hak_akses_kode === 'SAR') {
+                                // Cek perubahan pada submenu SAR
+                                if ($childPosition !== ($originalChild->wm_urutan_menu - 1) || 
+                                    $item['id'] !== $originalChild->wm_parent_id) {
+                                    DB::rollBack();
+                                    return [
+                                        'success' => false,
+                                        'message' => 'Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR'
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Mendapatkan mapping level kode ke ID
@@ -1031,68 +1026,158 @@ class WebMenuModel extends Model
             // Proses reordering dan pemindahan menu
             foreach ($data as $position => $item) {
                 $menu = $originalMenus[$item['id']] ?? null;
-
                 if (!$menu) continue;
 
-                // Menentukan parent
+                // Tentukan parent ID dan level
                 $parentId = $item['parent_id'] ?? null;
+                $newLevel = null;
+                
+                // Jika menu dipindahkan ke level yang berbeda (berdasarkan current_level)
+                if (isset($item['current_level'])) {
+                    $newLevel = $levelMapping[$item['current_level']] ?? $menu->fk_m_hak_akses;
+                } else {
+                    $newLevel = $menu->fk_m_hak_akses;
+                }
+
+                // Jika menu menjadi submenu, ambil level dari parent
+                if ($parentId) {
+                    $parentMenu = $originalMenus[$parentId] ?? null;
+                    if ($parentMenu) {
+                        $newLevel = $parentMenu->fk_m_hak_akses;
+                    }
+                }
 
                 // Data yang akan diupdate
                 $updateData = [
                     'wm_parent_id' => $parentId,
                     'wm_urutan_menu' => $position + 1,
+                    'fk_m_hak_akses' => $newLevel
                 ];
 
-                // Update hak akses jika menu dipindahkan antar level
-                if (isset($item['level']) && $parentId === null) {
-                    // Hanya update level jika ini adalah menu utama (tanpa parent)
-                    $levelId = $levelMapping[$item['level']] ?? null;
-                    if ($levelId) {
-                        $updateData['fk_m_hak_akses'] = $levelId;
-                    }
-                } elseif ($parentId) {
-                    // Jika ini submenu, ambil level dari parent
-                    $parentMenu = $originalMenus[$parentId] ?? null;
-                    if ($parentMenu) {
-                        $updateData['fk_m_hak_akses'] = $parentMenu->fk_m_hak_akses;
-                    }
-                }
-
-                // Update menu (tanpa mengubah fk_web_menu_global)
+                // Update menu
                 $menu->update($updateData);
 
-                // Memperbarui submenu
+                // Update hak akses jika level berubah
+                if ($newLevel !== $menu->fk_m_hak_akses) {
+                    self::updateMenuPermissionsForLevelChange($menu->web_menu_id, $newLevel);
+                }
+
+                // Proses submenu
                 if (isset($item['children'])) {
                     foreach ($item['children'] as $childPosition => $child) {
                         $childMenu = $originalMenus[$child['id']] ?? null;
-                        if ($childMenu) {
-                            $childUpdateData = [
-                                'wm_parent_id' => $item['id'],
-                                'wm_urutan_menu' => $childPosition + 1
-                            ];
+                        if (!$childMenu) continue;
 
-                            // Set level child sama dengan parent
-                            $childUpdateData['fk_m_hak_akses'] = $menu->fk_m_hak_akses;
+                        $childUpdateData = [
+                            'wm_parent_id' => $item['id'],
+                            'wm_urutan_menu' => $childPosition + 1,
+                            'fk_m_hak_akses' => $newLevel // Submenu mengikuti level parent
+                        ];
 
-                            // Update child menu (tanpa mengubah fk_web_menu_global)
-                            $childMenu->update($childUpdateData);
+                        $childMenu->update($childUpdateData);
+
+                        // Update hak akses submenu jika level berubah
+                        if ($newLevel !== $childMenu->fk_m_hak_akses) {
+                            self::updateMenuPermissionsForLevelChange($childMenu->web_menu_id, $newLevel);
                         }
                     }
                 }
             }
 
-            $result = [
+            // Reorder menu yang tidak ada dalam data (untuk memastikan urutan konsisten)
+            self::reorderRemainingMenus($menuIds);
+
+            DB::commit();
+            return [
                 'success' => true,
                 'message' => 'Urutan menu berhasil diperbarui'
             ];
-            DB::commit();
-            return $result;
+
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Error in reorderMenus: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat mengatur ulang urutan menu: ' . $e->getMessage()
             ];
+        }
+    }
+
+    /**
+     * Update permissions untuk menu yang berubah level
+     */
+    private static function updateMenuPermissionsForLevelChange($menuId, $newLevelId)
+    {
+        try {
+            // Hapus hak akses lama
+            SetHakAksesModel::where('fk_web_menu', $menuId)->delete();
+
+            // Ambil semua user dengan level baru
+            $userIds = DB::table('set_user_hak_akses')
+                ->where('fk_m_hak_akses', $newLevelId)
+                ->where('isDeleted', 0)
+                ->pluck('fk_m_user');
+
+            // Buat hak akses default untuk level baru
+            foreach ($userIds as $userId) {
+                SetHakAksesModel::create([
+                    'ha_pengakses' => $userId,
+                    'fk_web_menu' => $menuId,
+                    'ha_menu' => 1, // Default: bisa melihat menu
+                    'ha_view' => 1, // Default: bisa melihat halaman
+                    'ha_create' => 0,
+                    'ha_update' => 0,
+                    'ha_delete' => 0,
+                    'created_by' => Auth::check() ? Auth::user()->nama_pengguna : 'system'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error updating menu permissions: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reorder menu yang tidak termasuk dalam data drag-drop
+     */
+    private static function reorderRemainingMenus($processedMenuIds)
+    {
+        try {
+            // Ambil semua level
+            $levels = HakAksesModel::where('isDeleted', 0)->get();
+            
+            foreach ($levels as $level) {
+                // Reorder menu utama (parent)
+                $parentMenus = self::where('fk_m_hak_akses', $level->hak_akses_id)
+                    ->whereNull('wm_parent_id')
+                    ->where('isDeleted', 0)
+                    ->whereNotIn('web_menu_id', $processedMenuIds)
+                    ->orderBy('wm_urutan_menu')
+                    ->get();
+
+                foreach ($parentMenus as $index => $menu) {
+                    $menu->update(['wm_urutan_menu' => $index + 1]);
+                }
+
+                // Reorder submenu untuk setiap parent
+                $allParentMenus = self::where('fk_m_hak_akses', $level->hak_akses_id)
+                    ->whereNull('wm_parent_id')
+                    ->where('isDeleted', 0)
+                    ->get();
+
+                foreach ($allParentMenus as $parentMenu) {
+                    $subMenus = self::where('wm_parent_id', $parentMenu->web_menu_id)
+                        ->where('isDeleted', 0)
+                        ->whereNotIn('web_menu_id', $processedMenuIds)
+                        ->orderBy('wm_urutan_menu')
+                        ->get();
+
+                    foreach ($subMenus as $index => $subMenu) {
+                        $subMenu->update(['wm_urutan_menu' => $index + 1]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error reordering remaining menus: ' . $e->getMessage());
         }
     }
     private static function reorderAfterDelete($parentId)
