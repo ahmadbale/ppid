@@ -401,14 +401,13 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label class="label-form" for="wbs_jabatan_terlapor">Jabatan Pegawai /
-                                                Staff <span class="text-danger">*</span></label>
+                                            <label class="label-form" for="wbs_jabatan_terlapor">Jabatan <span class="text-danger">*</span></label>
                                             <select
                                                 class="form-select @error('wbs_jabatan_terlapor') is-invalid @enderror"
                                                 id="wbs_jabatan_terlapor" name="wbs_jabatan_terlapor" required>
                                                 <option value="">- Pilih Jabatan -</option>
-                                                <option value="Pegawai"
-                                                    {{ old('wbs_jabatan_terlapor') == 'Pegawai' ? 'selected' : '' }}>
+                                                <option value="Staff"
+                                                    {{ old('wbs_jabatan_terlapor') == 'Staff' ? 'selected' : '' }}>
                                                     Pegawai</option>
                                                 <option value="Dosen"
                                                     {{ old('wbs_jabatan_terlapor') == 'Dosen' ? 'selected' : '' }}>
