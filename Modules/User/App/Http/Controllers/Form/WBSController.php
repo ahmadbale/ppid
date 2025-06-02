@@ -25,7 +25,7 @@ class WBSController extends Controller
     {
         try {
             // Get active token - gunakan token yang valid
-            $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHBpZC1wb2xpbmVtYS50ZXN0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ4NjA2NjMyLCJleHAiOjE3NDg2MTAyMzIsIm5iZiI6MTc0ODYwNjYzMiwianRpIjoieERUQUhxNEtFcm1Pa0pOUSIsInN1YiI6IjUiLCJwcnYiOiI3MDBmMzdkN2Q5MDU2MmQyYTYyNTU3ZDg4OWRlZTJlMDA5ODI3NzM1IiwidHlwZSI6InVzZXIiLCJ1c2VyX2lkIjo1LCJyb2xlIjoiUmVzcG9uZGVuIn0.o27Xlk5NC0BvW-SxcnMQQnYvEOo2ViVkDfJPXeUhgzQ';
+            $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcHBpZC1wb2xpbmVtYS50ZXN0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ4NjEwNjM0LCJleHAiOjE3NDg2MTQyMzQsIm5iZiI6MTc0ODYxMDYzNCwianRpIjoiZUpGVDZhR3FkNXRaeUdGRyIsInN1YiI6IjUiLCJwcnYiOiI3MDBmMzdkN2Q5MDU2MmQyYTYyNTU3ZDg4OWRlZTJlMDA5ODI3NzM1IiwidHlwZSI6InVzZXIiLCJ1c2VyX2lkIjo1LCJyb2xlIjoiUmVzcG9uZGVuIn0.0mROwU6Jkwg86jhrcpBMlsoUb84jD05jmNUfOCu2XrA';
 
             // Create HTTP client with authorization
             $httpClient = Http::withOptions(['verify' => false])

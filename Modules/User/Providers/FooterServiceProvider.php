@@ -77,7 +77,6 @@ class FooterServiceProvider extends ServiceProvider
     {
         try {
             // Panggil API langsung tanpa autentikasi
-            Log::info('Mengambil data footer dari API publik');
             $response = $this->makeAuthenticatedRequest('public/getDataFooter');
             if ($response->failed() || !$response->json('success')) {
                 Log::warning('Footer API gagal diambil atau data tidak lengkap', [
@@ -86,7 +85,6 @@ class FooterServiceProvider extends ServiceProvider
                 return $this->getDefaultFooterData();
             }
             
-            Log::info('FooterServiceProvider: Response API', ['response' => $response->json()]);
             return $this->processFooterData($response->json('data'));
         } catch (\Exception $e) {
             Log::error('Footer Data Fetch Error', [
