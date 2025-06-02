@@ -222,38 +222,12 @@ class PermohonanInformasiModel extends Model
 
     public static function hitungJumlahVerifikasi()
     {
-        // Menghitung jumlah verifikasi untuk semua tipe pengajuan
-        return [
-            'permohonanInformasi' => self::where('pi_status', 'Masuk')
-                ->where('isDeleted', 0)
-                ->where('pi_verif_isDeleted', 0)
-                ->whereNull('pi_sudah_dibaca')
-                ->count(),
-
-            'pernyataanKeberatan' => PernyataanKeberatanModel::where('pk_status', 'Masuk')
-                ->where('isDeleted', 0)
-                ->where('pk_verif_isDeleted', 0)
-                ->whereNull('pk_sudah_dibaca')
-                ->count(),
-
-            'pengaduanMasyarakat' => PengaduanMasyarakatModel::where('pm_status', 'Masuk')
-                ->where('isDeleted', 0)
-                ->where('pm_verif_isDeleted', 0)
-                ->whereNull('pm_sudah_dibaca')
-                ->count(),
-
-            'wbs' => WBSModel::where('wbs_status', 'Masuk')
-                ->where('isDeleted', 0)
-                ->where('wbs_verif_isDeleted', 0)
-                ->whereNull('wbs_sudah_dibaca')
-                ->count(),
-
-            'permohonanPerawatan' => PermohonanPerawatanModel::where('pp_status', 'Masuk')
-                ->where('isDeleted', 0)
-                ->where('pp_verif_isDeleted', 0)
-                ->whereNull('pp_sudah_dibaca')
-                ->count()
-        ];
+        // Hanya menghitung verifikasi untuk Permohonan Informasi
+        return self::where('pi_status', 'Masuk')
+            ->where('isDeleted', 0)
+            ->where('pi_verif_isDeleted', 0)
+            ->whereNull('pi_sudah_dibaca')
+            ->count();
     }
 
     public static function getDaftarVerifikasi()

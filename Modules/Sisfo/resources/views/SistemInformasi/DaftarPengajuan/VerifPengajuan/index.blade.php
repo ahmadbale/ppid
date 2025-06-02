@@ -42,7 +42,7 @@
             
             <!-- Whistle Blowing System -->
             <div class="col-md-4">
-                <a href="{{ url($daftarPengajuanUrl . '/wbs') }}" class="custom-button d-block p-3 mb-2">
+                <a href="{{ url($daftarPengajuanUrl . '/whistle-blowing-system') }}" class="custom-button d-block p-3 mb-2">
                     <i class="fas fa-bullhorn fa-2x"></i>
                     <h5>Daftar Verifikasi Pengajuan Whistle Blowing System</h5>
                     @if($jumlahDaftarVerifWBS > 0)

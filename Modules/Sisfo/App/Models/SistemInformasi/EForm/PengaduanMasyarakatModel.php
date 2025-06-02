@@ -41,7 +41,7 @@ class PengaduanMasyarakatModel extends Model
         'pm_tanggal_dibaca',
         'pm_review',
         'pm_tanggal_review',
-        'pm_tanggal_jawaban',
+        'pm_tanggal_dijawab',
         'pm_verif_isDeleted'
     ];
 
@@ -228,5 +228,101 @@ class PengaduanMasyarakatModel extends Model
     {
         // Menggunakan fungsi dari BaseModelFunction
         return self::getKetentuanPelaporanByKategoriForm('Pengaduan Masyarakat');
+    }
+
+    public static function hitungJumlahVerifikasi()
+    {
+        // Hanya menghitung verifikasi untuk Pengaduan Masyarakat
+        return self::where('pm_status', 'Masuk')
+            ->where('isDeleted', 0)
+            ->where('pm_verif_isDeleted', 0)
+            ->whereNull('pm_sudah_dibaca')
+            ->count();
+    }
+
+    public static function getDaftarVerifikasi()
+    {
+        // Mengambil daftar pengaduan masyarakat untuk verifikasi
+        return self::where('isDeleted', 0)
+            ->where('pm_verif_isDeleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiPermohonan()
+    {
+        // Validasi status
+        if ($this->pm_status !== 'Masuk') {
+            throw new \Exception('Pengajuan Pengaduan Masyarakat sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Verifikasi
+        $this->pm_status = 'Verifikasi';
+        $this->pm_review = session('alias') ?? 'System';
+        $this->pm_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }    
+
+    public function validasiDanTolakPermohonan($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pm_status !== 'Masuk') {
+            throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Ditolak
+        $this->pm_status = 'Ditolak';
+        $this->pm_alasan_penolakan = $alasanPenolakan;
+        $this->pm_review = session('alias') ?? 'System';
+        $this->pm_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibaca()
+    {
+        // Validasi status permohonan
+        if (!in_array($this->pm_status, ['Verifikasi', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
+        }
+
+        // Tandai sebagai dibaca
+        $this->pm_sudah_dibaca = session('alias') ?? 'System';
+        $this->pm_tanggal_dibaca = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanHapusPermohonan()
+    {
+        // Validasi status dibaca
+        if (empty($this->pm_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai pengajuan ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->pm_verif_isDeleted = 1;
+        $this->pm_tanggal_dijawab = now();
+        $this->save();
+
+        return $this;
     }
 }
