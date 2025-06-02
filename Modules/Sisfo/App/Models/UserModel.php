@@ -25,7 +25,8 @@ class UserModel extends Authenticatable implements JWTSubject
         'email_pengguna',
         'pekerjaan_pengguna',
         'nik_pengguna',
-        'upload_nik_pengguna'
+        'upload_nik_pengguna',
+        'foto_profil'
     ];
 
     protected $hidden = ['password']; // Tidak ditampilkan saat select

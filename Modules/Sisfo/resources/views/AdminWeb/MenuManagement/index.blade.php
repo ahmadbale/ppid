@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\MenuManagement\index.blade.php -->
 {{-- resources/views/adminweb/MenuManagement/index.blade.php --}}
 @php
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
@@ -173,321 +172,293 @@
 @endpush
 
 @push('js')
-    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('vendor/nestable2/jquery.nestable.min.js') }}"></script>
-    <script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
+<script src="{{ asset('vendor/nestable2/jquery.nestable.min.js') }}"></script>
+<script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
+<script>
+$(function () {
+    // Dapatkan hak akses user dari PHP
+    const userHakAksesKode = '{{ $userHakAksesKode }}';
+    
+    // Sembunyikan tombol simpan urutan saat belum pilih kategori
+    $('#saveOrderBtn').hide();
 
-    <script>
-        // Tambahkan token CSRF ke semua request AJAX
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    // Fungsi untuk menginisialisasi nestable
+    function initializeNestable() {
+        $('.dd').each(function () {
+            const $container = $(this);
+            
+            // Destroy existing nestable jika ada
+            if ($container.data('nestable')) {
+                $container.nestable('destroy');
             }
-        });
+            
+            // Inisialisasi nestable baru
+            $container.nestable({
+                maxDepth: 2,
+                group: 'menu-group', // Gunakan nama group yang sama untuk semua
+                dragStart: function(l, e) {
+                    // Simpan data original untuk validasi
+                    const $item = $(e);
+                    $item.data('original-container', $item.closest('.dd').data('jenis'));
+                },
+                dragEnd: function(l, e, p) {
+                    // Handler setelah drag selesai
+                    const $item = $(e);
+                    const $newContainer = $item.closest('.dd');
+                    const newJenis = $newContainer.data('jenis');
+                    const originalJenis = $item.data('original-container');
 
-        // Tunggu document ready hanya sekali
-        $(function () {
-            // Sembunyikan tombol simpan urutan saat belum pilih kategori
-            $('#saveOrderBtn').hide();
-
-            $('#filterKategori').on('change', function () {
-                var kode = $(this).val();
-                if (kode && kode !== 'all') {
-                    $('#menuKategoriWrapper').show();
-                    $('.menu-kategori-item').hide();
-                    $('.menu-kategori-item[data-kode="' + kode + '"]').show();
-                    $('#saveOrderBtn').show();
-                } else if (kode === 'all') {
-                    $('#menuKategoriWrapper').show();
-                    $('.menu-kategori-item').show();
-                    $('#saveOrderBtn').show();
-                } else {
-                    $('#menuKategoriWrapper').hide();
-                    $('#saveOrderBtn').hide();
-                }
-            });
-
-            // Optional: trigger change on page load to ensure hidden
-            $('#filterKategori').trigger('change');
-
-            // Simpan semua menu dalam variabel JavaScript untuk digunakan dalam filter
-            const allMenus = @json($menus);
-
-            // Daftar warna untuk setiap jenis menu
-            const menuColors = {
-                'SAR': 'border-left-dark',
-                'ADM': 'border-left-primary',
-                'MPU': 'border-left-success',
-                'VFR': 'border-left-warning',
-                'RPN': 'border-left-danger',
-                'ADT': 'border-left-info'
-            };
-
-            // Inisialisasi Nestable untuk setiap jenis menu - hanya sekali per elemen
-            $('.dd').each(function () {
-                const $container = $(this);
-                // Periksa apakah nestable sudah diinisialisasi
-                if (!$container.data('nestable-initialized')) {
-                    $container.nestable({
-                        maxDepth: 2,
-                        group: 1, // Memungkinkan drag and drop antar kelompok
-                        dragStop: function (e) {
-                            // Dapatkan kontainer target
-                            const $container = $(e.target).closest('.dd');
-                            const targetJenis = $container.data('jenis');
-
-                            // Update jenis menu untuk item yang dipindahkan
-                            const $item = $(e.item);
-                            $item.attr('data-jenis', targetJenis);
-
-                            // Update juga untuk semua submenu
-                            $item.find('.dd-item').each(function () {
-                                $(this).attr('data-jenis', targetJenis);
-                                updateMenuItemStyle($(this), targetJenis);
-                            });
-
-                            // Update tampilan
-                            updateMenuItemStyle($item, targetJenis);
-                        }
-                    }).data('nestable-initialized', true); // Tandai sudah diinisialisasi
-                }
-            });
-
-            // Fungsi untuk mengumpulkan semua data menu dari semua kategori
-            function collectAllMenuData() {
-                let allData = [];
-
-                // Kumpulkan data dari setiap nestable
-                $('.dd').each(function () {
-                    let jenisKode = $(this).data('jenis');
-                    let levelData = $(this).nestable('serialize');
-
-                    if (levelData && levelData.length > 0) {
-                        // Tambahkan informasi level ke setiap item menu utama (tanpa parent)
-                        levelData.forEach(item => {
-                            // Hanya menambahkan level ke menu tanpa parent
-                            if (!item.parent_id) {
-                                item.level = jenisKode;
-                            }
-
-                            // Simpan informasi level kode saat ini untuk menu ini
-                            item.current_level = jenisKode;
-                        });
-
-                        allData = allData.concat(levelData);
-                    }
-                });
-
-                return allData;
-            }
-
-            // Handler ketika item dilepas (drop) setelah di-drag
-            $('.dd').off('change').on('change', function () {
-                // Dapatkan jenis kontainer tujuan
-                let targetContainerJenis = $(this).data('jenis');
-                let userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
-
-                // Jika container tujuan adalah SAR atau ada menu SAR yang di-drop ke container lain
-                if (targetContainerJenis === 'SAR' && userhakAksesKode !== 'SAR') {
-                    // Cek apakah ada item non-SAR yang dipindahkan ke container SAR
-                    let nonSarItemInSarContainer = false;
-                    $(this).find('.dd-item').each(function () {
-                        if ($(this).data('jenis') !== 'SAR') {
-                            nonSarItemInSarContainer = true;
-                            return false; // break the loop
-                        }
-                    });
-
-                    if (nonSarItemInSarContainer) {
-                        // Reload halaman untuk membatalkan perubahan
-                        toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-                        setTimeout(() => window.location.reload(), 1000);
-                        return;
-                    }
-                }
-
-                // Cek juga apakah item SAR dipindahkan ke container non-SAR
-                if (targetContainerJenis !== 'SAR' && userhakAksesKode !== 'SAR') {
-                    let sarItemInNonSarContainer = false;
-                    $(this).find('.dd-item[data-jenis="SAR"]').each(function () {
-                        sarItemInNonSarContainer = true;
-                        return false; // break the loop
-                    });
-
-                    if (sarItemInNonSarContainer) {
-                        // Reload halaman untuk membatalkan perubahan
-                        toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-                        setTimeout(() => window.location.reload(), 1000);
-                        return;
-                    }
-                }
-
-                // Loop melalui semua item level 1 (menu utama) dalam kontainer ini
-                $(this).find('> .dd-list > .dd-item').each(function () {
-                    // Perbarui data-jenis untuk menu utama
-                    $(this).attr('data-jenis', targetContainerJenis);
-
-                    // Perbarui juga tampilan visual
-                    updateMenuItemStyle($(this), targetContainerJenis);
-
-                    // Update juga data-jenis untuk semua submenu
-                    $(this).find('.dd-item').each(function () {
-                        $(this).attr('data-jenis', targetContainerJenis);
-                        updateMenuItemStyle($(this), targetContainerJenis);
-                    });
-                });
-            });
-
-            // Fungsi untuk memperbarui gaya tampilan menu sesuai jenisnya
-            function updateMenuItemStyle(menuItem, jenis) {
-                // Hapus kelas border warna lama
-                menuItem.find('> .dd-handle').removeClass(function (index, className) {
-                    return (className.match(/(^|\s)border-left-\S+/g) || []).join(' ');
-                });
-
-                // Tambahkan kelas border warna baru sesuai jenis
-                const borderClass = menuColors[jenis] || 'border-left-secondary';
-                menuItem.find('> .dd-handle').addClass(borderClass);
-            }
-
-            // Simpan Urutan Menu - pastikan hanya satu handler
-            $('#saveOrderBtn').off('click').on('click', function () {
-                let data = collectAllMenuData();
-                let userhakAksesKode = '{{ Auth::user()->level->hak_akses_kode }}';
-
-                // Validasi menu SAR
-                if (userhakAksesKode !== 'SAR') {
-                    // Dapatkan semua menu dengan jenis SAR
-                    let sarMenus = [];
-                    $('.dd-item[data-jenis="SAR"]').each(function () {
-                        sarMenus.push({
-                            id: parseInt($(this).data('id')),
-                            parent_id: $(this).parent().closest('.dd-item').data('id') || null
-                        });
-                    });
-
-                    // Cek apakah ada perubahan pada menu SAR
-                    let hasSARChange = false;
-                    for (let sarMenu of sarMenus) {
-                        // Cari menu SAR di data yang akan disimpan
-                        let foundInData = data.find(item => item.id === sarMenu.id);
-
-                        // Jika tidak ditemukan di level 1, periksa anak-anak menu
-                        if (!foundInData) {
-                            for (let item of data) {
-                                if (item.children) {
-                                    foundInData = item.children.find(child => child.id === sarMenu.id);
-                                    if (foundInData) {
-                                        // Jika ditemukan di anak, verifikasi parent ID
-                                        if (foundInData.parent_id !== sarMenu.parent_id) {
-                                            hasSARChange = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        } else if (foundInData.parent_id !== sarMenu.parent_id) {
-                            // Jika ditemukan tapi parent ID berbeda
-                            hasSARChange = true;
-                        }
-
-                        if (hasSARChange) break;
-                    }
-
-                    // Jika ada menu non-SAR yang dipindahkan ke container SAR
-                    $('.dd[data-jenis="SAR"] .dd-item').each(function () {
-                        if ($(this).data('jenis') !== 'SAR') {
-                            hasSARChange = true;
-                            return false; // break the loop
-                        }
-                    });
-
-                    // Cek juga menu SAR yang dipindahkan ke container non-SAR
-                    $('.dd:not([data-jenis="SAR"]) .dd-item').each(function () {
-                        if ($(this).data('jenis') === 'SAR') {
-                            hasSARChange = true;
-                            return false; // break the loop
-                        }
-                    });
-
-                    if (hasSARChange) {
-                        toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
-                        setTimeout(() => window.location.reload(), 1000);
-                        return;
-                    }
-                }
-
-                $.ajax({
-                    url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/reorder') }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        data: data
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success(response.message);
+                    // Validasi SAR
+                    if (userHakAksesKode !== 'SAR') {
+                        // Cek jika menu SAR dipindahkan ke container non-SAR
+                        if (originalJenis === 'SAR' && newJenis !== 'SAR') {
+                            toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
                             setTimeout(() => window.location.reload(), 1000);
-                        } else {
-                            toastr.error(response.message);
-                            if (response.message.includes('SAR')) {
-                                setTimeout(() => window.location.reload(), 1000);
-                            }
+                            return false;
                         }
-                    },
-                    error: function () {
-                        toastr.error('Error updating menu order');
-                    }
-                });
-            });
-
-            // Fungsi untuk update opsi parent menu
-            function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
-                // Reset dropdown
-                targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
-
-                // Jika tidak ada hakAksesId, tidak perlu memuat data
-                if (!hakAksesId) return;
-
-                // Dapatkan URL dinamis
-                const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
-
-                // Lakukan request AJAX untuk mendapatkan parent menu berdasarkan level
-                $.ajax({
-                    url: `${dynamicUrl}/${hakAksesId}`,
-                    type: 'GET',
-                    data: { exclude_id: excludeId }, // Kirim exclude_id sebagai parameter
-                    success: function (response) {
-                        if (response.success && response.parentMenus) {
-                            response.parentMenus.forEach(function (menu) {
-                                // Gunakan display_name yang sudah diproses di server
-                                targetSelect.append(`
-                                    <option value="${menu.web_menu_id}" data-level="${hakAksesId}">
-                                        ${menu.display_name}
-                                    </option>
-                                `);
-                            });
+                        
+                        // Cek jika menu non-SAR dipindahkan ke container SAR
+                        if (originalJenis !== 'SAR' && newJenis === 'SAR') {
+                            toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
+                            setTimeout(() => window.location.reload(), 1000);
+                            return false;
                         }
-                    },
-                    error: function () {
-                        toastr.error('Gagal memuat menu induk');
                     }
-                });
-            }
 
-            // Reset forms dan validasi setelah modal ditutup
-            $('.modal').on('hidden.bs.modal', function () {
-                $(this).find('form')[0].reset();
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').hide();
-                $('#edit_level_menu').prop('disabled', false);
+                    // Update data-jenis untuk item yang dipindahkan
+                    $item.attr('data-jenis', newJenis);
+                    updateMenuItemStyle($item, newJenis);
 
-                // Reset dropdown
-                $('#edit_parent_id').empty().append('<option value="">-Set Sebagai Menu Utama</option>');
-
-                // Reset variabel jenis menu asli
-                originalMenuLevel = '';
+                    // Update submenu juga
+                    $item.find('.dd-item').each(function() {
+                        $(this).attr('data-jenis', newJenis);
+                        updateMenuItemStyle($(this), newJenis);
+                    });
+                }
             });
         });
-    </script>
+    }
+
+    // Fungsi untuk update style menu item
+    function updateMenuItemStyle($item, jenisKode) {
+        // Remove existing jenis classes
+        $item.removeClass(function (index, className) {
+            return (className.match(/(^|\s)jenis-\S+/g) || []).join(' ');
+        });
+        
+        // Add new jenis class
+        $item.addClass('jenis-' + jenisKode);
+        
+        // Update handle color berdasarkan jenis
+        const $handle = $item.children('.dd-handle');
+        $handle.removeClass(function (index, className) {
+            return (className.match(/(^|\s)handle-\S+/g) || []).join(' ');
+        });
+        $handle.addClass('handle-' + jenisKode);
+    }
+
+    // Handler untuk filter kategori
+    $('#filterKategori').on('change', function () {
+        var kode = $(this).val();
+        if (kode && kode !== 'all') {
+            $('#menuKategoriWrapper').show();
+            $('.menu-kategori-item').hide();
+            $('.menu-kategori-item[data-kode="' + kode + '"]').show();
+            $('#saveOrderBtn').show();
+            
+            // Reinitialize nestable untuk container yang ditampilkan
+            setTimeout(function() {
+                $('.menu-kategori-item[data-kode="' + kode + '"] .dd').each(function() {
+                    const $container = $(this);
+                    if ($container.data('nestable')) {
+                        $container.nestable('destroy');
+                    }
+                    initializeNestable();
+                });
+            }, 100);
+        } else if (kode === 'all') {
+            $('#menuKategoriWrapper').show();
+            $('.menu-kategori-item').show();
+            $('#saveOrderBtn').show();
+            
+            // Reinitialize semua nestable
+            setTimeout(function() {
+                initializeNestable();
+            }, 100);
+        } else {
+            $('#menuKategoriWrapper').hide();
+            $('#saveOrderBtn').hide();
+        }
+    });
+
+    // Trigger change untuk menginisialisasi tampilan awal
+    $('#filterKategori').trigger('change');
+
+    // Fungsi untuk mengumpulkan data dari semua container
+    function collectAllMenuData() {
+        let allData = [];
+
+        $('.dd:visible').each(function () {
+            let jenisKode = $(this).data('jenis');
+            let levelData = [];
+            
+            try {
+                levelData = $(this).nestable('serialize');
+            } catch (e) {
+                console.warn('Error serializing nestable for', jenisKode, e);
+                levelData = [];
+            }
+
+            if (levelData && levelData.length > 0) {
+                levelData.forEach(item => {
+                    item.current_level = jenisKode;
+                    
+                    if (item.children) {
+                        item.children.forEach(child => {
+                            child.current_level = jenisKode;
+                            child.parent_id = item.id;
+                        });
+                    }
+                });
+
+                allData = allData.concat(levelData);
+            }
+        });
+
+        return allData;
+    }
+
+    // Handler untuk simpan urutan
+    $('#saveOrderBtn').off('click').on('click', function () {
+        const data = collectAllMenuData();
+
+        // Validasi data sebelum kirim
+        if (data.length === 0) {
+            toastr.warning('Tidak ada data menu untuk disimpan');
+            return;
+        }
+
+        // Validasi SAR untuk keamanan ekstra
+        if (userHakAksesKode !== 'SAR') {
+            let hasSARChange = false;
+            
+            data.forEach(item => {
+                // Cek apakah ada menu SAR yang termodifikasi
+                const $menuItem = $('[data-id="' + item.id + '"]');
+                const originalJenis = $menuItem.data('original-jenis') || $menuItem.data('jenis');
+                
+                if (originalJenis === 'SAR' || item.current_level === 'SAR') {
+                    if (originalJenis !== item.current_level) {
+                        hasSARChange = true;
+                    }
+                }
+                
+                if (item.children) {
+                    item.children.forEach(child => {
+                        const $childItem = $('[data-id="' + child.id + '"]');
+                        const childOriginalJenis = $childItem.data('original-jenis') || $childItem.data('jenis');
+                        
+                        if (childOriginalJenis === 'SAR' || child.current_level === 'SAR') {
+                            if (childOriginalJenis !== child.current_level) {
+                                hasSARChange = true;
+                            }
+                        }
+                    });
+                }
+            });
+
+            if (hasSARChange) {
+                toastr.error('Hanya pengguna dengan level Super Administrator yang dapat mengubah menu SAR');
+                setTimeout(() => window.location.reload(), 1000);
+                return;
+            }
+        }
+
+        // Kirim data ke server
+        $.ajax({
+            url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/reorder') }}",
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                data: data
+            },
+            beforeSend: function() {
+                $('#saveOrderBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
+            },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    toastr.error(response.message);
+                    if (response.message.includes('SAR')) {
+                        setTimeout(() => window.location.reload(), 1000);
+                    }
+                }
+            },
+            error: function (xhr) {
+                let message = 'Error updating menu order';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+                toastr.error(message);
+                
+                if (message.includes('SAR')) {
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            },
+            complete: function() {
+                $('#saveOrderBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Urutan');
+            }
+        });
+    });
+
+    // Simpan data original saat page load untuk tracking perubahan
+    $(document).ready(function() {
+        $('.dd-item').each(function() {
+            const $item = $(this);
+            const jenisKode = $item.closest('.dd').data('jenis');
+            $item.data('original-jenis', jenisKode);
+        });
+    });
+
+    // Fungsi helper lainnya tetap sama...
+    function updateParentMenuOptions(hakAksesId, targetSelect, excludeId = null) {
+        targetSelect.empty().append('<option value="">-Set Sebagai Menu Utama</option>');
+
+        if (!hakAksesId) return;
+
+        const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
+
+        $.ajax({
+            url: `${dynamicUrl}/${hakAksesId}`,
+            type: 'GET',
+            data: { exclude_id: excludeId },
+            success: function (response) {
+                if (response.success && response.parentMenus) {
+                    response.parentMenus.forEach(function (menu) {
+                        targetSelect.append(`
+                            <option value="${menu.web_menu_id}" data-level="${hakAksesId}">
+                                ${menu.display_name}
+                            </option>
+                        `);
+                    });
+                }
+            },
+            error: function () {
+                toastr.error('Gagal memuat menu induk');
+            }
+        });
+    }
+
+    // Reset forms setelah modal ditutup
+    $('.modal').on('hidden.bs.modal', function () {
+        $(this).find('form')[0].reset();
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').hide();
+        $('#edit_level_menu').prop('disabled', false);
+        $('#edit_parent_id').empty().append('<option value="">-Set Sebagai Menu Utama</option>');
+    });
+});
+</script>
 @endpush

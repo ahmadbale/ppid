@@ -98,25 +98,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/css/summernote.css', [SummernoteController::class, 'getSummernoteCSS']);
     Route::get('/switch-role/{hakAksesId}', [SwitchRoleController::class, 'index'])->name('switch.role');
 
+    // Route::group(['prefix' => 'profile'], function () {
+    //     Route::get('/', [ProfileController::class, 'index']);
+    //     Route::put('/update_pengguna/{id}', [ProfileController::class, 'update_pengguna']);
+    //     Route::put('/update_password/{id}', [ProfileController::class, 'update_password']);
+    // });
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);
         Route::put('/update_pengguna/{id}', [ProfileController::class, 'update_pengguna']);
         Route::put('/update_password/{id}', [ProfileController::class, 'update_password']);
+        Route::delete('/delete_foto_profil/{id}', [ProfileController::class, 'delete_foto_profil']); // Tambah ini
+        Route::delete('/delete_foto_ktp/{id}', [ProfileController::class, 'delete_foto_ktp']); // Tambah ini
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('menu-management'), 'middleware' => 'authorize:ADM,SAR'], function () {
         Route::get('/', [MenuManagementController::class, 'index'])->middleware('permission:view');
-        Route::get('/menu-item', [MenuManagementController::class, 'menu-item']);
-        Route::post('/list', [MenuManagementController::class, 'list']);
-        Route::post('/store', [MenuManagementController::class, 'store'])->middleware('permission:create');
-        Route::get('/{id}/edit', [MenuManagementController::class, 'edit']);
-        Route::put('/{id}/update', [MenuManagementController::class, 'update'])->middleware('permission:update');
-        Route::delete('/{id}/delete', [MenuManagementController::class, 'delete'])->middleware('permission:delete');
-        Route::get('/{id}/detail_menu', [MenuManagementController::class, 'detail_menu']);
+        Route::get('/addData/{hakAksesId}', [MenuManagementController::class, 'addData'])->middleware('permission:create');
+        Route::post('/createData', [MenuManagementController::class, 'createData'])->middleware('permission:create');
+        Route::get('/{id}/editData', [MenuManagementController::class, 'editData']);
+        Route::put('/{id}/updateData', [MenuManagementController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/{id}/detailData', [MenuManagementController::class, 'detailData']);
+        Route::delete('/{id}/deleteData', [MenuManagementController::class, 'deleteData'])->middleware('permission:delete');
         Route::post('/reorder', [MenuManagementController::class, 'reorder']); // New route for drag-drop reordering
         Route::get('/get-parent-menus/{hakAksesId}', [MenuManagementController::class, 'getParentMenus']);
-        Route::get('/set-menu/{hakAksesId}', [MenuManagementController::class, 'setMenu'])->middleware('permission:create');
-        Route::post('/store-set-menu', [MenuManagementController::class, 'storeSetMenu'])->middleware('permission:create');
     });
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('kategori-footer')], function () {
         Route::get('/', [KategoriFooterController::class, 'index'])->middleware('permission:view');
