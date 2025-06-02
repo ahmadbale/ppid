@@ -53,6 +53,9 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSeng
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPMController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPPController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifWBSController;
 
 /*
 |--------------------------------------------------------------------------
@@ -529,6 +532,36 @@ Route::middleware('auth')->group(function () {
             Route::post('/tolakPermohonan/{id}', [VerifPKController::class, 'tolakPermohonan'])->middleware('permission:update');
             Route::post('/tandaiDibaca/{id}', [VerifPKController::class, 'tandaiDibaca'])->middleware('permission:update');
             Route::post('/hapusPermohonan/{id}', [VerifPKController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'pengaduan-masyarakat'], function() {
+            Route::get('/', [VerifPMController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [VerifPMController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [VerifPMController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [VerifPMController::class, 'setujuiPermohonan'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [VerifPMController::class, 'tolakPermohonan'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [VerifPMController::class, 'tandaiDibaca'])->middleware('permission:update');
+            Route::post('/hapusPermohonan/{id}', [VerifPMController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'whistle-blowing-system'], function() {
+            Route::get('/', [VerifWBSController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [VerifWBSController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [VerifWBSController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [VerifWBSController::class, 'setujuiPermohonan'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [VerifWBSController::class, 'tolakPermohonan'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [VerifWBSController::class, 'tandaiDibaca'])->middleware('permission:update');
+            Route::post('/hapusPermohonan/{id}', [VerifWBSController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'permohonan-perawatan'], function() {
+            Route::get('/', [VerifPPController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [VerifPPController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [VerifPPController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [VerifPPController::class, 'setujuiPermohonan'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [VerifPPController::class, 'tolakPermohonan'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [VerifPPController::class, 'tandaiDibaca'])->middleware('permission:update');
+            Route::post('/hapusPermohonan/{id}', [VerifPPController::class, 'hapusPermohonan'])->middleware('permission:delete');
         });
         
         // Tambahkan grup route untuk kategori pengajuan lainnya disini

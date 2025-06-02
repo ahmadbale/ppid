@@ -36,7 +36,7 @@ class PermohonanPerawatanModel extends Model
         'pp_tanggal_dibaca',
         'pp_review',
         'pp_tanggal_review',
-        'pp_tanggal_jawaban',
+        'pp_tanggal_dijawab',
         'pp_verif_isDeleted'
         
     ];
@@ -187,5 +187,101 @@ class PermohonanPerawatanModel extends Model
     {
         // Menggunakan fungsi dari BaseModelFunction
         return self::getKetentuanPelaporanByKategoriForm('Permohonan Perawatan Sarana Prasarana');
+    }
+
+    public static function hitungJumlahVerifikasi()
+    {
+        // Hanya menghitung verifikasi untuk Permohonan Perawatan
+        return self::where('pp_status', 'Masuk')
+            ->where('isDeleted', 0)
+            ->where('pp_verif_isDeleted', 0)
+            ->whereNull('pp_sudah_dibaca')
+            ->count();
+    }
+
+    public static function getDaftarVerifikasi()
+    {
+        // Mengambil daftar permohonan perawatan untuk verifikasi
+        return self::where('isDeleted', 0)
+            ->where('pp_verif_isDeleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiPermohonan()
+    {
+        // Validasi status
+        if ($this->pp_status !== 'Masuk') {
+            throw new \Exception('Pengajuan Permohonan Perawatan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Verifikasi
+        $this->pp_status = 'Verifikasi';
+        $this->pp_review = session('alias') ?? 'System';
+        $this->pp_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }    
+
+    public function validasiDanTolakPermohonan($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pp_status !== 'Masuk') {
+            throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
+        }
+
+        // Update status menjadi Ditolak
+        $this->pp_status = 'Ditolak';
+        $this->pp_alasan_penolakan = $alasanPenolakan;
+        $this->pp_review = session('alias') ?? 'System';
+        $this->pp_tanggal_review = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibaca()
+    {
+        // Validasi status permohonan
+        if (!in_array($this->pp_status, ['Verifikasi', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
+        }
+
+        // Tandai sebagai dibaca
+        $this->pp_sudah_dibaca = session('alias') ?? 'System';
+        $this->pp_tanggal_dibaca = now();
+        $this->save();
+
+        return $this;
+    }
+
+    public function validasiDanHapusPermohonan()
+    {
+        // Validasi status dibaca
+        if (empty($this->pp_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai pengajuan ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->pp_verif_isDeleted = 1;
+        $this->pp_tanggal_dijawab = now();
+        $this->save();
+
+        return $this;
     }
 }

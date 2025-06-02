@@ -5,7 +5,11 @@ namespace Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\Ver
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PengaduanMasyarakatModel;
 use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanInformasiModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PermohonanPerawatanModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\PernyataanKeberatanModel;
+use Modules\Sisfo\App\Models\SistemInformasi\EForm\WBSModel;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 
 class VerifPengajuanController extends Controller
@@ -32,8 +36,14 @@ class VerifPengajuanController extends Controller
             'title' => $this->pagename
         ];
 
-        // Ambil jumlah verifikasi dari model
-        $jumlahVerifikasi = PermohonanInformasiModel::hitungJumlahVerifikasi();
+        // Ambil jumlah verifikasi dari masing-masing model
+        $jumlahVerifikasi = [
+            'permohonanInformasi' => PermohonanInformasiModel::hitungJumlahVerifikasi(),
+            'pernyataanKeberatan' => PernyataanKeberatanModel::hitungJumlahVerifikasi(),
+            'pengaduanMasyarakat' => PengaduanMasyarakatModel::hitungJumlahVerifikasi(),
+            'wbs' => WBSModel::hitungJumlahVerifikasi(),
+            'permohonanPerawatan' => PermohonanPerawatanModel::hitungJumlahVerifikasi()
+        ];
 
         return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.index', [
             'breadcrumb' => $breadcrumb,

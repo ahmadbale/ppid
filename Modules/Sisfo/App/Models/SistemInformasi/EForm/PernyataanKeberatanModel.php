@@ -192,6 +192,16 @@ class PernyataanKeberatanModel extends Model
         return self::getKetentuanPelaporanByKategoriForm('Pernyataan Keberatan');
     }
 
+    public static function hitungJumlahVerifikasi()
+    {
+        // Hanya menghitung verifikasi untuk Pernyataan Keberatan
+        return self::where('pk_status', 'Masuk')
+            ->where('isDeleted', 0)
+            ->where('pk_verif_isDeleted', 0)
+            ->whereNull('pk_sudah_dibaca')
+            ->count();
+    }
+
     public static function getDaftarVerifikasi()
     {
         // Mengambil daftar pernyaataan Keberatan untuk verifikasi

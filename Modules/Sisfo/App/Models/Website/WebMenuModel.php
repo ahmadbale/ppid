@@ -379,6 +379,7 @@ class WebMenuModel extends Model
 
             $parentMapping = [];
             $modifiedParents = [];
+            $createdMenus = []; // Track created menus for transaction log
 
             // First pass: identify which parent menus need to be created
             foreach ($menus as $globalId => $menuData) {
@@ -458,6 +459,12 @@ class WebMenuModel extends Model
                     ]
                 );
 
+                // Track created menus for transaction log
+                if ($webMenu->wasRecentlyCreated) {
+                    $menuName = $webMenu->wm_menu_nama ?: ($webMenuGlobal ? $webMenuGlobal->wmg_nama_default : 'Menu');
+                    $createdMenus[] = $menuName;
+                }
+
                 // Track parent mapping for group menus
                 if ($menuData['type'] == 'group') {
                     $parentMapping[$globalId] = $webMenu->web_menu_id;
@@ -482,6 +489,22 @@ class WebMenuModel extends Model
                         );
                     }
                 }
+            }
+
+            // Create transaction log for created menus
+            if (!empty($createdMenus)) {
+                $level = HakAksesModel::find($hakAksesId);
+                $levelName = $level ? $level->hak_akses_nama : 'Unknown Level';
+
+                // Create a single transaction log entry with all created menus
+                $menuList = implode(', ', $createdMenus);
+                $detailAktivitas = "untuk level {$levelName}: {$menuList}";
+
+                TransactionModel::createData(
+                    'CREATED',
+                    $hakAksesId,
+                    $detailAktivitas
+                );
             }
 
             DB::commit();
@@ -1215,9 +1238,6 @@ class WebMenuModel extends Model
         }
     }
 
-    /**
-     * Update permissions untuk menu yang berubah level
-     */
     private static function updateMenuPermissionsForLevelChange($menuId, $newLevelId)
     {
         try {
@@ -1248,9 +1268,6 @@ class WebMenuModel extends Model
         }
     }
 
-    /**
-     * Reorder menu yang tidak termasuk dalam data drag-drop
-     */
     private static function reorderRemainingMenus($processedMenuIds)
     {
         try {
