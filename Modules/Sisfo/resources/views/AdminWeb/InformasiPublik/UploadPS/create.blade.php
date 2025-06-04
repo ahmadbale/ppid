@@ -34,17 +34,18 @@ $uploadPSUrl = WebMenuModel::getDynamicMenuUrl('upload-penyelesaian-sengketa');
             <div class="invalid-feedback" id="kategori_upload_ps_error"></div>
         </div>
 
+        <!-- Input untuk Link -->
         <div class="form-group" id="valueInputGroup">
             <label for="upload_ps_value">Link <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="upload_ps_value" name="t_upload_ps[upload_ps]" placeholder="https://">
             <small class="form-text text-muted">Masukkan URL lengkap, termasuk http:// atau https://</small>
-            <div class="invalid-feedback" id="upload_ps_error"></div>
+            <div class="invalid-feedback" id="upload_ps_value_error"></div>
         </div>
         
+        <!-- Input untuk File -->
         <div class="form-group" id="fileInputGroup" style="display:none;">
-            <!-- ✅ DIPERBAIKI: Sesuaikan nama field dengan validasi -->
             <label for="upload_ps_file">File Upload <span class="text-danger">*</span></label>
-            <input type="file" class="form-control" id="upload_ps_file" name="upload_ps" accept=".pdf">
+            <input type="file" class="form-control" id="upload_ps_file" name="upload_ps_file" accept=".pdf">
             <small class="form-text text-muted">Format file yang diperbolehkan: PDF. Ukuran maksimal 5MB.</small>
             <div class="invalid-feedback" id="upload_ps_file_error"></div>
         </div>
@@ -66,8 +67,16 @@ $(document).ready(function () {
         if (selectedType == 'file') {
             $('#valueInputGroup').hide();
             $('#fileInputGroup').show();
-        } else {
+            // Reset field link karena tidak digunakan
+            $('#upload_ps_value').val('');
+        } else if (selectedType == 'link') {
             $('#valueInputGroup').show();
+            $('#fileInputGroup').hide();
+            // Reset field file karena tidak digunakan
+            $('#upload_ps_file').val('');
+        } else {
+            // Jika tidak ada yang dipilih, sembunyikan keduanya
+            $('#valueInputGroup').hide();
             $('#fileInputGroup').hide();
         }
     });
@@ -79,11 +88,86 @@ $(document).ready(function () {
         $(errorId).html('');
     });
     
+    // Fungsi validasi form client-side
+    function validateForm() {
+        let isValid = true;
+        
+        // Validasi kategori penyelesaian sengketa
+        const kategori = $('#fk_m_penyelesaian_sengketa').val().trim();
+        if (kategori === '') {
+            $('#fk_m_penyelesaian_sengketa').addClass('is-invalid');
+            $('#fk_m_penyelesaian_sengketa_error').html('Kategori Upload Penyelesaian Sengketa wajib dipilih.');
+            isValid = false;
+        }
+        
+        // Validasi tipe upload
+        const tipeUpload = $('#kategori_upload_ps').val().trim();
+        if (tipeUpload === '') {
+            $('#kategori_upload_ps').addClass('is-invalid');
+            $('#kategori_upload_ps_error').html('Tipe Upload wajib dipilih.');
+            isValid = false;
+        }
+        
+        // Validasi berdasarkan tipe upload yang dipilih
+        if (tipeUpload === 'link') {
+            const linkVal = $('#upload_ps_value').val().trim();
+            if (linkVal === '') {
+                $('#upload_ps_value').addClass('is-invalid');
+                $('#upload_ps_value_error').html('URL link wajib diisi.');
+                isValid = false;
+            } else if (!isValidURL(linkVal)) {
+                $('#upload_ps_value').addClass('is-invalid');
+                $('#upload_ps_value_error').html('Format URL tidak valid.');
+                isValid = false;
+            }
+        } else if (tipeUpload === 'file') {
+            const fileInput = $('#upload_ps_file')[0];
+            if (fileInput.files.length === 0) {
+                $('#upload_ps_file').addClass('is-invalid');
+                $('#upload_ps_file_error').html('File wajib diupload.');
+                isValid = false;
+            } else {
+                const file = fileInput.files[0];
+                if (file.type !== 'application/pdf') {
+                    $('#upload_ps_file').addClass('is-invalid');
+                    $('#upload_ps_file_error').html('File harus berformat PDF.');
+                    isValid = false;
+                } else if (file.size > 5 * 1024 * 1024) { // 5MB
+                    $('#upload_ps_file').addClass('is-invalid');
+                    $('#upload_ps_file_error').html('Ukuran file maksimal 5MB.');
+                    isValid = false;
+                }
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // Helper function untuk validasi URL
+    function isValidURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    
     // Handle submit form
     $('#btnSubmitForm').on('click', function() {
         // Reset semua error
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').html('');
+        
+        // Validasi form terlebih dahulu
+        if (!validateForm()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi Gagal',
+                text: 'Mohon periksa kembali input Anda.'
+            });
+            return;
+        }
         
         const form = $('#formCreateUploadPS');
         const formData = new FormData(form[0]);
@@ -115,17 +199,17 @@ $(document).ready(function () {
                             // Untuk t_upload_ps fields
                             if (key.startsWith('t_upload_ps.')) {
                                 const fieldName = key.replace('t_upload_ps.', '');
-                                $(`#${fieldName}`).addClass('is-invalid');
-                                $(`#${fieldName}_error`).html(value[0]);
-                            } else {
-                                // Untuk field biasa seperti upload_ps
-                                if (key === 'upload_ps') {
-                                    $('#upload_ps_file').addClass('is-invalid');
-                                    $('#upload_ps_file_error').html(value[0]);
+                                if (fieldName === 'upload_ps' && $('#kategori_upload_ps').val() === 'link') {
+                                    $('#upload_ps_value').addClass('is-invalid');
+                                    $('#upload_ps_value_error').html(value[0]);
                                 } else {
-                                    $(`#${key}`).addClass('is-invalid');
-                                    $(`#${key}_error`).html(value[0]);
+                                    $(`#${fieldName}`).addClass('is-invalid');
+                                    $(`#${fieldName}_error`).html(value[0]);
                                 }
+                            } else {
+                                // Untuk field biasa seperti upload_ps_file
+                                $(`#${key}`).addClass('is-invalid');
+                                $(`#${key}_error`).html(value[0]);
                             }
                         });
                         
@@ -144,6 +228,7 @@ $(document).ready(function () {
                 }
             },
             error: function(xhr) {
+                console.error('Ajax Error:', xhr);
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
