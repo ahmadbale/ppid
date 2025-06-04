@@ -29,103 +29,102 @@ class TransactionModel extends Model
 
     // Di TransactionModel
     public static function createData($tipeTransaksi, $aktivitasId, $detailAktivitas)
-{
-    try {
-        // Dapatkan controller dan action saat ini
-        $route = Route::current();
-        $controller = $route->getController();
+    {
+        try {
+            // Dapatkan controller dan action saat ini
+            $route = Route::current();
+            $controller = $route->getController();
 
-        // Dapatkan tipe transaksi
-        $transactionType = strtoupper($tipeTransaksi);
+            // Dapatkan tipe transaksi
+            $transactionType = strtoupper($tipeTransaksi);
 
-        // Tentukan jenis form/menu berdasarkan controller
-        $formType = self::menentukanTipeForm($controller);
+            // Tentukan jenis form/menu berdasarkan controller
+            $formType = self::menentukanTipeForm($controller);
 
-        // Ambil level dari user yang sedang login
-      // Ambil level dari user yang sedang login
-      $hakAksesNama = 'Tidak Diketahui';
-            
-      if (Auth::check()) {
-          $user = Auth::user();
-          
-          // Coba ambil dari session terlebih dahulu (untuk web)
-          $activeHakAksesId = session('active_hak_akses_id');
-          
-          // Jika tidak ada di session, coba ambil dari JWT token (untuk API)
-          if (!$activeHakAksesId) {
-              try {
-                  // Coba dapatkan token JWT
-                  $token = JWTAuth::getToken();
-                  if ($token) {
-                      // Decode token untuk mendapatkan payload
-                      $payload = JWTAuth::getPayload($token)->toArray();
-                      
-                      // Periksa apakah ada klaim role
-                      if (isset($payload['role'])) {
-                          $hakAksesNama = $payload['role'];
-                          Log::info("Nama hak akses dari JWT token: $hakAksesNama");
-                      } else {
-                          // Alternatiif: Ambil hak akses pertama dari user
-                          $hakAksesId = $user->hak_akses_id;
-                          $hakAkses = HakAksesModel::find($hakAksesId);   
-                          $hakAksesNama = $hakAkses ? $hakAkses->hak_akses_nama : 'Tidak Diketahui';
-                          Log::info("Nama hak akses dari relasi: $hakAksesNama");
-                      }
-                  }
-              } catch (\Exception $e) {
-                  Log::error("Error saat mengambil data dari token JWT: " . $e->getMessage());
-                  
-              
-                  $hakAksesNama = $hakAkses ? $hakAkses->hak_akses_nama : 'Tidak Diketahui';
-              }
-          } else {
-              // Ambil dari session (web)
-              $level = HakAksesModel::find($activeHakAksesId);
-              $hakAksesNama = $level ? $level->hak_akses_nama : 'Tidak Diketahui';
-              Log::info("Nama hak akses dari session: $hakAksesNama");
-          }
-      }
+            // Ambil level dari user yang sedang login
+            // Ambil level dari user yang sedang login
+            $hakAksesNama = 'Tidak Diketahui';
+
+            if (Auth::check()) {
+                $user = Auth::user();
+
+                // Coba ambil dari session terlebih dahulu (untuk web)
+                $activeHakAksesId = session('active_hak_akses_id');
+
+                // Jika tidak ada di session, coba ambil dari JWT token (untuk API)
+                if (!$activeHakAksesId) {
+                    try {
+                        // Coba dapatkan token JWT
+                        $token = JWTAuth::getToken();
+                        if ($token) {
+                            // Decode token untuk mendapatkan payload
+                            $payload = JWTAuth::getPayload($token)->toArray();
+
+                            // Periksa apakah ada klaim role
+                            if (isset($payload['role'])) {
+                                $hakAksesNama = $payload['role'];
+                                Log::info("Nama hak akses dari JWT token: $hakAksesNama");
+                            } else {
+                                // Alternatiif: Ambil hak akses pertama dari user
+                                $hakAksesId = $user->hak_akses_id;
+                                $hakAkses = HakAksesModel::find($hakAksesId);
+                                $hakAksesNama = $hakAkses ? $hakAkses->hak_akses_nama : 'Tidak Diketahui';
+                                Log::info("Nama hak akses dari relasi: $hakAksesNama");
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        Log::error("Error saat mengambil data dari token JWT: " . $e->getMessage());
 
 
-        // Dapatkan alias dari session, jika tidak ada, gunakan dari UserModel
-        $namaPelaku = null;
-        if (Auth::check()) {
-            // Coba ambil dari session dulu
-            if (session()->has('alias')) {
-                $namaPelaku = session('alias');
-                Log::info("Menggunakan alias dari session: $namaPelaku");
-            } else {
-                // Jika tidak ada di session, gunakan fungsi yang sudah ada
-                $namaPelaku = \Modules\Sisfo\App\Models\UserModel::generateAlias(Auth::user()->nama_pengguna);
-                Log::info("Menggunakan alias yang di-generate: $namaPelaku");
-                
-                // Simpan ke session untuk penggunaan berikutnya
-                session(['alias' => $namaPelaku]);
+                        $hakAksesNama = $hakAkses ? $hakAkses->hak_akses_nama : 'Tidak Diketahui';
+                    }
+                } else {
+                    // Ambil dari session (web)
+                    $level = HakAksesModel::find($activeHakAksesId);
+                    $hakAksesNama = $level ? $level->hak_akses_nama : 'Tidak Diketahui';
+                    Log::info("Nama hak akses dari session: $hakAksesNama");
+                }
             }
+
+            // Dapatkan alias dari session, jika tidak ada, gunakan dari UserModel
+            $namaPelaku = null;
+            if (Auth::check()) {
+                // Coba ambil dari session dulu
+                if (session()->has('alias')) {
+                    $namaPelaku = session('alias');
+                    Log::info("Menggunakan alias dari session: $namaPelaku");
+                } else {
+                    // Jika tidak ada di session, gunakan fungsi yang sudah ada
+                    $namaPelaku = \Modules\Sisfo\App\Models\UserModel::generateAlias(Auth::user()->nama_pengguna);
+                    Log::info("Menggunakan alias yang di-generate: $namaPelaku");
+
+                    // Simpan ke session untuk penggunaan berikutnya
+                    session(['alias' => $namaPelaku]);
+                }
+            }
+
+            // Generate pesan aktivitas
+            $aktivitas = self::generateAktivitas(
+                Auth::user()->nama_pengguna,
+                $transactionType,
+                $formType,
+                $detailAktivitas
+            );
+
+            // Buat record log transaksi dengan namaPelaku yang sudah pasti ada nilainya
+            self::create([
+                'log_transaction_jenis' => $transactionType,
+                'log_transaction_aktivitas_id' => $aktivitasId,
+                'log_transaction_aktivitas' => $aktivitas,
+                'log_transaction_level' => $hakAksesNama,
+                'log_transaction_pelaku' => $namaPelaku,
+                'log_transaction_tanggal_aktivitas' => now()
+            ]);
+        } catch (\Exception $e) {
+            // Log error tanpa menghentikan proses
+            Log::error('Gagal membuat log transaksi: ' . $e->getMessage());
         }
-
-        // Generate pesan aktivitas
-        $aktivitas = self::generateAktivitas(
-            Auth::user()->nama_pengguna,
-            $transactionType,
-            $formType,
-            $detailAktivitas
-        );
-
-        // Buat record log transaksi dengan namaPelaku yang sudah pasti ada nilainya
-        self::create([
-            'log_transaction_jenis' => $transactionType,
-            'log_transaction_aktivitas_id' => $aktivitasId,
-            'log_transaction_aktivitas' => $aktivitas,
-            'log_transaction_level' => $hakAksesNama,
-            'log_transaction_pelaku' => $namaPelaku,
-            'log_transaction_tanggal_aktivitas' => now()
-        ]);
-    } catch (\Exception $e) {
-        // Log error tanpa menghentikan proses
-        Log::error('Gagal membuat log transaksi: ' . $e->getMessage());
     }
-}
 
     private static function menentukanTipeForm($controller)
     {
@@ -158,6 +157,10 @@ class TransactionModel extends Model
                 return 'memperbaharui';
             case 'DELETED':
                 return 'menghapus';
+            case 'APPROVED':
+                return 'menyetujui';
+            case 'REJECTED':
+                return 'menolak';
             default:
                 return 'melakukan aksi pada';
         }
@@ -165,6 +168,11 @@ class TransactionModel extends Model
 
     private static function generateAktivitas($namaPengguna, $tipeTransaksi, $tipeForm, $detailAktivitas)
     {
+        // Untuk transaksi APPROVED dan REJECTED, gunakan detail aktivitas langsung
+        if (in_array($tipeTransaksi, ['APPROVED', 'REJECTED'])) {
+            return $detailAktivitas;
+        }
+
         $aksi = self::mendapatkanAksi($tipeTransaksi);
 
         // Jika ada detail aktivitas, tambahkan ke pesan
