@@ -186,26 +186,6 @@ class PengaduanMasyarakatModel extends Model
             'pm_bukti_aduan.max' => 'Ukuran file bukti aduan maksimal 10MB',
         ]);
     }
-        // if ($userLevel === 'ADM') {
-        //     $rules['t_pengaduan_masyarakat.pm_nik_pengguna'] = 'required|numeric|digits:16';
-        //     $rules['t_pengaduan_masyarakat.pm_email_pengguna'] = 'required|email';
-        //     $rules['t_pengaduan_masyarakat.pm_no_hp_pengguna'] = 'required';
-        //     $rules['pm_upload_nik_pengguna'] = 'required|image|max:10240';
-        //     $rules['pm_bukti_aduan'] = 'required|file|mimes:pdf,jpg,jpeg,png,svg,doc,docx|max:10240';
-        //     $message['t_pengaduan_masyarakat.pm_nik_pengguna.required'] = 'NIK wajib diisi';
-        //     $message['t_pengaduan_masyarakat.pm_nik_pengguna.numeric'] = 'NIK harus berupa angka';
-        //     $message['t_pengaduan_masyarakat.pm_nik_pengguna.digits'] = 'NIK harus 16 digit';
-        //     $message['t_pengaduan_masyarakat.pm_email_pengguna.required'] = 'Email wajib diisi';
-        //     $message['t_pengaduan_masyarakat.pm_email_pengguna.email'] = 'Format email tidak valid';
-        //     $message['t_pengaduan_masyarakat.pm_no_hp_pengguna.required'] = 'Nomor HP wajib diisi';
-        //     $message['pm_upload_nik_pengguna.required'] = 'Upload NIK wajib diisi';
-        //     $message['pm_upload_nik_pengguna.image'] = 'File harus berupa gambar';
-        //     $message['pm_upload_nik_pengguna.max'] = 'Ukuran file tidak boleh lebih dari 10MB';
-        //     $message['pm_bukti_aduan.required'] = 'Bukti aduan wajib diupload untuk Admin';
-        //     $message['pm_bukti_aduan.file'] = 'Bukti aduan harus berupa file';
-        //     $message['pm_bukti_aduan.mimes'] = 'Format file bukti aduan tidak valid';
-        //     $message['pm_bukti_aduan.max'] = 'Ukuran file bukti aduan maksimal 10MB';
-        // }
 
         // Lakukan validasi
         $validator = Validator::make($request->all(), $rules, $message);
