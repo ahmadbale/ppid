@@ -53,9 +53,7 @@ Route::prefix('auth')->group(function () {
     Route::middleware('jwt.user')->group(function () {
         Route::post('logout', [ApiAuthController::class, 'logout']);
         Route::get('user', [ApiAuthController::class, 'getData']);
-        // Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
-        // Route::post('refresh-token', [ApiAuthController::class, 'refreshToken']);
-        // Route::post('permohonan-informasi/create', [ApiPermohonanInformasiController::class, 'createPermohonanInformasi']);
+     
         // api set_hak_akses
         Route::prefix('set-hak-akses')->group(function () {
             Route::get('/', [ApiSetHakAksesController::class, 'index']);
@@ -119,13 +117,18 @@ Route::prefix('auth')->group(function () {
             Route::get('/available-hak-akses/{userId}', [ApiUserController::class, 'getAvailableHakAkses']);
         });
         // Route Api untuk Menu Management
-        Route::prefix('menu-management')->group (function (){
+        Route::prefix('menu-management')->group(function () {
             Route::get('/', [ApiMenuManagementController::class, 'index']);
+            Route::get('/menu-item', [ApiMenuManagementController::class, 'menuItems']);
             Route::post('/create', [ApiMenuManagementController::class, 'createData']);
+            Route::get('/edit/{id}', [ApiMenuManagementController::class, 'editData']);
             Route::post('/update/{id}', [ApiMenuManagementController::class, 'updateData']);
             Route::delete('/delete/{id}', [ApiMenuManagementController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiMenuManagementController::class, 'detailData']);
-            
+            Route::post('/reorder', [ApiMenuManagementController::class, 'reorder']);
+            Route::get('/get-parent-menus/{hakAksesId}', [ApiMenuManagementController::class, 'getParentMenus']);
+            Route::get('/set-menu/{hakAksesId}', [ApiMenuManagementController::class, 'setMenu']);
+            Route::post('/store-set-menu', [ApiMenuManagementController::class, 'storeSetMenu']);
         });
     });
 });
