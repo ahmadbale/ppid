@@ -2,7 +2,6 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\Api;
 
-use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -13,7 +12,6 @@ use Illuminate\Support\Facades\Log;
 
 class BaseApiController extends Controller
 {
-    use TraitsController;
     
     // =============================
     // HTTP STATUS CODE CONSTANTS
