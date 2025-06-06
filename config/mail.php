@@ -108,8 +108,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'polinemasistem@gmail.com'),
-        'name' => env('MAIL_FROM_NAME', 'UPA TIK Polinema'),
+        'address' => env('MAIL_FROM_ADDRESS', 'magangupatik@polinema.ac.id'),
+        'name' => env('MAIL_FROM_NAME', 'PPID UPA TIK Polinema'),
     ],
 
     /*
