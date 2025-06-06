@@ -20,17 +20,19 @@
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #87CEEB 0%, #87CEFA 50%, #B0E0E6 100%);
+            min-height: 100vh;
             line-height: 1.6;
             color: #212529;
+            padding: 20px 0;
         }
         
         .email-wrapper {
             max-width: 600px;
             margin: 20px auto;
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
             overflow: hidden;
         }
         
@@ -54,24 +56,25 @@
         }
         
         .logo-container {
-            background: rgba(255, 255, 255, 0.15);
-            width: 70px;
-            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
         .logo-container i {
-            font-size: 32px;
+            font-size: 36px;
             color: white;
         }
         
         .header-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
             margin-bottom: 8px;
         }
@@ -84,6 +87,7 @@
         
         .email-content {
             padding: 40px 30px;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
         }
         
         .greeting {
@@ -97,7 +101,7 @@
         }
         
         .greeting p {
-            color: #6b7280;
+            color: #4b5563;
             font-size: 15px;
         }
         
@@ -109,33 +113,36 @@
         .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 500;
-            font-size: 14px;
+            gap: 10px;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         .status-approved {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: #166534;
-            border: 2px solid #22c55e;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border: 2px solid #10b981;
         }
         
         .status-rejected {
-            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-            color: #991b1b;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #7f1d1d;
             border: 2px solid #ef4444;
         }
         
         .info-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 30px;
             margin: 25px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
         
         .info-card h6 {
@@ -147,8 +154,8 @@
         
         .info-item {
             display: flex;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.8);
         }
         
         .info-item:last-child {
@@ -170,64 +177,45 @@
         }
         
         .message-box {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-left: 4px solid #3b82f6;
-            border-radius: 8px;
-            padding: 20px;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 5px solid #3b82f6;
+            border-radius: 12px;
+            padding: 25px;
             margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
         }
         
         .message-box h6 {
             color: #1e40af;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-size: 16px;
         }
         
         .message-box p {
             color: #1e40af;
             margin: 0;
             font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .alert-custom {
-            border-radius: 10px;
-            border: none;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .alert-info-custom {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-left: 4px solid #0ea5e9;
-        }
-        
-        .alert-warning-custom {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            border-left: 4px solid #f59e0b;
-        }
-        
-        .alert-heading {
-            color: #374151;
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 8px;
+            line-height: 1.7;
         }
         
         .contact-section {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 25px;
             margin: 25px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
         .contact-section h6 {
             color: #374151;
             font-weight: 600;
             margin-bottom: 15px;
+            font-size: 16px;
         }
         
         .contact-list {
@@ -236,9 +224,19 @@
         }
         
         .contact-list li {
-            padding: 5px 0;
+            padding: 8px 0;
             color: #4b5563;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .contact-list li::before {
+            content: '•';
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 16px;
         }
         
         .contact-list strong {
@@ -246,8 +244,8 @@
         }
         
         .email-footer {
-            background: #f1f5f9;
-            padding: 25px 30px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            padding: 30px;
             text-align: center;
             border-top: 1px solid #e2e8f0;
         }
@@ -255,7 +253,7 @@
         .footer-content {
             color: #64748b;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         
         .footer-content strong {
@@ -272,9 +270,13 @@
         
         /* Responsive Design */
         @media (max-width: 600px) {
+            body {
+                padding: 10px 0;
+            }
+            
             .email-wrapper {
                 margin: 10px;
-                border-radius: 8px;
+                border-radius: 12px;
             }
             
             .email-header {
@@ -293,6 +295,15 @@
             .info-label {
                 width: auto;
                 font-weight: 600;
+            }
+            
+            .logo-container {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .logo-container i {
+                font-size: 30px;
             }
         }
     </style>
@@ -364,23 +375,6 @@
                 </h6>
                 <p>{{ $pesanVerifikasi }}</p>
             </div>
-
-            <!-- Next Steps -->
-            @if($status === 'Disetujui')
-            <div class="alert-custom alert-info-custom">
-                <div class="alert-heading">
-                    <i class="fas fa-arrow-right mr-2"></i>Langkah Selanjutnya
-                </div>
-                <p class="mb-0">Tim kami akan melakukan kajian lebih mendalam. Anda akan dihubungi dalam waktu 14 hari kerja untuk informasi lebih lanjut.</p>
-            </div>
-            @else
-            <div class="alert-custom alert-warning-custom">
-                <div class="alert-heading">
-                    <i class="fas fa-redo mr-2"></i>Pengajuan Ulang
-                </div>
-                <p class="mb-0">Anda dapat mengajukan permohonan baru setelah melengkapi persyaratan yang diperlukan melalui sistem kami.</p>
-            </div>
-            @endif
 
             <!-- Contact Information -->
             <div class="contact-section">
