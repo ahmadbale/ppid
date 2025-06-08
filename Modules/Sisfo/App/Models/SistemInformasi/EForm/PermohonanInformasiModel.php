@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\Log\NotifMPUModel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifPermohonanInformasiMail;
+use App\Services\WhatsAppService;
 use Modules\Sisfo\App\Models\Log\EmailModel;
 
 class PermohonanInformasiModel extends Model
@@ -266,6 +267,9 @@ class PermohonanInformasiModel extends Model
         // Kirim email notifikasi
         $this->kirimEmailNotifikasi('Disetujui');
 
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Disetujui');
+
         // Ambil nama pengaju berdasarkan kategori pemohon
         $namaPengaju = $this->getNamaPengaju();
 
@@ -324,6 +328,9 @@ class PermohonanInformasiModel extends Model
 
         // Kirim email notifikasi
         $this->kirimEmailNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Ditolak', $alasanPenolakan);
 
         // TIDAK membuat notifikasi MPU untuk permohonan yang ditolak
         // (sesuai ketentuan: notif_mpu hanya dibuat ketika disetujui)
@@ -480,5 +487,88 @@ class PermohonanInformasiModel extends Model
     private function isValidEmail($email)
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private function kirimWhatsAppNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil data WhatsApp berdasarkan kategori pemohon
+            $whatsappData = $this->getWhatsAppData();
+            
+            if (empty($whatsappData['nomor_hp'])) {
+                Log::info("Tidak ada nomor WhatsApp yang valid untuk permohonan ID: {$this->permohonan_informasi_id}");
+                return;
+            }
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            // Generate pesan WhatsApp
+            $pesanWhatsApp = $whatsappService->generatePesanVerifikasi(
+                $whatsappData['nama'],
+                $status,
+                $this->pi_kategori_pemohon,
+                $this->pi_informasi_yang_dibutuhkan,
+                $alasanPenolakan
+            );
+
+            // Kirim WhatsApp ke setiap nomor yang valid
+            foreach ($whatsappData['nomor_hp'] as $nomorHp) {
+                if (!empty($nomorHp)) {
+                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status);
+                    
+                    if ($berhasil) {
+                        Log::info("WhatsApp {$status} berhasil dikirim ke: {$nomorHp}");
+                    } else {
+                        Log::error("Gagal mengirim WhatsApp ke: {$nomorHp}");
+                    }
+                } else {
+                    Log::warning("Nomor WhatsApp kosong untuk kategori: {$this->pi_kategori_pemohon}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi: " . $e->getMessage());
+        }
+    }
+
+    private function getWhatsAppData()
+    {
+        $nomorHp = [];
+        $nama = '';
+
+        switch ($this->pi_kategori_pemohon) {
+            case 'Diri Sendiri':
+                if ($this->PiDiriSendiri) {
+                    $nomorHp[] = $this->PiDiriSendiri->pi_no_hp_pengguna;
+                    $nama = $this->PiDiriSendiri->pi_nama_pengguna;
+                }
+                break;
+
+            case 'Orang Lain':
+                if ($this->PiOrangLain) {
+                    // Kirim ke 2 nomor: penginput dan penerima informasi
+                    $nomorHp[] = $this->PiOrangLain->pi_no_hp_pengguna_penginput;
+                    $nomorHp[] = $this->PiOrangLain->pi_no_hp_pengguna_informasi;
+                    $nama = $this->PiOrangLain->pi_nama_pengguna_informasi;
+                }
+                break;
+
+            case 'Organisasi':
+                if ($this->PiOrganisasi) {
+                    $nomorHp[] = $this->PiOrganisasi->pi_no_telp_narahubung;
+                    $nama = $this->PiOrganisasi->pi_nama_organisasi;
+                }
+                break;
+        }
+
+        // Filter nomor HP yang kosong
+        $nomorHp = array_filter($nomorHp, function($nomor) {
+            return !empty($nomor);
+        });
+
+        return [
+            'nomor_hp' => $nomorHp,
+            'nama' => $nama ?: 'Tidak Diketahui'
+        ];
     }
 }
