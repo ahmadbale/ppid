@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'whatsapp' => [
+        'base_url' => env('WHATSAPP_FREE_BASE_URL', 'http://localhost:3000/api'),
+        'token' => env('WHATSAPP_FREE_TOKEN', 'ppid-polinema-2024'),
+        'enabled' => env('WHATSAPP_FREE_ENABLED', true),
+        'timeout' => env('WHATSAPP_FREE_TIMEOUT', 30),
+    ],
+
 ];
