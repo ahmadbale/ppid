@@ -10,14 +10,20 @@
     "clean": "rimraf .wwebjs_auth node_modules",
     "restart": "npm run clean && npm install && npm start"
   },
-  "keywords": ["whatsapp", "api", "ppid", "polinema"],
+  "keywords": [
+    "whatsapp",
+    "api",
+    "ppid",
+    "polinema"
+  ],
   "author": "PPID Polinema",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "whatsapp-web.js": "^1.22.2",
+    "puppeteer": "^24.10.0",
     "qrcode-terminal": "^0.12.0",
-    "cors": "^2.8.5"
+    "whatsapp-web.js": "^1.22.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
