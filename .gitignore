@@ -14,13 +14,16 @@ yarn-error.log
 /.idea
 /.vscode
 
-# WhatsApp Session Files
+# WhatsApp Session Files (JANGAN COMMIT!)
 whatsapp-api/.wwebjs_auth/
 whatsapp-api/node_modules/
 whatsapp-api/.wwebjs_cache/
 whatsapp-api/session.json
 whatsapp-api/chrome_debug.log
 whatsapp-api/*.log
+
+# WhatsApp Environment (TETAP IGNORE)
+whatsapp-api/.env
 
 # OS Files
 .DS_Store
