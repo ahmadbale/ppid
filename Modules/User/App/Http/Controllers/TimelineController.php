@@ -157,6 +157,19 @@ class TimelineController extends Controller
         return view('user::timeline_wbs', array_merge($data, ['description' => $description]));
     }
 
+    public function sarana_prasarana()
+{
+    $data = $this->getTimelineData(5);
+    
+    if (!$data) {
+        $data = $this->getFallbackData('sarana_prasarana');
+    }
+
+    $description = "E-Form ini digunakan untuk mengajukan permohonan perawatan sarana dan prasarana di lingkungan<br>Politeknik Negeri Malang.";
+    
+    return view('user::timeline_sarpras', array_merge($data, ['description' => $description]));
+}
+
     private function getFallbackData($type)
     {
         // Fallback data in case API fails
@@ -279,7 +292,28 @@ class TimelineController extends Controller
                         'position' => 'right'
                     ]
                 ]
+                    ],
+                     'sarana_prasarana' => [
+            'title' => 'Permohonan Perawatan Sarana Prasarana',
+            'titlemekanisme' => 'Prosedure Permohonan Perawatan Sarana Prasarana',
+            'steps' => [
+                [
+                    'number' => '1',
+                    'text' => 'Melihat Ketentuan Pelaporan Mengisi Form Permohonan Perawatan Sarana Prasarana',
+                    'position' => 'right'
+                ],
+                [
+                    'number' => '2',
+                    'text' => 'Mengisi Form Permohonan Perawatan Sarana Prasarana',
+                    'position' => 'left'
+                ],
+                [
+                    'number' => '3',
+                    'text' => 'Menerima Hasil',
+                    'position' => 'right'
+                ]
             ]
+        ]
         ];
 
         return $fallbackData[$type] ?? [
