@@ -6,8 +6,10 @@ namespace Modules\Sisfo\App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 use Symfony\Component\Process\Process;
+use Modules\Sisfo\App\Models\Log\BarcodeWAModel;
 
 class WhatsAppController extends Controller
 {
@@ -35,10 +37,14 @@ class WhatsAppController extends Controller
 
         $activeMenu = 'WhatsAppManagement';
 
+        // Get latest barcode scan data
+        $latestScan = BarcodeWAModel::getLatestActiveScan();
+
         return view("sisfo::WhatsAppManagement.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
-            'activeMenu' => $activeMenu
+            'activeMenu' => $activeMenu,
+            'latestScan' => $latestScan
         ]);
     }
 
@@ -130,6 +136,9 @@ class WhatsAppController extends Controller
     public function resetSession(): JsonResponse
     {
         try {
+            // Mark all active scans as deleted before reset
+            BarcodeWAModel::markAllAsDeleted();
+
             // Stop server first
             $this->stopServer();
             sleep(2);
@@ -177,14 +186,16 @@ class WhatsAppController extends Controller
     public function getStatus(): JsonResponse
     {
         $isRunning = $this->isServerRunning();
-        $sessionExists = $this->hasActiveSession();
+        $isAuthenticated = $this->isWhatsAppAuthenticated();
+        $latestScan = BarcodeWAModel::getLatestActiveScan();
         
         return response()->json([
             'running' => $isRunning,
-            'authenticated' => $sessionExists,
+            'authenticated' => $isAuthenticated,
             'message' => $isRunning ? 'Server berjalan' : 'Server tidak berjalan',
             'server_url' => $isRunning ? 'http://localhost:3000' : null,
-            'qr_url' => $isRunning ? 'http://localhost:3000/qr' : null
+            'qr_url' => $isRunning ? 'http://localhost:3000/qr' : null,
+            'latest_scan' => $latestScan
         ]);
     }
 
@@ -202,7 +213,7 @@ class WhatsAppController extends Controller
             }
 
             // Check if already authenticated
-            if ($this->hasActiveSession()) {
+            if ($this->isWhatsAppAuthenticated()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'WhatsApp sudah ter-authenticate',
@@ -225,6 +236,84 @@ class WhatsAppController extends Controller
     }
 
     /**
+     * Save barcode scan log when user scans QR code
+     */
+    public function saveBarcodeLog(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'nomor_pengirim' => 'required|string|max:20'
+            ]);
+
+            $user = Auth::user();
+            $nomorPengirim = $request->nomor_pengirim;
+            $userScan = $user->nama_pengguna;
+            $haScan = $user->userHakAkses->first()->hakAkses->nama_hak_akses ?? 'Unknown';
+
+            // Create new scan log
+            $scanLog = BarcodeWAModel::createScanLog($nomorPengirim, $userScan, $haScan);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Log barcode scan berhasil disimpan',
+                'scan_data' => $scanLog
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error saving barcode log: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get barcode scan status
+     */
+    public function getBarcodeStatus(): JsonResponse
+    {
+        try {
+            $isRunning = $this->isServerRunning();
+            $isAuthenticated = $this->isWhatsAppAuthenticated();
+            $latestScan = BarcodeWAModel::getLatestActiveScan();
+
+            return response()->json([
+                'success' => true,
+                'server_running' => $isRunning,
+                'authenticated' => $isAuthenticated,
+                'latest_scan' => $latestScan,
+                'status' => $this->getBarcodeStatusText($isRunning, $isAuthenticated, $latestScan)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get barcode status text
+     */
+    private function getBarcodeStatusText($isRunning, $isAuthenticated, $latestScan): string
+    {
+        if (!$isRunning) {
+            return 'server-belum-distart';
+        }
+
+        // Server running, check authentication
+        if ($isAuthenticated && $latestScan) {
+            return 'sudah-terscan';
+        }
+
+        // Server running but not authenticated or no scan log
+        return 'belum-terscan';
+    }
+
+    /**
      * Check if WhatsApp server is running
      */
     private function isServerRunning(): bool
@@ -239,11 +328,50 @@ class WhatsAppController extends Controller
     }
 
     /**
-     * Check if has active WhatsApp session
+     * Check if WhatsApp is authenticated (via API call)
+     */
+    private function isWhatsAppAuthenticated(): bool
+    {
+        if (!$this->isServerRunning()) {
+            return false;
+        }
+
+        try {
+            // Try to call WhatsApp API status endpoint
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'http://localhost:3000/api/status');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200 && $response) {
+                $data = json_decode($response, true);
+                
+                // Check if WhatsApp is authenticated
+                if (isset($data['authenticated']) && $data['authenticated'] === true) {
+                    return true;
+                }
+            }
+
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error('Error checking WhatsApp authentication: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if has active WhatsApp session files (fallback method)
      */
     private function hasActiveSession(): bool
     {
-        return is_dir($this->whatsappPath . DIRECTORY_SEPARATOR . '.wwebjs_auth');
+        $sessionPath = $this->whatsappPath . DIRECTORY_SEPARATOR . '.wwebjs_auth';
+        return is_dir($sessionPath) && !empty(glob($sessionPath . DIRECTORY_SEPARATOR . '*'));
     }
 
     /**

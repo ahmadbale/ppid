@@ -94,7 +94,23 @@
         </div>
       </div>
 
-      <!-- QR Code Section -->
+      <!-- Barcode Status Section -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card" id="barcodeStatusCard">
+            <div class="card-header bg-primary text-white">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-qrcode mr-2"></i>Status Barcode WhatsApp
+              </h5>
+            </div>
+            <div class="card-body" id="barcodeStatusContent">
+              <!-- Content will be loaded dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Code Section (Hidden by default) -->
       <div class="row mb-4" id="qrSection" style="display: none;">
         <div class="col-md-6">
           <div class="card">
@@ -117,6 +133,13 @@
                     <li>Scan QR code di atas</li>
                     <li>Tunggu hingga terhubung</li>
                   </ol>
+                </div>
+                <div class="mt-3">
+                  <label class="form-label">Nomor WhatsApp Anda:</label>
+                  <input type="text" id="nomorWhatsApp" class="form-control" placeholder="Contoh: 085802517862" maxlength="20">
+                  <button class="btn btn-primary mt-2" id="saveBarcodeScan">
+                    <i class="fas fa-save mr-1"></i>Simpan Log Scan
+                  </button>
                 </div>
               </div>
             </div>
@@ -250,6 +273,33 @@
     #qrFrame {
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
+
+    .barcode-status-content {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .barcode-qr-placeholder {
+      width: 200px;
+      height: 200px;
+      border: 2px dashed #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+
+    .scan-info-table {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .scan-info-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+    }
   </style>
 @endpush
 
@@ -261,9 +311,13 @@
 
       // Check status on page load
       checkStatus();
+      updateBarcodeStatus();
       
       // Auto refresh status every 10 seconds
-      statusCheckInterval = setInterval(checkStatus, 10000);
+      statusCheckInterval = setInterval(() => {
+        checkStatus();
+        updateBarcodeStatus();
+      }, 10000);
 
       // Start Server
       $('#startServer').click(function() {
@@ -278,9 +332,8 @@
               addLog(response.message, 'success');
               setTimeout(() => {
                 checkStatus();
-                if (response.qr_url) {
-                  showQRSection();
-                }
+                updateBarcodeStatus();
+                // QR section akan ditampilkan otomatis berdasarkan status
               }, 3000);
             } else {
               addLog(response.message, 'error');
@@ -307,7 +360,10 @@
             if (response.success) {
               addLog(response.message, 'success');
               hideQRSection();
-              setTimeout(checkStatus, 2000);
+              setTimeout(() => {
+                checkStatus();
+                updateBarcodeStatus();
+              }, 2000);
             } else {
               addLog(response.message, 'error');
             }
@@ -344,7 +400,10 @@
                 if (response.success) {
                   addLog(response.message, 'success');
                   hideQRSection();
-                  setTimeout(checkStatus, 3000);
+                  setTimeout(() => {
+                    checkStatus();
+                    updateBarcodeStatus();
+                  }, 3000);
                 } else {
                   addLog(response.message, 'error');
                 }
@@ -360,12 +419,60 @@
         });
       });
 
+      // Save Barcode Scan Log
+      $(document).on('click', '#saveBarcodeScan', function() {
+        const nomorWA = $('#nomorWhatsApp').val().trim();
+        
+        if (!nomorWA) {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Nomor WhatsApp harus diisi',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          return;
+        }
+
+        const button = $(this);
+        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...');
+        
+        $.post(`/${whatsappUrl}/save-barcode-log`, {
+          nomor_pengirim: nomorWA,
+          _token: $('meta[name="csrf-token"]').attr('content')
+        })
+        .done(function(response) {
+          if (response.success) {
+            addLog('Log scan barcode berhasil disimpan', 'success');
+            $('#nomorWhatsApp').val('');
+            hideQRSection(); // Hide QR section after successful scan
+            updateBarcodeStatus();
+            
+            Swal.fire({
+              title: 'Berhasil!',
+              text: 'Log scan barcode berhasil disimpan',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+          } else {
+            addLog('Gagal menyimpan log scan: ' + response.message, 'error');
+          }
+        })
+        .fail(function(xhr) {
+          addLog('Error: Gagal menyimpan log scan', 'error');
+          console.error('Save barcode log error:', xhr);
+        })
+        .always(function() {
+          button.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Simpan Log Scan');
+        });
+      });
+
       // Refresh Status
       $('#refreshStatus').click(function() {
         const button = $(this);
         button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...');
         
         checkStatus();
+        updateBarcodeStatus();
         
         setTimeout(() => {
           button.prop('disabled', false).html('<i class="fas fa-sync mr-1"></i>Refresh Status');
@@ -383,8 +490,10 @@
             updateServerStatus(response.running, response.message);
             updateAuthStatus(response.authenticated);
             
+            // Show/hide QR section based on status
             if (response.running && !response.authenticated) {
               showQRSection();
+              addLog('Server berjalan, QR Code tersedia untuk scan', 'info');
             } else if (response.authenticated) {
               hideQRSection();
               addLog('WhatsApp sudah ter-authenticate', 'success');
@@ -395,8 +504,105 @@
           .fail(function(xhr) {
             updateServerStatus(false, 'Error checking status');
             updateAuthStatus(false);
+            hideQRSection();
             console.error('Status check error:', xhr);
           });
+      }
+
+      function updateBarcodeStatus() {
+        $.get(`/${whatsappUrl}/barcode-status`)
+          .done(function(response) {
+            if (response.success) {
+              renderBarcodeStatus(response);
+            }
+          })
+          .fail(function(xhr) {
+            console.error('Barcode status check error:', xhr);
+          });
+      }
+
+      function renderBarcodeStatus(data) {
+        const container = $('#barcodeStatusContent');
+        let content = '';
+
+        switch (data.status) {
+          case 'server-belum-distart':
+            content = `
+              <div class="barcode-status-content">
+                <div class="barcode-qr-placeholder">
+                  <div class="text-muted">
+                    <i class="fas fa-server fa-3x mb-2"></i>
+                    <br>Server Belum Distart
+                  </div>
+                </div>
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  <strong>Status:</strong> Server belum distart
+                  <br>
+                  <small>Mulai server untuk melihat barcode status</small>
+                </div>
+              </div>
+            `;
+            break;
+
+          case 'belum-terscan':
+            content = `
+              <div class="barcode-status-content">
+                <div class="barcode-qr-placeholder">
+                  <div class="text-warning">
+                    <i class="fas fa-qrcode fa-3x mb-2"></i>
+                    <br>Belum Terscan
+                  </div>
+                </div>
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle mr-2"></i>
+                  <strong>Status:</strong> Belum terscan
+                  <br>
+                  <small>Scan QR code di section atas untuk menghubungkan WhatsApp</small>
+                </div>
+              </div>
+            `;
+            break;
+
+          case 'sudah-terscan':
+            if (data.latest_scan) {
+              content = `
+                <div class="barcode-status-content">
+                  <div class="barcode-qr-placeholder bg-success text-white">
+                    <div>
+                      <i class="fas fa-check-circle fa-3x mb-2"></i>
+                      <br>Sudah Terscan
+                    </div>
+                  </div>
+                  <div class="alert alert-success">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <strong>Status:</strong> Sudah terscan
+                  </div>
+                  <table class="table table-bordered scan-info-table">
+                    <tr>
+                      <th width="40%">Nomor WhatsApp:</th>
+                      <td>${data.latest_scan.log_barcode_wa_nomor_pengguna}</td>
+                    </tr>
+                    <tr>
+                      <th>User Scan:</th>
+                      <td>${data.latest_scan.log_barcode_wa_user_scan}</td>
+                    </tr>
+                    <tr>
+                      <th>Hak Akses:</th>
+                      <td>${data.latest_scan.log_barcode_wa_ha_scan}</td>
+                    </tr>
+                    <tr>
+                      <th>Tanggal Scan:</th>
+                      <td>${data.latest_scan.log_barcode_wa_tanggal_scan}</td>
+                    </tr>
+                  </table>
+                </div>
+              `;
+            }
+            break;
+        }
+
+        container.html(content);
       }
 
       function updateServerStatus(running, message) {
