@@ -17,6 +17,7 @@ use Modules\User\App\Http\Controllers\BeritaController;
 use Modules\User\App\Http\Controllers\Form\InformasiController;
 use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
+use Modules\User\App\Http\Controllers\Form\SaranaPrasaranaController;
 use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
 
 
@@ -62,6 +63,11 @@ Route::prefix('form-pengaduan-masyarakat')->group(function () {
   Route::get('/', [PengaduanMasyarakatController::class, 'index'])->name('form-aduanmasyarakat');
     Route::post('/store', [PengaduanMasyarakatController::class, 'store'])->name('form-aduan-masyarakat.store');
 });
+
+Route::prefix('form-sarana-prasarana')->group(function () {
+  Route::get('/', [SaranaPrasaranaController::class, 'index'])->name('form-sarana-prasarana');
+    Route::post('/store', [SaranaPrasaranaController::class, 'store'])->name('form-sarana-prasarana.store');
+});
 // ---- form dinamis untuk self made new form -----
 
 
@@ -70,6 +76,7 @@ Route::get('/permohonan-informasi', [TimelineController::class, 'permohonan_info
 Route::get('/pernyataan-keberatan', [TimelineController::class, 'pernyataan_keberatan'])->name('pernyataan_keberatan');
 Route::get('/whistle-blowing-system', [TimelineController::class, 'wbs'])->name('wbs');
 Route::get('/pengaduan-masyarakat', [TimelineController::class, 'pengaduan_masyarakat'])->name('pengaduan_masyarakat');
+Route::get('/permohonan-sarana-dan-prasarana', [TimelineController::class, 'sarana_prasarana'])->name('permohonan-sarana-dan-prasarana');
 
 // Profil Page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::get('/profile-ppid', function () {
