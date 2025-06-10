@@ -322,7 +322,7 @@
       // Start Server
       $('#startServer').click(function() {
         const button = $(this);
-        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Starting...');
+        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Memulai...');
         
         addLog('Memulai WhatsApp server...', 'info');
         
@@ -330,17 +330,22 @@
           .done(function(response) {
             if (response.success) {
               addLog(response.message, 'success');
+              addLog('QR Code akan tersedia dalam beberapa detik...', 'info');
               setTimeout(() => {
                 checkStatus();
                 updateBarcodeStatus();
                 // QR section akan ditampilkan otomatis berdasarkan status
-              }, 3000);
+              }, 5000); // Tunggu lebih lama untuk server initialize
             } else {
               addLog(response.message, 'error');
             }
           })
           .fail(function(xhr) {
-            addLog('Error: Gagal menjalankan server', 'error');
+            let errorMsg = 'Error: Gagal menjalankan server';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+              errorMsg += ' - ' + xhr.responseJSON.message;
+            }
+            addLog(errorMsg, 'error');
             console.error('Start server error:', xhr);
           })
           .always(function() {
@@ -351,7 +356,7 @@
       // Stop Server
       $('#stopServer').click(function() {
         const button = $(this);
-        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Stopping...');
+        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Menghentikan...');
         
         addLog('Menghentikan WhatsApp server...', 'info');
         
@@ -487,25 +492,35 @@
       function checkStatus() {
         $.get(`/${whatsappUrl}/status`)
           .done(function(response) {
+            console.log('Status response:', response); // Debug log
+            
             updateServerStatus(response.running, response.message);
             updateAuthStatus(response.authenticated);
             
             // Show/hide QR section based on status
             if (response.running && !response.authenticated) {
               showQRSection();
-              addLog('Server berjalan, QR Code tersedia untuk scan', 'info');
+              if (response.qr_available) {
+                addLog('Server berjalan, QR Code tersedia untuk scan', 'info');
+              } else {
+                addLog('Server berjalan, menunggu QR Code...', 'info');
+              }
             } else if (response.authenticated) {
               hideQRSection();
               addLog('WhatsApp sudah ter-authenticate', 'success');
             } else {
               hideQRSection();
+              if (!response.running) {
+                addLog('Server tidak berjalan', 'warning');
+              }
             }
           })
           .fail(function(xhr) {
+            console.error('Status check error:', xhr);
             updateServerStatus(false, 'Error checking status');
             updateAuthStatus(false);
             hideQRSection();
-            console.error('Status check error:', xhr);
+            addLog('Gagal mengecek status server', 'error');
           });
       }
 
@@ -611,12 +626,12 @@
         
         if (running) {
           statusBox.removeClass('bg-secondary bg-danger').addClass('bg-success');
-          statusBox.find('i').removeClass('fa-server').addClass('fa-check-circle');
-          statusText.text('Server Running').removeClass('text-danger').addClass('text-success');
+          statusBox.find('i').removeClass('fa-server fa-times-circle').addClass('fa-check-circle');
+          statusText.text('Server Berjalan').removeClass('text-danger').addClass('text-success');
         } else {
           statusBox.removeClass('bg-secondary bg-success').addClass('bg-danger');
           statusBox.find('i').removeClass('fa-check-circle').addClass('fa-times-circle');
-          statusText.text('Server Stopped').removeClass('text-success').addClass('text-danger');
+          statusText.text('Server Tidak Berjalan').removeClass('text-success').addClass('text-danger');
         }
       }
 
@@ -626,18 +641,20 @@
         
         if (authenticated) {
           statusBox.removeClass('bg-secondary bg-warning').addClass('bg-success');
-          statusBox.find('i').removeClass('fa-mobile-alt').addClass('fa-check-circle');
-          statusText.text('Connected').removeClass('text-warning').addClass('text-success');
+          statusBox.find('i').removeClass('fa-mobile-alt fa-exclamation-triangle').addClass('fa-check-circle');
+          statusText.text('Terhubung').removeClass('text-warning').addClass('text-success');
         } else {
           statusBox.removeClass('bg-secondary bg-success').addClass('bg-warning');
           statusBox.find('i').removeClass('fa-check-circle').addClass('fa-exclamation-triangle');
-          statusText.text('Not Connected').removeClass('text-success').addClass('text-warning');
+          statusText.text('Belum Terhubung').removeClass('text-success').addClass('text-warning');
         }
       }
 
       function showQRSection() {
         $('#qrSection').slideDown();
-        $('#qrFrame').attr('src', 'http://localhost:3000/qr?' + new Date().getTime());
+        // Tambahkan timestamp untuk memaksa reload iframe
+        const timestamp = new Date().getTime();
+        $('#qrFrame').attr('src', `http://localhost:3000/qr?t=${timestamp}`);
         addLog('QR Code tersedia untuk scan', 'info');
       }
 

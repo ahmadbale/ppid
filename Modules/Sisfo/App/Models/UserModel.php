@@ -106,14 +106,14 @@ class UserModel extends Authenticatable implements JWTSubject
     // }
     // tambahan
     public function getJWTCustomClaims()
-{
-    return [
-        'type' => 'user',
-        'exp' => now()->addMinutes(config('jwt.ttl.user'))->timestamp,
-        'user_id' => $this->user_id,
-        'role' => $this->getRoleName()
-    ];
-}
+    {
+        return [
+            'type' => 'user',
+            'exp' => now()->addMinutes(config('jwt.ttl.user'))->timestamp,
+            'user_id' => $this->user_id,
+            'role' => $this->getRoleName()
+        ];
+    }
 
     public static function selectData($perPage = null, $search = '')
     {

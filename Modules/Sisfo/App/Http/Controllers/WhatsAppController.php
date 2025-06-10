@@ -1,5 +1,4 @@
 <?php
-// filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\App\Http\Controllers\WhatsAppController.php
 
 namespace Modules\Sisfo\App\Http\Controllers;
 
@@ -32,7 +31,7 @@ class WhatsAppController extends Controller
         ];
 
         $page = (object) [
-            'title' => 'WhatsApp Server Management'
+            'title' => 'Manajemen Server WhatsApp'
         ];
 
         $activeMenu = 'WhatsAppManagement';
@@ -81,14 +80,14 @@ class WhatsAppController extends Controller
             if ($this->isServerRunning()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'WhatsApp server berhasil dijalankan',
+                    'message' => 'WhatsApp server berhasil dijalankan. Tunggu beberapa saat untuk QR Code muncul.',
                     'server_url' => 'http://localhost:3000',
                     'qr_url' => 'http://localhost:3000/qr'
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menjalankan WhatsApp server'
+                    'message' => 'Gagal menjalankan WhatsApp server. Pastikan Node.js sudah terinstall dan port 3000 tersedia.'
                 ]);
             }
 
@@ -186,16 +185,18 @@ class WhatsAppController extends Controller
     public function getStatus(): JsonResponse
     {
         $isRunning = $this->isServerRunning();
-        $isAuthenticated = $this->isWhatsAppAuthenticated();
+        $statusData = $this->getServerStatusData();
         $latestScan = BarcodeWAModel::getLatestActiveScan();
         
         return response()->json([
             'running' => $isRunning,
-            'authenticated' => $isAuthenticated,
+            'authenticated' => $statusData['authenticated'] ?? false,
             'message' => $isRunning ? 'Server berjalan' : 'Server tidak berjalan',
             'server_url' => $isRunning ? 'http://localhost:3000' : null,
             'qr_url' => $isRunning ? 'http://localhost:3000/qr' : null,
-            'latest_scan' => $latestScan
+            'qr_available' => $statusData['qr_available'] ?? false,
+            'latest_scan' => $latestScan,
+            'server_status' => $statusData['status'] ?? 'tidak_tersedia'
         ]);
     }
 
@@ -212,8 +213,10 @@ class WhatsAppController extends Controller
                 ]);
             }
 
+            $statusData = $this->getServerStatusData();
+
             // Check if already authenticated
-            if ($this->isWhatsAppAuthenticated()) {
+            if ($statusData['authenticated'] ?? false) {
                 return response()->json([
                     'success' => false,
                     'message' => 'WhatsApp sudah ter-authenticate',
@@ -221,9 +224,14 @@ class WhatsAppController extends Controller
                 ]);
             }
 
+            // Try to get QR image from API
+            $qrImageData = $this->getQRImageFromAPI();
+            
             return response()->json([
                 'success' => true,
                 'qr_url' => 'http://localhost:3000/qr',
+                'qr_image' => $qrImageData['qr_image'] ?? null,
+                'qr_text' => $qrImageData['qr_text'] ?? null,
                 'message' => 'QR Code tersedia untuk scan'
             ]);
 
@@ -232,6 +240,37 @@ class WhatsAppController extends Controller
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * Get QR Image from Node.js API
+     */
+    private function getQRImageFromAPI(): array
+    {
+        try {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'http://localhost:3000/api/qr-image');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode === 200 && $response) {
+                $data = json_decode($response, true);
+                if ($data && $data['success']) {
+                    return $data;
+                }
+            }
+
+            return [];
+
+        } catch (\Exception $e) {
+            Log::error('Error getting QR image from API: ' . $e->getMessage());
+            return [];
         }
     }
 
@@ -276,7 +315,8 @@ class WhatsAppController extends Controller
     {
         try {
             $isRunning = $this->isServerRunning();
-            $isAuthenticated = $this->isWhatsAppAuthenticated();
+            $statusData = $this->getServerStatusData();
+            $isAuthenticated = $statusData['authenticated'] ?? false;
             $latestScan = BarcodeWAModel::getLatestActiveScan();
 
             return response()->json([
@@ -328,16 +368,16 @@ class WhatsAppController extends Controller
     }
 
     /**
-     * Check if WhatsApp is authenticated (via API call)
+     * Get server status data from API
      */
-    private function isWhatsAppAuthenticated(): bool
+    private function getServerStatusData(): array
     {
         if (!$this->isServerRunning()) {
-            return false;
+            return ['status' => 'tidak_berjalan'];
         }
 
         try {
-            // Try to call WhatsApp API status endpoint
+            // Call API status endpoint tanpa authorization
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'http://localhost:3000/api/status');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -350,19 +390,24 @@ class WhatsAppController extends Controller
 
             if ($httpCode === 200 && $response) {
                 $data = json_decode($response, true);
-                
-                // Check if WhatsApp is authenticated
-                if (isset($data['authenticated']) && $data['authenticated'] === true) {
-                    return true;
-                }
+                return $data ?? ['status' => 'error_response'];
             }
 
-            return false;
+            return ['status' => 'no_response'];
 
         } catch (\Exception $e) {
-            Log::error('Error checking WhatsApp authentication: ' . $e->getMessage());
-            return false;
+            Log::error('Error getting server status: ' . $e->getMessage());
+            return ['status' => 'error'];
         }
+    }
+
+    /**
+     * Check if WhatsApp is authenticated (via API call)
+     */
+    private function isWhatsAppAuthenticated(): bool
+    {
+        $statusData = $this->getServerStatusData();
+        return $statusData['authenticated'] ?? false;
     }
 
     /**

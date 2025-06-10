@@ -642,12 +642,12 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('whatsapp-management')], function (){
         Route::get('/', [WhatsAppController::class, 'index'])->middleware('permission:view');
-        Route::post('/start', [WhatsAppController::class, 'startServer'])->name('whatsapp.start');
-        Route::post('/stop', [WhatsAppController::class, 'stopServer'])->name('whatsapp.stop');
-        Route::post('/reset', [WhatsAppController::class, 'resetSession'])->name('whatsapp.reset');
-        Route::get('/status', [WhatsAppController::class, 'getStatus'])->name('whatsapp.status');
-        Route::get('/qr', [WhatsAppController::class, 'getQRCode'])->name('whatsapp.qr');
-        Route::post('/save-barcode-log', [WhatsAppController::class, 'saveBarcodeLog'])->name('whatsapp.save-barcode');
-        Route::get('/barcode-status', [WhatsAppController::class, 'getBarcodeStatus'])->name('whatsapp.barcode-status');
+        Route::post('/start', [WhatsAppController::class, 'startServer'])->middleware('permission:create');
+        Route::post('/stop', [WhatsAppController::class, 'stopServer'])->middleware('permission:update');
+        Route::post('/reset', [WhatsAppController::class, 'resetSession'])->middleware('permission:update');
+        Route::get('/status', [WhatsAppController::class, 'getStatus']);
+        Route::get('/qr-code', [WhatsAppController::class, 'getQRCode']);
+        Route::post('/save-barcode-log', [WhatsAppController::class, 'saveBarcodeLog'])->middleware('permission:create');
+        Route::get('/barcode-status', [WhatsAppController::class, 'getBarcodeStatus']);
     });
 });
