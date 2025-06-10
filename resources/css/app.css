@@ -914,6 +914,7 @@ form {
     object-fit: cover;
     border-radius: 10px;
 }
+
 .carousel-item img:hover {
     transform: scale(1.1);
 }
