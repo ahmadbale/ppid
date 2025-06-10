@@ -1,5 +1,5 @@
 <?php
-
+;
 use Illuminate\Support\Facades\Route;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Http\Controllers\AuthController;
@@ -56,6 +56,7 @@ use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPeng
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPMController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPPController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifWBSController;
+use Modules\Sisfo\App\Http\Controllers\WhatsAppController;
 
 /*
 |--------------------------------------------------------------------------
@@ -637,5 +638,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [UploadPSController::class, 'detailData']);
         Route::get('/deleteData/{id}', [UploadPSController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [UploadPSController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('whatsapp-management')], function (){
+        Route::get('/', [WhatsAppController::class, 'index'])->middleware('permission:view');
+        Route::post('/start', [WhatsAppController::class, 'startServer'])->name('whatsapp.start');
+        Route::post('/stop', [WhatsAppController::class, 'stopServer'])->name('whatsapp.stop');
+        Route::post('/reset', [WhatsAppController::class, 'resetSession'])->name('whatsapp.reset');
+        Route::get('/status', [WhatsAppController::class, 'getStatus'])->name('whatsapp.status');
+        Route::get('/qr', [WhatsAppController::class, 'getQRCode'])->name('whatsapp.qr');
     });
 });
