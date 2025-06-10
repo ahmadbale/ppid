@@ -647,5 +647,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset', [WhatsAppController::class, 'resetSession'])->name('whatsapp.reset');
         Route::get('/status', [WhatsAppController::class, 'getStatus'])->name('whatsapp.status');
         Route::get('/qr', [WhatsAppController::class, 'getQRCode'])->name('whatsapp.qr');
+        Route::post('/save-barcode-log', [WhatsAppController::class, 'saveBarcodeLog'])->name('whatsapp.save-barcode');
+        Route::get('/barcode-status', [WhatsAppController::class, 'getBarcodeStatus'])->name('whatsapp.barcode-status');
     });
 });
