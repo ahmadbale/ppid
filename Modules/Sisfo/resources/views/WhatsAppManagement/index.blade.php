@@ -94,16 +94,16 @@
         </div>
       </div>
 
-      <!-- Barcode Status Section -->
+      <!-- QRCode Status Section -->
       <div class="row mb-4">
         <div class="col-md-12">
-          <div class="card" id="barcodeStatusCard">
+          <div class="card" id="qrcodeStatusCard">
             <div class="card-header bg-primary text-white">
               <h5 class="card-title mb-0">
-                <i class="fas fa-qrcode mr-2"></i>Status Barcode WhatsApp
+                <i class="fas fa-qrcode mr-2"></i>Status QRCode WhatsApp
               </h5>
             </div>
-            <div class="card-body" id="barcodeStatusContent">
+            <div class="card-body" id="qrcodeStatusContent">
               <!-- Content will be loaded dynamically -->
             </div>
           </div>
@@ -137,7 +137,7 @@
                 <div class="mt-3">
                   <label class="form-label">Nomor WhatsApp Anda:</label>
                   <input type="text" id="nomorWhatsApp" class="form-control" placeholder="Contoh: 085802517862" maxlength="20">
-                  <button class="btn btn-primary mt-2" id="saveBarcodeScan">
+                  <button class="btn btn-primary mt-2" id="saveQRCodeScan">
                     <i class="fas fa-save mr-1"></i>Simpan Log Scan
                   </button>
                 </div>
@@ -274,12 +274,12 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
-    .barcode-status-content {
+    .qrcode-status-content {
       text-align: center;
       padding: 20px;
     }
 
-    .barcode-qr-placeholder {
+    .qrcode-qr-placeholder {
       width: 200px;
       height: 200px;
       border: 2px dashed #ddd;
@@ -311,12 +311,12 @@
 
       // Check status on page load
       checkStatus();
-      updateBarcodeStatus();
+      updateQRCodeStatus();
       
       // Auto refresh status every 10 seconds
       statusCheckInterval = setInterval(() => {
         checkStatus();
-        updateBarcodeStatus();
+        updateQRCodeStatus();
       }, 10000);
 
       // Start Server
@@ -333,7 +333,7 @@
               addLog('QR Code akan tersedia dalam beberapa detik...', 'info');
               setTimeout(() => {
                 checkStatus();
-                updateBarcodeStatus();
+                updateQRCodeStatus();
                 // QR section akan ditampilkan otomatis berdasarkan status
               }, 5000); // Tunggu lebih lama untuk server initialize
             } else {
@@ -367,7 +367,7 @@
               hideQRSection();
               setTimeout(() => {
                 checkStatus();
-                updateBarcodeStatus();
+                updateQRCodeStatus();
               }, 2000);
             } else {
               addLog(response.message, 'error');
@@ -407,7 +407,7 @@
                   hideQRSection();
                   setTimeout(() => {
                     checkStatus();
-                    updateBarcodeStatus();
+                    updateQRCodeStatus();
                   }, 3000);
                 } else {
                   addLog(response.message, 'error');
@@ -424,8 +424,8 @@
         });
       });
 
-      // Save Barcode Scan Log
-      $(document).on('click', '#saveBarcodeScan', function() {
+      // Save QRCode Scan Log
+      $(document).on('click', '#saveQRCodeScan', function() {
         const nomorWA = $('#nomorWhatsApp').val().trim();
         
         if (!nomorWA) {
@@ -441,20 +441,20 @@
         const button = $(this);
         button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...');
         
-        $.post(`/${whatsappUrl}/save-barcode-log`, {
+        $.post(`/${whatsappUrl}/save-qrcode-log`, {
           nomor_pengirim: nomorWA,
           _token: $('meta[name="csrf-token"]').attr('content')
         })
         .done(function(response) {
           if (response.success) {
-            addLog('Log scan barcode berhasil disimpan', 'success');
+            addLog('Log scan QRCode berhasil disimpan', 'success');
             $('#nomorWhatsApp').val('');
             hideQRSection(); // Hide QR section after successful scan
-            updateBarcodeStatus();
+            updateQRCodeStatus();
             
             Swal.fire({
               title: 'Berhasil!',
-              text: 'Log scan barcode berhasil disimpan',
+              text: 'Log scan QRCode berhasil disimpan',
               icon: 'success',
               confirmButtonText: 'OK'
             });
@@ -464,7 +464,7 @@
         })
         .fail(function(xhr) {
           addLog('Error: Gagal menyimpan log scan', 'error');
-          console.error('Save barcode log error:', xhr);
+          console.error('Save QRCode log error:', xhr);
         })
         .always(function() {
           button.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Simpan Log Scan');
@@ -477,7 +477,7 @@
         button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...');
         
         checkStatus();
-        updateBarcodeStatus();
+        updateQRCodeStatus();
         
         setTimeout(() => {
           button.prop('disabled', false).html('<i class="fas fa-sync mr-1"></i>Refresh Status');
@@ -524,27 +524,27 @@
           });
       }
 
-      function updateBarcodeStatus() {
-        $.get(`/${whatsappUrl}/barcode-status`)
+      function updateQRCodeStatus() {
+        $.get(`/${whatsappUrl}/qrcode-status`)
           .done(function(response) {
             if (response.success) {
-              renderBarcodeStatus(response);
+              renderQRCodeStatus(response);
             }
           })
           .fail(function(xhr) {
-            console.error('Barcode status check error:', xhr);
+            console.error('QRCode status check error:', xhr);
           });
       }
 
-      function renderBarcodeStatus(data) {
-        const container = $('#barcodeStatusContent');
+      function renderQRCodeStatus(data) {
+        const container = $('#qrcodeStatusContent');
         let content = '';
 
         switch (data.status) {
           case 'server-belum-distart':
             content = `
-              <div class="barcode-status-content">
-                <div class="barcode-qr-placeholder">
+              <div class="qrcode-status-content">
+                <div class="qrcode-qr-placeholder">
                   <div class="text-muted">
                     <i class="fas fa-server fa-3x mb-2"></i>
                     <br>Server Belum Distart
@@ -554,7 +554,7 @@
                   <i class="fas fa-info-circle mr-2"></i>
                   <strong>Status:</strong> Server belum distart
                   <br>
-                  <small>Mulai server untuk melihat barcode status</small>
+                  <small>Mulai server untuk melihat QRCode status</small>
                 </div>
               </div>
             `;
@@ -562,8 +562,8 @@
 
           case 'belum-terscan':
             content = `
-              <div class="barcode-status-content">
-                <div class="barcode-qr-placeholder">
+              <div class="qrcode-status-content">
+                <div class="qrcode-qr-placeholder">
                   <div class="text-warning">
                     <i class="fas fa-qrcode fa-3x mb-2"></i>
                     <br>Belum Terscan
@@ -582,8 +582,8 @@
           case 'sudah-terscan':
             if (data.latest_scan) {
               content = `
-                <div class="barcode-status-content">
-                  <div class="barcode-qr-placeholder bg-success text-white">
+                <div class="qrcode-status-content">
+                  <div class="qrcode-qr-placeholder bg-success text-white">
                     <div>
                       <i class="fas fa-check-circle fa-3x mb-2"></i>
                       <br>Sudah Terscan
@@ -596,19 +596,19 @@
                   <table class="table table-bordered scan-info-table">
                     <tr>
                       <th width="40%">Nomor WhatsApp:</th>
-                      <td>${data.latest_scan.log_barcode_wa_nomor_pengguna}</td>
+                      <td>${data.latest_scan.log_qrcode_wa_nomor_pengirim}</td>
                     </tr>
                     <tr>
                       <th>User Scan:</th>
-                      <td>${data.latest_scan.log_barcode_wa_user_scan}</td>
+                      <td>${data.latest_scan.log_qrcode_wa_user_scan}</td>
                     </tr>
                     <tr>
                       <th>Hak Akses:</th>
-                      <td>${data.latest_scan.log_barcode_wa_ha_scan}</td>
+                      <td>${data.latest_scan.log_qrcode_wa_ha_scan}</td>
                     </tr>
                     <tr>
                       <th>Tanggal Scan:</th>
-                      <td>${data.latest_scan.log_barcode_wa_tanggal_scan}</td>
+                      <td>${data.latest_scan.log_qrcode_wa_tanggal_scan}</td>
                     </tr>
                   </table>
                 </div>

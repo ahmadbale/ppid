@@ -1,5 +1,5 @@
 <?php
-// filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\App\Models\Log\BarcodeWaModel.php
+// filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\App\Models\Log\QRCodeWAModel.php
 
 namespace Modules\Sisfo\App\Models\Log;
 
@@ -7,18 +7,18 @@ use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Sisfo\App\Models\User\UserModel;
 
-class BarcodeWAModel extends Model
+class QRCodeWAModel extends Model
 {
     use TraitsModel;
 
-    protected $table = 'log_barcode_wa';
-    protected $primaryKey = 'log_barcode_wa_id';
+    protected $table = 'log_qrcode_wa';
+    protected $primaryKey = 'log_qrcode_wa_id';
     
     protected $fillable = [
-        'log_barcode_wa_nomor_pengguna', // Perbaiki nama field
-        'log_barcode_wa_user_scan',
-        'log_barcode_wa_ha_scan',
-        'log_barcode_wa_tanggal_scan',
+        'log_qrcode_wa_nomor_pengirim', // Perbaiki nama field
+        'log_qrcode_wa_user_scan',
+        'log_qrcode_wa_ha_scan',
+        'log_qrcode_wa_tanggal_scan',
         'isDeleted',
         'deleted_at'
     ];
@@ -32,7 +32,7 @@ class BarcodeWAModel extends Model
     public static function getLatestActiveScan()
     {
         return self::where('isDeleted', 0)
-                  ->orderBy('log_barcode_wa_id', 'desc')
+                  ->orderBy('log_qrcode_wa_id', 'desc')
                   ->first();
     }
 
@@ -54,10 +54,10 @@ class BarcodeWAModel extends Model
     public static function createScanLog($nomorPengguna, $userScan, $haScan)
     {
         return self::create([
-            'log_barcode_wa_nomor_pengguna' => $nomorPengguna, // Perbaiki nama field
-            'log_barcode_wa_user_scan' => $userScan,
-            'log_barcode_wa_ha_scan' => $haScan,
-            'log_barcode_wa_tanggal_scan' => date('Y-m-d H:i:s'),
+            'log_qrcode_wa_nomor_pengirim' => $nomorPengguna, // Perbaiki nama field
+            'log_qrcode_wa_user_scan' => $userScan,
+            'log_qrcode_wa_ha_scan' => $haScan,
+            'log_qrcode_wa_tanggal_scan' => date('Y-m-d H:i:s'),
             'isDeleted' => 0,
             'deleted_at' => null
         ]);
