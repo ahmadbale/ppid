@@ -647,7 +647,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset', [WhatsAppController::class, 'resetSession'])->middleware('permission:update');
         Route::get('/status', [WhatsAppController::class, 'getStatus']);
         Route::get('/qr-code', [WhatsAppController::class, 'getQRCode']);
-        Route::post('/save-barcode-log', [WhatsAppController::class, 'saveBarcodeLog'])->middleware('permission:create');
-        Route::get('/barcode-status', [WhatsAppController::class, 'getBarcodeStatus']);
+        Route::post('/save-qrcode-log', [WhatsAppController::class, 'saveQRCodeLog'])->middleware('permission:create');
+        Route::get('/qrcode-status', [WhatsAppController::class, 'getQRCodeStatus']);
     });
 });

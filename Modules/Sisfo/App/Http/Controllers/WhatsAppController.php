@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 use Symfony\Component\Process\Process;
-use Modules\Sisfo\App\Models\Log\BarcodeWAModel;
+use Modules\Sisfo\App\Models\Log\QRCodeWAModel;
 
 class WhatsAppController extends Controller
 {
@@ -37,7 +37,7 @@ class WhatsAppController extends Controller
         $activeMenu = 'WhatsAppManagement';
 
         // Get latest barcode scan data
-        $latestScan = BarcodeWAModel::getLatestActiveScan();
+        $latestScan = QRCodeWAModel::getLatestActiveScan();
 
         return view("sisfo::WhatsAppManagement.index", [
             'breadcrumb' => $breadcrumb,
@@ -136,7 +136,7 @@ class WhatsAppController extends Controller
     {
         try {
             // Mark all active scans as deleted before reset
-            BarcodeWAModel::markAllAsDeleted();
+            QRCodeWAModel::markAllAsDeleted();
 
             // Stop server first
             $this->stopServer();
@@ -186,7 +186,7 @@ class WhatsAppController extends Controller
     {
         $isRunning = $this->isServerRunning();
         $statusData = $this->getServerStatusData();
-        $latestScan = BarcodeWAModel::getLatestActiveScan();
+        $latestScan = QRCodeWAModel::getLatestActiveScan();
         
         return response()->json([
             'running' => $isRunning,
@@ -277,7 +277,7 @@ class WhatsAppController extends Controller
     /**
      * Save barcode scan log when user scans QR code
      */
-    public function saveBarcodeLog(Request $request): JsonResponse
+    public function saveQRCodeLog(Request $request): JsonResponse
     {
         try {
             $request->validate([
@@ -290,7 +290,7 @@ class WhatsAppController extends Controller
             $haScan = $user->userHakAkses->first()->hakAkses->nama_hak_akses ?? 'Unknown';
 
             // Create new scan log
-            $scanLog = BarcodeWAModel::createScanLog($nomorPengirim, $userScan, $haScan);
+            $scanLog = QRCodeWAModel::createScanLog($nomorPengirim, $userScan, $haScan);
 
             return response()->json([
                 'success' => true,
@@ -311,20 +311,20 @@ class WhatsAppController extends Controller
     /**
      * Get barcode scan status
      */
-    public function getBarcodeStatus(): JsonResponse
+    public function getQRCodeStatus(): JsonResponse
     {
         try {
             $isRunning = $this->isServerRunning();
             $statusData = $this->getServerStatusData();
             $isAuthenticated = $statusData['authenticated'] ?? false;
-            $latestScan = BarcodeWAModel::getLatestActiveScan();
+            $latestScan = QRCodeWAModel::getLatestActiveScan();
 
             return response()->json([
                 'success' => true,
                 'server_running' => $isRunning,
                 'authenticated' => $isAuthenticated,
                 'latest_scan' => $latestScan,
-                'status' => $this->getBarcodeStatusText($isRunning, $isAuthenticated, $latestScan)
+                'status' => $this->getQRCodeStatusText($isRunning, $isAuthenticated, $latestScan)
             ]);
 
         } catch (\Exception $e) {
@@ -338,7 +338,7 @@ class WhatsAppController extends Controller
     /**
      * Get barcode status text
      */
-    private function getBarcodeStatusText($isRunning, $isAuthenticated, $latestScan): string
+    private function getQRCodeStatusText($isRunning, $isAuthenticated, $latestScan): string
     {
         if (!$isRunning) {
             return 'server-belum-distart';
