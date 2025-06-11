@@ -42,7 +42,7 @@ class WhatsAppService
             }
 
             // Buat log sebelum mengirim
-            $logEntry = WhatsAppModel::createData($status, $nomorFormatted, $pesan, 'pending');
+            $logEntry = WhatsAppModel::createData($status, $nomorFormatted, $pesan, 'Pending');
 
             // Kirim pesan melalui API
             $response = Http::timeout($this->timeout)
@@ -58,7 +58,7 @@ class WhatsAppService
             if ($response->successful()) {
                 // Update log sebagai berhasil
                 if ($logEntry) {
-                    $logEntry->update(['log_whatsapp_delivery_status' => 'sent']);
+                    $logEntry->update(['log_whatsapp_delivery_status' => 'Sent']);
                 }
                 
                 Log::info("WhatsApp berhasil dikirim ke: {$nomorFormatted}");
@@ -76,7 +76,7 @@ class WhatsAppService
         } catch (\Exception $e) {
             // Update log sebagai error
             if (isset($logEntry) && $logEntry) {
-                $logEntry->update(['log_whatsapp_delivery_status' => 'error']);
+                $logEntry->update(['log_whatsapp_delivery_status' => 'Error']);
             }
             
             Log::error("Error saat mengirim WhatsApp: " . $e->getMessage());
