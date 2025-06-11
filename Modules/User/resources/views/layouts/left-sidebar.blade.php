@@ -5,14 +5,11 @@
     <!-- Sidebar Kiri -->
     <aside class="w-1/4 p-4 ">
         <nav class="sidebar left">
-            <h4 class="title-sidebar-section">Tentang PPID</h4>
+            <h4 class="title-sidebar-section">Regulasi</h4>
             <ul>
-                <li><a href="#">Profil</a></li>
-                <li><a href="#">Tugas dan Fungsi</a></li>
-                <li><a href="#">Struktur Organisasi</a></li>
-                <li><a href="#">Dasar Hukum</a></li>
-                <li><a href="#">Maklumat Pelayanan Publik</a></li>
-                <li><a href="#">Maklumat PPID</a></li>
+                <li><a href="#">Dasar Hukum Standart Operating Procedure (SOP) PPID Politeknik Negeri Malang</a></li>
+                <li><a href="#">Dasar Hukum Keterbukaan Informasi Publik PPID Politeknik Negeri Malang</a></li>
+                <li><a href="#">Dasar Hukum Layanan Informasi Publik PPID Politeknik Negeri Malang</a></li>
             </ul>
         </nav>
     </aside>
