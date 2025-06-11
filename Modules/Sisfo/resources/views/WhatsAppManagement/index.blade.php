@@ -291,14 +291,37 @@
       background: #f8f9fa;
     }
 
-    .scan-info-table {
+    .qrcode-display-container {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+    }
+
+    .qr-frame-container {
       max-width: 400px;
       margin: 0 auto;
+    }
+
+    #qrStatusFrame {
+      min-height: 350px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .scan-info-table {
+      max-width: 500px;
+      margin: 20px auto 0;
     }
 
     .scan-info-table th {
       background: #f8f9fa;
       font-weight: 600;
+      color: #495057;
+    }
+
+    .scan-info-table td {
+      background: #ffffff;
     }
   </style>
 @endpush
@@ -489,6 +512,39 @@
         $('#logContainer').html('<div class="log-entry text-muted"><span class="timestamp">[' + getCurrentTime() + ']</span> Log cleared...</div>');
       });
 
+      // Monitor untuk auto scan detection
+      function checkAutoScanStatus() {
+        if (!currentStatus.running || !currentStatus.authenticated) {
+          return;
+        }
+
+        // Cek apakah ada nomor yang terhubung tapi belum ada log
+        $.get(`/${whatsappUrl}/connected-phone`)
+          .done(function(response) {
+            if (response.success && response.connected_phone && !response.latest_scan) {
+              console.log('Nomor terhubung terdeteksi:', response.connected_phone);
+              
+              // Trigger auto save jika nomor terdeteksi tapi belum ada log
+              $.post(`/${whatsappUrl}/trigger-scan-log`)
+                .done(function(triggerResponse) {
+                  if (triggerResponse.success) {
+                    addLog('Auto scan log berhasil: ' + triggerResponse.phone_number, 'success');
+                    updateQRCodeStatus();
+                  }
+                })
+                .fail(function(xhr) {
+                  console.error('Trigger scan log error:', xhr);
+                });
+            }
+          })
+          .fail(function(xhr) {
+            console.error('Connected phone check error:', xhr);
+          });
+      }
+
+      // Panggil check auto scan setiap 30 detik
+      setInterval(checkAutoScanStatus, 30000);
+
       function checkStatus() {
         $.get(`/${whatsappUrl}/status`)
           .done(function(response) {
@@ -524,11 +580,17 @@
           });
       }
 
+      // Update QRCode Status
       function updateQRCodeStatus() {
         $.get(`/${whatsappUrl}/qrcode-status`)
           .done(function(response) {
             if (response.success) {
               renderQRCodeStatus(response);
+              
+              // Check for auto scan detection
+              if (response.authenticated && !response.latest_scan) {
+                setTimeout(checkAutoScanStatus, 5000); // Check after 5 seconds
+              }
             }
           })
           .fail(function(xhr) {
@@ -563,18 +625,83 @@
           case 'belum-terscan':
             content = `
               <div class="qrcode-status-content">
-                <div class="qrcode-qr-placeholder">
-                  <div class="text-warning">
-                    <i class="fas fa-qrcode fa-3x mb-2"></i>
-                    <br>Belum Terscan
+                <div class="qrcode-display-container" style="margin-bottom: 20px;">
+                  <div style="text-align: center; margin-bottom: 15px;">
+                    <i class="fas fa-qrcode fa-2x text-warning"></i>
+                    <h5 class="mt-2">Silahkan Scan QR Code</h5>
+                  </div>
+                  <div class="qr-frame-container" style="text-align: center;">
+                    <iframe id="qrStatusFrame" src="http://localhost:3000/qr" width="100%" height="350" 
+                            style="border: 2px solid #ffc107; border-radius: 8px; background: #f8f9fa;"></iframe>
+                  </div>
+                  <div class="mt-3">
+                    <label class="form-label">Nomor WhatsApp Anda:</label>
+                    <input type="text" id="nomorWhatsAppStatus" class="form-control" placeholder="Contoh: 085802517862" maxlength="20">
+                    <button class="btn btn-primary mt-2" id="saveQRCodeScanStatus">
+                      <i class="fas fa-save mr-1"></i>Simpan Log Scan
+                    </button>
+                  </div>
+                </div>
+                <table class="table table-bordered scan-info-table">
+                  <tr>
+                    <th width="40%">Nomor WA Pengirim:</th>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <th>Nama User yang melakukan Scan:</th>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <th>Hak Akses User yang melakukan Scan:</th>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <th>Tanggal User Melakukan Scan:</th>
+                    <td>-</td>
+                  </tr>
+                </table>
+              </div>
+            `;
+            break;
+
+          case 'authenticated-belum-log':
+            content = `
+              <div class="qrcode-status-content">
+                <div class="qrcode-qr-placeholder bg-warning text-white">
+                  <div>
+                    <i class="fas fa-exclamation-triangle fa-3x mb-2"></i>
+                    <br>Terhubung - Belum Log
                   </div>
                 </div>
                 <div class="alert alert-warning">
                   <i class="fas fa-exclamation-triangle mr-2"></i>
-                  <strong>Status:</strong> Belum terscan
-                  <br>
-                  <small>Scan QR code di section atas untuk menghubungkan WhatsApp</small>
+                  <strong>Status:</strong> WhatsApp sudah terhubung tetapi belum ada log scan. Silakan simpan log scan.
                 </div>
+                <div class="mt-3 mb-3">
+                  <label class="form-label">Nomor WhatsApp Anda:</label>
+                  <input type="text" id="nomorWhatsAppStatusAuth" class="form-control" placeholder="Contoh: 085802517862" maxlength="20">
+                  <button class="btn btn-success mt-2" id="saveQRCodeScanStatusAuth">
+                    <i class="fas fa-save mr-1"></i>Simpan Log Scan
+                  </button>
+                </div>
+                <table class="table table-bordered scan-info-table">
+                  <tr>
+                    <th width="40%">Nomor WA Pengirim:</th>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <th>Nama User yang melakukan Scan:</th>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <th>Hak Akses User yang melakukan Scan:</th>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <th>Tanggal User Melakukan Scan:</th>
+                    <td>-</td>
+                  </tr>
+                </table>
               </div>
             `;
             break;
@@ -591,23 +718,23 @@
                   </div>
                   <div class="alert alert-success">
                     <i class="fas fa-check-circle mr-2"></i>
-                    <strong>Status:</strong> Sudah terscan
+                    <strong>Status:</strong> WhatsApp sudah terhubung dan siap digunakan
                   </div>
                   <table class="table table-bordered scan-info-table">
                     <tr>
-                      <th width="40%">Nomor WhatsApp:</th>
+                      <th width="40%">Nomor WA Pengirim:</th>
                       <td>${data.latest_scan.log_qrcode_wa_nomor_pengirim}</td>
                     </tr>
                     <tr>
-                      <th>User Scan:</th>
+                      <th>Nama User yang melakukan Scan:</th>
                       <td>${data.latest_scan.log_qrcode_wa_user_scan}</td>
                     </tr>
                     <tr>
-                      <th>Hak Akses:</th>
+                      <th>Hak Akses User yang melakukan Scan:</th>
                       <td>${data.latest_scan.log_qrcode_wa_ha_scan}</td>
                     </tr>
                     <tr>
-                      <th>Tanggal Scan:</th>
+                      <th>Tanggal User Melakukan Scan:</th>
                       <td>${data.latest_scan.log_qrcode_wa_tanggal_scan}</td>
                     </tr>
                   </table>
@@ -618,6 +745,89 @@
         }
 
         container.html(content);
+        
+        // Setup event listener untuk tombol save di status "belum-terscan"
+        $(document).off('click', '#saveQRCodeScanStatus').on('click', '#saveQRCodeScanStatus', function() {
+          saveQRCodeScanLog('#nomorWhatsAppStatus', $(this));
+        });
+
+        // Setup event listener untuk tombol save di status "authenticated-belum-log"
+        $(document).off('click', '#saveQRCodeScanStatusAuth').on('click', '#saveQRCodeScanStatusAuth', function() {
+          saveQRCodeScanLog('#nomorWhatsAppStatusAuth', $(this));
+        });
+      }
+
+      // Fungsi helper untuk save QR code scan log
+      function saveQRCodeScanLog(inputSelector, buttonElement) {
+        const nomorWA = $(inputSelector).val().trim();
+        
+        if (!nomorWA) {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Nomor WhatsApp harus diisi',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          return;
+        }
+
+        console.log('Attempting to save QR code log with nomor:', nomorWA);
+
+        buttonElement.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...');
+        
+        $.post(`/${whatsappUrl}/save-qrcode-log`, {
+          nomor_pengirim: nomorWA,
+          _token: $('meta[name="csrf-token"]').attr('content')
+        })
+        .done(function(response) {
+          console.log('Save QR code log response:', response);
+          
+          if (response.success) {
+            addLog('Log scan QRCode berhasil disimpan', 'success');
+            $(inputSelector).val('');
+            updateQRCodeStatus();
+            
+            Swal.fire({
+              title: 'Berhasil!',
+              text: 'Log scan QRCode berhasil disimpan',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              // Refresh status setelah user tutup dialog
+              setTimeout(() => {
+                updateQRCodeStatus();
+              }, 1000);
+            });
+          } else {
+            addLog('Gagal menyimpan log scan: ' + (response.message || 'Unknown error'), 'error');
+            Swal.fire({
+              title: 'Gagal!',
+              text: response.message || 'Gagal menyimpan log scan',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        })
+        .fail(function(xhr) {
+          console.error('Save QRCode log error:', xhr);
+          
+          let errorMessage = 'Error: Gagal menyimpan log scan';
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage += ' - ' + xhr.responseJSON.message;
+          }
+          
+          addLog(errorMessage, 'error');
+          
+          Swal.fire({
+            title: 'Error!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        })
+        .always(function() {
+          buttonElement.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Simpan Log Scan');
+        });
       }
 
       function updateServerStatus(running, message) {
