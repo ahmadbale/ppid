@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'test') }}</title>
-    <link rel="icon" href="{{ asset('modules/sisfo/logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ sisfo_asset('modules/sisfo/logo.png') }}" type="image/png">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Untuk mengirimkan token laravel CSRF pada setiap request ajax -->
@@ -17,23 +17,23 @@
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link href="https://fonts.googleapis.com/css2?family=K2D:wght@700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/plugins/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ sisfo_asset('modules/sisfo/adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- DataTables -->
     <link rel="stylesheet"
-        href="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+        href="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet"
-        href="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+        href="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet"
-        href="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+        href="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     <!-- SweetAlert2 -->
     <link rel="stylesheet"
-        href="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+        href="{{ sisfo_asset('modules/sisfo/adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
 
     <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/addstyle.css') }}">
-    <link rel="stylesheet" href="{{ asset('modules/sisfo/adminlte/dist/css/info-box.css') }}">
+    <link rel="stylesheet" href="{{ sisfo_asset('modules/sisfo/adminlte/dist/css/style.css') }}">
+    <link rel="stylesheet" href="{{ sisfo_asset('modules/sisfo/adminlte/dist/css/addstyle.css') }}">
+    <link rel="stylesheet" href="{{ sisfo_asset('modules/sisfo/adminlte/dist/css/info-box.css') }}">
 
     <!-- Summernote CSS -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
@@ -87,37 +87,37 @@
     </div>
 
     <!-- jQuery (hanya dimuat sekali) -->
-    <script src="{{ asset('/modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ sisfo_asset('/modules/sisfo/adminlte/plugins/jquery/jquery.min.js') }}"></script>
     
     <!-- Bootstrap 4 (hanya dimuat sekali) -->
-    <script src="{{ asset('/modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ sisfo_asset('/modules/sisfo/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- DataTables & Plugins -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
     
     <!-- jquery-validation -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
     
     <!-- SweetAlert2 -->
-    <script src="{{ asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ sisfo_asset('modules/sisfo/adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
     
     <!-- AdminLTE App -->
-    <script src="{{ asset('/modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
+    <script src="{{ sisfo_asset('/modules/sisfo/adminlte/dist/js/adminlte.min.js') }}"></script>
     
     <!-- Toastr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

@@ -262,7 +262,7 @@
                     <div class="col">
                         <div class="ppid-card-body mb-5">
                             <div class="ppid-card-header">
-                                <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset('img/default.webp') }}"
+                                <img src="{{ $item['thumbnail'] ? asset($item['thumbnail']) : asset(env('BASE_URL').'/img/default.webp') }}"
                                     class="ppid-img-cover" alt="{{ $item['judul'] }}">
                             </div>
                             <p class="ppid-date text-muted">{{ \Carbon\Carbon::parse($item['created_at'])->format('d M Y') }}</p>
