@@ -14,3 +14,10 @@ if (!function_exists('user_asset')) {
         return $assetUrl . '/' . ltrim($path, '/');
     }
 }
+
+if (!function_exists('image_asset')) {
+    function image_asset($path)
+    {
+        return env('IMAGE_ASSET', url('storage')) . '/' . ltrim($path, '/');
+    }
+}

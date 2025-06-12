@@ -66,7 +66,7 @@ class LIDinamisModel extends Model
                        ];
                        
                        if ($upload->lid_upload_type == 'file') {
-                           $result['dokumen'] = asset('storage/' . $upload->lid_upload_value);
+                           $result['dokumen'] = image_asset($upload->lid_upload_value);
                        }
                        
                        return $result;
