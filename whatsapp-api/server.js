@@ -54,60 +54,149 @@ let initRetryCount = 0;
 const maxRetries = 3;
 let connectedPhoneNumber = null;
 
-// Function to send scan log to Laravel
-async function sendScanLogToLaravel(phoneNumber) {
+// Perbaiki function sendScanLogToLaravel dengan retry mechanism
+async function sendScanLogToLaravel(phoneNumber, retryCount = 0) {
     try {
-        console.log('📤 Mengirim log scan ke Laravel untuk nomor:', phoneNumber);
+        console.log(`📤 Sending scan log to Laravel (attempt ${retryCount + 1})`);
+        console.log(`📞 Phone number: ${phoneNumber}`);
         
-        const response = await axios.post(`${LARAVEL_BASE_URL}/whatsapp-management/auto-save-qrcode-log`, {
+        const requestData = {
             nomor_pengirim: phoneNumber,
             scan_source: 'auto_detected',
             timestamp: new Date().toISOString()
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                // 'Authorization': `Bearer ${LARAVEL_API_TOKEN}`, // Jika perlu auth
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            timeout: 10000
-        });
+        };
+
+        console.log('📤 Request data:', JSON.stringify(requestData));
+
+        const response = await axios.post(
+            `${LARAVEL_BASE_URL}/whatsapp-management/auto-save-qrcode-log`,
+            requestData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                timeout: 15000
+            }
+        );
+
+        console.log('📥 Laravel response status:', response.status);
+        console.log('📥 Laravel response data:', JSON.stringify(response.data));
 
         if (response.data && response.data.success) {
             console.log('✅ Log scan berhasil dikirim ke Laravel');
-            console.log('📝 Response:', response.data.message);
+            console.log('📝 Message:', response.data.message);
+            return true;
         } else {
             console.log('⚠️ Laravel response tidak success:', response.data);
+            
+            if (retryCount < 3) {
+                console.log(`🔄 Retrying in 3 seconds... (${retryCount + 1}/3)`);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                return await sendScanLogToLaravel(phoneNumber, retryCount + 1);
+            }
+            return false;
         }
 
     } catch (error) {
-        console.error('❌ Error mengirim log scan ke Laravel:', error.message);
+        console.error('❌ Error sending scan log to Laravel:', error.message);
+        
         if (error.response) {
             console.error('📋 Response status:', error.response.status);
-            console.error('📋 Response data:', error.response.data);
+            console.error('📋 Response data:', JSON.stringify(error.response.data));
         }
+        
+        if (retryCount < 3) {
+            console.log(`🔄 Retrying in 5 seconds... (${retryCount + 1}/3)`);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            return await sendScanLogToLaravel(phoneNumber, retryCount + 1);
+        }
+        return false;
     }
 }
 
-// Function to extract phone number from WhatsApp info
+// Tambahkan event listener untuk message masuk sebagai fallback
+client.on('message', async (message) => {
+    // Jika belum ada nomor yang terdeteksi, ambil dari message
+    if (!connectedPhoneNumber && message.from) {
+        try {
+            const fromNumber = message.from.replace('@c.us', '').replace('@g.us', '');
+            if (fromNumber && fromNumber.length >= 10) {
+                console.log('📱 Detected phone from incoming message:', fromNumber);
+                connectedPhoneNumber = fromNumber;
+                await sendScanLogToLaravel(connectedPhoneNumber);
+            }
+        } catch (error) {
+            console.error('Error processing message for phone detection:', error);
+        }
+    }
+});
+
+// Perbaiki function extractPhoneNumber untuk lebih komprehensif
 function extractPhoneNumber(info) {
     try {
-        if (info && info.wid && info.wid.user) {
-            return info.wid.user;
+        console.log('🔍 Extracting phone from:', typeof info);
+        
+        // Jika info null atau undefined
+        if (!info) {
+            console.log('❌ Info is null or undefined');
+            return null;
         }
-        if (info && info.id && info.id.user) {
-            return info.id.user;
-        }
-        if (info && typeof info === 'string') {
-            // Extract numbers from string
+
+        // Method 1: Direct string check
+        if (typeof info === 'string') {
             const numbers = info.replace(/[^0-9]/g, '');
             if (numbers.length >= 10) {
+                console.log('📱 Found phone in string:', numbers);
                 return numbers;
             }
         }
+
+        // Method 2: Object properties check
+        if (typeof info === 'object') {
+            // Check common WhatsApp ID patterns
+            const possibleFields = [
+                'user', 'wid', 'id', 'me', '_serialized', 
+                'phoneNumber', 'phone', 'number'
+            ];
+
+            for (const field of possibleFields) {
+                if (info[field]) {
+                    const extracted = extractPhoneNumber(info[field]);
+                    if (extracted) {
+                        console.log(`📱 Found phone in ${field}:`, extracted);
+                        return extracted;
+                    }
+                }
+            }
+
+            // Check nested objects
+            for (const key in info) {
+                if (typeof info[key] === 'object' && info[key] !== null) {
+                    const nested = extractPhoneNumber(info[key]);
+                    if (nested) {
+                        console.log(`📱 Found phone in nested ${key}:`, nested);
+                        return nested;
+                    }
+                }
+                
+                // Check string values for phone patterns
+                if (typeof info[key] === 'string') {
+                    const numbers = info[key].replace(/[^0-9]/g, '');
+                    if (numbers.length >= 10 && numbers.length <= 15) {
+                        console.log(`📱 Found phone in property ${key}:`, numbers);
+                        return numbers;
+                    }
+                }
+            }
+        }
+        
+        console.log('❌ No phone number found');
         return null;
+        
     } catch (error) {
-        console.error('Error extracting phone number:', error);
+        console.error('❌ Error extracting phone number:', error);
         return null;
     }
 }
@@ -135,36 +224,120 @@ client.on('ready', async () => {
     qrCodeData = '';
     initRetryCount = 0;
 
-    // Get client info to extract phone number
+    // Tunggu 3 detik untuk memastikan client info tersedia
+    setTimeout(async () => {
+        await detectAndSendPhoneNumber();
+    }, 3000);
+});
+
+// Function untuk detect dan kirim nomor telepon
+async function detectAndSendPhoneNumber() {
+    try {
+        console.log('🔍 Detecting phone number...');
+        
+        // Method 1: Dari client.info
+        let phoneNumber = null;
+        try {
+            const info = client.info;
+            console.log('📱 Client info:', JSON.stringify(info, null, 2));
+            phoneNumber = extractPhoneNumber(info);
+        } catch (error) {
+            console.log('⚠️ Error getting client.info:', error.message);
+        }
+
+        // Method 2: Dari client.getState()
+        if (!phoneNumber) {
+            try {
+                const state = await client.getState();
+                console.log('📱 Client state:', state);
+                phoneNumber = extractPhoneNumber(state);
+            } catch (error) {
+                console.log('⚠️ Error getting client state:', error.message);
+            }
+        }
+
+        // Method 3: Dari client.pupPage (fallback)
+        if (!phoneNumber) {
+            try {
+                // Last resort - coba extract dari page context
+                const page = client.pupPage;
+                if (page) {
+                    const waInfo = await page.evaluate(() => {
+                        return window.Store?.Conn?.wid || window.Store?.Me?.wid || null;
+                    });
+                    if (waInfo) {
+                        phoneNumber = extractPhoneNumber(waInfo);
+                    }
+                }
+            } catch (error) {
+                console.log('⚠️ Error getting phone from page:', error.message);
+            }
+        }
+
+        if (phoneNumber) {
+            connectedPhoneNumber = phoneNumber;
+            console.log('📞 Successfully detected phone number:', phoneNumber);
+            await sendScanLogToLaravel(phoneNumber);
+        } else {
+            console.log('⚠️ Could not detect phone number, will retry...');
+            // Retry dengan delay
+            setTimeout(async () => {
+                await retryPhoneDetection();
+            }, 5000);
+        }
+
+    } catch (error) {
+        console.error('❌ Error in detectAndSendPhoneNumber:', error);
+        setTimeout(async () => {
+            await retryPhoneDetection();
+        }, 5000);
+    }
+}
+
+// Function untuk retry detection
+async function retryPhoneDetection(attempt = 1) {
+    const maxAttempts = 5;
+    
+    if (attempt > maxAttempts) {
+        console.log('❌ Max retry attempts reached for phone detection');
+        // Gunakan fallback nomor atau skip
+        const fallbackNumber = 'auto_detected_' + Date.now();
+        await sendScanLogToLaravel(fallbackNumber);
+        return;
+    }
+
+    console.log(`🔄 Retry phone detection attempt ${attempt}/${maxAttempts}`);
+    
+    try {
+        await detectAndSendPhoneNumber();
+    } catch (error) {
+        console.error(`❌ Retry ${attempt} failed:`, error.message);
+        setTimeout(async () => {
+            await retryPhoneDetection(attempt + 1);
+        }, 3000);
+    }
+}
+
+// Function untuk mencoba auto log berulang kali
+async function attemptAutoLog() {
     try {
         const info = client.info;
-        console.log('📱 WhatsApp client info:', JSON.stringify(info, null, 2));
-        
-        if (info) {
-            // Extract phone number from various possible fields
+        if (info && !connectedPhoneNumber) {
             connectedPhoneNumber = extractPhoneNumber(info);
             
-            if (!connectedPhoneNumber && info.wid) {
-                connectedPhoneNumber = extractPhoneNumber(info.wid);
-            }
-            
-            if (!connectedPhoneNumber && info.me) {
-                connectedPhoneNumber = extractPhoneNumber(info.me);
-            }
-
-            console.log('📞 Detected phone number:', connectedPhoneNumber);
-
-            // Send log to Laravel if phone number detected
             if (connectedPhoneNumber) {
+                console.log('📞 Berhasil detect nomor di attempt kedua:', connectedPhoneNumber);
                 await sendScanLogToLaravel(connectedPhoneNumber);
             } else {
-                console.log('⚠️ Tidak dapat mendeteksi nomor telepon dari client info');
+                console.log('⚠️ Masih belum bisa detect nomor, akan menggunakan fallback...');
+                // Gunakan nomor default atau skip
+                await sendScanLogToLaravel('auto_detected');
             }
         }
     } catch (error) {
-        console.error('❌ Error getting client info:', error);
+        console.error('❌ Error in attemptAutoLog:', error);
     }
-});
+}
 
 client.on('authenticated', async (session) => {
     console.log('🔐 WhatsApp berhasil terautentikasi');
