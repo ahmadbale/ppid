@@ -41,7 +41,8 @@ class RegulasiDinamisModel extends Model
                     ->select([
                         'kategori_reg_id',
                         'kr_kategori_reg_kode',
-                        'kr_nama_kategori'
+                        'kr_nama_kategori',
+                        'updated_at'
                     ])
                     ->where('fk_regulasi_dinamis', $regulasi_dinamis->regulasi_dinamis_id)
                     ->where('isDeleted', 0)
@@ -75,6 +76,7 @@ class RegulasiDinamisModel extends Model
                             'kategori_id' => $kategori->kategori_reg_id,
                             'kategori_kode' => $kategori->kr_kategori_reg_kode,
                             'kategori_nama' => $kategori->kr_nama_kategori,
+                            'updated_at' => $kategori->updated_at,
                             'regulasi_list' => $regulasi_items
                         ];
                     });
