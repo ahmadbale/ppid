@@ -296,16 +296,27 @@ class WhatsAppController extends Controller
     public function getQRCodeStatus(): JsonResponse
     {
         try {
+            // Clean up expired scans first
+            QRCodeWAModel::cleanupExpiredScans();
+
             $isRunning = $this->isServerRunning();
             $statusData = $this->getServerStatusData();
             $isAuthenticated = $statusData['authenticated'] ?? false;
+
+            // Check for pending confirmation first
+            $pendingScan = QRCodeWAModel::getPendingConfirmationScan();
+
+            // Then check for confirmed scan
             $latestScan = QRCodeWAModel::getLatestActiveScan();
+            $hasConfirmedScan = QRCodeWAModel::hasActiveConfirmedScan();
 
             // Debug log
             Log::debug('QR Code Status Check', [
                 'is_running' => $isRunning,
                 'is_authenticated' => $isAuthenticated,
-                'has_latest_scan' => $latestScan ? true : false,
+                'has_pending_scan' => $pendingScan ? true : false,
+                'has_confirmed_scan' => $hasConfirmedScan,
+                'pending_scan_id' => $pendingScan ? $pendingScan->log_qrcode_wa_id : null,
                 'latest_scan_id' => $latestScan ? $latestScan->log_qrcode_wa_id : null
             ]);
 
@@ -314,7 +325,8 @@ class WhatsAppController extends Controller
                 'server_running' => $isRunning,
                 'authenticated' => $isAuthenticated,
                 'latest_scan' => $latestScan,
-                'status' => $this->getQRCodeStatusText($isRunning, $isAuthenticated, $latestScan)
+                'pending_scan' => $pendingScan,
+                'status' => $this->getQRCodeStatusText($isRunning, $isAuthenticated, $latestScan, $pendingScan)
             ]);
         } catch (\Exception $e) {
             Log::error('Error getting QR code status: ' . $e->getMessage());
@@ -555,24 +567,52 @@ class WhatsAppController extends Controller
     /**
      * Get QR code status text
      */
-    private function getQRCodeStatusText($isRunning, $isAuthenticated, $latestScan): string
+    private function getQRCodeStatusText($isRunning, $isAuthenticated, $latestScan, $pendingScan = null): string
     {
         if (!$isRunning) {
             return 'server-belum-distart';
         }
 
-        // Jika server berjalan dan authenticated, tapi belum ada log scan
-        if ($isAuthenticated && !$latestScan) {
-            return 'authenticated-belum-log'; // Status baru untuk case ini
+        // Jika ada pending confirmation
+        if ($pendingScan && $pendingScan->pending_confirmation) {
+            return 'pending-confirmation';
         }
 
-        // Server running, authenticated, dan ada scan log
-        if ($isAuthenticated && $latestScan) {
+        // Jika server berjalan dan authenticated, tapi belum ada confirmed log scan
+        if ($isAuthenticated && (!$latestScan || !$latestScan->is_confirmed)) {
+            return 'authenticated-belum-log';
+        }
+
+        // Server running, authenticated, dan ada confirmed scan log
+        if ($isAuthenticated && $latestScan && $latestScan->is_confirmed) {
             return 'sudah-terscan';
         }
 
         // Server running tapi belum authenticated
         return 'belum-terscan';
+    }
+
+    public function resetExpiredScan(): JsonResponse
+    {
+        try {
+            $deletedCount = QRCodeWAModel::cleanupExpiredScans();
+
+            // Reset WhatsApp session juga
+            $this->resetSession();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil reset {$deletedCount} scan yang expired dan session WhatsApp",
+                'deleted_count' => $deletedCount
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error resetting expired scan: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -755,18 +795,19 @@ class WhatsAppController extends Controller
             Log::info('Received auto save request', $request->all());
 
             $request->validate([
-                'nomor_pengirim' => 'required|string|max:20',
+                'nomor_pengirim' => 'required|string|max:20', // Sesuai database
                 'scan_source' => 'string|nullable',
                 'timestamp' => 'string|nullable'
             ]);
 
-            $nomorPengirim = $request->nomor_pengirim;
+            // VALIDASI: Trim nomor pengirim untuk sesuai database
+            $nomorPengirim = substr($request->nomor_pengirim, 0, 20);
 
             // Jika nomor adalah 'auto_detected', coba ambil dari server WhatsApp
             if ($nomorPengirim === 'auto_detected') {
                 $connectedPhone = $this->getConnectedPhoneFromServer();
                 if ($connectedPhone) {
-                    $nomorPengirim = $connectedPhone;
+                    $nomorPengirim = substr($connectedPhone, 0, 20); // Trim juga
                     Log::info('Phone number auto detected: ' . $nomorPengirim);
                 } else {
                     Log::warning('Auto detected phone number not available');
@@ -777,47 +818,36 @@ class WhatsAppController extends Controller
                 }
             }
 
-            // Get current authenticated user atau buat default
-            $user = Auth::user();
-            if (!$user) {
-                $user = $this->getSystemUser();
-                if (!$user) {
-                    $user = $this->createDefaultUser();
-                }
-            }
-
-            $userScan = $user->nama_pengguna ?? 'Auto System';
-            $haScan = $this->getUserHakAkses($user);
-
-            Log::info('Auto Saving QR Code Log', [
+            Log::info('Creating pending scan log for confirmation', [
                 'nomor_pengirim' => $nomorPengirim,
-                'user_scan' => $userScan,
-                'ha_scan' => $haScan,
-                'user_id' => $user->id ?? 'auto',
+                'nomor_length' => strlen($nomorPengirim),
                 'scan_source' => $request->scan_source ?? 'auto_detected'
             ]);
 
-            // Create new scan log
-            $scanLog = QRCodeWAModel::createScanLog($nomorPengirim, $userScan, $haScan);
+            // Create pending scan log (waiting for user confirmation)
+            $scanLog = QRCodeWAModel::createPendingScanLog($nomorPengirim);
 
             if ($scanLog) {
-                Log::info('Auto QR Code log saved successfully', [
+                Log::info('Pending QR Code log created successfully', [
                     'scan_log_id' => $scanLog->log_qrcode_wa_id,
-                    'nomor_pengirim' => $nomorPengirim
+                    'nomor_pengirim' => $nomorPengirim,
+                    'expires_at' => $scanLog->confirmation_expires_at
                 ]);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Log QR code scan otomatis berhasil disimpan',
+                    'message' => 'Log QR code scan berhasil dibuat, menunggu konfirmasi pengguna',
                     'scan_data' => $scanLog,
-                    'auto_detected' => true
+                    'pending_confirmation' => true,
+                    'expires_at' => $scanLog->confirmation_expires_at,
+                    'phone_number' => $nomorPengirim
                 ]);
             } else {
-                Log::error('Failed to auto save QR code log - createScanLog returned null');
+                Log::error('Failed to create pending QR code log');
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menyimpan log QR code scan otomatis'
+                    'message' => 'Gagal membuat log QR code scan'
                 ]);
             }
         } catch (\Exception $e) {
@@ -825,6 +855,73 @@ class WhatsAppController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'request_data' => $request->all()
             ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function confirmScanLog(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'scan_log_id' => 'required|integer'
+            ]);
+
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User tidak terautentikasi'
+                ]);
+            }
+
+            // PERBAIKAN: Validasi data sebelum simpan
+            $userScan = $user->nama_pengguna ?? 'Unknown User';
+            $userScan = substr($userScan, 0, 255); // Trim untuk varchar(255)
+
+            $haScan = $this->getUserHakAkses($user);
+            $haScan = substr($haScan, 0, 50); // Trim untuk varchar(50)
+
+            Log::info('Confirming scan log', [
+                'scan_log_id' => $request->scan_log_id,
+                'user_scan' => $userScan,
+                'user_scan_length' => strlen($userScan),
+                'ha_scan' => $haScan,
+                'ha_scan_length' => strlen($haScan),
+                'user_id' => $user->id
+            ]);
+
+            // Confirm the scan log
+            $confirmedScan = QRCodeWAModel::confirmScanLog(
+                $request->scan_log_id,
+                $userScan,
+                $haScan
+            );
+
+            if ($confirmedScan) {
+                Log::info('Scan log confirmed successfully', [
+                    'scan_log_id' => $confirmedScan->log_qrcode_wa_id,
+                    'user_scan' => $userScan,
+                    'ha_scan' => $haScan
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Konfirmasi scan log berhasil',
+                    'scan_data' => $confirmedScan
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal konfirmasi scan log. Mungkin sudah expired atau tidak ditemukan.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error confirming scan log: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
@@ -933,24 +1030,35 @@ class WhatsAppController extends Controller
     private function getUserHakAkses($user): string
     {
         $haScan = 'Unknown';
+
         try {
             // Method 1: Cek melalui relasi userHakAkses
             if ($user->userHakAkses && $user->userHakAkses->count() > 0) {
                 $hakAksesUser = $user->userHakAkses->first();
                 if ($hakAksesUser && $hakAksesUser->hakAkses) {
-                    // Extract string name from hakAkses object
                     $hakAksesObj = $hakAksesUser->hakAkses;
+
+                    // PERBAIKAN: Hanya ambil nama string, bukan object
                     if (isset($hakAksesObj->nama_hak_akses)) {
                         $haScan = $hakAksesObj->nama_hak_akses;
                     } elseif (isset($hakAksesObj->hak_akses_nama)) {
                         $haScan = $hakAksesObj->hak_akses_nama;
+                    } elseif (isset($hakAksesObj->hak_akses_kode)) {
+                        $haScan = $hakAksesObj->hak_akses_kode;
                     } elseif (method_exists($hakAksesObj, 'toArray')) {
                         $array = $hakAksesObj->toArray();
                         if (isset($array['nama_hak_akses'])) {
                             $haScan = $array['nama_hak_akses'];
                         } elseif (isset($array['hak_akses_nama'])) {
                             $haScan = $array['hak_akses_nama'];
+                        } elseif (isset($array['hak_akses_kode'])) {
+                            $haScan = $array['hak_akses_kode'];
                         }
+                    }
+
+                    // FALLBACK: Jika masih object, convert ke string
+                    if (is_object($haScan) || is_array($haScan)) {
+                        $haScan = 'Administrator'; // Default untuk admin
                     }
                 }
             }
@@ -972,12 +1080,19 @@ class WhatsAppController extends Controller
                     $haScan = 'User'; // Default fallback
                 }
             }
+
+            // PENTING: Pastikan hanya string dan maksimal 50 karakter
+            if (is_string($haScan)) {
+                $haScan = substr($haScan, 0, 50); // Trim ke 50 karakter sesuai database
+            } else {
+                $haScan = 'User'; // Fallback jika bukan string
+            }
         } catch (\Exception $e) {
             Log::warning('Error getting user hak akses: ' . $e->getMessage());
             $haScan = 'User';
         }
 
-        Log::debug('Final hak akses result: ' . $haScan);
+        Log::debug('Final hak akses result: ' . $haScan . ' (length: ' . strlen($haScan) . ')');
         return $haScan;
     }
 

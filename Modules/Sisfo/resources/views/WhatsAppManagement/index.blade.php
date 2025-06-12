@@ -348,6 +348,8 @@
     const maxAutoScanAttempts = 10;
     let autoScanInterval;
     let monitoringActive = false;
+    let confirmationTimer;
+    let countdownInterval;
 
     // ========================================
     // INITIALIZATION
@@ -887,6 +889,14 @@
         content = generateAuthenticatedNoLogContent();
         break;
 
+      case 'pending-confirmation':
+        if (data.pending_scan) {
+        content = generatePendingConfirmationContent(data.pending_scan);
+        } else {
+        content = generateAuthenticatedNoLogContent();
+        }
+        break;
+
       case 'sudah-terscan':
         if (data.latest_scan) {
         content = generateScannedContent(data.latest_scan);
@@ -900,9 +910,202 @@
 
       container.html(content);
 
-      // Setup event listeners after content is rendered
-      // setupQRStatusEventListeners();
+      // Setup event listeners dan countdown untuk pending confirmation
+      if (data.status === 'pending-confirmation' && data.pending_scan) {
+      setupConfirmationEventListeners();
+      startConfirmationCountdown(data.pending_scan.confirmation_expires_at);
+      }
     }
+
+    // Function untuk setup event listeners konfirmasi
+    function setupConfirmationEventListeners() {
+      $(document).off('click', '#confirmScanBtn');
+      $(document).on('click', '#confirmScanBtn', function () {
+      const scanId = $(this).data('scan-id');
+      const button = $(this);
+
+      confirmScanLog(scanId, button);
+      });
+    }
+
+    // Function untuk konfirmasi scan log
+    function confirmScanLog(scanId, buttonElement) {
+      console.log('🔵 Confirming scan log with ID:', scanId);
+
+      buttonElement.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...');
+
+      $.post(`/${whatsappUrl}/confirm-scan-log`, {
+      scan_log_id: scanId,
+      _token: $('meta[name="csrf-token"]').attr('content')
+      })
+      .done(function (response) {
+        console.log('✅ Confirm scan log response:', response);
+
+        if (response.success) {
+        addLog('✅ Konfirmasi scan log berhasil', 'success');
+
+        // Clear countdown timer
+        if (confirmationTimer) {
+          clearTimeout(confirmationTimer);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
+
+        // Reset auto scan attempts
+        autoScanAttempts = 0;
+
+        // Update status
+        setTimeout(() => {
+          updateQRCodeStatus();
+        }, 1000);
+
+        Swal.fire({
+          title: 'Berhasil!',
+          text: 'Konfirmasi identitas berhasil. WhatsApp siap digunakan!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        } else {
+        addLog('❌ Gagal konfirmasi scan log: ' + response.message, 'error');
+        buttonElement.prop('disabled', false).html('<i class="fas fa-hand-point-up mr-2"></i>Klik Tombol Ini Jika Anda Adalah Orang Yang Melakukan Scan QR Code');
+
+        Swal.fire({
+          title: 'Gagal!',
+          text: response.message || 'Gagal konfirmasi scan log',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        }
+      })
+      .fail(function (xhr) {
+        console.error('❌ Confirm scan log error:', xhr);
+        addLog('❌ Error konfirmasi scan log', 'error');
+        buttonElement.prop('disabled', false).html('<i class="fas fa-hand-point-up mr-2"></i>Klik Tombol Ini Jika Anda Adalah Orang Yang Melakukan Scan QR Code');
+
+        Swal.fire({
+        title: 'Error!',
+        text: 'Terjadi kesalahan saat konfirmasi',
+        icon: 'error',
+        confirmButtonText: 'OK'
+        });
+      });
+    }
+
+    // Function untuk countdown timer
+    function startConfirmationCountdown(expiresAt) {
+      const expiryTime = new Date(expiresAt).getTime();
+      const timerElement = $('#countdown-timer');
+
+      // Clear existing timers
+      if (confirmationTimer) {
+      clearTimeout(confirmationTimer);
+      }
+      if (countdownInterval) {
+      clearInterval(countdownInterval);
+      }
+
+      // Update countdown every second
+      countdownInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const timeLeft = expiryTime - now;
+
+      if (timeLeft <= 0) {
+        // Time expired
+        clearInterval(countdownInterval);
+        timerElement.text('EXPIRED');
+
+        addLog('⏰ Waktu konfirmasi habis, session akan direset', 'warning');
+
+        // Auto reset after expiry
+        setTimeout(() => {
+        resetExpiredScan();
+        }, 2000);
+
+        return;
+      }
+
+      // Calculate minutes and seconds left
+      const minutes = Math.floor(timeLeft / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      timerElement.text(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+
+      // Change color when time is running out
+      if (timeLeft <= 60000) { // Last minute
+        timerElement.removeClass('text-danger').addClass('text-danger');
+        timerElement.parent().removeClass('alert-warning').addClass('alert-danger');
+      }
+      }, 1000);
+
+      // Set timeout for automatic reset
+      const timeoutDuration = expiryTime - new Date().getTime();
+      confirmationTimer = setTimeout(() => {
+      addLog('⏰ Session expired, melakukan reset otomatis...', 'warning');
+      resetExpiredScan();
+      }, timeoutDuration);
+    }
+
+    // Function untuk reset expired scan
+    function resetExpiredScan() {
+      console.log('🔄 Resetting expired scan...');
+      addLog('🔄 Mereset session yang expired...', 'warning');
+
+      $.post(`/${whatsappUrl}/reset-expired-scan`)
+      .done(function (response) {
+        if (response.success) {
+        addLog('✅ ' + response.message, 'success');
+
+        // Reset status
+        currentStatus.running = false;
+        currentStatus.authenticated = false;
+        currentStatus.latest_scan = null;
+        autoScanAttempts = 0;
+
+        // Clear timers
+        if (confirmationTimer) {
+          clearTimeout(confirmationTimer);
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
+
+        setTimeout(() => {
+          checkStatus();
+          updateQRCodeStatus();
+        }, 3000);
+        } else {
+        addLog('❌ Error reset expired scan: ' + response.message, 'error');
+        }
+      })
+      .fail(function (xhr) {
+        console.error('❌ Reset expired scan error:', xhr);
+        addLog('❌ Error reset expired scan', 'error');
+      });
+    }
+
+    // Update cleanup section
+    $(window).on('beforeunload', function () {
+      console.log('🧹 Cleaning up intervals and timers...');
+
+      if (statusCheckInterval) {
+      clearInterval(statusCheckInterval);
+      }
+
+      if (autoScanInterval) {
+      clearInterval(autoScanInterval);
+      }
+
+      if (confirmationTimer) {
+      clearTimeout(confirmationTimer);
+      }
+
+      if (countdownInterval) {
+      clearInterval(countdownInterval);
+      }
+
+      monitoringActive = false;
+    });
 
     function generateServerNotStartedContent() {
       return `
@@ -962,6 +1165,52 @@
       <i class="fas fa-cog fa-spin mr-2"></i>
       <strong>Proses Otomatis:</strong> Tunggu beberapa saat, log scan akan tersimpan secara otomatis.
       </div>
+      ${generateScanInfoTable()}
+      </div>
+    `;
+    }
+
+    function generatePendingConfirmationContent(pendingScan) {
+      return `
+      <div class="qrcode-status-content">
+      <div class="qrcode-qr-placeholder bg-success text-white">
+      <div>
+      <i class="fas fa-check-circle fa-3x mb-2"></i>
+      <br>Scan Berhasil!
+      </div>
+      </div>
+      <div class="alert alert-success">
+      <i class="fas fa-check-circle mr-2"></i>
+      <strong>WhatsApp sudah terhubung!</strong> Nomor: <strong>${pendingScan.log_qrcode_wa_nomor_pengirim}</strong>
+      </div>
+
+      <div class="confirmation-section" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h5 class="text-center mb-3">
+      <i class="fas fa-user-check mr-2"></i>Konfirmasi Identitas Pengguna
+      </h5>
+
+      <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <strong>Informasi Penting:</strong> Jika Anda tidak mengklik tombol konfirmasi ini dalam <span id="countdown-timer" class="font-weight-bold text-danger">3 menit</span>, maka nomor WhatsApp yang Anda scan tadi akan terputus/tereset dari sistem.
+      </div>
+
+      <div class="text-center">
+      <button id="confirmScanBtn" class="btn btn-success btn-lg" 
+      data-scan-id="${pendingScan.log_qrcode_wa_id}"
+      style="padding: 15px 30px; font-size: 16px;">
+      <i class="fas fa-hand-point-up mr-2"></i>
+      Klik Tombol Ini Jika Anda Adalah Orang Yang Melakukan Scan QR Code
+      </button>
+      </div>
+
+      <div class="text-center mt-3">
+      <small class="text-muted">
+      <i class="fas fa-info-circle mr-1"></i>
+      Tombol ini untuk mengkonfirmasi bahwa Anda yang melakukan scan QR Code
+      </small>
+      </div>
+      </div>
+
       ${generateScanInfoTable()}
       </div>
     `;
