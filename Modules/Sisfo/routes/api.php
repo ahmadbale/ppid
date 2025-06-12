@@ -15,6 +15,7 @@ use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiAksesCepatController;
 use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiUserController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiMediaDinamisController;
 use Modules\Sisfo\App\Http\Controllers\Api\HakAkses\ApiSetHakAksesController;
+use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiProfileController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiIpDinamisKontenController;
 use Modules\Sisfo\App\Http\Controllers\Api\Public\ApiPintasanLainnyaController;
 use Modules\Sisfo\App\Http\Controllers\Api\ManagePengguna\ApiHakAksesController;
@@ -104,6 +105,7 @@ Route::prefix('auth')->group(function () {
             Route::post('/update/{id}', [ApiWebMenuUrlController::class, 'updateData']);
             Route::delete('/delete/{id}', [ApiWebMenuUrlController::class, 'deleteData']);
             Route::get('/detail/{id}', [ApiWebMenuUrlController::class, 'detailData']);
+            Route::get('/applications', [ApiWebMenuUrlController::class, 'getApplications']);
         });
         // Routr Api UserController
         Route::prefix('user')->group(function () {
@@ -129,6 +131,13 @@ Route::prefix('auth')->group(function () {
             Route::get('/get-parent-menus/{hakAksesId}', [ApiMenuManagementController::class, 'getParentMenus']);
             Route::get('/set-menu/{hakAksesId}', [ApiMenuManagementController::class, 'setMenu']);
             Route::post('/store-set-menu', [ApiMenuManagementController::class, 'storeSetMenu']);
+        });
+        Route::prefix('profile')->group(function (){
+            Route::get('/', [ApiProfileController::class, 'index']);
+            Route::post('/update_pengguna/{id}', [ApiProfileController::class, 'updatePengguna']);
+            Route::put('/update_password/{id}', [ApiProfileController::class, 'updatePassword']);
+            Route::delete('/delete_foto_profil/{id}', [ApiProfileController::class, 'deleteFotoProfil']);
+            Route::delete('/delete_foto_ktp/{id}', [ApiProfileController::class, 'deleteFotoKtp']);
         });
     });
 });
