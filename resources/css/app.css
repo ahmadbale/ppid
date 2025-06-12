@@ -1775,3 +1775,15 @@ button:disabled {
     50% { transform: translateY(-15px); }
     100% { transform: translateY(0px); }
 }
+
+.lihat-link {
+        text-decoration: underline;
+        color: #111;
+        font-weight: normal;
+        transition: color 0.15s;
+    }
+    .lihat-link:hover {
+        color: #3997f5;
+    }
+
+

@@ -6,6 +6,7 @@ use Modules\User\App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\PermohonanController;
 use Modules\User\App\Http\Controllers\InformasiPublikController;
 use Modules\User\App\Http\Controllers\InformasiDikecualikanController;
+use Modules\User\App\Http\Controllers\RegulasiController;
 use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
 use Modules\User\App\Http\Controllers\FooterController;
@@ -135,6 +136,9 @@ Route::get('/register', function () {
 
     Route::get('/daftar-informasi-publik', [InformasiPublikController::class, 'index'])->name('daftar-informasi-publik');
     Route::get('/dikecualikan', [InformasiDikecualikanController::class, 'index'])->name('informasi-publik.dikecualikan');
+    Route::get('/regulasi', [RegulasiController::class, 'DHSOP'])->name('regulasi-DHSOP');
+    Route::get('/regulasi/dasar-hukum-keterbukaan-informasi-publik', [RegulasiController::class, 'DHKIP'])->name('regulasi-DHKIP');
+    Route::get('/regulasi/dasar-hukum-layanan-informasi-publik', [RegulasiController::class, 'DHLIP'])->name('regulasi-DHLIP');
     // Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
     // Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
     // Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');

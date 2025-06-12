@@ -116,3 +116,31 @@
         transform: translateX(-50%);
     }
 }
+
+
+.sidebar-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.sidebar-list li {
+    border-bottom: 2px solid #e5e5e5;
+    padding: 16px 0 12px 0;
+}
+
+.sidebar-link {
+    display: block;
+    color: #222;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.sidebar-link.sidebar-on {
+    color: #f7ba35 !important;
+    font-weight: 700;
+}
+
+.sidebar-link:hover {
+    color: #f7ba35;
+}

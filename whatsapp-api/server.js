@@ -4,10 +4,15 @@ const qrcode = require('qrcode-terminal');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios'); // Tambahkan axios untuk HTTP request
 
 const app = express();
 const PORT = process.env.WA_PORT || 3000;
 const AUTH_TOKEN = process.env.WA_TOKEN || 'ppid-polinema-2024';
+
+// Laravel API configuration
+const LARAVEL_BASE_URL = process.env.LARAVEL_URL || 'http://localhost:8000';
+const LARAVEL_API_TOKEN = process.env.LARAVEL_TOKEN || 'your-api-token';
 
 // Middleware
 app.use(express.json());
@@ -47,10 +52,70 @@ let qrCodeData = '';
 let clientInitialized = false;
 let initRetryCount = 0;
 const maxRetries = 3;
+let connectedPhoneNumber = null;
+
+// Function to send scan log to Laravel
+async function sendScanLogToLaravel(phoneNumber) {
+    try {
+        console.log('📤 Mengirim log scan ke Laravel untuk nomor:', phoneNumber);
+        
+        const response = await axios.post(`${LARAVEL_BASE_URL}/whatsapp-management/auto-save-qrcode-log`, {
+            nomor_pengirim: phoneNumber,
+            scan_source: 'auto_detected',
+            timestamp: new Date().toISOString()
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                // 'Authorization': `Bearer ${LARAVEL_API_TOKEN}`, // Jika perlu auth
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            timeout: 10000
+        });
+
+        if (response.data && response.data.success) {
+            console.log('✅ Log scan berhasil dikirim ke Laravel');
+            console.log('📝 Response:', response.data.message);
+        } else {
+            console.log('⚠️ Laravel response tidak success:', response.data);
+        }
+
+    } catch (error) {
+        console.error('❌ Error mengirim log scan ke Laravel:', error.message);
+        if (error.response) {
+            console.error('📋 Response status:', error.response.status);
+            console.error('📋 Response data:', error.response.data);
+        }
+    }
+}
+
+// Function to extract phone number from WhatsApp info
+function extractPhoneNumber(info) {
+    try {
+        if (info && info.wid && info.wid.user) {
+            return info.wid.user;
+        }
+        if (info && info.id && info.id.user) {
+            return info.id.user;
+        }
+        if (info && typeof info === 'string') {
+            // Extract numbers from string
+            const numbers = info.replace(/[^0-9]/g, '');
+            if (numbers.length >= 10) {
+                return numbers;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error('Error extracting phone number:', error);
+        return null;
+    }
+}
 
 // WhatsApp client events
 client.on('qr', (qr) => {
     qrCodeData = qr;
+    connectedPhoneNumber = null;
     console.log('\n===========================================');
     console.log('📱 SCAN QR CODE DENGAN WHATSAPP ANDA');
     console.log('===========================================');
@@ -60,26 +125,70 @@ client.on('qr', (qr) => {
     console.log('===========================================\n');
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log('\n✅ WhatsApp Client SIAP DIGUNAKAN!');
     console.log('🚀 Server berjalan di: http://localhost:' + PORT);
     console.log('📋 Status: http://localhost:' + PORT + '/api/status\n');
+    
     isReady = true;
     isAuthenticated = true;
     qrCodeData = '';
     initRetryCount = 0;
+
+    // Get client info to extract phone number
+    try {
+        const info = client.info;
+        console.log('📱 WhatsApp client info:', JSON.stringify(info, null, 2));
+        
+        if (info) {
+            // Extract phone number from various possible fields
+            connectedPhoneNumber = extractPhoneNumber(info);
+            
+            if (!connectedPhoneNumber && info.wid) {
+                connectedPhoneNumber = extractPhoneNumber(info.wid);
+            }
+            
+            if (!connectedPhoneNumber && info.me) {
+                connectedPhoneNumber = extractPhoneNumber(info.me);
+            }
+
+            console.log('📞 Detected phone number:', connectedPhoneNumber);
+
+            // Send log to Laravel if phone number detected
+            if (connectedPhoneNumber) {
+                await sendScanLogToLaravel(connectedPhoneNumber);
+            } else {
+                console.log('⚠️ Tidak dapat mendeteksi nomor telepon dari client info');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error getting client info:', error);
+    }
 });
 
-client.on('authenticated', () => {
+client.on('authenticated', async (session) => {
     console.log('🔐 WhatsApp berhasil terautentikasi');
     isAuthenticated = true;
     qrCodeData = '';
+
+    // Try to get phone number from session data
+    try {
+        console.log('📱 Session data:', JSON.stringify(session, null, 2));
+        
+        if (session && !connectedPhoneNumber) {
+            connectedPhoneNumber = extractPhoneNumber(session);
+            console.log('📞 Phone number from session:', connectedPhoneNumber);
+        }
+    } catch (error) {
+        console.error('❌ Error processing session data:', error);
+    }
 });
 
 client.on('auth_failure', (msg) => {
     console.error('❌ Gagal autentikasi WhatsApp:', msg);
     isAuthenticated = false;
     isReady = false;
+    connectedPhoneNumber = null;
     
     // Reset dan coba lagi
     setTimeout(() => {
@@ -96,6 +205,7 @@ client.on('disconnected', (reason) => {
     isAuthenticated = false;
     qrCodeData = '';
     clientInitialized = false;
+    connectedPhoneNumber = null;
     
     // Try to reinitialize after disconnection
     setTimeout(() => {
@@ -110,11 +220,94 @@ client.on('loading_screen', (percent, message) => {
     console.log('🔄 Loading WhatsApp:', percent + '%', message);
 });
 
+// Event listener untuk mendeteksi saat client siap dan mendapatkan info
+client.on('change_state', async (state) => {
+    console.log('🔄 WhatsApp state changed:', state);
+    
+    if (state === 'CONNECTED' && !connectedPhoneNumber) {
+        try {
+            // Tunggu sebentar untuk memastikan client info tersedia
+            setTimeout(async () => {
+                const info = client.info;
+                if (info && !connectedPhoneNumber) {
+                    connectedPhoneNumber = extractPhoneNumber(info);
+                    console.log('📞 Phone number from state change:', connectedPhoneNumber);
+                    
+                    if (connectedPhoneNumber) {
+                        await sendScanLogToLaravel(connectedPhoneNumber);
+                    }
+                }
+            }, 2000);
+        } catch (error) {
+            console.error('❌ Error in state change handler:', error);
+        }
+    }
+});
+
+// Tambahkan endpoint untuk get connected phone number
+app.get('/api/connected-phone', (req, res) => {
+    res.json({
+        success: true,
+        connected_phone: connectedPhoneNumber,
+        is_authenticated: isAuthenticated,
+        is_ready: isReady,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Tambahkan endpoint untuk manual trigger log scan
+app.post('/api/trigger-scan-log', async (req, res) => {
+    try {
+        if (!isAuthenticated || !isReady) {
+            return res.status(503).json({
+                success: false,
+                message: 'WhatsApp client belum siap'
+            });
+        }
+
+        let phoneNumber = connectedPhoneNumber;
+        
+        // Jika nomor belum terdeteksi, coba ambil dari client info
+        if (!phoneNumber) {
+            try {
+                const info = client.info;
+                phoneNumber = extractPhoneNumber(info);
+                connectedPhoneNumber = phoneNumber;
+            } catch (error) {
+                console.error('Error getting phone from client info:', error);
+            }
+        }
+
+        if (phoneNumber) {
+            await sendScanLogToLaravel(phoneNumber);
+            res.json({
+                success: true,
+                message: 'Log scan berhasil dikirim',
+                phone_number: phoneNumber
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Nomor telefon tidak dapat dideteksi'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error triggering scan log:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error: ' + error.message
+        });
+    }
+});
+
 // Function to restart client
 async function restartClient() {
     try {
         initRetryCount++;
         console.log(`🔄 Restart attempt ${initRetryCount}/${maxRetries}`);
+        
+        connectedPhoneNumber = null;
         
         if (clientInitialized) {
             await client.destroy();
@@ -615,6 +808,7 @@ app.get('/api/status', (req, res) => {
         client_initialized: clientInitialized,
         retry_count: initRetryCount,
         max_retries: maxRetries,
+        connected_phone: connectedPhoneNumber,
         server_info: {
             uptime: process.uptime(),
             memory_usage: process.memoryUsage(),
@@ -827,6 +1021,7 @@ const server = app.listen(PORT, () => {
     console.log(`🌐 Server: http://localhost:${PORT}`);
     console.log(`📱 QR Code: http://localhost:${PORT}/qr`);
     console.log(`📋 Status: http://localhost:${PORT}/api/status`);
+    console.log(`🔗 Laravel URL: ${LARAVEL_BASE_URL}`);
     console.log('========================================');
     console.log('🔄 Akan menginisialisasi WhatsApp client dalam 3 detik...\n');
     
