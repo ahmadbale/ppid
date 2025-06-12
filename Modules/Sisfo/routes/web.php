@@ -647,10 +647,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset', [WhatsAppController::class, 'resetSession'])->middleware('permission:update');
         Route::get('/status', [WhatsAppController::class, 'getStatus']);
         Route::get('/qr-code', [WhatsAppController::class, 'getQRCode']);
-        Route::post('/save-qrcode-log', [WhatsAppController::class, 'saveQRCodeLog'])->middleware('permission:create');
+        // Route::post('/save-qrcode-log', [WhatsAppController::class, 'saveQRCodeLog'])->middleware('permission:create');
         Route::get('/qrcode-status', [WhatsAppController::class, 'getQRCodeStatus']);
         Route::post('/auto-save-qrcode-log', [WhatsAppController::class, 'autoSaveQRCodeLog']); // Route baru untuk auto save
-        Route::get('/qrcode-status', [WhatsAppController::class, 'getQRCodeStatus']);
         Route::get('/connected-phone', [WhatsAppController::class, 'getConnectedPhone']);
         Route::post('/trigger-scan-log', [WhatsAppController::class, 'triggerScanLog']);
     });

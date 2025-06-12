@@ -10,7 +10,7 @@ class QRCodeWAModel extends Model
 {
     protected $table = 'log_qrcode_wa';
     protected $primaryKey = 'log_qrcode_wa_id';
-    
+
     protected $fillable = [
         'log_qrcode_wa_nomor_pengirim',
         'log_qrcode_wa_user_scan',
@@ -30,8 +30,8 @@ class QRCodeWAModel extends Model
     {
         try {
             return self::where('isDeleted', 0)
-                      ->orderBy('log_qrcode_wa_id', 'desc')
-                      ->first();
+                ->orderBy('log_qrcode_wa_id', 'desc')
+                ->first();
         } catch (\Exception $e) {
             Log::error('Error getting latest active scan: ' . $e->getMessage());
             return null;
@@ -45,16 +45,16 @@ class QRCodeWAModel extends Model
     {
         try {
             $result = self::where('isDeleted', 0)
-                         ->update([
-                             'isDeleted' => 1,
-                             'deleted_at' => date('Y-m-d H:i:s')
-                         ]);
-            
+                ->update([
+                    'isDeleted' => 1,
+                    'deleted_at' => date('Y-m-d H:i:s') // Format database
+                ]);
+
             Log::info('Marked ' . $result . ' scan logs as deleted');
             return $result;
         } catch (\Exception $e) {
             Log::error('Error marking scans as deleted: ' . $e->getMessage());
-            return false;
+            return 0;
         }
     }
 
@@ -66,70 +66,30 @@ class QRCodeWAModel extends Model
         try {
             // Mark previous scans as deleted first
             self::markAllAsDeleted();
-            
-            // Convert ha_scan to string if it's an object/array
-            $haScanString = $haScan;
-            if (is_object($haScan) || is_array($haScan)) {
-                if (is_object($haScan) && isset($haScan->nama_hak_akses)) {
-                    $haScanString = $haScan->nama_hak_akses;
-                } elseif (is_object($haScan) && isset($haScan->hak_akses_nama)) {
-                    $haScanString = $haScan->hak_akses_nama;
-                } elseif (is_array($haScan) && isset($haScan['nama_hak_akses'])) {
-                    $haScanString = $haScan['nama_hak_akses'];
-                } elseif (is_array($haScan) && isset($haScan['hak_akses_nama'])) {
-                    $haScanString = $haScan['hak_akses_nama'];
-                } else {
-                    // If it's a complex object, try to extract the name
-                    $haScanString = 'Unknown';
-                    if (is_object($haScan)) {
-                        $reflection = new \ReflectionObject($haScan);
-                        $properties = $reflection->getProperties();
-                        foreach ($properties as $property) {
-                            $property->setAccessible(true);
-                            $value = $property->getValue($haScan);
-                            if (is_string($value) && (
-                                strpos($property->getName(), 'nama') !== false ||
-                                strpos($property->getName(), 'name') !== false
-                            )) {
-                                $haScanString = $value;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Prepare data - hanya field yang ada di database
+
             $data = [
                 'log_qrcode_wa_nomor_pengirim' => $nomorPengirim,
                 'log_qrcode_wa_user_scan' => $userScan,
-                'log_qrcode_wa_ha_scan' => $haScanString,
-                'log_qrcode_wa_tanggal_scan' => date('Y-m-d H:i:s'),
+                'log_qrcode_wa_ha_scan' => $haScan,
+                'log_qrcode_wa_tanggal_scan' => date('Y-m-d H:i:s'), // Format database
                 'isDeleted' => 0,
                 'deleted_at' => null
             ];
-            
-            Log::info('Creating scan log with data:', $data);
-            
-            // Create new scan log using DB query builder to avoid TraitsModel issues
-            $scanLogId = DB::table('log_qrcode_wa')->insertGetId($data);
-            
-            if ($scanLogId) {
-                Log::info('Scan log created successfully with ID: ' . $scanLogId);
-                // Return the created record
-                return self::find($scanLogId);
-            } else {
-                Log::error('Failed to create scan log - insertGetId returned null');
-                return null;
+
+            Log::info('Creating scan log with data: ' . json_encode($data));
+
+            $scanLog = self::create($data);
+
+            if ($scanLog) {
+                Log::info('Scan log created successfully with ID: ' . $scanLog->log_qrcode_wa_id);
+                return $scanLog;
             }
-            
+
+            Log::error('Failed to create scan log - no object returned');
+            return null;
         } catch (\Exception $e) {
-            Log::error('Error creating scan log: ' . $e->getMessage(), [
-                'nomor_pengirim' => $nomorPengirim,
-                'user_scan' => $userScan,
-                'ha_scan' => $haScan,
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error creating scan log: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return null;
         }
     }
