@@ -10,14 +10,17 @@ class QRCodeWAModel extends Model
 {
     protected $table = 'log_qrcode_wa';
     protected $primaryKey = 'log_qrcode_wa_id';
-    
+
     protected $fillable = [
         'log_qrcode_wa_nomor_pengirim',
         'log_qrcode_wa_user_scan',
         'log_qrcode_wa_ha_scan',
         'log_qrcode_wa_tanggal_scan',
         'isDeleted',
-        'deleted_at'
+        'deleted_at',
+        'is_confirmed',           // Tambah field baru
+        'pending_confirmation',   // Tambah field baru
+        'confirmation_expires_at' // Tambah field baru
     ];
 
     // Disable timestamps karena kita menggunakan custom timestamp
@@ -30,10 +33,28 @@ class QRCodeWAModel extends Model
     {
         try {
             return self::where('isDeleted', 0)
-                      ->orderBy('log_qrcode_wa_id', 'desc')
-                      ->first();
+                ->orderBy('log_qrcode_wa_id', 'desc')
+                ->first();
         } catch (\Exception $e) {
             Log::error('Error getting latest active scan: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get pending confirmation scan
+     */
+    public static function getPendingConfirmationScan()
+    {
+        try {
+            return self::where('isDeleted', 0)
+                ->where('pending_confirmation', 1)
+                ->where('is_confirmed', 0)
+                ->where('confirmation_expires_at', '>', date('Y-m-d H:i:s'))
+                ->orderBy('log_qrcode_wa_id', 'desc')
+                ->first();
+        } catch (\Exception $e) {
+            Log::error('Error getting pending confirmation scan: ' . $e->getMessage());
             return null;
         }
     }
@@ -45,104 +66,155 @@ class QRCodeWAModel extends Model
     {
         try {
             $result = self::where('isDeleted', 0)
-                         ->update([
-                             'isDeleted' => 1,
-                             'deleted_at' => date('Y-m-d H:i:s')
-                         ]);
-            
+                ->update([
+                    'isDeleted' => 1,
+                    'deleted_at' => date('Y-m-d H:i:s')
+                ]);
+
             Log::info('Marked ' . $result . ' scan logs as deleted');
             return $result;
         } catch (\Exception $e) {
             Log::error('Error marking scans as deleted: ' . $e->getMessage());
-            return false;
+            return 0;
         }
     }
 
     /**
-     * Create new QR code scan log
+     * Create pending scan log (belum dikonfirmasi)
      */
-    public static function createScanLog($nomorPengirim, $userScan, $haScan)
+    public static function createPendingScanLog($nomorPengirim)
     {
         try {
             // Mark previous scans as deleted first
             self::markAllAsDeleted();
-            
-            // Convert ha_scan to string if it's an object/array
-            $haScanString = $haScan;
-            if (is_object($haScan) || is_array($haScan)) {
-                if (is_object($haScan) && isset($haScan->nama_hak_akses)) {
-                    $haScanString = $haScan->nama_hak_akses;
-                } elseif (is_object($haScan) && isset($haScan->hak_akses_nama)) {
-                    $haScanString = $haScan->hak_akses_nama;
-                } elseif (is_array($haScan) && isset($haScan['nama_hak_akses'])) {
-                    $haScanString = $haScan['nama_hak_akses'];
-                } elseif (is_array($haScan) && isset($haScan['hak_akses_nama'])) {
-                    $haScanString = $haScan['hak_akses_nama'];
-                } else {
-                    // If it's a complex object, try to extract the name
-                    $haScanString = 'Unknown';
-                    if (is_object($haScan)) {
-                        $reflection = new \ReflectionObject($haScan);
-                        $properties = $reflection->getProperties();
-                        foreach ($properties as $property) {
-                            $property->setAccessible(true);
-                            $value = $property->getValue($haScan);
-                            if (is_string($value) && (
-                                strpos($property->getName(), 'nama') !== false ||
-                                strpos($property->getName(), 'name') !== false
-                            )) {
-                                $haScanString = $value;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Prepare data - hanya field yang ada di database
+
+            // Create expiration time (3 minutes from now)
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+3 minutes'));
+
+            // VALIDASI: Pastikan data sesuai panjang kolom database
             $data = [
-                'log_qrcode_wa_nomor_pengirim' => $nomorPengirim,
-                'log_qrcode_wa_user_scan' => $userScan,
-                'log_qrcode_wa_ha_scan' => $haScanString,
+                'log_qrcode_wa_nomor_pengirim' => substr($nomorPengirim, 0, 20), // varchar(20)
+                'log_qrcode_wa_user_scan' => 'Pending Confirmation', // varchar(255) - OK
+                'log_qrcode_wa_ha_scan' => 'Pending', // varchar(50) - OK
                 'log_qrcode_wa_tanggal_scan' => date('Y-m-d H:i:s'),
                 'isDeleted' => 0,
-                'deleted_at' => null
+                'deleted_at' => null,
+                'is_confirmed' => 0,
+                'pending_confirmation' => 1,
+                'confirmation_expires_at' => $expiresAt
             ];
-            
-            Log::info('Creating scan log with data:', $data);
-            
-            // Create new scan log using DB query builder to avoid TraitsModel issues
-            $scanLogId = DB::table('log_qrcode_wa')->insertGetId($data);
-            
-            if ($scanLogId) {
-                Log::info('Scan log created successfully with ID: ' . $scanLogId);
-                // Return the created record
-                return self::find($scanLogId);
-            } else {
-                Log::error('Failed to create scan log - insertGetId returned null');
-                return null;
+
+            Log::info('Creating pending scan log with data: ' . json_encode($data));
+
+            $scanLog = self::create($data);
+
+            if ($scanLog) {
+                Log::info('Pending scan log created successfully with ID: ' . $scanLog->log_qrcode_wa_id);
+                return $scanLog;
             }
-            
+
+            Log::error('Failed to create pending scan log - no object returned');
+            return null;
         } catch (\Exception $e) {
-            Log::error('Error creating scan log: ' . $e->getMessage(), [
-                'nomor_pengirim' => $nomorPengirim,
-                'user_scan' => $userScan,
-                'ha_scan' => $haScan,
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('Error creating pending scan log: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return null;
         }
     }
 
     /**
-     * Check if there's an active scan
+     * Confirm scan log with user data
      */
-    public static function hasActiveScan()
+    public static function confirmScanLog($scanLogId, $userScan, $haScan)
     {
         try {
-            return self::where('isDeleted', 0)->exists();
+            $scanLog = self::find($scanLogId);
+
+            if (!$scanLog) {
+                Log::error('Scan log not found: ' . $scanLogId);
+                return false;
+            }
+
+            // Check if not expired
+            if (strtotime($scanLog->confirmation_expires_at) < time()) {
+                Log::error('Scan log expired: ' . $scanLogId);
+                // Mark as deleted
+                $scanLog->update([
+                    'isDeleted' => 1,
+                    'deleted_at' => date('Y-m-d H:i:s')
+                ]);
+                return false;
+            }
+
+            // VALIDASI: Pastikan data sesuai panjang kolom database
+            $updateData = [
+                'log_qrcode_wa_user_scan' => substr($userScan, 0, 255), // varchar(255)
+                'log_qrcode_wa_ha_scan' => substr($haScan, 0, 50), // varchar(50) - PENTING!
+                'is_confirmed' => 1,
+                'pending_confirmation' => 0,
+                'confirmation_expires_at' => null
+            ];
+
+            Log::info('Updating scan log with data: ' . json_encode($updateData));
+
+            // Update with confirmation
+            $result = $scanLog->update($updateData);
+
+            if ($result) {
+                Log::info('Scan log confirmed successfully: ' . $scanLogId);
+                return $scanLog->fresh();
+            }
+
+            return false;
         } catch (\Exception $e) {
-            Log::error('Error checking active scan: ' . $e->getMessage());
+            Log::error('Error confirming scan log: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return false;
+        }
+    }
+
+    /**
+     * Clean up expired pending scans
+     */
+    public static function cleanupExpiredScans()
+    {
+        try {
+            $expiredScans = self::where('pending_confirmation', 1)
+                ->where('is_confirmed', 0)
+                ->where('confirmation_expires_at', '<=', date('Y-m-d H:i:s'))
+                ->get();
+
+            $deletedCount = 0;
+            foreach ($expiredScans as $scan) {
+                $scan->update([
+                    'isDeleted' => 1,
+                    'deleted_at' => date('Y-m-d H:i:s')
+                ]);
+                $deletedCount++;
+            }
+
+            if ($deletedCount > 0) {
+                Log::info('Cleaned up ' . $deletedCount . ' expired pending scans');
+            }
+
+            return $deletedCount;
+        } catch (\Exception $e) {
+            Log::error('Error cleaning up expired scans: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Check if there's an active confirmed scan
+     */
+    public static function hasActiveConfirmedScan()
+    {
+        try {
+            return self::where('isDeleted', 0)
+                ->where('is_confirmed', 1)
+                ->exists();
+        } catch (\Exception $e) {
+            Log::error('Error checking active confirmed scan: ' . $e->getMessage());
             return false;
         }
     }

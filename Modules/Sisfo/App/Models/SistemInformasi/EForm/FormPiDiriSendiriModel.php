@@ -5,6 +5,7 @@ namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -43,7 +44,7 @@ class FormPiDiriSendiriModel extends Model
         $userLevel = Auth::user()->level->hak_akses_kode;
         
         // Tambahkan log untuk debugging
-        \Log::info("User level yang aktif: " . $userLevel);
+        Log::info("User level yang aktif: " . $userLevel);
         
         if ($userLevel === 'RPN') {
             // Pastikan data user ada sebelum menggunakan
