@@ -24,11 +24,13 @@ class SetUserHakAksesModel extends Model
     }
 
     public function HakAkses() {
-        return $this->belongsTo(HakAksesModel::class, 'fk_m_hak_akses', 'hak_akses_id');
+        return $this->belongsTo(HakAksesModel::class, 'fk_m_hak_akses', 'hak_akses_id')
+        ->where('isDeleted', 0);
     }
 
     public function User() {
-        return $this->belongsTo(UserModel::class, 'fk_m_user', 'user_id');
+        return $this->belongsTo(UserModel::class, 'fk_m_user', 'user_id')
+        ->where('isDeleted', 0);
     }
 
     public static function getUsersByHakAkses($hakAksesId)
