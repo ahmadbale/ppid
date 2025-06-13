@@ -54,7 +54,8 @@ class RegulasiDinamisModel extends Model
                                 'regulasi_id',
                                 'reg_judul',
                                 'reg_tipe_dokumen',
-                                'reg_dokumen'
+                                'reg_dokumen',
+                                'updated_at'
                             ])
                             ->where('fk_t_kategori_regulasi', $kategori->kategori_reg_id)
                             ->where('isDeleted', 0)
@@ -68,7 +69,8 @@ class RegulasiDinamisModel extends Model
                                     'id' => $regulasi->regulasi_id,
                                     'judul' => $regulasi->reg_judul,
                                     'tipe_dokumen' => $regulasi->reg_tipe_dokumen,
-                                    'dokumen' => $dokumen_url
+                                    'dokumen' => $dokumen_url,
+                                    'updated_at' => $regulasi->updated_at
                                 ];
                             });
 
