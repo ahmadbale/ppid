@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
 use Modules\Sisfo\App\Models\Log\QRCodeWAModel;
 use Modules\Sisfo\App\Models\UserModel;
@@ -1032,67 +1033,128 @@ class WhatsAppController extends Controller
         $haScan = 'Unknown';
 
         try {
-            // Method 1: Cek melalui relasi userHakAkses
-            if ($user->userHakAkses && $user->userHakAkses->count() > 0) {
-                $hakAksesUser = $user->userHakAkses->first();
-                if ($hakAksesUser && $hakAksesUser->hakAkses) {
-                    $hakAksesObj = $hakAksesUser->hakAkses;
+            Log::debug('Getting hak akses for user: ' . $user->nama_pengguna ?? 'unknown');
 
-                    // PERBAIKAN: Hanya ambil nama string, bukan object
-                    if (isset($hakAksesObj->nama_hak_akses)) {
-                        $haScan = $hakAksesObj->nama_hak_akses;
-                    } elseif (isset($hakAksesObj->hak_akses_nama)) {
+            // Method 1: Cek melalui relasi userHakAkses -> HakAkses (PERHATIKAN CAPITAL)
+            if ($user->userHakAkses && $user->userHakAkses->count() > 0) {
+                Log::debug('Found userHakAkses relations: ' . $user->userHakAkses->count());
+
+                $hakAksesUser = $user->userHakAkses->first();
+                if ($hakAksesUser && $hakAksesUser->HakAkses) { // UBAH hakAkses menjadi HakAkses
+                    $hakAksesObj = $hakAksesUser->HakAkses; // UBAH hakAkses menjadi HakAkses
+
+                    Log::debug('HakAkses object found', [
+                        'hak_akses_id' => $hakAksesObj->hak_akses_id ?? 'not found',
+                        'hak_akses_kode' => $hakAksesObj->hak_akses_kode ?? 'not found',
+                        'hak_akses_nama' => $hakAksesObj->hak_akses_nama ?? 'not found'
+                    ]);
+
+                    // PERBAIKAN: Ambil dari hak_akses_nama (kolom yang benar)
+                    if (isset($hakAksesObj->hak_akses_nama) && !empty($hakAksesObj->hak_akses_nama)) {
                         $haScan = $hakAksesObj->hak_akses_nama;
-                    } elseif (isset($hakAksesObj->hak_akses_kode)) {
+                        Log::debug('Found hak_akses_nama: ' . $haScan);
+                    }
+                    // Fallback ke hak_akses_kode jika nama tidak ada
+                    elseif (isset($hakAksesObj->hak_akses_kode) && !empty($hakAksesObj->hak_akses_kode)) {
                         $haScan = $hakAksesObj->hak_akses_kode;
-                    } elseif (method_exists($hakAksesObj, 'toArray')) {
+                        Log::debug('Using hak_akses_kode as fallback: ' . $haScan);
+                    }
+                    // Coba dari array jika object method gagal
+                    elseif (method_exists($hakAksesObj, 'toArray')) {
                         $array = $hakAksesObj->toArray();
-                        if (isset($array['nama_hak_akses'])) {
-                            $haScan = $array['nama_hak_akses'];
-                        } elseif (isset($array['hak_akses_nama'])) {
+                        Log::debug('Trying toArray method', $array);
+
+                        if (isset($array['hak_akses_nama']) && !empty($array['hak_akses_nama'])) {
                             $haScan = $array['hak_akses_nama'];
-                        } elseif (isset($array['hak_akses_kode'])) {
+                            Log::debug('Found hak_akses_nama from array: ' . $haScan);
+                        } elseif (isset($array['hak_akses_kode']) && !empty($array['hak_akses_kode'])) {
                             $haScan = $array['hak_akses_kode'];
+                            Log::debug('Found hak_akses_kode from array: ' . $haScan);
                         }
                     }
-
-                    // FALLBACK: Jika masih object, convert ke string
-                    if (is_object($haScan) || is_array($haScan)) {
-                        $haScan = 'Administrator'; // Default untuk admin
-                    }
-                }
-            }
-
-            // Method 2: Fallback - ambil dari field langsung jika ada
-            if ($haScan === 'Unknown' && isset($user->hak_akses)) {
-                $haScan = $user->hak_akses;
-            }
-
-            // Method 3: Fallback - cek role atau level user
-            if ($haScan === 'Unknown') {
-                if (isset($user->role)) {
-                    $haScan = $user->role;
-                } elseif (isset($user->level)) {
-                    $haScan = $user->level;
-                } elseif (isset($user->user_type)) {
-                    $haScan = $user->user_type;
                 } else {
-                    $haScan = 'User'; // Default fallback
+                    Log::warning('HakAkses object not found in userHakAkses relation');
+                }
+            } else {
+                Log::warning('No userHakAkses relations found for user');
+            }
+
+            // Method 2: Jika masih Unknown, coba query langsung ke database
+            if ($haScan === 'Unknown' && isset($user->id)) {
+                Log::debug('Trying direct database query for user ID: ' . $user->id);
+
+                try {
+                    $directHakAkses = DB::table('set_user_hak_akses as suha')
+                        ->join('m_hak_akses as mha', 'suha.fk_m_hak_akses', '=', 'mha.hak_akses_id')
+                        ->where('suha.fk_m_user', $user->id)
+                        ->where('suha.isDeleted', 0)
+                        ->where('mha.isDeleted', 0)
+                        ->select('mha.hak_akses_nama', 'mha.hak_akses_kode', 'mha.hak_akses_id')
+                        ->first();
+
+                    if ($directHakAkses) {
+                        Log::debug('Direct query result found', [
+                            'hak_akses_id' => $directHakAkses->hak_akses_id,
+                            'hak_akses_nama' => $directHakAkses->hak_akses_nama,
+                            'hak_akses_kode' => $directHakAkses->hak_akses_kode
+                        ]);
+
+                        if (!empty($directHakAkses->hak_akses_nama)) {
+                            $haScan = $directHakAkses->hak_akses_nama;
+                            Log::debug('Using hak_akses_nama from direct query: ' . $haScan);
+                        } elseif (!empty($directHakAkses->hak_akses_kode)) {
+                            $haScan = $directHakAkses->hak_akses_kode;
+                            Log::debug('Using hak_akses_kode from direct query: ' . $haScan);
+                        }
+                    } else {
+                        Log::warning('No results from direct database query');
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error in direct database query: ' . $e->getMessage());
                 }
             }
 
-            // PENTING: Pastikan hanya string dan maksimal 50 karakter
+            // Method 3: Jika masih Unknown, coba dari properti user langsung (fallback)
+            if ($haScan === 'Unknown') {
+                Log::debug('Trying fallback methods');
+
+                if (isset($user->hak_akses) && !empty($user->hak_akses)) {
+                    $haScan = $user->hak_akses;
+                    Log::debug('Using user.hak_akses property: ' . $haScan);
+                } elseif (isset($user->role) && !empty($user->role)) {
+                    $haScan = $user->role;
+                    Log::debug('Using user.role property: ' . $haScan);
+                } elseif (isset($user->level) && !empty($user->level)) {
+                    $haScan = $user->level;
+                    Log::debug('Using user.level property: ' . $haScan);
+                } else {
+                    // Set default sebagai "User" jika benar-benar tidak ada data
+                    $haScan = 'User';
+                    Log::warning('No hak akses found, using default: User');
+                }
+            }
+
+            // VALIDASI: Pastikan hanya string dan maksimal 50 karakter
             if (is_string($haScan)) {
+                $haScan = trim($haScan);
                 $haScan = substr($haScan, 0, 50); // Trim ke 50 karakter sesuai database
             } else {
+                Log::warning('Hak akses bukan string, converting to User');
                 $haScan = 'User'; // Fallback jika bukan string
             }
         } catch (\Exception $e) {
-            Log::warning('Error getting user hak akses: ' . $e->getMessage());
+            Log::error('Error getting user hak akses: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             $haScan = 'User';
         }
 
-        Log::debug('Final hak akses result: ' . $haScan . ' (length: ' . strlen($haScan) . ')');
+        Log::info('Final hak akses result', [
+            'user_id' => $user->id ?? 'unknown',
+            'user_name' => $user->nama_pengguna ?? 'unknown',
+            'hak_akses' => $haScan,
+            'length' => strlen($haScan)
+        ]);
+
         return $haScan;
     }
 

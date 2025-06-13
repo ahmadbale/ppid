@@ -38,6 +38,12 @@ class UserModel extends Authenticatable implements JWTSubject
         return $this->hasMany(SetUserHakAksesModel::class, 'fk_m_user', 'user_id');
     }
 
+    public function userHakAkses()
+    {
+        return $this->hasMany(SetUserHakAksesModel::class, 'fk_m_user', 'user_id')
+            ->where('isDeleted', 0);
+    }
+
     // Mendapatkan semua hak akses user
     public function hakAkses()
     {
