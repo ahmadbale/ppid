@@ -1776,7 +1776,7 @@ button:disabled {
     100% { transform: translateY(0px); }
 }
 
-.lihat-link {
+    .lihat-link {
         text-decoration: underline;
         color: #111;
         font-weight: normal;
@@ -1786,4 +1786,49 @@ button:disabled {
         color: #3997f5;
     }
 
-
+/* responsive stack tabel website */
+    .table-stack tbody td {
+        text-align: center;
+    }
+    .table-stack tbody td[data-label="Nama Informasi"] {
+        text-align: left;
+    }
+    @media (max-width: 767px) {
+        .table-stack thead {
+            display: none;
+        }
+        .table-stack, .table-stack tbody, .table-stack tr, .table-stack td {
+            display: block;
+            width: 100%;
+        }
+        .table-stack tr {
+            margin-bottom: 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
+            background: #fff;
+            padding: 1rem 1rem 0.5rem 1rem;
+        }
+        .table-stack td {
+            border: none;
+            padding: 0.35em 0;
+            position: relative;
+            text-align: left !important;
+        }
+        .table-stack td:before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: #222;
+            display: block;
+            margin-bottom: 0.2em;
+            font-size: 1em;
+        }
+    }
+    .table-stack thead th {
+        text-align: center;
+    }
+    @media (max-width: 767px) {
+        .table-stack thead th {
+            text-align: left !important;
+        }
+    }

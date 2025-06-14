@@ -138,13 +138,13 @@ Route::get('/register', function () {
 
 
     Route::get('/daftar-informasi-publik', [InformasiPublikController::class, 'index'])->name('daftar-informasi-publik');
-    Route::get('/dikecualikan', [InformasiDikecualikanController::class, 'index'])->name('informasi-publik.dikecualikan');
+    Route::get('/informasi-dikecualikan', [InformasiDikecualikanController::class, 'index'])->name('informasi-publik.dikecualikan');
     Route::get('/regulasi', [RegulasiController::class, 'DHSOP'])->name('regulasi-DHSOP');
     Route::get('/regulasi/dasar-hukum-keterbukaan-informasi-publik', [RegulasiController::class, 'DHKIP'])->name('regulasi-DHKIP');
     Route::get('/regulasi/dasar-hukum-layanan-informasi-publik', [RegulasiController::class, 'DHLIP'])->name('regulasi-DHLIP');
-    // Route::get('/setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
-    // Route::get('/berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
-    // Route::get('/serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
+    Route::get('/informasi-setiap-saat', [InformasiPublikController::class, 'setiapSaat'])->name('informasi-publik.setiap-saat');
+    Route::get('/informasi-berkala', [InformasiPublikController::class, 'berkala'])->name('informasi-publik.berkala');
+    Route::get('/informasi-serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
 
