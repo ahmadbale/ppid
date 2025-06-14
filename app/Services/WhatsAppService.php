@@ -271,6 +271,40 @@ class WhatsAppService
         return $template;
     }
 
+    public function generatePesanVerifikasiKeberatan($nama, $status, $kategori, $alasanPengajuanKeberatan, $kasusPosisi, $alasanPenolakan = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+        
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PERNYATAAN KEBERATAN DISETUJUI*\n\n";
+            $template .= "Pernyataan keberatan Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
+            $template .= "📋 *Detail Pernyataan Keberatan:*\n";
+            $template .= "• Kategori: {$kategori}\n";
+            $template .= "• Alasan Keberatan: {$alasanPengajuanKeberatan}\n";
+            $template .= "• Kasus Posisi: {$kasusPosisi}\n\n";
+            $template .= "📝 Pengajuan keberatan Anda sedang dalam proses review untuk mempertimbangkan tindak lanjut.\n\n";
+        } else {
+            $template .= "❌ *PERNYATAAN KEBERATAN DITOLAK*\n\n";
+            $template .= "Mohon maaf, pernyataan keberatan Anda *DITOLAK*.\n\n";
+            $template .= "📋 *Detail Pernyataan Keberatan:*\n";
+            $template .= "• Kategori: {$kategori}\n";
+            $template .= "• Alasan Keberatan: {$alasanPengajuanKeberatan}\n";
+            $template .= "• Kasus Posisi: {$kasusPosisi}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+        
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
     /**
      * Test kirim pesan untuk debugging - DENGAN TOKEN
      */
