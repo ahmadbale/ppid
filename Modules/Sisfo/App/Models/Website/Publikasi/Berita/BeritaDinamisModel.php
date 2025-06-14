@@ -86,7 +86,7 @@ class BeritaDinamisModel extends Model
 
         $transformedData = collect($arr_data->items())->map(function ($berita) {
             $deskripsiThumbnail = trim($berita->berita_thumbnail_deskripsi);
-            $thumbnail = asset('storage/' . $berita->berita_thumbnail);
+            $thumbnail = image_asset( $berita->berita_thumbnail);
             $tanggal = \Carbon\Carbon::parse($berita->created_at)->format('d F Y');
 
             return [
@@ -142,7 +142,7 @@ class BeritaDinamisModel extends Model
             'kategori' => $berita->bd_nama_submenu,
             'judul' => $berita->berita_judul,
             'slug' => $berita->berita_slug,
-            'thumbnail' => asset('storage/' . $berita->berita_thumbnail),
+            'thumbnail' => image_asset( $berita->berita_thumbnail),
             'deskripsiThumbnail' => $berita->berita_thumbnail_deskripsi,
             'tanggal' => \Carbon\Carbon::parse($berita->created_at)->format('d F Y'),
             'konten' => $berita->berita_deskripsi // Konten lengkap dari Summernote

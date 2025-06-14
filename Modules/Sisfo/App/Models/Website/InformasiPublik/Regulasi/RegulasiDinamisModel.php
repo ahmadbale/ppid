@@ -62,7 +62,7 @@ class RegulasiDinamisModel extends Model
                             ->get()
                             ->map(function ($regulasi) {
                                 $dokumen_url = $regulasi->reg_tipe_dokumen === 'file'
-                                    ? asset('storage/' . $regulasi->reg_dokumen)
+                                    ? image_asset( $regulasi->reg_dokumen)
                                     : $regulasi->reg_dokumen;
 
                                 return [

@@ -60,8 +60,6 @@
                 <label class="custom-file-label" for="reg_dokumen_file">Pilih file</label>
                 <div class="invalid-feedback" id="reg_dokumen_file_error"></div>
             </div>
-
-            <small class="form-text text-muted">Format yang diizinkan: PDF, DOC, DOCX. Ukuran maksimal: 5MB</small>
         </div>
 
         <div class="form-group" id="linkUrlDiv" style="display: none;">
