@@ -75,7 +75,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="illustration-placeholder">
-                        <img src="{{ asset('img/ilustrasi-sarpras.svg') }}" alt="Ilustrasi Sarana Prasarana" class="img-fluid">
+                        <img src="{{ asset('img/ilustrasi.svg') }}" alt="Ilustrasi Sarana Prasarana" class="img-fluid">
                     </div>
                 </div>
             </div>

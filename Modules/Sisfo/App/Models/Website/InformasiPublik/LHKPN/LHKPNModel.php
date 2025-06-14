@@ -81,7 +81,7 @@ class LhkpnModel extends Model
                     return [
                         'id' => $row->detail_lhkpn_id,
                         'nama_karyawan' => $row->dl_nama_karyawan,
-                        'file' => $row->dl_file_lhkpn ? asset('storage/' . $row->dl_file_lhkpn) : null,
+                        'file' => $row->dl_file_lhkpn ? image_asset( $row->dl_file_lhkpn) : null,
                         'updated_at' => $row->updated_at
                             ? \Carbon\Carbon::parse($row->updated_at)->format('d F Y, H:i')
                             : null,

@@ -49,7 +49,7 @@ class KategoriFooterModel extends Model
                         'id' => $item->footer_id,
                         'judul' => $item->f_judul_footer,
                         'icon' => $item->f_icon_footer
-                            ? asset('storage/' . $item->f_icon_footer)
+                            ? image_asset( $item->f_icon_footer)
                             : null,
                         'url' => $item->f_url_footer
                     ];

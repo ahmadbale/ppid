@@ -48,7 +48,7 @@ class MediaDinamisModel extends Model
                     // Tampung nilai media sesuai tipe
                     $mediaValue = null;
                     if ($media->dm_type_media == 'file') {
-                        $mediaValue = asset('storage/' . $media->dm_media_upload);
+                        $mediaValue = image_asset( $media->dm_media_upload);
                     } elseif ($media->dm_type_media == 'link') {
                         $mediaValue = $media->dm_media_upload; 
                     }
@@ -99,7 +99,7 @@ class MediaDinamisModel extends Model
                         // Tampung nilai media sesuai tipe
                         $mediaValue = null;
                         if ($media->dm_type_media == 'file') {
-                            $mediaValue = asset('storage/' . $media->dm_media_upload);
+                            $mediaValue = image_asset( $media->dm_media_upload);
                         } elseif ($media->dm_type_media == 'link') {
                             $mediaValue = $media->dm_media_upload; // Kembalikan link asli
                         }
@@ -155,7 +155,7 @@ class MediaDinamisModel extends Model
                         // Tampung nilai media sesuai tipe
                         $mediaValue = null;
                         if ($media->dm_type_media == 'file') {
-                            $mediaValue = asset('storage/' . $media->dm_media_upload);
+                            $mediaValue = image_asset( $media->dm_media_upload);
                         } elseif ($media->dm_type_media == 'link') {
                             $mediaValue = $media->dm_media_upload; // Kembalikan link asli
                         }

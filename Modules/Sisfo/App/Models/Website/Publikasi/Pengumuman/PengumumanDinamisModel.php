@@ -55,12 +55,12 @@ class PengumumanDinamisModel extends Model
                 // Proses thumbnail
                 $thumbnail = null;
                 if ($pengumuman->up_thumbnail) {
-                    $thumbnail = asset('storage/' . $pengumuman->up_thumbnail);
+                    $thumbnail = image_asset( $pengumuman->up_thumbnail);
                 }
                 // Proses value 
                 $value = $pengumuman->up_value;
                 if ($pengumuman->up_type === 'file') {
-                    $value = asset('storage/' . $pengumuman->up_value);
+                    $value = image_asset( $pengumuman->up_value);
                 }
                 
                 // Format tanggal 

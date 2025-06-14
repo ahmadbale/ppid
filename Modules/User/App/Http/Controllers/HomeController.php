@@ -38,9 +38,12 @@ class HomeController extends Controller
             if ($response->status() === 401) {
                 // Generate new token and retry
                 $tokenData = $this->jwtTokenService->generateSystemToken();
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $tokenData['token']
-                ])->get($this->baseUrl . '/api/' . $endpoint);
+                // $response = Http::withHeaders([
+                //     'Authorization' => 'Bearer ' . $tokenData['token']
+                // ])->get($this->baseUrl . '/api/' . $endpoint);
+                 $response = Http::withOptions(['verify' => false])->withHeaders([
+                'Authorization' => 'Bearer ' . $tokenData['token']
+            ])->get($this->baseUrl . '/api/' . $endpoint);
             }
 
             return $response;

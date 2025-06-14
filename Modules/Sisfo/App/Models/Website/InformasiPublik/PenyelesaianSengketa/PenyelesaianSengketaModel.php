@@ -68,7 +68,7 @@ class PenyelesaianSengketaModel extends Model
                         ];
                         
                         if ($upload->kategori_upload_ps == 'file') {
-                            $result['dokumen'] = asset('storage/' . $upload->upload_ps);
+                            $result['dokumen'] = image_asset($upload->upload_ps);
                         } else if ($upload->kategori_upload_ps == 'link') {
                             $result['link'] = $upload->upload_ps;
                         }

@@ -91,7 +91,7 @@
             <!-- Ajukan Pengaduan Section -->
             <div class="ajukan-pengaduan">
                 <h3 class="mb-0">Ajukan Pengaduan</h3>
-                <button class="masuk-button" onclick="window.location.href='{{ route('form-keberatan') }}'">Klik form
+                <button class="masuk-button" onclick="window.location.href='{{ route('form-pernyataan-keberatan') }}'">Klik form
                     ini</button>
             </div>
         </div>

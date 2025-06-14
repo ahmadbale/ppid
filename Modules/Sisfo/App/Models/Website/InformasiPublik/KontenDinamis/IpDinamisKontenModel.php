@@ -51,7 +51,7 @@ class IpDinamisKontenModel extends  Model
                         return [
                             'upload_konten_id' => $upload->ip_upload_konten_id,
                             'judul_konten' => $upload->uk_judul_konten,
-                            'dokumen' => asset('storage/' . $upload->uk_dokumen_konten)
+                            'dokumen' => image_asset( $upload->uk_dokumen_konten)
                         ];
                     });
     
