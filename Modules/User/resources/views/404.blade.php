@@ -13,7 +13,7 @@
     <div class="row">
     <div class="col-md-5 d-flex flex-column align-items-center align-items-md-start text-center text-md-start">
         <div class="error-container">
-        <img src="{{ asset('img/404.png') }}" alt="404 Illustration" class="illustration animate-float">
+        <img src="{{ user_asset('img/404.png') }}" alt="404 Illustration" class="illustration animate-float">
         </div>
     </div>
    
