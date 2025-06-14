@@ -1,3 +1,4 @@
+
 @extends('user::layouts.regulasi-leftsidebar')
 
 @section('title', 'Dasar Hukum SOP')
@@ -10,7 +11,7 @@
             </h3>
             <div class="flex items-center text-gray-500 text-sm mt-2 mb-4">
                 <i class="bi bi-clock-fill text-warning me-2"></i>
-                <span class="ml-1">Diperbarui pada 12 Maret 2025, 16.10 </span>
+                 <span class="ml-1">Diperbarui pada {{ \Carbon\Carbon::parse($updated_at)->format('d F Y, H:i') }} </span>
             </div>
 
             <div class="table-responsive">
@@ -30,7 +31,7 @@
                                 <td>{{ $i + 1 }}.</td>
                                 <td>{{ $sop['judul'] }}</td>
                                 <td style="text-align:center;">
-                                    <a href="{{ $sop['link'] }}" class="lihat-link">Lihat</a>
+                                    <a href="{{ $sop['dokumen'] }}" class="lihat-link" target="_blank">Lihat</a>
                                 </td>
                             </tr>
                         @endforeach
