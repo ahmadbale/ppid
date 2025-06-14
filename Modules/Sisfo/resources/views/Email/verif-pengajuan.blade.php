@@ -381,8 +381,8 @@
                 <h6><i class="fas fa-headset mr-2"></i>Butuh Bantuan?</h6>
                 <p class="mb-3">Hubungi kami jika memerlukan bantuan lebih lanjut:</p>
                 <ul class="contact-list">
-                    <li><strong>Email:</strong> ppid@polinema.ac.id</li>
-                    <li><strong>Telepon:</strong> (0341) 404424</li>
+                    <li><strong>Email:</strong> magangupatik@polinema.ac.id</li>
+                    <li><strong>Telepon:</strong> 0858040492410</li>
                     <li><strong>Website:</strong> ppid.polinema.ac.id</li>
                 </ul>
             </div>

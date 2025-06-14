@@ -381,13 +381,13 @@ class PermohonanInformasiModel extends Model
         switch ($this->pi_kategori_pemohon) {
             case 'Diri Sendiri':
                 return $this->PiDiriSendiri->pi_nama_pengguna ?? 'Tidak Diketahui';
-                
+
             case 'Orang Lain':
                 return $this->PiOrangLain->pi_nama_pengguna_informasi ?? 'Tidak Diketahui';
-                
+
             case 'Organisasi':
                 return $this->PiOrganisasi->pi_nama_organisasi ?? 'Tidak Diketahui';
-                
+
             default:
                 return 'Tidak Diketahui';
         }
@@ -398,7 +398,7 @@ class PermohonanInformasiModel extends Model
         try {
             // Ambil data email berdasarkan kategori pemohon
             $emailData = $this->getEmailData();
-            
+
             if (empty($emailData['emails'])) {
                 Log::info("Tidak ada email yang valid untuk permohonan ID: {$this->permohonan_informasi_id}");
                 return;
@@ -473,7 +473,7 @@ class PermohonanInformasiModel extends Model
         }
 
         // Filter email yang kosong
-        $emails = array_filter($emails, function($email) {
+        $emails = array_filter($emails, function ($email) {
             return !empty($email) && $this->isValidEmail($email);
         });
 
@@ -492,9 +492,13 @@ class PermohonanInformasiModel extends Model
     private function kirimWhatsAppNotifikasi($status, $alasanPenolakan = null)
     {
         try {
+            Log::info("Starting WhatsApp notification for permohonan ID: {$this->permohonan_informasi_id}");
+
             // Ambil data WhatsApp berdasarkan kategori pemohon
             $whatsappData = $this->getWhatsAppData();
-            
+
+            Log::info("WhatsApp data retrieved:", $whatsappData);
+
             if (empty($whatsappData['nomor_hp'])) {
                 Log::info("Tidak ada nomor WhatsApp yang valid untuk permohonan ID: {$this->permohonan_informasi_id}");
                 return;
@@ -512,22 +516,29 @@ class PermohonanInformasiModel extends Model
                 $alasanPenolakan
             );
 
+            Log::info("Generated WhatsApp message:", ['message' => $pesanWhatsApp]);
+
             // Kirim WhatsApp ke setiap nomor yang valid
-            foreach ($whatsappData['nomor_hp'] as $nomorHp) {
+            foreach ($whatsappData['nomor_hp'] as $index => $nomorHp) {
                 if (!empty($nomorHp)) {
+                    Log::info("Attempting to send WhatsApp #{$index} to: {$nomorHp}");
+
                     $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status);
-                    
+
                     if ($berhasil) {
                         Log::info("WhatsApp {$status} berhasil dikirim ke: {$nomorHp}");
                     } else {
                         Log::error("Gagal mengirim WhatsApp ke: {$nomorHp}");
                     }
                 } else {
-                    Log::warning("Nomor WhatsApp kosong untuk kategori: {$this->pi_kategori_pemohon}");
+                    Log::warning("Nomor WhatsApp kosong untuk kategori: {$this->pi_kategori_pemohon} index: {$index}");
                 }
             }
+
+            Log::info("WhatsApp notification process completed");
         } catch (\Exception $e) {
             Log::error("Error saat mengirim WhatsApp notifikasi: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
         }
     }
 
@@ -562,7 +573,7 @@ class PermohonanInformasiModel extends Model
         }
 
         // Filter nomor HP yang kosong
-        $nomorHp = array_filter($nomorHp, function($nomor) {
+        $nomorHp = array_filter($nomorHp, function ($nomor) {
             return !empty($nomor);
         });
 
