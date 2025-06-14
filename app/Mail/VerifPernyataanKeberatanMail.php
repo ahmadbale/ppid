@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class VerifPermohonanInformasiMail extends Mailable
+class VerifPernyataanKeberatanMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -16,20 +16,22 @@ class VerifPermohonanInformasiMail extends Mailable
     public $reason;
     public $kategori;
     public $statusPemohon;
-    public $informasiYangDibutuhkan;
+    public $alasanPengajuanKeberatan;
+    public $kasusPosisi;
     public $pesanVerifikasi;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($nama, $status, $kategori, $statusPemohon, $informasiYangDibutuhkan, $reason = null)
+    public function __construct($nama, $status, $kategori, $statusPemohon, $alasanPengajuanKeberatan, $kasusPosisi, $reason = null)
     {
         $this->nama = $nama;
         $this->status = $status;
         $this->reason = $reason;
         $this->kategori = $kategori;
         $this->statusPemohon = $statusPemohon;
-        $this->informasiYangDibutuhkan = $informasiYangDibutuhkan;
+        $this->alasanPengajuanKeberatan = $alasanPengajuanKeberatan;
+        $this->kasusPosisi = $kasusPosisi;
         
         // Generate pesan berdasarkan status
         $this->pesanVerifikasi = $this->generatePesanVerifikasi();
@@ -41,11 +43,11 @@ class VerifPermohonanInformasiMail extends Mailable
     public function build()
     {
         $subject = $this->status === 'Disetujui' 
-            ? 'Permohonan Informasi Anda Disetujui' 
-            : 'Permohonan Informasi Anda Ditolak';
+            ? 'Pernyataan Keberatan Anda Disetujui' 
+            : 'Pernyataan Keberatan Anda Ditolak';
 
         return $this->subject($subject)
-                    ->view('sisfo::Email.verif-permohonan-informasi');
+                    ->view('sisfo::Email.verif-pernyataan-keberatan');
     }
 
     /**
@@ -54,9 +56,9 @@ class VerifPermohonanInformasiMail extends Mailable
     private function generatePesanVerifikasi()
     {
         if ($this->status === 'Disetujui') {
-            return "Pengajuan {$this->informasiYangDibutuhkan} anda disetujui pada tahap verifikasi dan saat ini sedang dilakukan review untuk mempertimbangkan pengajuan.";
+            return "Pengajuan keberatan {$this->alasanPengajuanKeberatan} anda disetujui pada tahap verifikasi dan saat ini sedang dilakukan review untuk mempertimbangkan pengajuan.";
         } else {
-            return "Mohon maaf pengajuan {$this->informasiYangDibutuhkan} anda ditolak karena {$this->reason}.";
+            return "Mohon maaf pengajuan keberatan {$this->alasanPengajuanKeberatan} anda ditolak karena {$this->reason}.";
         }
     }
 }

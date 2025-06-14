@@ -2,6 +2,7 @@
 
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
+use App\Services\WhatsAppService;
 use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
@@ -9,8 +10,12 @@ use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifPernyataanKeberatanMail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\Log\EmailModel;
 
 class PernyataanKeberatanModel extends Model
 {
@@ -219,11 +224,31 @@ class PernyataanKeberatanModel extends Model
             throw new \Exception('Pengajuan Keberatan sudah diverifikasi sebelumnya');
         }
 
+        // Load relasi yang diperlukan
+        $this->load(['PkDiriSendiri', 'PkOrangLain']);
+
+        // Ambil nama pengguna yang menyetujui
+        $namaPenyetuju = Auth::user()->nama_pengguna;
+
         // Update status menjadi Verifikasi
         $this->pk_status = 'Verifikasi';
         $this->pk_review = session('alias') ?? 'System';
         $this->pk_tanggal_review = now();
         $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasi('Disetujui');
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Disetujui');
+
+        // Buat log transaksi untuk persetujuan
+        $aktivitasSetuju = "{$namaPenyetuju} menyetujui pengajuan keberatan {$this->pk_alasan_pengajuan_keberatan}";
+        TransactionModel::createData(
+            'APPROVED',
+            $this->pernyataan_keberatan_id,
+            $aktivitasSetuju
+        );
 
         return $this;
     }    
@@ -249,12 +274,32 @@ class PernyataanKeberatanModel extends Model
             throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
         }
 
+        // Load relasi yang diperlukan
+        $this->load(['PkDiriSendiri', 'PkOrangLain']);
+
+        // Ambil nama pengguna yang menolak
+        $namaPenolak = Auth::user()->nama_pengguna;
+
         // Update status menjadi Ditolak
         $this->pk_status = 'Ditolak';
         $this->pk_alasan_penolakan = $alasanPenolakan;
         $this->pk_review = session('alias') ?? 'System';
         $this->pk_tanggal_review = now();
         $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Buat log transaksi untuk penolakan
+        $aktivitasTolak = "{$namaPenolak} menolak pengajuan keberatan {$this->pk_alasan_pengajuan_keberatan} dengan alasan {$alasanPenolakan}";
+        TransactionModel::createData(
+            'REJECTED',
+            $this->pernyataan_keberatan_id,
+            $aktivitasTolak
+        );
 
         return $this;
     }
@@ -287,5 +332,192 @@ class PernyataanKeberatanModel extends Model
         $this->save();
 
         return $this;
+    }
+
+    private function getNamaPengaju()
+    {
+        switch ($this->pk_kategori_pemohon) {
+            case 'Diri Sendiri':
+                return $this->PkDiriSendiri->pk_nama_pengguna ?? 'Tidak Diketahui';
+
+            case 'Orang Lain':
+                return $this->PkOrangLain->pk_nama_kuasa_pemohon ?? 'Tidak Diketahui';
+
+            default:
+                return 'Tidak Diketahui';
+        }
+    }
+
+    private function kirimEmailNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil data email berdasarkan kategori pemohon
+            $emailData = $this->getEmailData();
+
+            if (empty($emailData['emails'])) {
+                Log::info("Tidak ada email yang valid untuk pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+                return;
+            }
+
+            // Kirim email ke setiap alamat yang valid
+            foreach ($emailData['emails'] as $email) {
+                if ($this->isValidEmail($email)) {
+                    try {
+                        // Kirim email
+                        Mail::to($email)->send(new VerifPernyataanKeberatanMail(
+                            $emailData['nama'],
+                            $status,
+                            $this->pk_kategori_pemohon,
+                            $emailData['status_pemohon'],
+                            $this->pk_alasan_pengajuan_keberatan,
+                            $this->pk_kasus_posisi,
+                            $alasanPenolakan
+                        ));
+
+                        // Log email yang berhasil dikirim
+                        EmailModel::createData($status, $email);
+
+                        Log::info("Email {$status} berhasil dikirim ke: {$email}");
+                    } catch (\Exception $e) {
+                        Log::error("Gagal mengirim email ke {$email}: " . $e->getMessage());
+                    }
+                } else {
+                    Log::warning("Email tidak valid: {$email}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim email notifikasi: " . $e->getMessage());
+        }
+    }
+
+    private function getEmailData()
+    {
+        $emails = [];
+        $nama = '';
+        $statusPemohon = '';
+
+        switch ($this->pk_kategori_pemohon) {
+            case 'Diri Sendiri':
+                if ($this->PkDiriSendiri) {
+                    $emails[] = $this->PkDiriSendiri->pk_email_pengguna;
+                    $nama = $this->PkDiriSendiri->pk_nama_pengguna;
+                    $statusPemohon = 'Perorangan (Diri Sendiri)';
+                }
+                break;
+
+            case 'Orang Lain':
+                if ($this->PkOrangLain) {
+                    // Kirim ke 2 email: penginput dan kuasa pemohon
+                    $emails[] = $this->PkOrangLain->pk_email_pengguna_penginput;
+                    $emails[] = $this->PkOrangLain->pk_email_kuasa_pemohon;
+                    $nama = $this->PkOrangLain->pk_nama_kuasa_pemohon;
+                    $statusPemohon = 'Perorangan (Orang Lain)';
+                }
+                break;
+        }
+
+        // Filter email yang kosong
+        $emails = array_filter($emails, function ($email) {
+            return !empty($email) && $this->isValidEmail($email);
+        });
+
+        return [
+            'emails' => $emails,
+            'nama' => $nama ?: 'Tidak Diketahui',
+            'status_pemohon' => $statusPemohon
+        ];
+    }
+
+    private function isValidEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private function kirimWhatsAppNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            Log::info("Starting WhatsApp notification for pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+
+            // Ambil data WhatsApp berdasarkan kategori pemohon
+            $whatsappData = $this->getWhatsAppData();
+
+            Log::info("WhatsApp data retrieved:", $whatsappData);
+
+            if (empty($whatsappData['nomor_hp'])) {
+                Log::info("Tidak ada nomor WhatsApp yang valid untuk pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+                return;
+            }
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            // Generate pesan WhatsApp untuk Pernyataan Keberatan
+            $pesanWhatsApp = $whatsappService->generatePesanVerifikasiKeberatan(
+                $whatsappData['nama'],
+                $status,
+                $this->pk_kategori_pemohon,
+                $this->pk_alasan_pengajuan_keberatan,
+                $this->pk_kasus_posisi,
+                $alasanPenolakan
+            );
+
+            Log::info("Generated WhatsApp message:", ['message' => $pesanWhatsApp]);
+
+            // Kirim WhatsApp ke setiap nomor yang valid
+            foreach ($whatsappData['nomor_hp'] as $index => $nomorHp) {
+                if (!empty($nomorHp)) {
+                    Log::info("Attempting to send WhatsApp #{$index} to: {$nomorHp}");
+
+                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status);
+
+                    if ($berhasil) {
+                        Log::info("WhatsApp {$status} berhasil dikirim ke: {$nomorHp}");
+                    } else {
+                        Log::error("Gagal mengirim WhatsApp ke: {$nomorHp}");
+                    }
+                } else {
+                    Log::warning("Nomor WhatsApp kosong untuk kategori: {$this->pk_kategori_pemohon} index: {$index}");
+                }
+            }
+
+            Log::info("WhatsApp notification process completed");
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+        }
+    }
+
+    private function getWhatsAppData()
+    {
+        $nomorHp = [];
+        $nama = '';
+
+        switch ($this->pk_kategori_pemohon) {
+            case 'Diri Sendiri':
+                if ($this->PkDiriSendiri) {
+                    $nomorHp[] = $this->PkDiriSendiri->pk_no_hp_pengguna;
+                    $nama = $this->PkDiriSendiri->pk_nama_pengguna;
+                }
+                break;
+
+            case 'Orang Lain':
+                if ($this->PkOrangLain) {
+                    // Kirim ke 2 nomor: penginput dan kuasa pemohon
+                    $nomorHp[] = $this->PkOrangLain->pk_no_hp_pengguna_penginput;
+                    $nomorHp[] = $this->PkOrangLain->pk_no_hp_kuasa_pemohon;
+                    $nama = $this->PkOrangLain->pk_nama_kuasa_pemohon;
+                }
+                break;
+        }
+
+        // Filter nomor HP yang kosong
+        $nomorHp = array_filter($nomorHp, function ($nomor) {
+            return !empty($nomor);
+        });
+
+        return [
+            'nomor_hp' => $nomorHp,
+            'nama' => $nama ?: 'Tidak Diketahui'
+        ];
     }
 }
