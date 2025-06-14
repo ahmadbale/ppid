@@ -23,36 +23,54 @@
     </div>
 
     <div class="card-body">
-    <!-- Server Status Card -->
+    <!-- Informasi Server -->
     <div class="row mb-4">
       <div class="col-md-12">
-      <div class="card" id="statusCard">
-        <div class="card-header bg-light">
+      <div class="card border-info">
+        <div class="card-header bg-info text-white">
         <h5 class="card-title mb-0">
-          <i class="fas fa-server mr-2"></i>Status Server WhatsApp
+          <i class="fas fa-info-circle mr-2"></i>Informasi Server WhatsApp
         </h5>
         </div>
         <div class="card-body">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-3">
           <div class="info-box" id="serverStatus">
             <span class="info-box-icon bg-secondary">
             <i class="fas fa-server"></i>
             </span>
             <div class="info-box-content">
-            <span class="info-box-text">Server Status</span>
-            <span class="info-box-number" id="serverStatusText">Checking...</span>
+            <span class="info-box-text">Status Server</span>
+            <span class="info-box-number" id="serverStatusText">Memeriksa...</span>
             </div>
           </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-3">
           <div class="info-box" id="authStatus">
             <span class="info-box-icon bg-secondary">
             <i class="fas fa-mobile-alt"></i>
             </span>
             <div class="info-box-content">
-            <span class="info-box-text">WhatsApp Status</span>
-            <span class="info-box-number" id="authStatusText">Checking...</span>
+            <span class="info-box-text">Status WhatsApp</span>
+            <span class="info-box-number" id="authStatusText">Memeriksa...</span>
+            </div>
+          </div>
+          </div>
+          <div class="col-md-6">
+          <div class="info-links">
+            <h6 class="mb-3"><i class="fas fa-link mr-2"></i>Link Server</h6>
+            <div class="mb-2">
+            <strong>Server URL:</strong>
+            <a href="http://localhost:3000" target="_blank" class="btn btn-sm btn-outline-primary ml-2">
+              <i class="fas fa-external-link-alt mr-1"></i>http://localhost:3000
+            </a>
+            </div>
+            <div class="mb-2">
+            <strong>API Status:</strong>
+            <a href="http://localhost:3000/api/status" target="_blank"
+              class="btn btn-sm btn-outline-primary ml-2">
+              <i class="fas fa-external-link-alt mr-1"></i>http://localhost:3000/api/status
+            </a>
             </div>
           </div>
           </div>
@@ -62,31 +80,34 @@
       </div>
     </div>
 
-    <!-- Control Panel -->
+    <!-- Control Panel Server -->
     <div class="row mb-4">
       <div class="col-md-12">
-      <div class="card">
-        <div class="card-header bg-light">
+      <div class="card border-primary">
+        <div class="card-header bg-primary text-white">
         <h5 class="card-title mb-0">
-          <i class="fas fa-cogs mr-2"></i>Control Panel
+          <i class="fas fa-cogs mr-2"></i>Kontrol Server
         </h5>
         </div>
         <div class="card-body">
         <div class="row">
           <div class="col-md-4">
-          <button class="btn btn-success btn-block" id="startServer">
-            <i class="fas fa-play mr-2"></i>Start Server
+          <button class="btn btn-success btn-block btn-lg" id="startServer">
+            <i class="fas fa-play mr-2"></i>Mulai Server
           </button>
+          <small class="text-muted">Jalankan server WhatsApp</small>
           </div>
           <div class="col-md-4">
-          <button class="btn btn-danger btn-block" id="stopServer">
-            <i class="fas fa-stop mr-2"></i>Stop Server
+          <button class="btn btn-danger btn-block btn-lg" id="stopServer">
+            <i class="fas fa-stop mr-2"></i>Hentikan Server
           </button>
+          <small class="text-muted">Matikan server WhatsApp</small>
           </div>
           <div class="col-md-4">
-          <button class="btn btn-warning btn-block" id="resetSession">
-            <i class="fas fa-refresh mr-2"></i>Reset Session
+          <button class="btn btn-warning btn-block btn-lg" id="resetSession">
+            <i class="fas fa-refresh mr-2"></i>Reset Sesi
           </button>
+          <small class="text-muted">Reset koneksi WhatsApp</small>
           </div>
         </div>
         </div>
@@ -94,121 +115,109 @@
       </div>
     </div>
 
-    <!-- QRCode Status Section -->
+    <!-- Status QRCode WhatsApp - Layout Baru -->
     <div class="row mb-4">
       <div class="col-md-12">
-      <div class="card" id="qrcodeStatusCard">
-        <div class="card-header bg-primary text-white">
-        <h5 class="card-title mb-0">
-          <i class="fas fa-qrcode mr-2"></i>Status QRCode WhatsApp
-        </h5>
-        </div>
-        <div class="card-body" id="qrcodeStatusContent">
-        <!-- Content will be loaded dynamically -->
-        </div>
-      </div>
-      </div>
-    </div>
-
-    <!-- QR Code Section (Hidden by default) -->
-    <div class="row mb-4" id="qrSection" style="display: none;">
-      <div class="col-md-6">
-      <div class="card">
+      <div class="card border-success" id="qrcodeStatusCard">
         <div class="card-header bg-success text-white">
         <h5 class="card-title mb-0">
-          <i class="fas fa-qrcode mr-2"></i>QR Code WhatsApp
-        </h5>
-        </div>
-        <div class="card-body text-center">
-        <div id="qrContainer">
-          <iframe id="qrFrame" src="" width="100%" height="300" style="border: none; border-radius: 8px;"></iframe>
-        </div>
-        <div class="mt-3">
-          <div class="alert alert-info">
-          <i class="fas fa-info-circle mr-2"></i>
-          <strong>Langkah-langkah:</strong>
-          <ol class="mb-0 mt-2">
-            <li>Buka WhatsApp di HP Anda</li>
-            <li>Tap menu (3 titik) → WhatsApp Web</li>
-            <li>Scan QR code di atas</li>
-            <li>Tunggu hingga terhubung</li>
-          </ol>
-          </div>
-          <div class="mt-3">
-          <label class="form-label">Nomor WhatsApp Anda:</label>
-          <input type="text" id="nomorWhatsApp" class="form-control" placeholder="Contoh: 085802517862"
-            maxlength="20">
-          <button class="btn btn-primary mt-2" id="saveQRCodeScan">
-            <i class="fas fa-save mr-1"></i>Simpan Log Scan
-          </button>
-          </div>
-        </div>
-        </div>
-      </div>
-      </div>
-      <div class="col-md-6">
-      <div class="card">
-        <div class="card-header bg-info text-white">
-        <h5 class="card-title mb-0">
-          <i class="fas fa-info-circle mr-2"></i>Informasi Server
+          <i class="fas fa-qrcode mr-2"></i>Status QR Code WhatsApp
         </h5>
         </div>
         <div class="card-body">
-        <table class="table table-borderless">
-          <tr>
-          <th width="40%">Server URL:</th>
-          <td>
-            <a href="http://localhost:3000" target="_blank" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-external-link-alt mr-1"></i>http://localhost:3000
-            </a>
-          </td>
-          </tr>
-          <tr>
-          <th>QR Code URL:</th>
-          <td>
-            <a href="http://localhost:3000/qr" target="_blank" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-external-link-alt mr-1"></i>http://localhost:3000/qr
-            </a>
-          </td>
-          </tr>
-          <tr>
-          <th>API Status:</th>
-          <td>
-            <a href="http://localhost:3000/api/status" target="_blank" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-external-link-alt mr-1"></i>http://localhost:3000/api/status
-            </a>
-          </td>
-          </tr>
-        </table>
+        <div class="row">
+          <!-- Container QR Scan - Sisi Kiri (Lebih Besar) -->
+          <div class="col-md-7">
+          <div class="qr-scan-container">
+            <div id="qrcodeStatusContent" class="qr-display-area">
+            <!-- Content akan dimuat secara dinamis -->
+            <div class="text-center">
+              <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Memuat...</span>
+              </div>
+              <p class="mt-2">Memuat status QR Code...</p>
+            </div>
+            </div>
+          </div>
+          </div>
 
-        <div class="alert alert-warning mt-3">
-          <i class="fas fa-exclamation-triangle mr-2"></i>
-          <strong>Perhatian:</strong> Pastikan port 3000 tidak digunakan oleh aplikasi lain
+          <!-- Data Log Scan - Sisi Kanan -->
+          <div class="col-md-5">
+          <div class="scan-info-container">
+            <h6 class="mb-3 text-primary">
+            <i class="fas fa-clipboard-list mr-2"></i>Informasi Terakhir Scan
+            </h6>
+            <div class="scan-info-card">
+            <table class="table table-sm table-borderless scan-info-table" id="scanInfoTable">
+              <tbody>
+              <tr>
+                <td class="info-label"><strong>Nomor WA Pengirim:</strong></td>
+                <td class="info-value" id="info-nomor">-</td>
+              </tr>
+              <tr>
+                <td class="info-label"><strong>User yang Scan:</strong></td>
+                <td class="info-value" id="info-user">-</td>
+              </tr>
+              <tr>
+                <td class="info-label"><strong>Hak Akses User:</strong></td>
+                <td class="info-value" id="info-hakakses">-</td>
+              </tr>
+              <tr>
+                <td class="info-label"><strong>Tanggal Scan:</strong></td>
+                <td class="info-value" id="info-tanggal">-</td>
+              </tr>
+              </tbody>
+            </table>
+            </div>
+
+            <!-- Status Indikator -->
+            <div class="status-indicator mt-3">
+            <div class="info-message alert-info" id="statusAlert">
+
+              <span id="statusMessage">Memuat status...</span>
+            </div>
+            </div>
+
+            <!-- Auto Save Info -->
+            <div class="auto-save-info">
+            <div class="info-message alert-light border-info">
+              <small>
+              <i class="fas fa-magic mr-2 text-info"></i>
+              <strong>Auto Save:</strong> Log scan akan otomatis tersimpan setelah QR Code berhasil discan.
+              </small>
+            </div>
+            </div>
+          </div>
+          </div>
         </div>
         </div>
       </div>
       </div>
     </div>
 
-    <!-- Activity Log -->
+    <!-- Log Aktivitas -->
     <div class="row">
       <div class="col-md-12">
-      <div class="card">
-        <div class="card-header bg-light">
-        <h5 class="card-title mb-0">
-          <i class="fas fa-terminal mr-2"></i>Activity Log
-        </h5>
-        <div class="card-tools">
-          <button id="clearLog" class="btn btn-sm btn-secondary">
-          <i class="fas fa-trash mr-1"></i>Clear Log
+      <div class="card border-secondary">
+        <div class="card-header bg-secondary text-white">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-terminal mr-2"></i>Log Aktivitas
+          </h5>
+          </div>
+          <div class="col-md-4 text-right">
+          <button id="clearLog" class="btn btn-sm btn-light">
+            <i class="fas fa-trash mr-1"></i>Bersihkan Log
           </button>
+          </div>
         </div>
         </div>
         <div class="card-body">
-        <div id="logContainer"
-          style="height: 300px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace;">
+        <div id="logContainer" class="log-container">
           <div class="log-entry text-muted">
           <span class="timestamp">[{{ date('H:i:s') }}]</span>
+          <i class="fas fa-info-circle mr-1"></i>
           Sistem siap. Klik tombol untuk memulai operasi...
           </div>
         </div>
@@ -222,23 +231,160 @@
 
 @push('css')
   <style>
+    /* Info Box Styling */
     .info-box {
     transition: all 0.3s ease;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .info-box:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* QR Scan Container - Sisi Kiri */
+    .qr-scan-container {
+    min-height: 450px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    padding: 20px;
+    }
+
+    .qr-display-area {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    }
+
+    /* QR Code Status Content */
+    .qrcode-status-content {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    }
+
+    .qrcode-qr-placeholder {
+    width: 280px;
+    height: 280px;
+    border: 2px dashed #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    font-size: 16px;
+    color: #6c757d;
+    }
+
+    .qrcode-display-container {
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    }
+
+    .qr-frame-container {
+    max-width: 750px;
+    margin: 0 auto;
+    }
+
+    #qrStatusFrame {
+    min-height: 320px;
+    width: 100%;
+    border: 2px solid #28a745;
+    border-radius: 8px;
+    }
+
+    /* Scan Info Container - Sisi Kanan */
+    .scan-info-container {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 450px;
+    }
+
+    .scan-info-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    }
+
+    .scan-info-table {
+    margin-bottom: 0;
+    }
+
+    .scan-info-table .info-label {
+    width: 45%;
+    color: #495057;
+    font-size: 14px;
+    padding: 8px 5px;
+    border-bottom: 1px solid #f1f1f1;
+    }
+
+    .scan-info-table .info-value {
+    color: #212529;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 5px;
+    border-bottom: 1px solid #f1f1f1;
+    }
+
+    /* Status Indicator */
+    .status-indicator .alert {
+    margin-bottom: 0;
+    font-size: 14px;
+    padding: 10px 15px;
+    }
+
+    .auto-save-info .alert {
+    margin-bottom: 0;
+    padding: 10px 15px;
+    }
+
+    /* Info Links Styling */
+    .info-links {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    }
+
+    .info-links .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    }
+
+    /* Log Container */
+    .log-container {
+    height: 300px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.4;
     }
 
     .log-entry {
-    margin-bottom: 5px;
-    padding: 2px 0;
-    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .timestamp {
-    color: #6c757d;
+    color: #ffc107;
     font-weight: bold;
     }
 
@@ -258,72 +404,172 @@
     color: #17a2b8;
     }
 
+    /* Card Enhancements */
     .card {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: none;
+    margin-bottom: 1rem;
     }
 
+    .card.border-info {
+    border: 1px solid #17a2b8 !important;
+    }
+
+    .card.border-primary {
+    border: 1px solid #007bff !important;
+    }
+
+    .card.border-success {
+    border: 1px solid #28a745 !important;
+    }
+
+    .card.border-secondary {
+    border: 1px solid #6c757d !important;
+    }
+
+    /* Button Enhancements */
     .btn {
     transition: all 0.3s ease;
+    border-radius: 6px;
     }
 
     .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
-    #qrFrame {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    .btn-lg {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
     }
 
-    .qrcode-status-content {
-    text-align: center;
-    padding: 20px;
+    /* Confirmation Section Styling */
+    .confirmation-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 2px solid #28a745;
+    }
+
+    .confirmation-section h5 {
+    color: #155724;
+    margin-bottom: 20px;
+    }
+
+    #confirmScanBtn {
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+    }
+
+    #confirmScanBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    #countdown-timer {
+    font-size: 18px;
+    font-weight: bold;
+    color: #dc3545;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+
+    .qr-scan-container,
+    .scan-info-container {
+      min-height: auto;
+      margin-bottom: 20px;
+    }
+
+    .col-md-7,
+    .col-md-5 {
+      padding-right: 15px;
+      padding-left: 15px;
     }
 
     .qrcode-qr-placeholder {
-    width: 200px;
-    height: 200px;
-    border: 2px dashed #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    border-radius: 8px;
-    background: #f8f9fa;
-    }
-
-    .qrcode-display-container {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    }
-
-    .qr-frame-container {
-    max-width: 400px;
-    margin: 0 auto;
+      width: 220px;
+      height: 220px;
     }
 
     #qrStatusFrame {
-    min-height: 350px;
-    width: 100%;
-    max-width: 400px;
+      min-height: 250px;
+    }
     }
 
-    .scan-info-table {
-    max-width: 500px;
-    margin: 20px auto 0;
+    /* Loading Animation */
+    .spinner-border {
+    width: 3rem;
+    height: 3rem;
     }
 
-    .scan-info-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #495057;
+    /* Success/Error States */
+    .bg-success-light {
+    background-color: #d4edda !important;
     }
 
-    .scan-info-table td {
-    background: #ffffff;
+    .bg-warning-light {
+    background-color: #fff3cd !important;
+    }
+
+    .bg-danger-light {
+    background-color: #f8d7da !important;
+    }
+
+    .countdown-display {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      padding: 10px 15px;
+      display: inline-block;
+      border: 2px solid #28a745;
+      margin: 5px 0;
+    }
+
+    #countdown-timer {
+      font-family: 'Courier New', monospace;
+      font-size: 24px !important;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      letter-spacing: 2px;
+    }
+
+    #countdown-timer.text-success {
+      color: #28a745 !important;
+    }
+
+    #countdown-timer.text-warning {
+      color: #ffc107 !important;
+    }
+
+    #countdown-timer.text-danger {
+      color: #dc3545 !important;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.5; }
+    }
+
+    /* Confirmation Section Enhancement */
+    .confirmation-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 25px;
+      border-radius: 12px;
+      margin: 20px 0;
+      border: 2px solid #28a745;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .confirmation-section .alert {
+      border-radius: 8px;
+      border: 1px solid #ffc107;
     }
   </style>
 @endpush
@@ -343,7 +589,7 @@
       latest_scan: null
     };
 
-    // Auto scan monitoring variables
+    // Auto scan monitoring variablesF
     let autoScanAttempts = 0;
     const maxAutoScanAttempts = 10;
     let autoScanInterval;
@@ -432,15 +678,11 @@
         updateServerStatus(response.running, response.message);
         updateAuthStatus(response.authenticated);
 
-        // Handle QR section visibility
-        handleQRSectionVisibility(response);
-
       })
       .fail(function (xhr) {
         console.error('❌ Status check error:', xhr);
         updateServerStatus(false, 'Error checking status');
         updateAuthStatus(false);
-        hideQRSection();
         addLog('Gagal mengecek status server', 'error');
 
         // Reset current status on error
@@ -460,6 +702,9 @@
 
         // Render QR status UI
         renderQRCodeStatus(response);
+
+        // Update scan info table
+        updateScanInfoTable(response.latest_scan);
 
         // Log scan info if available
         if (response.latest_scan) {
@@ -508,37 +753,6 @@
       addLog('⚠️ Auto scan gagal setelah ' + maxAutoScanAttempts + ' percobaan', 'warning');
       autoScanAttempts = 0;
       }
-    }
-
-    function triggerAutoScanLog() {
-      console.log('🚀 Triggering auto scan log...');
-
-      // First check connected phone
-      $.get(`/${whatsappUrl}/connected-phone`)
-      .done(function (phoneResponse) {
-        console.log('📱 Connected Phone Response:', phoneResponse);
-
-        if (phoneResponse.success && phoneResponse.connected_phone) {
-        console.log('📞 Detected connected phone:', phoneResponse.connected_phone);
-
-        // Trigger automatic scan log
-        performAutoScanLog();
-        } else {
-        console.log('📞 No connected phone detected, will retry...');
-        addLog('📞 Menunggu deteksi nomor WhatsApp...', 'info');
-
-        // Retry after delay
-        setTimeout(() => {
-          if (autoScanAttempts < maxAutoScanAttempts) {
-          triggerAutoScanLog();
-          }
-        }, 5000);
-        }
-      })
-      .fail(function (xhr) {
-        console.error('❌ Connected phone check error:', xhr);
-        addLog('❌ Error checking connected phone', 'error');
-      });
     }
 
     function performAutoScanLog() {
@@ -614,7 +828,7 @@
         console.error('Start server error:', xhr);
       })
       .always(function () {
-        button.prop('disabled', false).html('<i class="fas fa-play mr-2"></i>Start Server');
+        button.prop('disabled', false).html('<i class="fas fa-play mr-2"></i>Mulai Server');
       });
     }
 
@@ -626,13 +840,15 @@
       .done(function (response) {
         if (response.success) {
         addLog('✅ ' + response.message, 'success');
-        hideQRSection();
 
         // Reset status
         currentStatus.running = false;
         currentStatus.authenticated = false;
         currentStatus.latest_scan = null;
         autoScanAttempts = 0;
+
+        // Clear scan info
+        clearScanInfoTable();
 
         setTimeout(() => {
           checkStatus();
@@ -647,13 +863,13 @@
         console.error('Stop server error:', xhr);
       })
       .always(function () {
-        button.prop('disabled', false).html('<i class="fas fa-stop mr-2"></i>Stop Server');
+        button.prop('disabled', false).html('<i class="fas fa-stop mr-2"></i>Hentikan Server');
       });
     }
 
     function resetSession(button) {
       Swal.fire({
-      title: 'Reset Session WhatsApp?',
+      title: 'Reset Sesi WhatsApp?',
       text: 'Nomor WhatsApp yang terhubung akan terputus dan Anda perlu scan QR code lagi.',
       icon: 'warning',
       showCancelButton: true,
@@ -663,20 +879,22 @@
       cancelButtonText: 'Batal'
       }).then((result) => {
       if (result.isConfirmed) {
-        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Resetting...');
+        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Mereset...');
         addLog('🔄 Mereset session WhatsApp...', 'warning');
 
         $.post(`/${whatsappUrl}/reset`)
         .done(function (response) {
           if (response.success) {
           addLog('✅ ' + response.message, 'success');
-          hideQRSection();
 
           // Reset all status
           currentStatus.running = false;
           currentStatus.authenticated = false;
           currentStatus.latest_scan = null;
           autoScanAttempts = 0;
+
+          // Clear scan info
+          clearScanInfoTable();
 
           setTimeout(() => {
             checkStatus();
@@ -691,114 +909,15 @@
           console.error('Reset session error:', xhr);
         })
         .always(function () {
-          button.prop('disabled', false).html('<i class="fas fa-refresh mr-2"></i>Reset Session');
+          button.prop('disabled', false).html('<i class="fas fa-refresh mr-2"></i>Reset Sesi');
         });
       }
       });
     }
 
     // ========================================
-    // MANUAL SAVE FUNCTIONS
-    // ========================================
-
-    // function saveQRCodeScanLog(inputSelector, buttonElement) {
-    //   const nomorWA = $(inputSelector).val().trim();
-
-    //   if (!nomorWA) {
-    //   Swal.fire({
-    //     title: 'Error!',
-    //     text: 'Nomor WhatsApp harus diisi',
-    //     icon: 'error',
-    //     confirmButtonText: 'OK'
-    //   });
-    //   return;
-    //   }
-
-    //   console.log('💾 Attempting to save QR code log with nomor:', nomorWA);
-
-    //   buttonElement.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...');
-
-    //   $.post(`/${whatsappUrl}/save-qrcode-log`, {
-    //   nomor_pengirim: nomorWA,
-    //   _token: $('meta[name="csrf-token"]').attr('content')
-    //   })
-    //   .done(function (response) {
-    //     console.log('💾 Save QR code log response:', response);
-
-    //     if (response.success) {
-    //     addLog('✅ Log scan QRCode berhasil disimpan', 'success');
-    //     $(inputSelector).val('');
-
-    //     // Reset auto scan attempts on successful manual save
-    //     autoScanAttempts = 0;
-
-    //     // Update status
-    //     updateQRCodeStatus();
-
-    //     Swal.fire({
-    //       title: 'Berhasil!',
-    //       text: 'Log scan QRCode berhasil disimpan',
-    //       icon: 'success',
-    //       confirmButtonText: 'OK'
-    //     }).then(() => {
-    //       setTimeout(() => {
-    //       updateQRCodeStatus();
-    //       }, 1000);
-    //     });
-    //     } else {
-    //     addLog('❌ Gagal menyimpan log scan: ' + (response.message || 'Unknown error'), 'error');
-    //     Swal.fire({
-    //       title: 'Gagal!',
-    //       text: response.message || 'Gagal menyimpan log scan',
-    //       icon: 'error',
-    //       confirmButtonText: 'OK'
-    //     });
-    //     }
-    //   })
-    //   .fail(function (xhr) {
-    //     console.error('❌ Save QRCode log error:', xhr);
-
-    //     let errorMessage = '❌ Error: Gagal menyimpan log scan';
-    //     if (xhr.responseJSON && xhr.responseJSON.message) {
-    //     errorMessage += ' - ' + xhr.responseJSON.message;
-    //     }
-
-    //     addLog(errorMessage, 'error');
-
-    //     Swal.fire({
-    //     title: 'Error!',
-    //     text: errorMessage,
-    //     icon: 'error',
-    //     confirmButtonText: 'OK'
-    //     });
-    //   })
-    //   .always(function () {
-    //     buttonElement.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Simpan Log Scan');
-    //   });
-    // }
-
-    // ========================================
     // UI UPDATE FUNCTIONS
     // ========================================
-
-    function handleQRSectionVisibility(response) {
-      if (response.running && !response.authenticated) {
-      showQRSection();
-      if (response.qr_available) {
-        addLog('📱 Server berjalan, QR Code tersedia untuk scan', 'info');
-      } else {
-        addLog('⏳ Server berjalan, menunggu QR Code...', 'info');
-      }
-      } else if (response.authenticated) {
-      hideQRSection();
-      addLog('✅ WhatsApp sudah ter-authenticate', 'success');
-      } else {
-      hideQRSection();
-      if (!response.running) {
-        addLog('⚠️ Server tidak berjalan', 'warning');
-      }
-      }
-    }
 
     function updateServerStatus(running, message) {
       const statusBox = $('#serverStatus .info-box-icon');
@@ -830,17 +949,22 @@
       }
     }
 
-    function showQRSection() {
-      $('#qrSection').slideDown();
-      // Add timestamp to force iframe reload
-      const timestamp = new Date().getTime();
-      $('#qrFrame').attr('src', `http://localhost:3000/qr?t=${timestamp}`);
-      addLog('📱 QR Code tersedia untuk scan', 'info');
+    function updateScanInfoTable(scanData) {
+      if (scanData) {
+      $('#info-nomor').text(scanData.log_qrcode_wa_nomor_pengirim || '-');
+      $('#info-user').text(scanData.log_qrcode_wa_user_scan || '-');
+      $('#info-hakakses').text(scanData.log_qrcode_wa_ha_scan || '-');
+      $('#info-tanggal').text(scanData.log_qrcode_wa_tanggal_scan || '-');
+      } else {
+      clearScanInfoTable();
+      }
     }
 
-    function hideQRSection() {
-      $('#qrSection').slideUp();
-      $('#qrFrame').attr('src', '');
+    function clearScanInfoTable() {
+      $('#info-nomor').text('-');
+      $('#info-user').text('-');
+      $('#info-hakakses').text('-');
+      $('#info-tanggal').text('-');
     }
 
     function addLog(message, type = 'info') {
@@ -850,7 +974,9 @@
 
       const logEntry = `
       <div class="log-entry ${logClass}">
-      <span class="timestamp">[${timestamp}]</span> ${message}
+      <span class="timestamp">[${timestamp}]</span> 
+      <i class="fas fa-${getLogIcon(type)} mr-1"></i>
+      ${message}
       </div>
       `;
 
@@ -864,6 +990,16 @@
       }
     }
 
+    function getLogIcon(type) {
+      switch (type) {
+      case 'success': return 'check-circle';
+      case 'error': return 'times-circle';
+      case 'warning': return 'exclamation-triangle';
+      case 'info': return 'info-circle';
+      default: return 'info-circle';
+      }
+    }
+
     function getCurrentTime() {
       return new Date().toLocaleTimeString();
     }
@@ -874,46 +1010,85 @@
 
     function renderQRCodeStatus(data) {
       const container = $('#qrcodeStatusContent');
+      const statusAlert = $('#statusAlert');
+      const statusMessage = $('#statusMessage');
       let content = '';
+      let alertClass = 'alert-info';
+      let statusText = '';
 
       switch (data.status) {
       case 'server-belum-distart':
         content = generateServerNotStartedContent();
+        alertClass = 'alert-warning';
+        statusText = 'Server belum distart';
         break;
 
       case 'belum-terscan':
         content = generateNotScannedContent();
+        alertClass = 'alert-info';
+        statusText = 'Silakan scan QR Code dengan WhatsApp Anda';
         break;
 
       case 'authenticated-belum-log':
         content = generateAuthenticatedNoLogContent();
+        alertClass = 'alert-warning';
+        statusText = 'WhatsApp terhubung, memproses log otomatis...';
         break;
 
       case 'pending-confirmation':
         if (data.pending_scan) {
         content = generatePendingConfirmationContent(data.pending_scan);
+        alertClass = 'alert-success';
+        statusText = 'Scan berhasil! Klik tombol konfirmasi untuk melanjutkan';
+
+        // Setup event listeners dan countdown setelah content di-render
+        setTimeout(() => {
+          setupConfirmationEventListeners();
+          startConfirmationCountdown(data.pending_scan.confirmation_expires_at);
+        }, 100);
         } else {
         content = generateAuthenticatedNoLogContent();
+        alertClass = 'alert-warning';
+        statusText = 'Memproses konfirmasi...';
         }
         break;
 
       case 'sudah-terscan':
         if (data.latest_scan) {
         content = generateScannedContent(data.latest_scan);
+        alertClass = 'alert-success';
+        statusText = 'WhatsApp siap digunakan!';
         }
         break;
 
       default:
         content = generateDefaultContent();
+        alertClass = 'alert-secondary';
+        statusText = 'Memuat status...';
         break;
       }
 
       container.html(content);
 
+      // Update status alert
+      statusAlert.removeClass('alert-info alert-warning alert-success alert-danger alert-secondary')
+      .addClass(alertClass);
+      statusMessage.html(`<i class="fas fa-${getStatusIcon(alertClass)} mr-2"></i>${statusText}`);
+
       // Setup event listeners dan countdown untuk pending confirmation
       if (data.status === 'pending-confirmation' && data.pending_scan) {
       setupConfirmationEventListeners();
       startConfirmationCountdown(data.pending_scan.confirmation_expires_at);
+      }
+    }
+
+    function getStatusIcon(alertClass) {
+      switch (alertClass) {
+      case 'alert-success': return 'check-circle';
+      case 'alert-warning': return 'exclamation-triangle';
+      case 'alert-danger': return 'times-circle';
+      case 'alert-info': return 'info-circle';
+      default: return 'question-circle';
       }
     }
 
@@ -947,9 +1122,11 @@
         // Clear countdown timer
         if (confirmationTimer) {
           clearTimeout(confirmationTimer);
+          confirmationTimer = null;
         }
         if (countdownInterval) {
           clearInterval(countdownInterval);
+          countdownInterval = null;
         }
 
         // Reset auto scan attempts
@@ -968,7 +1145,7 @@
         });
         } else {
         addLog('❌ Gagal konfirmasi scan log: ' + response.message, 'error');
-        buttonElement.prop('disabled', false).html('<i class="fas fa-hand-point-up mr-2"></i>Klik Tombol Ini Jika Anda Adalah Orang Yang Melakukan Scan QR Code');
+        buttonElement.prop('disabled', false).html('<i class="fas fa-hand-point-up mr-2"></i>Konfirmasi Identitas');
 
         Swal.fire({
           title: 'Gagal!',
@@ -981,7 +1158,7 @@
       .fail(function (xhr) {
         console.error('❌ Confirm scan log error:', xhr);
         addLog('❌ Error konfirmasi scan log', 'error');
-        buttonElement.prop('disabled', false).html('<i class="fas fa-hand-point-up mr-2"></i>Klik Tombol Ini Jika Anda Adalah Orang Yang Melakukan Scan QR Code');
+        buttonElement.prop('disabled', false).html('<i class="fas fa-hand-point-up mr-2"></i>Konfirmasi Identitas');
 
         Swal.fire({
         title: 'Error!',
@@ -994,26 +1171,49 @@
 
     // Function untuk countdown timer
     function startConfirmationCountdown(expiresAt) {
-      const expiryTime = new Date(expiresAt).getTime();
-      const timerElement = $('#countdown-timer');
+      console.log('🕒 Starting countdown for:', expiresAt);
 
-      // Clear existing timers
+      // Clear existing timers terlebih dahulu
       if (confirmationTimer) {
       clearTimeout(confirmationTimer);
+      confirmationTimer = null;
       }
       if (countdownInterval) {
       clearInterval(countdownInterval);
+      countdownInterval = null;
       }
 
-      // Update countdown every second
-      countdownInterval = setInterval(() => {
+      // Parse expiry time dengan format yang benar
+      let expiryTime;
+      if (typeof expiresAt === 'string') {
+      // Jika format string, parse dengan benar
+      expiryTime = new Date(expiresAt.replace(' ', 'T')).getTime();
+      } else {
+      expiryTime = new Date(expiresAt).getTime();
+      }
+
+      console.log('Expiry time:', new Date(expiryTime));
+      console.log('Current time:', new Date());
+
+      const timerElement = $('#countdown-timer');
+
+      // Pastikan elemen ada
+      if (timerElement.length === 0) {
+      console.error('❌ Countdown timer element not found');
+      return;
+      }
+
+      // Function untuk update countdown
+      function updateCountdown() {
       const now = new Date().getTime();
       const timeLeft = expiryTime - now;
+
+      console.log('Time left (ms):', timeLeft);
 
       if (timeLeft <= 0) {
         // Time expired
         clearInterval(countdownInterval);
-        timerElement.text('EXPIRED');
+        timerElement.text('KADALUARSA').removeClass('text-warning text-success').addClass('text-danger');
 
         addLog('⏰ Waktu konfirmasi habis, session akan direset', 'warning');
 
@@ -1029,26 +1229,51 @@
       const minutes = Math.floor(timeLeft / (1000 * 60));
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-      timerElement.text(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      timerElement.text(formattedTime);
 
       // Change color when time is running out
       if (timeLeft <= 60000) { // Last minute
-        timerElement.removeClass('text-danger').addClass('text-danger');
-        timerElement.parent().removeClass('alert-warning').addClass('alert-danger');
+        timerElement.removeClass('text-warning text-success').addClass('text-danger');
+      } else if (timeLeft <= 120000) { // Last 2 minutes
+        timerElement.removeClass('text-success text-danger').addClass('text-warning');
+      } else {
+        timerElement.removeClass('text-warning text-danger').addClass('text-success');
       }
-      }, 1000);
+      }
 
-      // Set timeout for automatic reset
+      // Initial update
+      updateCountdown();
+
+      // Update countdown every second
+      countdownInterval = setInterval(updateCountdown, 1000);
+
+      // Set timeout for automatic reset (backup)
       const timeoutDuration = expiryTime - new Date().getTime();
+      if (timeoutDuration > 0) {
       confirmationTimer = setTimeout(() => {
-      addLog('⏰ Session expired, melakukan reset otomatis...', 'warning');
-      resetExpiredScan();
-      }, timeoutDuration);
+        addLog('⏰ Session expired, melakukan reset otomatis...', 'warning');
+        resetExpiredScan();
+      }, timeoutDuration + 1000); // +1 detik untuk memastikan
+      }
+
+      console.log('✅ Countdown started successfully');
     }
 
     // Function untuk reset expired scan
     function resetExpiredScan() {
       console.log('🔄 Resetting expired scan...');
+
+      // Clear timers
+      if (confirmationTimer) {
+      clearTimeout(confirmationTimer);
+      confirmationTimer = null;
+      }
+      if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      }
+
       addLog('🔄 Mereset session yang expired...', 'warning');
 
       $.post(`/${whatsappUrl}/reset-expired-scan`)
@@ -1062,13 +1287,8 @@
         currentStatus.latest_scan = null;
         autoScanAttempts = 0;
 
-        // Clear timers
-        if (confirmationTimer) {
-          clearTimeout(confirmationTimer);
-        }
-        if (countdownInterval) {
-          clearInterval(countdownInterval);
-        }
+        // Clear scan info
+        clearScanInfoTable();
 
         setTimeout(() => {
           checkStatus();
@@ -1098,10 +1318,12 @@
 
       if (confirmationTimer) {
       clearTimeout(confirmationTimer);
+      confirmationTimer = null;
       }
 
       if (countdownInterval) {
       clearInterval(countdownInterval);
+      countdownInterval = null;
       }
 
       monitoringActive = false;
@@ -1110,17 +1332,12 @@
     function generateServerNotStartedContent() {
       return `
       <div class="qrcode-status-content">
-      <div class="qrcode-qr-placeholder">
-      <div class="text-muted">
-      <i class="fas fa-server fa-3x mb-2"></i>
-      <br>Server Belum Distart
+      <div class="qrcode-qr-placeholder bg-warning-light">
+      <div class="text-warning">
+      <i class="fas fa-server fa-4x mb-3"></i>
+      <br><strong>Server Belum Distart</strong>
+      <br><small>Klik tombol "Mulai Server" untuk memulai</small>
       </div>
-      </div>
-      <div class="alert alert-info">
-      <i class="fas fa-info-circle mr-2"></i>
-      <strong>Status:</strong> Server belum distart
-      <br>
-      <small>Mulai server untuk melihat QRCode status</small>
       </div>
       </div>
       `;
@@ -1129,124 +1346,108 @@
     function generateNotScannedContent() {
       return `
       <div class="qrcode-status-content">
-      <div class="qrcode-display-container" style="margin-bottom: 20px;">
       <div style="text-align: center; margin-bottom: 15px;">
-      <i class="fas fa-qrcode fa-2x text-warning"></i>
-      <h5 class="mt-2">Silahkan Scan QR Code</h5>
+      <i class="fas fa-qrcode fa-3x text-success"></i>
+      <h5 class="mt-2 text-success">QR Code Siap untuk Discan</h5>
       </div>
       <div class="qr-frame-container" style="text-align: center;">
-      <iframe id="qrStatusFrame" src="http://localhost:3000/qr" width="100%" height="350" 
-      style="border: 2px solid #ffc107; border-radius: 8px; background: #f8f9fa;"></iframe>
+      <iframe id="qrStatusFrame" src="http://localhost:3000/qr" width="100%" height="600" 
+      style="border: 2px solid #28a745; border-radius: 8px; background: #f8f9fa;"></iframe>
       </div>
-      <div class="alert alert-info mt-3">
-      <i class="fas fa-info-circle mr-2"></i>
-      <strong>Auto Save:</strong> Log scan akan otomatis tersimpan setelah QR Code berhasil discan.
+      <div class="mt-3">
+      <small class="text-muted">
+      <i class="fas fa-mobile-alt mr-1"></i>
+      Buka WhatsApp di HP → Menu → WhatsApp Web → Scan QR Code di atas
+      </small>
+      <div class="mb-2">
+      <strong>QR Code URL:</strong>
+      <a href="http://localhost:3000/qr" target="_blank" class="btn btn-sm btn-outline-primary ml-2">
+      <i class="fas fa-external-link-alt mr-1"></i>http://localhost:3000/qr
+      </a>
       </div>
       </div>
-      ${generateScanInfoTable()}
       </div>
-    `;
+      `;
     }
 
     function generateAuthenticatedNoLogContent() {
       return `
       <div class="qrcode-status-content">
-      <div class="qrcode-qr-placeholder bg-warning text-white">
-      <div>
-      <i class="fas fa-exclamation-triangle fa-3x mb-2"></i>
-      <br>Terhubung - Auto Processing
+      <div class="qrcode-qr-placeholder bg-warning-light">
+      <div class="text-warning">
+      <i class="fas fa-cog fa-spin fa-4x mb-3"></i>
+      <br><strong>Memproses Otomatis</strong>
+      <br><small>WhatsApp terhubung, sedang menyimpan log...</small>
       </div>
       </div>
-      <div class="alert alert-warning">
-      <i class="fas fa-exclamation-triangle mr-2"></i>
-      <strong>Status:</strong> WhatsApp sudah terhubung, sistem sedang memproses auto save log...
       </div>
-      <div class="alert alert-info">
-      <i class="fas fa-cog fa-spin mr-2"></i>
-      <strong>Proses Otomatis:</strong> Tunggu beberapa saat, log scan akan tersimpan secara otomatis.
-      </div>
-      ${generateScanInfoTable()}
-      </div>
-    `;
+      `;
     }
 
+    // Function untuk generate pending confirmation content - DIPERBAIKI
     function generatePendingConfirmationContent(pendingScan) {
       return `
       <div class="qrcode-status-content">
-      <div class="qrcode-qr-placeholder bg-success text-white">
-      <div>
-      <i class="fas fa-check-circle fa-3x mb-2"></i>
-      <br>Scan Berhasil!
+      <div class="qrcode-qr-placeholder bg-success-light">
+      <div class="text-success">
+      <i class="fas fa-check-circle fa-4x mb-3"></i>
+      <br><strong>Scan Berhasil!</strong>
+      <br><small>Nomor: ${pendingScan.log_qrcode_wa_nomor_pengirim}</small>
       </div>
-      </div>
-      <div class="alert alert-success">
-      <i class="fas fa-check-circle mr-2"></i>
-      <strong>WhatsApp sudah terhubung!</strong> Nomor: <strong>${pendingScan.log_qrcode_wa_nomor_pengirim}</strong>
       </div>
 
-      <div class="confirmation-section" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-      <h5 class="text-center mb-3">
-      <i class="fas fa-user-check mr-2"></i>Konfirmasi Identitas Pengguna
-      </h5>
+      <div class="confirmation-section mt-3">
+      <h6 class="text-center mb-3 text-success">
+      <i class="fas fa-user-check mr-2"></i>Konfirmasi Identitas
+      </h6>
 
-      <div class="alert alert-warning">
-      <i class="fas fa-exclamation-triangle mr-2"></i>
-      <strong>Informasi Penting:</strong> Jika Anda tidak mengklik tombol konfirmasi ini dalam <span id="countdown-timer" class="font-weight-bold text-danger">3 menit</span>, maka nomor WhatsApp yang Anda scan tadi akan terputus/tereset dari sistem.
+      <div class="alert alert-warning mb-3 text-center">
+      <div class="mb-2">
+      <i class="fas fa-clock mr-2"></i>
+      <strong>Waktu tersisa:</strong>
+      </div>
+      <div class="countdown-display">
+      <span id="countdown-timer" class="font-weight-bold text-success" style="font-size: 24px;">3:00</span>
+      </div>
+      <small class="d-block mt-2">
+      Jika tidak dikonfirmasi dalam 3 menit setelah melakukan scan, koneksi akan terputus otomatis
+      </small>
       </div>
 
-      <div class="text-center">
+      <div class="text-center mb-3">
       <button id="confirmScanBtn" class="btn btn-success btn-lg" 
-      data-scan-id="${pendingScan.log_qrcode_wa_id}"
-      style="padding: 15px 30px; font-size: 16px;">
+      data-scan-id="${pendingScan.log_qrcode_wa_id}">
       <i class="fas fa-hand-point-up mr-2"></i>
-      Klik Tombol Ini Jika Anda Adalah Orang Yang Melakukan Scan QR Code
+      Konfirmasi Identitas
       </button>
       </div>
 
-      <div class="text-center mt-3">
+      <div class="text-center">
       <small class="text-muted">
       <i class="fas fa-info-circle mr-1"></i>
-      Tombol ini untuk mengkonfirmasi bahwa Anda yang melakukan scan QR Code
+      Klik tombol ini untuk mengkonfirmasi bahwa Anda yang melakukan scan
       </small>
       </div>
       </div>
-
-      ${generateScanInfoTable()}
       </div>
-    `;
+      `;
     }
 
     function generateScannedContent(scanData) {
       return `
       <div class="qrcode-status-content">
-      <div class="qrcode-qr-placeholder bg-success text-white">
-      <div>
-      <i class="fas fa-check-circle fa-3x mb-2"></i>
-      <br>Sudah Terscan
+      <div class="qrcode-qr-placeholder bg-success-light">
+      <div class="text-success">
+      <i class="fas fa-check-circle fa-4x mb-3"></i>
+      <br><strong>WhatsApp Siap Digunakan!</strong>
+      <br><small>Koneksi berhasil dan aktif</small>
       </div>
       </div>
-      <div class="alert alert-success">
+
+      <div class="alert alert-success mt-3">
       <i class="fas fa-check-circle mr-2"></i>
-      <strong>Status:</strong> WhatsApp sudah terhubung dan siap digunakan
+      <strong>Status:</strong> WhatsApp terhubung dan siap digunakan untuk mengirim pesan
       </div>
-      <table class="table table-bordered scan-info-table">
-      <tr>
-      <th width="40%">Nomor WA Pengirim:</th>
-      <td>${scanData.log_qrcode_wa_nomor_pengirim}</td>
-      </tr>
-      <tr>
-      <th>Nama User yang melakukan Scan:</th>
-      <td>${scanData.log_qrcode_wa_user_scan}</td>
-      </tr>
-      <tr>
-      <th>Hak Akses User yang melakukan Scan:</th>
-      <td>${scanData.log_qrcode_wa_ha_scan}</td>
-      </tr>
-      <tr>
-      <th>Tanggal User Melakukan Scan:</th>
-      <td>${scanData.log_qrcode_wa_tanggal_scan}</td>
-      </tr>
-      </table>
       </div>
       `;
     }
@@ -1256,55 +1457,16 @@
       <div class="qrcode-status-content">
       <div class="qrcode-qr-placeholder">
       <div class="text-muted">
-      <i class="fas fa-question fa-3x mb-2"></i>
-      <br>Status Tidak Diketahui
+      <div class="spinner-border mb-3" role="status">
+      <span class="sr-only">Memuat...</span>
       </div>
+      <br><strong>Memuat Status...</strong>
+      <br><small>Sedang memeriksa status koneksi</small>
       </div>
-      <div class="alert alert-secondary">
-      <i class="fas fa-info-circle mr-2"></i>
-      <strong>Status:</strong> Sedang memuat status...
       </div>
       </div>
       `;
     }
-
-    function generateScanInfoTable() {
-      return `
-      <table class="table table-bordered scan-info-table">
-      <tr>
-      <th width="40%">Nomor WA Pengirim:</th>
-      <td>-</td>
-      </tr>
-      <tr>
-      <th>Nama User yang melakukan Scan:</th>
-      <td>-</td>
-      </tr>
-      <tr>
-      <th>Hak Akses User yang melakukan Scan:</th>
-      <td>-</td>
-      </tr>
-      <tr>
-      <th>Tanggal User Melakukan Scan:</th>
-      <td>-</td>
-      </tr>
-      </table>
-      `;
-    }
-
-    // function setupQRStatusEventListeners() {
-    //   // Remove existing event listeners to prevent duplicates
-    //   $(document).off('click', '#saveQRCodeScanStatus');
-    //   $(document).off('click', '#saveQRCodeScanStatusAuth');
-
-    //   // Setup new event listeners
-    //   $(document).on('click', '#saveQRCodeScanStatus', function () {
-    //   saveQRCodeScanLog('#nomorWhatsAppStatus', $(this));
-    //   });
-
-    //   $(document).on('click', '#saveQRCodeScanStatusAuth', function () {
-    //   saveQRCodeScanLog('#nomorWhatsAppStatusAuth', $(this));
-    //   });
-    // }
 
     // ========================================
     // EVENT HANDLERS
@@ -1325,57 +1487,10 @@
       resetSession($(this));
     });
 
-    // Save QRCode Scan Log (Legacy - for main QR section)
-    $(document).on('click', '#saveQRCodeScan', function () {
-      const nomorWA = $('#nomorWhatsApp').val().trim();
-
-      if (!nomorWA) {
-      Swal.fire({
-        title: 'Error!',
-        text: 'Nomor WhatsApp harus diisi',
-        icon: 'error',
-        confirmButtonText: 'OK'
-      });
-      return;
-      }
-
-      const button = $(this);
-      button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...');
-
-      $.post(`/${whatsappUrl}/save-qrcode-log`, {
-      nomor_pengirim: nomorWA,
-      _token: $('meta[name="csrf-token"]').attr('content')
-      })
-      .done(function (response) {
-        if (response.success) {
-        addLog('✅ Log scan QRCode berhasil disimpan', 'success');
-        $('#nomorWhatsApp').val('');
-        hideQRSection();
-        updateQRCodeStatus();
-
-        Swal.fire({
-          title: 'Berhasil!',
-          text: 'Log scan QRCode berhasil disimpan',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
-        } else {
-        addLog('❌ Gagal menyimpan log scan: ' + response.message, 'error');
-        }
-      })
-      .fail(function (xhr) {
-        addLog('❌ Error: Gagal menyimpan log scan', 'error');
-        console.error('Save QRCode log error:', xhr);
-      })
-      .always(function () {
-        button.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Simpan Log Scan');
-      });
-    });
-
     // Refresh Status Button
     $('#refreshStatus').click(function () {
       const button = $(this);
-      button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Refreshing...');
+      button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Memperbarui...');
 
       addLog('🔄 Manual refresh status...', 'info');
       checkStatus();
@@ -1388,7 +1503,13 @@
 
     // Clear Log Button
     $('#clearLog').click(function () {
-      $('#logContainer').html('<div class="log-entry text-muted"><span class="timestamp">[' + getCurrentTime() + ']</span> 🗑️ Log cleared...</div>');
+      $('#logContainer').html(`
+      <div class="log-entry text-muted">
+      <span class="timestamp">[${getCurrentTime()}]</span>
+      <i class="fas fa-trash mr-1"></i>
+      Log berhasil dibersihkan...
+      </div>
+      `);
       addLog('🗑️ Log berhasil dibersihkan', 'info');
     });
 
