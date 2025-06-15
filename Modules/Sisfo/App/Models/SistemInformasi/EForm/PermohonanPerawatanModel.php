@@ -9,8 +9,13 @@ use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifPermohonanPerawatanMail;
+use App\Services\WhatsAppService;
+use Modules\Sisfo\App\Models\Log\EmailModel;
 
 class PermohonanPerawatanModel extends Model
 {
@@ -38,7 +43,6 @@ class PermohonanPerawatanModel extends Model
         'pp_tanggal_review',
         'pp_tanggal_dijawab',
         'pp_verif_isDeleted'
-        
     ];
 
     public function __construct(array $attributes = [])
@@ -215,11 +219,28 @@ class PermohonanPerawatanModel extends Model
             throw new \Exception('Pengajuan Permohonan Perawatan sudah diverifikasi sebelumnya');
         }
 
+        // Ambil nama pengguna yang menyetujui
+        $namaPenyetuju = Auth::user()->nama_pengguna;
+
         // Update status menjadi Verifikasi
         $this->pp_status = 'Verifikasi';
         $this->pp_review = session('alias') ?? 'System';
         $this->pp_tanggal_review = now();
         $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasi('Disetujui');
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Disetujui');
+
+        // Buat log transaksi untuk persetujuan
+        $aktivitasSetuju = "{$namaPenyetuju} menyetujui permohonan perawatan {$this->pp_perawatan_yang_diusulkan}";
+        TransactionModel::createData(
+            'APPROVED',
+            $this->permohonan_perawatan_id,
+            $aktivitasSetuju
+        );
 
         return $this;
     }    
@@ -245,12 +266,29 @@ class PermohonanPerawatanModel extends Model
             throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
         }
 
+        // Ambil nama pengguna yang menolak
+        $namaPenolak = Auth::user()->nama_pengguna;
+
         // Update status menjadi Ditolak
         $this->pp_status = 'Ditolak';
         $this->pp_alasan_penolakan = $alasanPenolakan;
         $this->pp_review = session('alias') ?? 'System';
         $this->pp_tanggal_review = now();
         $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Buat log transaksi untuk penolakan
+        $aktivitasTolak = "{$namaPenolak} menolak permohonan perawatan {$this->pp_perawatan_yang_diusulkan} dengan alasan {$alasanPenolakan}";
+        TransactionModel::createData(
+            'REJECTED',
+            $this->permohonan_perawatan_id,
+            $aktivitasTolak
+        );
 
         return $this;
     }
@@ -283,5 +321,95 @@ class PermohonanPerawatanModel extends Model
         $this->save();
 
         return $this;
+    }
+
+    private function kirimEmailNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil email pemohon
+            $email = $this->pp_email_pengguna;
+
+            if (empty($email) || !$this->isValidEmail($email)) {
+                Log::info("Email tidak valid atau kosong untuk permohonan perawatan ID: {$this->permohonan_perawatan_id}");
+                return;
+            }
+
+            // Kirim email
+            try {
+                Mail::to($email)->send(new VerifPermohonanPerawatanMail(
+                    $this->pp_nama_pengguna,
+                    $status,
+                    $this->pp_unit_kerja,
+                    $this->pp_perawatan_yang_diusulkan,
+                    $this->pp_keluhan_kerusakan,
+                    $this->pp_lokasi_perawatan,
+                    $alasanPenolakan
+                ));
+
+                // Log email yang berhasil dikirim
+                EmailModel::createData($status, $email);
+
+                Log::info("Email {$status} berhasil dikirim ke: {$email}");
+            } catch (\Exception $e) {
+                Log::error("Gagal mengirim email ke {$email}: " . $e->getMessage());
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim email notifikasi: " . $e->getMessage());
+        }
+    }
+
+    private function isValidEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private function kirimWhatsAppNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            Log::info("Starting WhatsApp notification for permohonan perawatan ID: {$this->permohonan_perawatan_id}");
+
+            // Ambil nomor HP pemohon
+            $nomorHp = $this->pp_no_hp_pengguna;
+
+            if (empty($nomorHp)) {
+                Log::info("Nomor WhatsApp kosong untuk permohonan perawatan ID: {$this->permohonan_perawatan_id}");
+                return;
+            }
+
+            Log::info("WhatsApp data - Nama: {$this->pp_nama_pengguna}, Nomor: {$nomorHp}");
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            // Generate pesan WhatsApp untuk Permohonan Perawatan
+            $pesanWhatsApp = $whatsappService->generatePesanVerifikasiPerawatan(
+                $this->pp_nama_pengguna,
+                $status,
+                $this->pp_unit_kerja,
+                $this->pp_perawatan_yang_diusulkan,
+                $this->pp_lokasi_perawatan,
+                $this->pp_keluhan_kerusakan,
+                $alasanPenolakan
+            );
+
+            Log::info("Generated WhatsApp message:", ['message' => $pesanWhatsApp]);
+
+            // Kirim WhatsApp
+            Log::info("Attempting to send WhatsApp to: {$nomorHp}");
+
+            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status);
+
+            if ($berhasil) {
+                Log::info("WhatsApp {$status} berhasil dikirim ke: {$nomorHp}");
+            } else {
+                Log::error("Gagal mengirim WhatsApp ke: {$nomorHp}");
+            }
+
+            Log::info("WhatsApp notification process completed");
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+        }
     }
 }
