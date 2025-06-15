@@ -19,7 +19,7 @@ class WhatsAppService
         $this->token = config('services.whatsapp.token', env('WHATSAPP_FREE_TOKEN'));
         $this->enabled = config('services.whatsapp.enabled', env('WHATSAPP_FREE_ENABLED', true));
         $this->timeout = config('services.whatsapp.timeout', env('WHATSAPP_FREE_TIMEOUT', 30));
-        
+
         Log::info('WhatsApp Service initialized with config:', [
             'base_url' => $this->baseUrl,
             'token' => $this->token ? 'Set' : 'Not Set',
@@ -44,7 +44,7 @@ class WhatsAppService
         try {
             // Format nomor telepon
             $nomorFormatted = $this->formatNomorTelepon($nomorTujuan);
-            
+
             if (!$nomorFormatted) {
                 Log::warning("Nomor WhatsApp tidak valid: {$nomorTujuan}");
                 return false;
@@ -99,13 +99,13 @@ class WhatsAppService
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                
+
                 if (isset($responseData['success']) && $responseData['success']) {
                     // Update log sebagai berhasil
                     if ($logEntry) {
                         $logEntry->updateDeliveryStatus('Sent');
                     }
-                    
+
                     Log::info("WhatsApp berhasil dikirim ke: {$nomorFormatted}");
                     return true;
                 } else {
@@ -113,7 +113,7 @@ class WhatsAppService
                     if ($logEntry) {
                         $logEntry->updateDeliveryStatus('Error');
                     }
-                    
+
                     Log::error("WhatsApp API returned success=false untuk {$nomorFormatted}: " . $response->body());
                     return false;
                 }
@@ -122,17 +122,16 @@ class WhatsAppService
                 if ($logEntry) {
                     $logEntry->updateDeliveryStatus('Error');
                 }
-                
+
                 Log::error("Gagal mengirim WhatsApp ke {$nomorFormatted}. HTTP Status: {$response->status()}, Body: " . $response->body());
                 return false;
             }
-
         } catch (\Exception $e) {
             // Update log sebagai error jika log entry sudah dibuat
             if ($logEntry) {
                 $logEntry->updateDeliveryStatus('Error');
             }
-            
+
             Log::error("Exception saat mengirim WhatsApp: " . $e->getMessage());
             Log::error("Stack trace: " . $e->getTraceAsString());
             return false;
@@ -159,12 +158,12 @@ class WhatsAppService
             $response = Http::timeout(5)
                 ->withHeaders($headers)
                 ->get($this->baseUrl . '/status');
-                
+
             Log::info('Server status check response:', [
                 'status' => $response->status(),
                 'body' => $response->body()
             ]);
-                
+
             return $response->successful();
         } catch (\Exception $e) {
             Log::error("Error checking WhatsApp server status: " . $e->getMessage());
@@ -213,7 +212,7 @@ class WhatsAppService
     {
         // Hapus semua karakter non-digit
         $nomor = preg_replace('/[^0-9]/', '', $nomor);
-        
+
         // Cek apakah nomor kosong setelah cleaning
         if (empty($nomor)) {
             return false;
@@ -243,7 +242,7 @@ class WhatsAppService
     {
         $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
         $template .= "Halo *{$nama}*,\n\n";
-        
+
         if ($status === 'Disetujui') {
             $template .= "✅ *PERMOHONAN DISETUJUI*\n\n";
             $template .= "Permohonan informasi Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
@@ -259,7 +258,7 @@ class WhatsAppService
             $template .= "• Informasi: {$informasiYangDibutuhkan}\n";
             $template .= "• Alasan: {$alasanPenolakan}\n\n";
         }
-        
+
         $template .= "📞 *Butuh Bantuan?*\n";
         $template .= "• Email: ppid@polinema.ac.id\n";
         $template .= "• Telepon: 085804049240\n";
@@ -275,7 +274,7 @@ class WhatsAppService
     {
         $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
         $template .= "Halo *{$nama}*,\n\n";
-        
+
         if ($status === 'Disetujui') {
             $template .= "✅ *PERNYATAAN KEBERATAN DISETUJUI*\n\n";
             $template .= "Pernyataan keberatan Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
@@ -291,6 +290,125 @@ class WhatsAppService
             $template .= "• Kategori: {$kategori}\n";
             $template .= "• Alasan Keberatan: {$alasanPengajuanKeberatan}\n";
             $template .= "• Kasus Posisi: {$kasusPosisi}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
+    public function generatePesanVerifikasiPengaduan($nama, $status, $jenisLaporan, $yangDilaporkan, $lokasiKejadian, $waktuKejadian, $alasanPenolakan = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+
+        // Format tanggal menggunakan date() dan strtotime()
+        $tanggalKejadian = date('d M Y', strtotime($waktuKejadian));
+
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PENGADUAN MASYARAKAT DISETUJUI*\n\n";
+            $template .= "Pengaduan masyarakat Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
+            $template .= "📋 *Detail Pengaduan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n\n";
+            $template .= "📝 Pengaduan Anda sedang dalam proses review untuk mempertimbangkan tindak lanjut.\n\n";
+        } else {
+            $template .= "❌ *PENGADUAN MASYARAKAT DITOLAK*\n\n";
+            $template .= "Mohon maaf, pengaduan masyarakat Anda *DITOLAK*.\n\n";
+            $template .= "📋 *Detail Pengaduan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
+    public function generatePesanVerifikasiWBS($nama, $status, $jenisLaporan, $yangDilaporkan, $jabatan, $lokasiKejadian, $waktuKejadian, $alasanPenolakan = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+        
+        // Format tanggal menggunakan date() dan strtotime()
+        $tanggalKejadian = date('d M Y', strtotime($waktuKejadian));
+        
+        if ($status === 'Disetujui') {
+            $template .= "✅ *WHISTLE BLOWING SYSTEM DISETUJUI*\n\n";
+            $template .= "Laporan Whistle Blowing System Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
+            $template .= "📋 *Detail Laporan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Jabatan: {$jabatan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n\n";
+            $template .= "📝 Laporan Anda sedang dalam proses review untuk mempertimbangkan tindak lanjut.\n\n";
+        } else {
+            $template .= "❌ *WHISTLE BLOWING SYSTEM DITOLAK*\n\n";
+            $template .= "Mohon maaf, laporan Whistle Blowing System Anda *DITOLAK*.\n\n";
+            $template .= "📋 *Detail Laporan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Jabatan: {$jabatan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+        
+        $template .= "🔒 *Kerahasiaan Terjamin*\n";
+        $template .= "Identitas Anda akan dijaga kerahasiaannya sesuai dengan kebijakan WBS.\n\n";
+        
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
+    public function generatePesanVerifikasiPerawatan($nama, $status, $unitKerja, $perawatanYangDiusulkan, $lokasiPerawatan, $keluhanKerusakan, $alasanPenolakan = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+        
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PERMOHONAN PERAWATAN DISETUJUI*\n\n";
+            $template .= "Permohonan perawatan sarana prasarana Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
+            $template .= "📋 *Detail Permohonan:*\n";
+            $template .= "• Unit Kerja: {$unitKerja}\n";
+            $template .= "• Perawatan Diusulkan: {$perawatanYangDiusulkan}\n";
+            $template .= "• Lokasi Perawatan: {$lokasiPerawatan}\n";
+            $template .= "• Keluhan: {$keluhanKerusakan}\n\n";
+            $template .= "🔧 Permohonan Anda sedang dalam proses review untuk mempertimbangkan tindak lanjut perawatan.\n\n";
+        } else {
+            $template .= "❌ *PERMOHONAN PERAWATAN DITOLAK*\n\n";
+            $template .= "Mohon maaf, permohonan perawatan sarana prasarana Anda *DITOLAK*.\n\n";
+            $template .= "📋 *Detail Permohonan:*\n";
+            $template .= "• Unit Kerja: {$unitKerja}\n";
+            $template .= "• Perawatan Diusulkan: {$perawatanYangDiusulkan}\n";
+            $template .= "• Lokasi Perawatan: {$lokasiPerawatan}\n";
+            $template .= "• Keluhan: {$keluhanKerusakan}\n";
             $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
         }
         
@@ -311,7 +429,7 @@ class WhatsAppService
     public function testKirimPesan($nomorTujuan)
     {
         $pesanTest = "🧪 *TEST PESAN*\n\nIni adalah pesan test dari sistem PPID POLINEMA.\n\nWaktu: " . date('Y-m-d H:i:s') . "\nToken: " . ($this->token ? 'Available' : 'Not Available');
-        
+
         return $this->kirimPesan($nomorTujuan, $pesanTest, 'Test');
     }
 }

@@ -9,8 +9,13 @@ use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifWBSMail;
+use App\Services\WhatsAppService;
+use Modules\Sisfo\App\Models\Log\EmailModel;
 
 class WBSModel extends Model
 {
@@ -43,7 +48,6 @@ class WBSModel extends Model
         'wbs_tanggal_review',
         'wbs_tanggal_dijawab',
         'wbs_verif_isDeleted'
-        
     ];
 
     public function __construct(array $attributes = [])
@@ -230,11 +234,28 @@ class WBSModel extends Model
             throw new \Exception('Pengajuan Whistle Blowing System sudah diverifikasi sebelumnya');
         }
 
+        // Ambil nama pengguna yang menyetujui
+        $namaPenyetuju = Auth::user()->nama_pengguna;
+
         // Update status menjadi Verifikasi
         $this->wbs_status = 'Verifikasi';
         $this->wbs_review = session('alias') ?? 'System';
         $this->wbs_tanggal_review = now();
         $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasi('Disetujui');
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Disetujui');
+
+        // Buat log transaksi untuk persetujuan
+        $aktivitasSetuju = "{$namaPenyetuju} menyetujui whistle blowing system {$this->wbs_jenis_laporan}";
+        TransactionModel::createData(
+            'APPROVED',
+            $this->wbs_id,
+            $aktivitasSetuju
+        );
 
         return $this;
     }    
@@ -260,12 +281,29 @@ class WBSModel extends Model
             throw new \Exception('Pengajuan sudah diverifikasi sebelumnya');
         }
 
+        // Ambil nama pengguna yang menolak
+        $namaPenolak = Auth::user()->nama_pengguna;
+
         // Update status menjadi Ditolak
         $this->wbs_status = 'Ditolak';
         $this->wbs_alasan_penolakan = $alasanPenolakan;
         $this->wbs_review = session('alias') ?? 'System';
         $this->wbs_tanggal_review = now();
         $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasi('Ditolak', $alasanPenolakan);
+
+        // Buat log transaksi untuk penolakan
+        $aktivitasTolak = "{$namaPenolak} menolak whistle blowing system {$this->wbs_jenis_laporan} dengan alasan {$alasanPenolakan}";
+        TransactionModel::createData(
+            'REJECTED',
+            $this->wbs_id,
+            $aktivitasTolak
+        );
 
         return $this;
     }
@@ -299,4 +337,99 @@ class WBSModel extends Model
 
         return $this;
     }
+
+    private function kirimEmailNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil email pelapor
+            $email = $this->wbs_email_pengguna;
+
+            if (empty($email) || !$this->isValidEmail($email)) {
+                Log::info("Email tidak valid atau kosong untuk WBS ID: {$this->wbs_id}");
+                return;
+            }
+
+            // Kirim email
+            try {
+                Mail::to($email)->send(new VerifWBSMail(
+                    $this->wbs_nama_tanpa_gelar,
+                    $status,
+                    $this->wbs_jenis_laporan,
+                    $this->wbs_yang_dilaporkan,
+                    $this->wbs_jabatan,
+                    $this->wbs_lokasi_kejadian,
+                    $this->wbs_waktu_kejadian,
+                    $this->wbs_kronologis_kejadian,
+                    $alasanPenolakan
+                ));
+
+                // Log email yang berhasil dikirim
+                EmailModel::createData($status, $email);
+
+                Log::info("Email {$status} berhasil dikirim ke: {$email}");
+            } catch (\Exception $e) {
+                Log::error("Gagal mengirim email ke {$email}: " . $e->getMessage());
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim email notifikasi: " . $e->getMessage());
+        }
+    }
+
+    private function isValidEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private function kirimWhatsAppNotifikasi($status, $alasanPenolakan = null)
+    {
+        try {
+            Log::info("Starting WhatsApp notification for WBS ID: {$this->wbs_id}");
+
+            // Ambil nomor HP pelapor
+            $nomorHp = $this->wbs_no_hp_pengguna;
+
+            if (empty($nomorHp)) {
+                Log::info("Nomor WhatsApp kosong untuk WBS ID: {$this->wbs_id}");
+                return;
+            }
+
+            Log::info("WhatsApp data - Nama: {$this->wbs_nama_tanpa_gelar}, Nomor: {$nomorHp}");
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            // Generate pesan WhatsApp untuk WBS
+            $pesanWhatsApp = $whatsappService->generatePesanVerifikasiWBS(
+                $this->wbs_nama_tanpa_gelar,
+                $status,
+                $this->wbs_jenis_laporan,
+                $this->wbs_yang_dilaporkan,
+                $this->wbs_jabatan,
+                $this->wbs_lokasi_kejadian,
+                $this->wbs_waktu_kejadian,
+                $alasanPenolakan
+            );
+
+            Log::info("Generated WhatsApp message:", ['message' => $pesanWhatsApp]);
+
+            // Kirim WhatsApp
+            Log::info("Attempting to send WhatsApp to: {$nomorHp}");
+
+            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status);
+
+            if ($berhasil) {
+                Log::info("WhatsApp {$status} berhasil dikirim ke: {$nomorHp}");
+            } else {
+                Log::error("Gagal mengirim WhatsApp ke: {$nomorHp}");
+            }
+
+            Log::info("WhatsApp notification process completed");
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+        }
+    }
+
+    // ... existing static methods createData, validasiData, dll ...
 }
