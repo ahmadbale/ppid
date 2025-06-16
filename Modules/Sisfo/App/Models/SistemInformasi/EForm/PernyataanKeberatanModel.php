@@ -230,9 +230,11 @@ class PernyataanKeberatanModel extends Model
         // Ambil nama pengguna yang menyetujui
         $namaPenyetuju = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Verifikasi
         $this->pk_status = 'Verifikasi';
-        $this->pk_review = session('alias') ?? 'System';
+        $this->pk_review = $aliasReview;
         $this->pk_tanggal_review = now();
         $this->save();
 
@@ -280,10 +282,12 @@ class PernyataanKeberatanModel extends Model
         // Ambil nama pengguna yang menolak
         $namaPenolak = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Ditolak
         $this->pk_status = 'Ditolak';
         $this->pk_alasan_penolakan = $alasanPenolakan;
-        $this->pk_review = session('alias') ?? 'System';
+        $this->pk_review = $aliasReview;
         $this->pk_tanggal_review = now();
         $this->save();
 
@@ -311,10 +315,14 @@ class PernyataanKeberatanModel extends Model
             throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
         // Tandai sebagai dibaca
-        $this->pk_sudah_dibaca = session('alias') ?? 'System';
+        $this->pk_sudah_dibaca = $aliasDibaca;
         $this->pk_tanggal_dibaca = now();
         $this->save();
+
+        $this->updateAllNotifikasi('E-Form Pernyataan Keberatan', $this->pernyataan_keberatan_id);
 
         return $this;
     }

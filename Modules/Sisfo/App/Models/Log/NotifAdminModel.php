@@ -46,7 +46,7 @@ class NotifAdminModel extends Model
         return $this->belongsTo(PengaduanMasyarakatModel::class, 'notif_admin_form_id', 'pengaduan_masyarakat_id');
     }
 
-    public function t_wbsi()
+    public function t_wbs()
     {
         return $this->belongsTo(WBSModel::class, 'notif_admin_form_id', 'wbs_id');
     }
@@ -66,7 +66,6 @@ class NotifAdminModel extends Model
             'notif_admin_form_id' => $formId,
             'pesan_notif_admin' => $message,
             'created_at' => now(),
-            'isDeleted' => 0
         ]);
     }
 
@@ -127,6 +126,7 @@ class NotifAdminModel extends Model
             'message' => 'Notifikasi berhasil dihapus'
         ];
     }
+    
     public static function tandaiSemuaDibaca()
     {
         $notifikasi = self::where('kategori_notif_admin', 'E-Form Permohonan Informasi')

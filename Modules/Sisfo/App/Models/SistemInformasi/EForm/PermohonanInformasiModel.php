@@ -42,6 +42,9 @@ class PermohonanInformasiModel extends Model
         'pi_tanggal_dibaca',
         'pi_review',
         'pi_tanggal_review',
+        'pi_hasil_sudah_dibaca',
+        'pi_hasil_tanggal_dibaca',
+        'pi_dijawab',
         'pi_tanggal_jawaban',
         'pi_verif_isDeleted'
     ];
@@ -258,9 +261,11 @@ class PermohonanInformasiModel extends Model
         // Ambil nama pengguna yang menyetujui
         $namaPenyetuju = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Verifikasi
         $this->pi_status = 'Verifikasi';
-        $this->pi_review = session('alias') ?? 'System';
+        $this->pi_review = $aliasReview;
         $this->pi_tanggal_review = now();
         $this->save();
 
@@ -319,10 +324,12 @@ class PermohonanInformasiModel extends Model
         // Ambil nama pengguna yang menolak
         $namaPenolak = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Ditolak
         $this->pi_status = 'Ditolak';
         $this->pi_alasan_penolakan = $alasanPenolakan;
-        $this->pi_review = session('alias') ?? 'System';
+        $this->pi_review = $aliasReview;
         $this->pi_tanggal_review = now();
         $this->save();
 
@@ -353,10 +360,14 @@ class PermohonanInformasiModel extends Model
             throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
         // Tandai sebagai dibaca
-        $this->pi_sudah_dibaca = session('alias') ?? 'System';
+        $this->pi_sudah_dibaca = $aliasDibaca;
         $this->pi_tanggal_dibaca = now();
         $this->save();
+
+        $this->updateAllNotifikasi('E-Form Permohonan Informasi', $this->permohonan_informasi_id);
 
         return $this;
     }

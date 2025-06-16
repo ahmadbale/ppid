@@ -6,7 +6,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\Log\NotifAdminModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
 use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -280,5 +283,110 @@ trait BaseModelFunction
         }
 
         return $ketentuanPelaporan;
+    }
+
+    /**
+     * Get alias with hak akses format: "Alias (Hak Akses)"
+     * Method ini dapat digunakan di semua model untuk format yang konsisten
+     */
+    protected function getAliasWithHakAkses()
+    {
+        $alias = null;
+        
+        // Cek session alias (web)
+        if (session()->has('alias')) {
+            $alias = session('alias');
+        } else {
+            // Cek user login (web atau API)
+            $user = Auth::user();
+            if (!$user) {
+                // Coba ambil dari JWT jika API
+                try {
+                    $user = JWTAuth::parseToken()->authenticate();
+                } catch (\Exception $e) {
+                    $user = null;
+                }
+            }
+            if ($user) {
+                // Gunakan properti alias jika ada, fallback ke nama_pengguna
+                $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);
+            }
+        }
+        
+        // Format dengan hak akses jika bukan System
+        if ($alias && $alias !== 'System' && Auth::check()) {
+            $hakAksesNama = Auth::user()->level->hak_akses_nama ?? 'Unknown';
+            return "{$alias} ({$hakAksesNama})";
+        }
+        
+        return $alias ?? 'System';
+    }
+
+    /**
+     * Update notifikasi admin untuk form ini jika masih NULL
+     * 
+     * @param string $kategoriNotif Kategori notifikasi (misal: 'E-Form Permohonan Informasi')
+     * @param int $formId ID form yang terkait
+     */
+    protected function updateNotifikasiAdmin($kategoriNotif, $formId)
+    {
+        try {
+            $notifikasiAdmin = NotifAdminModel::where('kategori_notif_admin', $kategoriNotif)
+                ->where('notif_admin_form_id', $formId)
+                ->where('isDeleted', 0)
+                ->whereNull('sudah_dibaca_notif_admin')
+                ->get();
+
+            if ($notifikasiAdmin->isNotEmpty()) {
+                foreach ($notifikasiAdmin as $notif) {
+                    $notif->sudah_dibaca_notif_admin = now();
+                    $notif->save();
+                }
+                
+                Log::info("Updated {$notifikasiAdmin->count()} admin notifications for {$kategoriNotif} ID: {$formId}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Error updating admin notifications for {$kategoriNotif}: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update notifikasi verifikator untuk form ini jika masih NULL
+     * 
+     * @param string $kategoriNotif Kategori notifikasi (misal: 'E-Form Permohonan Informasi')
+     * @param int $formId ID form yang terkait
+     */
+    protected function updateNotifikasiVerifikator($kategoriNotif, $formId)
+    {
+        try {
+            $notifikasiVerifikator = NotifVerifikatorModel::where('kategori_notif_verif', $kategoriNotif)
+                ->where('notif_verifikator_form_id', $formId)
+                ->where('isDeleted', 0)
+                ->whereNull('sudah_dibaca_notif_verif')
+                ->get();
+
+            if ($notifikasiVerifikator->isNotEmpty()) {
+                foreach ($notifikasiVerifikator as $notif) {
+                    $notif->sudah_dibaca_notif_verif = now();
+                    $notif->save();
+                }
+                
+                Log::info("Updated {$notifikasiVerifikator->count()} verifikator notifications for {$kategoriNotif} ID: {$formId}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Error updating verifikator notifications for {$kategoriNotif}: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update notifikasi admin dan verifikator sekaligus
+     * 
+     * @param string $kategoriNotif Kategori notifikasi
+     * @param int $formId ID form yang terkait
+     */
+    protected function updateAllNotifikasi($kategoriNotif, $formId)
+    {
+        $this->updateNotifikasiAdmin($kategoriNotif, $formId);
+        $this->updateNotifikasiVerifikator($kategoriNotif, $formId);
     }
 }
