@@ -1,6 +1,6 @@
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  $IpdinamisKontenUrl = WebMenuModel::getDynamicMenuUrl('dinamis-tabel');
+  $IpdinamisKontenUrl = WebMenuModel::getDynamicMenuUrl('dinamis-konten');
 @endphp
 <div class="modal-header">
      <h5 class="modal-title">Konfirmasi Hapus IpDinamis Konten</h5>
