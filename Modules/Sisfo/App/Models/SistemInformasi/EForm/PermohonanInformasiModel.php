@@ -40,13 +40,14 @@ class PermohonanInformasiModel extends Model
         'pi_alasan_penolakan',
         'pi_sudah_dibaca',
         'pi_tanggal_dibaca',
-        'pi_review',
-        'pi_tanggal_review',
-        'pi_hasil_sudah_dibaca',
-        'pi_hasil_tanggal_dibaca',
+        'pi_verifikasi',
+        'pi_tanggal_verifikasi',
+        'pi_review_sudah_dibaca',
+        'pi_review_tanggal_dibaca',
         'pi_dijawab',
         'pi_tanggal_jawaban',
-        'pi_verif_isDeleted'
+        'pi_verifikasi_isDeleted',
+        'pi_review_isDeleted'
     ];
 
     public function PiDiriSendiri()
@@ -233,7 +234,7 @@ class PermohonanInformasiModel extends Model
         // Hanya menghitung verifikasi untuk Permohonan Informasi
         return self::where('pi_status', 'Masuk')
             ->where('isDeleted', 0)
-            ->where('pi_verif_isDeleted', 0)
+            ->where('pi_verifikasi_isDeleted', 0)
             ->whereNull('pi_sudah_dibaca')
             ->count();
     }
@@ -243,7 +244,7 @@ class PermohonanInformasiModel extends Model
         // Mengambil daftar permohonan untuk verifikasi
         return self::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
             ->where('isDeleted', 0)
-            ->where('pi_verif_isDeleted', 0)
+            ->where('pi_verifikasi_isDeleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -265,8 +266,8 @@ class PermohonanInformasiModel extends Model
 
         // Update status menjadi Verifikasi
         $this->pi_status = 'Verifikasi';
-        $this->pi_review = $aliasReview;
-        $this->pi_tanggal_review = now();
+        $this->pi_verifikasi = $aliasReview;
+        $this->pi_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -329,8 +330,8 @@ class PermohonanInformasiModel extends Model
         // Update status menjadi Ditolak
         $this->pi_status = 'Ditolak';
         $this->pi_alasan_penolakan = $alasanPenolakan;
-        $this->pi_review = $aliasReview;
-        $this->pi_tanggal_review = now();
+        $this->pi_verifikasi = $aliasReview;
+        $this->pi_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -380,8 +381,7 @@ class PermohonanInformasiModel extends Model
         }
 
         // Update flag hapus
-        $this->pi_verif_isDeleted = 1;
-        $this->pi_tanggal_dijawab = now();
+        $this->pi_verifikasi_isDeleted = 1;
         $this->save();
 
         return $this;
@@ -592,5 +592,25 @@ class PermohonanInformasiModel extends Model
             'nomor_hp' => $nomorHp,
             'nama' => $nama ?: 'Tidak Diketahui'
         ];
+    }
+
+    public static function hitungJumlahReview()
+    {
+        // Hanya menghitung review untuk Permohonan Informasi
+        return self::where('pi_status', 'Verifikasi')
+            ->where('isDeleted', 0)
+            ->where('pi_review_isDeleted', 0)
+            ->whereNull('pi_review_sudah_dibaca')
+            ->count();
+    }
+
+    public static function getDaftarReview()
+    {
+        // Mengambil daftar permohonan untuk review
+        return self::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            ->where('isDeleted', 0)
+            ->where('pi_review_isDeleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }
