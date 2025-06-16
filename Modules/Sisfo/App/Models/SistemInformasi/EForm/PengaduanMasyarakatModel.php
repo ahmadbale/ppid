@@ -244,9 +244,11 @@ class PengaduanMasyarakatModel extends Model
         // Ambil nama pengguna yang menyetujui
         $namaPenyetuju = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Verifikasi
         $this->pm_status = 'Verifikasi';
-        $this->pm_review = session('alias') ?? 'System';
+        $this->pm_review = $aliasReview;
         $this->pm_tanggal_review = now();
         $this->save();
 
@@ -291,10 +293,12 @@ class PengaduanMasyarakatModel extends Model
         // Ambil nama pengguna yang menolak
         $namaPenolak = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Ditolak
         $this->pm_status = 'Ditolak';
         $this->pm_alasan_penolakan = $alasanPenolakan;
-        $this->pm_review = session('alias') ?? 'System';
+        $this->pm_review = $aliasReview;
         $this->pm_tanggal_review = now();
         $this->save();
 
@@ -322,10 +326,14 @@ class PengaduanMasyarakatModel extends Model
             throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
         // Tandai sebagai dibaca
-        $this->pm_sudah_dibaca = session('alias') ?? 'System';
+        $this->pm_sudah_dibaca = $aliasDibaca;
         $this->pm_tanggal_dibaca = now();
         $this->save();
+
+        $this->updateAllNotifikasi('E-Form Pengaduan Masyarakat', $this->pengaduan_masyarakat_id);
 
         return $this;
     }
