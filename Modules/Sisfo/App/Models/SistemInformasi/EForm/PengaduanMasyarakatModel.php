@@ -44,10 +44,14 @@ class PengaduanMasyarakatModel extends Model
         'pm_alasan_penolakan',
         'pm_sudah_dibaca',
         'pm_tanggal_dibaca',
-        'pm_review',
-        'pm_tanggal_review',
+        'pm_verifikasi',
+        'pm_tanggal_verifikasi',
+        'pm_review_sudah_dibaca',
+        'pm_review_tanggal_dibaca',
+        'pm_dijawab',
         'pm_tanggal_dijawab',
-        'pm_verif_isDeleted'
+        'pm_verifikasi_isDeleted',
+        'pm_review_isDeleted'
     ];
 
     public function __construct(array $attributes = [])
@@ -220,7 +224,7 @@ class PengaduanMasyarakatModel extends Model
         // Hanya menghitung verifikasi untuk Pengaduan Masyarakat
         return self::where('pm_status', 'Masuk')
             ->where('isDeleted', 0)
-            ->where('pm_verif_isDeleted', 0)
+            ->where('pm_verifikasi_isDeleted', 0)
             ->whereNull('pm_sudah_dibaca')
             ->count();
     }
@@ -229,7 +233,7 @@ class PengaduanMasyarakatModel extends Model
     {
         // Mengambil daftar pengaduan masyarakat untuk verifikasi
         return self::where('isDeleted', 0)
-            ->where('pm_verif_isDeleted', 0)
+            ->where('pm_verifikasi_isDeleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -248,8 +252,8 @@ class PengaduanMasyarakatModel extends Model
 
         // Update status menjadi Verifikasi
         $this->pm_status = 'Verifikasi';
-        $this->pm_review = $aliasReview;
-        $this->pm_tanggal_review = now();
+        $this->pm_verifikasi = $aliasReview;
+        $this->pm_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -298,8 +302,8 @@ class PengaduanMasyarakatModel extends Model
         // Update status menjadi Ditolak
         $this->pm_status = 'Ditolak';
         $this->pm_alasan_penolakan = $alasanPenolakan;
-        $this->pm_review = $aliasReview;
-        $this->pm_tanggal_review = now();
+        $this->pm_verifikasi = $aliasReview;
+        $this->pm_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -346,7 +350,7 @@ class PengaduanMasyarakatModel extends Model
         }
 
         // Update flag hapus
-        $this->pm_verif_isDeleted = 1;
+        $this->pm_verifikasi_isDeleted = 1;
         $this->pm_tanggal_dijawab = now();
         $this->save();
 

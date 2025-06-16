@@ -36,10 +36,14 @@ class PernyataanKeberatanModel extends Model
         'pk_alasan_penolakan',
         'pk_sudah_dibaca',
         'pk_tanggal_dibaca',
-        'pk_review',
-        'pk_tanggal_review',
+        'pk_verifikasi',
+        'pk_tanggal_verifikasi',
+        'pk_review_sudah_dibaca',
+        'pk_review_tanggal_dibaca',
+        'pk_dijawab',
         'pk_tanggal_jawaban',
-        'pk_verif_isDeleted'
+        'pk_verifikasi_isDeleted',
+        'pk_review_isDeleted'
     ];
 
     public function PkDiriSendiri()
@@ -202,7 +206,7 @@ class PernyataanKeberatanModel extends Model
         // Hanya menghitung verifikasi untuk Pernyataan Keberatan
         return self::where('pk_status', 'Masuk')
             ->where('isDeleted', 0)
-            ->where('pk_verif_isDeleted', 0)
+            ->where('pk_verifikasi_isDeleted', 0)
             ->whereNull('pk_sudah_dibaca')
             ->count();
     }
@@ -212,7 +216,7 @@ class PernyataanKeberatanModel extends Model
         // Mengambil daftar pernyaataan Keberatan untuk verifikasi
         return self::with(['PkDiriSendiri', 'PkOrangLain'])
             ->where('isDeleted', 0)
-            ->where('pk_verif_isDeleted', 0)
+            ->where('pk_verifikasi_isDeleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -234,8 +238,8 @@ class PernyataanKeberatanModel extends Model
 
         // Update status menjadi Verifikasi
         $this->pk_status = 'Verifikasi';
-        $this->pk_review = $aliasReview;
-        $this->pk_tanggal_review = now();
+        $this->pk_verifikasi = $aliasReview;
+        $this->pk_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -287,8 +291,8 @@ class PernyataanKeberatanModel extends Model
         // Update status menjadi Ditolak
         $this->pk_status = 'Ditolak';
         $this->pk_alasan_penolakan = $alasanPenolakan;
-        $this->pk_review = $aliasReview;
-        $this->pk_tanggal_review = now();
+        $this->pk_verifikasi = $aliasReview;
+        $this->pk_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -335,7 +339,7 @@ class PernyataanKeberatanModel extends Model
         }
 
         // Update flag hapus
-        $this->pk_verif_isDeleted = 1;
+        $this->pk_verifikasi_isDeleted = 1;
         $this->pk_tanggal_dijawab = now();
         $this->save();
 
