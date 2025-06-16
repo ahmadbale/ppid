@@ -12,6 +12,7 @@
 <body>
 @include('user::layouts.header')
 @include('user::layouts.navbar')
+<div class="spacer" style="height: 80px;"></div> 
     <div class="container">
         <h2 class="fw-bold mt-4 mb-2 text-center text-md-center">Daftar Informasi Publik Politeknik Negeri Malang</h2>
         <div class="mt-4 border-top border-1 pt-3 w-75 mx-auto text-center"></div>

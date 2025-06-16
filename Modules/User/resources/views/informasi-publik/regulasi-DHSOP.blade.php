@@ -2,8 +2,8 @@
 @extends('user::layouts.regulasi-leftsidebar')
 
 @section('title', 'Dasar Hukum SOP')
-
 @section('content-side')
+<div class="spacer" style="height: 80px;"></div> 
     <div class="profile-card bg-white p-8 shadow-sm rounded-lg">
         <div class="m-4">
             <h3 class="fw-bold pb-2 text-center text-md-start">
