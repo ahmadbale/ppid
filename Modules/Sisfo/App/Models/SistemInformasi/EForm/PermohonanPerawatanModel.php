@@ -222,9 +222,11 @@ class PermohonanPerawatanModel extends Model
         // Ambil nama pengguna yang menyetujui
         $namaPenyetuju = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Verifikasi
         $this->pp_status = 'Verifikasi';
-        $this->pp_review = session('alias') ?? 'System';
+        $this->pp_review = $aliasReview;
         $this->pp_tanggal_review = now();
         $this->save();
 
@@ -269,10 +271,12 @@ class PermohonanPerawatanModel extends Model
         // Ambil nama pengguna yang menolak
         $namaPenolak = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Ditolak
         $this->pp_status = 'Ditolak';
         $this->pp_alasan_penolakan = $alasanPenolakan;
-        $this->pp_review = session('alias') ?? 'System';
+        $this->pp_review = $aliasReview;
         $this->pp_tanggal_review = now();
         $this->save();
 
@@ -300,10 +304,14 @@ class PermohonanPerawatanModel extends Model
             throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
         // Tandai sebagai dibaca
-        $this->pp_sudah_dibaca = session('alias') ?? 'System';
+        $this->pp_sudah_dibaca = $aliasDibaca;
         $this->pp_tanggal_dibaca = now();
         $this->save();
+
+        $this->updateAllNotifikasi('E-Form Permohonan Perawatan Sarana Prasarana', $this->permohonan_perawatan_id);
 
         return $this;
     }

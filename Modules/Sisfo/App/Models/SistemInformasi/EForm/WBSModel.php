@@ -237,9 +237,11 @@ class WBSModel extends Model
         // Ambil nama pengguna yang menyetujui
         $namaPenyetuju = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Verifikasi
         $this->wbs_status = 'Verifikasi';
-        $this->wbs_review = session('alias') ?? 'System';
+        $this->wbs_review = $aliasReview;
         $this->wbs_tanggal_review = now();
         $this->save();
 
@@ -284,10 +286,12 @@ class WBSModel extends Model
         // Ambil nama pengguna yang menolak
         $namaPenolak = Auth::user()->nama_pengguna;
 
+        $aliasReview = $this->getAliasWithHakAkses();
+
         // Update status menjadi Ditolak
         $this->wbs_status = 'Ditolak';
         $this->wbs_alasan_penolakan = $alasanPenolakan;
-        $this->wbs_review = session('alias') ?? 'System';
+        $this->wbs_review = $aliasReview;
         $this->wbs_tanggal_review = now();
         $this->save();
 
@@ -315,10 +319,14 @@ class WBSModel extends Model
             throw new \Exception('Anda harus menyetujui/menolak pengajuan ini terlebih dahulu');
         }
 
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
         // Tandai sebagai dibaca
-        $this->wbs_sudah_dibaca = session('alias') ?? 'System';
+        $this->wbs_sudah_dibaca = $aliasDibaca;
         $this->wbs_tanggal_dibaca = now();
         $this->save();
+
+        $this->updateAllNotifikasi('E-Form Whistle Blowing System', $this->wbs_id);
 
         return $this;
     }
