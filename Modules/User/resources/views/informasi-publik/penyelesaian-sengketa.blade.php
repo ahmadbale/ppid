@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Permohonan Penyelesaian Sengketa</title>
+    <title>{{ $nama ?? 'Permohonan Penyelesaian Sengketa Informasi Publik' }}</title>
     @vite(['resources/css/app.css'])
 </head>
 <body>
@@ -16,7 +16,7 @@
         style="background: url('{{ asset('img/hero-grapol.svg') }}') no-repeat center center/cover; color: #fff; text-align: left; height: 40vh; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 0 20px;">
         <div class="container">
             <header>
-                <h2 class="display-4 fw-bold">Permohonan Penyelesaian Sengketa Informasi Publik</h2>
+                <h2 class="display-4 fw-bold">{{ $nama}}</h2>
             </header>
         </div>
     </section>
