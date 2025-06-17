@@ -24,10 +24,33 @@ php artisan whatsapp:test 08123456789
 
 ## Endpoints
 
-- `GET /` - Info server
+### Pesan Teks
+- `POST /api/send-message` - Kirim pesan teks biasa
+  ```json
+  {
+    "number": "628123456789",
+    "message": "Hello World"
+  }
+  ```
+
+### Pesan dengan Media  
+- `POST /api/send-message-with-media` - Kirim pesan dengan file attachment
+  ```json
+  {
+    "number": "628123456789", 
+    "message": "Dokumen jawaban terlampir",
+    "media": {
+      "data": "base64-encoded-file-data",
+      "mimetype": "application/pdf",
+      "filename": "dokumen.pdf"
+    }
+  }
+  ```
+
+### Status & Info
+- `GET /api/status` - Status koneksi WhatsApp
 - `GET /qr` - QR Code untuk scan
-- `GET /api/status` - Status koneksi
-- `POST /api/send-message` - Kirim pesan
+- `GET /api/connected-phone` - Info nomor terhubung
 
 ## Konfigurasi
 
