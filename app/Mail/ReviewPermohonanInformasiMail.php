@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ReviewPermohonanInformasiMail extends Mailable
 {
@@ -15,18 +16,26 @@ class ReviewPermohonanInformasiMail extends Mailable
     public $status;
     public $reason;
     public $kategori;
-    public $status_pemohon;
+    public $statusPemohon;
+    public $informasiYangDibutuhkan;
+    public $jawaban;
+    public $pesanReview;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($nama, $status, $kategori, $status_pemohon, $reason = null)
+    public function __construct($nama, $status, $kategori, $statusPemohon, $informasiYangDibutuhkan, $jawaban = null, $reason = null)
     {
         $this->nama = $nama;
         $this->status = $status;
         $this->reason = $reason;
         $this->kategori = $kategori;
-        $this->status_pemohon = $status_pemohon;
+        $this->statusPemohon = $statusPemohon;
+        $this->informasiYangDibutuhkan = $informasiYangDibutuhkan;
+        $this->jawaban = $jawaban;
+        
+        // Generate pesan berdasarkan status
+        $this->pesanReview = $this->generatePesanReview();
     }
 
     /**
@@ -34,17 +43,50 @@ class ReviewPermohonanInformasiMail extends Mailable
      */
     public function build()
     {
-        $email = $this->subject('Status Permohonan Anda')
-            ->view('emails.hasil-permohonan');
+        $subject = $this->status === 'Disetujui' 
+            ? 'Hasil Review Permohonan Informasi Anda - Disetujui' 
+            : 'Hasil Review Permohonan Informasi Anda - Ditolak';
 
-        // Tambahkan lampiran jika status adalah 'Disetujui' dan terdapat file jawaban
-        if ($this->status === 'Disetujui' && $this->reason) {
-            $email->attach(storage_path('app/public/' . $this->reason), [
-                'as' => 'Dokumen_Jawaban.pdf',
-                'mime' => 'application/pdf',
-            ]);
+        $email = $this->subject($subject)
+                    ->view('sisfo::Email.review-permohonan-informasi');
+
+        // Tambahkan lampiran jika ada file jawaban (untuk status disetujui)
+        if ($this->status === 'Disetujui' && $this->jawaban && $this->isFilePath($this->jawaban)) {
+            try {
+                $filePath = storage_path('app/public/' . $this->jawaban);
+                if (file_exists($filePath)) {
+                    $email->attach($filePath, [
+                        'as' => 'Dokumen_Jawaban_' . date('Y-m-d') . '.pdf',
+                        'mime' => 'application/pdf',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Log error tapi tetap kirim email tanpa attachment
+                Log::error("Gagal melampirkan file jawaban: " . $e->getMessage());
+            }
         }
 
         return $email;
+    }
+
+    /**
+     * Generate pesan review berdasarkan status
+     */
+    private function generatePesanReview()
+    {
+        if ($this->status === 'Disetujui') {
+            return "Permohonan informasi mengenai {$this->informasiYangDibutuhkan} telah selesai diproses dan disetujui. Jawaban dari permohonan Anda dapat dilihat di bawah.";
+        } else {
+            return "Mohon maaf, permohonan informasi mengenai {$this->informasiYangDibutuhkan} tidak dapat diproses karena {$this->reason}.";
+        }
+    }
+
+    /**
+     * Check if jawaban is a file path
+     */
+    private function isFilePath($jawaban)
+    {
+        // Cek apakah jawaban berupa path file (mengandung ekstensi file)
+        return preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban);
     }
 }

@@ -18,11 +18,11 @@ class ReviewPengajuanController extends Controller
 
     public $breadcrumb = 'Daftar Review Pengajuan';
     public $pagename = 'Review Pengajuan';
-    public $daftarPengajuanUrl;
+    public $daftarReviewPengajuanUrl;
 
     public function __construct()
     {
-        $this->daftarPengajuanUrl = WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan');
+        $this->daftarReviewPengajuanUrl = WebMenuModel::getDynamicMenuUrl('daftar-review-pengajuan');
     }
 
     public function index()
@@ -36,24 +36,24 @@ class ReviewPengajuanController extends Controller
             'title' => $this->pagename
         ];
 
-        // Ambil jumlah verifikasi dari masing-masing model
-        $jumlahVerifikasi = [
-            'permohonanInformasi' => PermohonanInformasiModel::hitungJumlahVerifikasi(),
-            'pernyataanKeberatan' => PernyataanKeberatanModel::hitungJumlahVerifikasi(),
-            'pengaduanMasyarakat' => PengaduanMasyarakatModel::hitungJumlahVerifikasi(),
-            'wbs' => WBSModel::hitungJumlahVerifikasi(),
-            'permohonanPerawatan' => PermohonanPerawatanModel::hitungJumlahVerifikasi()
+        // Ambil jumlah review dari masing-masing model
+        $jumlahReview = [
+            'permohonanInformasi' => PermohonanInformasiModel::hitungJumlahReview(),
+            'pernyataanKeberatan' => 0, // Akan diimplementasikan nanti
+            'pengaduanMasyarakat' => 0, // Akan diimplementasikan nanti
+            'wbs' => 0, // Akan diimplementasikan nanti
+            'permohonanPerawatan' => 0 // Akan diimplementasikan nanti
         ];
 
-        return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.index', [
+        return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
-            'jumlahDaftarVerifPermohonanInformasi' => $jumlahVerifikasi['permohonanInformasi'],
-            'jumlahDaftarVerifPernyataanKeberatan' => $jumlahVerifikasi['pernyataanKeberatan'],
-            'jumlahDaftarVerifPengaduanMasyarakat' => $jumlahVerifikasi['pengaduanMasyarakat'],
-            'jumlahDaftarVerifWBS' => $jumlahVerifikasi['wbs'],
-            'jumlahDaftarVerifPermohonanPerawatan' => $jumlahVerifikasi['permohonanPerawatan'],
-            'daftarPengajuanUrl' => $this->daftarPengajuanUrl
+            'jumlahDaftarReviewPermohonanInformasi' => $jumlahReview['permohonanInformasi'],
+            'jumlahDaftarReviewPernyataanKeberatan' => $jumlahReview['pernyataanKeberatan'],
+            'jumlahDaftarReviewPengaduanMasyarakat' => $jumlahReview['pengaduanMasyarakat'],
+            'jumlahDaftarReviewWBS' => $jumlahReview['wbs'],
+            'jumlahDaftarReviewPermohonanPerawatan' => $jumlahReview['permohonanPerawatan'],
+            'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
         ]);
     }
 }
