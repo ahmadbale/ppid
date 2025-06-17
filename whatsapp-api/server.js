@@ -991,9 +991,9 @@ app.get('/api/status', (req, res) => {
 });
 
 // Send Message endpoint
+// ENDPOINT LAMA - TETAP ADA untuk backward compatibility
 app.post('/api/send-message', async (req, res) => {
     try {
-        // Autentikasi bearer token
         const token = req.headers.authorization?.replace('Bearer ', '');
         if (token !== AUTH_TOKEN) {
             return res.status(401).json({ 
@@ -1020,7 +1020,6 @@ app.post('/api/send-message', async (req, res) => {
             });
         }
 
-        // Validasi format nomor
         const cleanNumber = number.replace(/[^0-9]/g, '');
         if (cleanNumber.length < 10) {
             return res.status(400).json({
@@ -1029,10 +1028,8 @@ app.post('/api/send-message', async (req, res) => {
             });
         }
 
-        // Format nomor dengan @c.us untuk chat
         const chatId = cleanNumber + '@c.us';
         
-        // Cek apakah nomor terdaftar di WhatsApp
         const isRegistered = await client.isRegisteredUser(chatId);
         if (!isRegistered) {
             return res.status(404).json({
@@ -1041,22 +1038,184 @@ app.post('/api/send-message', async (req, res) => {
             });
         }
         
-        // Kirim pesan
+        // Kirim pesan TEXT SAJA
         const sentMessage = await client.sendMessage(chatId, message);
 
-        console.log(`✅ Pesan berhasil dikirim ke ${number}`);
-        console.log(`📝 Pesan: ${message.substring(0, 50)}${message.length > 50 ? '...' : ''}`);
+        console.log(`✅ Pesan teks berhasil dikirim ke ${number}`);
 
         res.json({
             success: true,
             message: 'Pesan berhasil dikirim',
             to: number,
             message_id: sentMessage.id._serialized,
+            has_media: false,
             timestamp: new Date().toISOString()
         });
 
     } catch (error) {
         console.error('❌ Error mengirim pesan:', error);
+        
+        let errorMessage = 'Gagal mengirim pesan';
+        if (error.message.includes('Rate limit')) {
+            errorMessage = 'Terlalu banyak pesan dikirim, coba lagi nanti';
+        } else if (error.message.includes('disconnected')) {
+            errorMessage = 'WhatsApp terputus, silakan restart server';
+            isReady = false;
+            isAuthenticated = false;
+        }
+
+        res.status(500).json({
+            error: errorMessage,
+            message: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// ENDPOINT BARU - TAMBAHAN untuk kirim dengan media
+app.post('/api/send-message-with-media', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        if (token !== AUTH_TOKEN) {
+            return res.status(401).json({ 
+                error: 'Token tidak valid',
+                message: 'Authorization header diperlukan untuk mengirim pesan' 
+            });
+        }
+
+        if (!isReady || !isAuthenticated) {
+            return res.status(503).json({ 
+                error: 'WhatsApp client belum siap',
+                message: 'Silakan scan QR code terlebih dahulu',
+                qr_url: qrCodeData ? `http://localhost:${PORT}/qr` : null
+            });
+        }
+
+        const { number, message, media } = req.body;
+
+        if (!number || !message) {
+            return res.status(400).json({ 
+                error: 'Parameter tidak lengkap',
+                message: 'Nomor dan pesan harus diisi',
+                required: ['number', 'message']
+            });
+        }
+
+        const cleanNumber = number.replace(/[^0-9]/g, '');
+        if (cleanNumber.length < 10) {
+            return res.status(400).json({
+                error: 'Format nomor tidak valid',
+                message: 'Nomor telepon minimal 10 digit'
+            });
+        }
+
+        const chatId = cleanNumber + '@c.us';
+        
+        const isRegistered = await client.isRegisteredUser(chatId);
+        if (!isRegistered) {
+            return res.status(404).json({
+                error: 'Nomor tidak terdaftar',
+                message: 'Nomor WhatsApp tidak ditemukan atau tidak aktif'
+            });
+        }
+
+        let sentMessage;
+
+        // Jika ada media, kirim dengan attachment
+        if (media && media.data && media.filename) {
+            try {
+                console.log(`📎 Mengirim pesan dengan file: ${media.filename}`);
+                
+                // VALIDASI UKURAN FILE
+                const fileBuffer = Buffer.from(media.data, 'base64');
+                const fileSizeMB = fileBuffer.length / 1024 / 1024;
+                const maxSizeMB = 10; // Batas 10MB sesuai keputusan Anda
+
+                console.log(`📊 Ukuran file: ${fileSizeMB.toFixed(2)} MB (limit: ${maxSizeMB} MB)`);
+
+                if (fileSizeMB > maxSizeMB) {
+                    // File terlalu besar - kirim pesan tanpa attachment
+                    console.log(`⚠️ File terlalu besar (${fileSizeMB.toFixed(2)} MB), mengirim pesan fallback`);
+                    
+                    const fallbackMessage = message + `\n\n📎 *Catatan:* Dokumen (${fileSizeMB.toFixed(2)} MB) terlalu besar untuk WhatsApp.\n📧 Silakan cek email Anda untuk melihat dokumen lengkap.`;
+                    sentMessage = await client.sendMessage(chatId, fallbackMessage);
+
+                    return res.json({
+                        success: true,
+                        message: 'Pesan berhasil dikirim (file terlalu besar, fallback ke text)',
+                        to: number,
+                        message_id: sentMessage.id._serialized,
+                        has_media: false,
+                        file_size_mb: fileSizeMB.toFixed(2),
+                        fallback_reason: 'File size exceeds 10MB limit',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                // Import MessageMedia dari whatsapp-web.js
+                const { MessageMedia } = require('whatsapp-web.js');
+                
+                // Buat MessageMedia object
+                const mediaAttachment = new MessageMedia(
+                    media.mimetype || 'application/octet-stream',
+                    media.data,
+                    media.filename
+                );
+
+                // Kirim pesan dengan media
+                sentMessage = await client.sendMessage(chatId, mediaAttachment, {
+                    caption: message // Pesan sebagai caption
+                });
+
+                console.log(`✅ Pesan dengan file berhasil dikirim ke ${number} (${fileSizeMB.toFixed(2)} MB)`);
+
+                return res.json({
+                    success: true,
+                    message: 'Pesan dengan file berhasil dikirim',
+                    to: number,
+                    message_id: sentMessage.id._serialized,
+                    has_media: true,
+                    file_size_mb: fileSizeMB.toFixed(2),
+                    filename: media.filename,
+                    timestamp: new Date().toISOString()
+                });
+
+            } catch (mediaError) {
+                console.error('❌ Error mengirim media:', mediaError);
+                
+                // Fallback: kirim pesan tanpa media
+                console.log('🔄 Fallback: mengirim pesan tanpa media...');
+                const fallbackMessage = message + '\n\n📎 *Catatan:* Dokumen tidak dapat dikirim via WhatsApp, silakan cek email Anda.';
+                sentMessage = await client.sendMessage(chatId, fallbackMessage);
+
+                return res.json({
+                    success: true,
+                    message: 'Pesan berhasil dikirim (media gagal, fallback ke text)',
+                    to: number,
+                    message_id: sentMessage.id._serialized,
+                    has_media: false,
+                    fallback_reason: 'Media upload error: ' + mediaError.message,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        } else {
+            // Kirim pesan biasa
+            sentMessage = await client.sendMessage(chatId, message);
+
+            console.log(`✅ Pesan teks berhasil dikirim ke ${number}`);
+
+            return res.json({
+                success: true,
+                message: 'Pesan teks berhasil dikirim',
+                to: number,
+                message_id: sentMessage.id._serialized,
+                has_media: false,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+    } catch (error) {
+        console.error('❌ Error mengirim pesan dengan media:', error);
         
         let errorMessage = 'Gagal mengirim pesan';
         if (error.message.includes('Rate limit')) {

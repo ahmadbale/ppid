@@ -12,7 +12,7 @@ class WhatsAppModel extends Model
     protected $table = 'log_whatsapp';
     protected $primaryKey = 'log_whatsapp_id';
     public $timestamps = false; // Tambahkan ini karena tidak ada created_at/updated_at
-    
+
     protected $fillable = [
         'log_whatsapp_status',
         'log_whatsapp_nama_pengirim',
@@ -51,7 +51,6 @@ class WhatsAppModel extends Model
                 Log::error('Failed to create WhatsApp log - create() returned null');
                 return null;
             }
-
         } catch (\Exception $e) {
             Log::error('Error creating WhatsApp log: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -67,13 +66,13 @@ class WhatsAppModel extends Model
         try {
             $this->log_whatsapp_delivery_status = $newStatus;
             $result = $this->save();
-            
+
             if ($result) {
                 Log::info("WhatsApp log ID {$this->log_whatsapp_id} delivery status updated to: {$newStatus}");
             } else {
                 Log::error("Failed to update WhatsApp log ID {$this->log_whatsapp_id} delivery status");
             }
-            
+
             return $result;
         } catch (\Exception $e) {
             Log::error("Error updating WhatsApp log delivery status: " . $e->getMessage());
@@ -88,7 +87,7 @@ class WhatsAppModel extends Model
     {
         $startDateTime = (new DateTime($startDate))->format('Y-m-d 00:00:00');
         $endDateTime = (new DateTime($endDate))->format('Y-m-d 23:59:59');
-        
+
         return self::whereBetween('log_whatsapp_tanggal_dikirim', [$startDateTime, $endDateTime])
             ->orderBy('log_whatsapp_tanggal_dikirim', 'desc')
             ->get();
@@ -120,7 +119,7 @@ class WhatsAppModel extends Model
      */
     public function getFormattedTanggalDikirimAttribute()
     {
-        return $this->log_whatsapp_tanggal_dikirim ? 
+        return $this->log_whatsapp_tanggal_dikirim ?
             (new DateTime($this->log_whatsapp_tanggal_dikirim))->format('d M Y H:i:s') : '-';
     }
 
@@ -142,5 +141,17 @@ class WhatsAppModel extends Model
         return self::where('log_whatsapp_delivery_status', $deliveryStatus)
             ->orderBy('log_whatsapp_tanggal_dikirim', 'desc')
             ->get();
+    }
+
+    public function updatePesan($pesanBaru)
+    {
+        try {
+            $this->wa_pesan = $pesanBaru;
+            $this->save();
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error updating WhatsApp log message: ' . $e->getMessage());
+            return false;
+        }
     }
 }

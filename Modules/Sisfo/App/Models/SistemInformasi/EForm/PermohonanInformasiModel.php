@@ -772,7 +772,7 @@ class PermohonanInformasiModel extends Model
                     $notif->sudah_dibaca_notif_mpu = now();
                     $notif->save();
                 }
-                
+
                 Log::info("Updated {$notifikasiMPU->count()} MPU notifications for permohonan ID: {$this->permohonan_informasi_id}");
             }
         } catch (\Exception $e) {
@@ -830,8 +830,6 @@ class PermohonanInformasiModel extends Model
             // Ambil data WhatsApp berdasarkan kategori pemohon
             $whatsappData = $this->getWhatsAppData();
 
-            Log::info("WhatsApp review data retrieved:", $whatsappData);
-
             if (empty($whatsappData['nomor_hp'])) {
                 Log::info("Tidak ada nomor WhatsApp yang valid untuk review permohonan ID: {$this->permohonan_informasi_id}");
                 return;
@@ -840,32 +838,68 @@ class PermohonanInformasiModel extends Model
             // Inisialisasi WhatsApp service
             $whatsappService = new WhatsAppService();
 
-            // Generate pesan WhatsApp untuk review
-            $pesanWhatsApp = $whatsappService->generatePesanReviewPermohonanInformasi(
-                $whatsappData['nama'],
-                $status,
-                $this->pi_kategori_pemohon,
-                $this->pi_informasi_yang_dibutuhkan,
-                $jawaban,
-                $alasanPenolakan
-            );
-
-            Log::info("Generated WhatsApp review message:", ['message' => $pesanWhatsApp]);
-
             // Kirim WhatsApp ke setiap nomor yang valid
             foreach ($whatsappData['nomor_hp'] as $index => $nomorHp) {
                 if (!empty($nomorHp)) {
                     Log::info("Attempting to send WhatsApp review #{$index} to: {$nomorHp}");
 
-                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+                    // IMPLEMENTASI SOLUSI: Cek ukuran file dan tentukan strategi pengiriman
+                    $strategiPengiriman = $this->tentukanStrategiPengiriman($status, $jawaban);
+
+                    // Generate pesan WhatsApp berdasarkan strategi
+                    $pesanWhatsApp = $whatsappService->generatePesanReviewPermohonanInformasi(
+                        $whatsappData['nama'],
+                        $status,
+                        $this->pi_kategori_pemohon,
+                        $this->pi_informasi_yang_dibutuhkan,
+                        $jawaban,
+                        $alasanPenolakan,
+                        $strategiPengiriman // Parameter baru untuk strategi
+                    );
+
+                    $berhasil = false;
+
+                    // Kirim berdasarkan strategi yang ditentukan
+                    switch ($strategiPengiriman['metode']) {
+                        case 'kirim_file':
+                            // File < 10MB - kirim dengan attachment
+                            $berhasil = $whatsappService->kirimPesanDenganFile(
+                                $nomorHp,
+                                $pesanWhatsApp,
+                                $strategiPengiriman['file_path'],
+                                $status . '_REVIEW'
+                            );
+
+                            Log::info("WhatsApp dengan file dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
+                            break;
+
+                        case 'notif_file_besar':
+                            // File > 10MB - kirim pesan notifikasi saja
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+
+                            Log::info("WhatsApp notifikasi file besar dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
+                            break;
+
+                        case 'pesan_biasa':
+                            // Jawaban text atau tidak ada file
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+
+                            Log::info("WhatsApp pesan biasa dikirim");
+                            break;
+
+                        case 'file_tidak_ada':
+                            // File tidak ditemukan - kirim notifikasi
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+
+                            Log::warning("File tidak ditemukan: {$strategiPengiriman['file_path']}");
+                            break;
+                    }
 
                     if ($berhasil) {
-                        Log::info("WhatsApp review {$status} berhasil dikirim ke: {$nomorHp}");
+                        Log::info("WhatsApp review {$status} berhasil dikirim ke: {$nomorHp} (strategi: {$strategiPengiriman['metode']})");
                     } else {
                         Log::error("Gagal mengirim WhatsApp review ke: {$nomorHp}");
                     }
-                } else {
-                    Log::warning("Nomor WhatsApp kosong untuk kategori: {$this->pi_kategori_pemohon} index: {$index}");
                 }
             }
 
@@ -873,6 +907,66 @@ class PermohonanInformasiModel extends Model
         } catch (\Exception $e) {
             Log::error("Error saat mengirim WhatsApp notifikasi review: " . $e->getMessage());
             Log::error("Stack trace: " . $e->getTraceAsString());
+        }
+    }
+
+    /**
+     * Tentukan strategi pengiriman berdasarkan ukuran file - BARU
+     */
+    private function tentukanStrategiPengiriman($status, $jawaban)
+    {
+        // Default strategy untuk status ditolak atau tidak ada jawaban
+        if ($status !== 'Disetujui' || !$jawaban) {
+            return [
+                'metode' => 'pesan_biasa',
+                'ukuran_mb' => 0,
+                'file_path' => null,
+                'keterangan' => 'Tidak ada file'
+            ];
+        }
+
+        // Cek apakah jawaban berupa file
+        if (!preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+            return [
+                'metode' => 'pesan_biasa',
+                'ukuran_mb' => 0,
+                'file_path' => null,
+                'keterangan' => 'Jawaban berupa teks'
+            ];
+        }
+
+        // Cek keberadaan dan ukuran file
+        $filePath = storage_path('app/public/' . $jawaban);
+
+        if (!file_exists($filePath)) {
+            return [
+                'metode' => 'file_tidak_ada',
+                'ukuran_mb' => 0,
+                'file_path' => $filePath,
+                'keterangan' => 'File tidak ditemukan'
+            ];
+        }
+
+        $ukuranByte = filesize($filePath);
+        $ukuranMB = round($ukuranByte / 1024 / 1024, 2);
+
+        // BATAS 10MB sesuai keputusan Anda
+        $batasUkuranMB = 10;
+
+        if ($ukuranMB <= $batasUkuranMB) {
+            return [
+                'metode' => 'kirim_file',
+                'ukuran_mb' => $ukuranMB,
+                'file_path' => $filePath,
+                'keterangan' => 'File kecil, kirim via WhatsApp'
+            ];
+        } else {
+            return [
+                'metode' => 'notif_file_besar',
+                'ukuran_mb' => $ukuranMB,
+                'file_path' => $filePath,
+                'keterangan' => 'File besar, hanya notifikasi'
+            ];
         }
     }
 }
