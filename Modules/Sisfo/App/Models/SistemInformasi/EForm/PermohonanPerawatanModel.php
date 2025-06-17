@@ -39,10 +39,14 @@ class PermohonanPerawatanModel extends Model
         'pp_alasan_penolakan',
         'pp_sudah_dibaca',
         'pp_tanggal_dibaca',
-        'pp_review',
-        'pp_tanggal_review',
+        'pp_verifikasi',
+        'pp_tanggal_verifikasi',
+        'pp_review_sudah_dibaca',
+        'pp_review_tanggal_dibaca',
+        'pp_dijawab',
         'pp_tanggal_dijawab',
-        'pp_verif_isDeleted'
+        'pp_verifikasi_isDeleted',
+        'pp_review_isDeleted'
     ];
 
     public function __construct(array $attributes = [])
@@ -198,7 +202,7 @@ class PermohonanPerawatanModel extends Model
         // Hanya menghitung verifikasi untuk Permohonan Perawatan
         return self::where('pp_status', 'Masuk')
             ->where('isDeleted', 0)
-            ->where('pp_verif_isDeleted', 0)
+            ->where('pp_verifikasi_isDeleted', 0)
             ->whereNull('pp_sudah_dibaca')
             ->count();
     }
@@ -207,7 +211,7 @@ class PermohonanPerawatanModel extends Model
     {
         // Mengambil daftar permohonan perawatan untuk verifikasi
         return self::where('isDeleted', 0)
-            ->where('pp_verif_isDeleted', 0)
+            ->where('pp_verifikasi_isDeleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -226,8 +230,8 @@ class PermohonanPerawatanModel extends Model
 
         // Update status menjadi Verifikasi
         $this->pp_status = 'Verifikasi';
-        $this->pp_review = $aliasReview;
-        $this->pp_tanggal_review = now();
+        $this->pp_verifikasi = $aliasReview;
+        $this->pp_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -276,8 +280,8 @@ class PermohonanPerawatanModel extends Model
         // Update status menjadi Ditolak
         $this->pp_status = 'Ditolak';
         $this->pp_alasan_penolakan = $alasanPenolakan;
-        $this->pp_review = $aliasReview;
-        $this->pp_tanggal_review = now();
+        $this->pp_verifikasi = $aliasReview;
+        $this->pp_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -324,7 +328,7 @@ class PermohonanPerawatanModel extends Model
         }
 
         // Update flag hapus
-        $this->pp_verif_isDeleted = 1;
+        $this->pp_verifikasi_isDeleted = 1;
         $this->pp_tanggal_dijawab = now();
         $this->save();
 

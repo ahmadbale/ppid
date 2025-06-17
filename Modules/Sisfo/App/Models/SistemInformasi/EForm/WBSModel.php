@@ -44,10 +44,14 @@ class WBSModel extends Model
         'wbs_alasan_penolakan',
         'wbs_sudah_dibaca',
         'wbs_tanggal_dibaca',
-        'wbs_review',
-        'wbs_tanggal_review',
+        'wbs_verifikasi',
+        'wbs_tanggal_verifikasi',
+        'wbs_review_sudah_dibaca',
+        'wbs_review_tanggal_dibaca',
+        'wbs_dijawab',
         'wbs_tanggal_dijawab',
-        'wbs_verif_isDeleted'
+        'wbs_verifikasi_isDeleted',
+        'wbs_review_isDeleted'
     ];
 
     public function __construct(array $attributes = [])
@@ -213,7 +217,7 @@ class WBSModel extends Model
         // Hanya menghitung verifikasi untuk WBS
         return self::where('wbs_status', 'Masuk')
             ->where('isDeleted', 0)
-            ->where('wbs_verif_isDeleted', 0)
+            ->where('wbs_verifikasi_isDeleted', 0)
             ->whereNull('wbs_sudah_dibaca')
             ->count();
     }
@@ -222,7 +226,7 @@ class WBSModel extends Model
     {
         // Mengambil daftar WBS untuk verifikasi
         return self::where('isDeleted', 0)
-            ->where('wbs_verif_isDeleted', 0)
+            ->where('wbs_verifikasi_isDeleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -241,8 +245,8 @@ class WBSModel extends Model
 
         // Update status menjadi Verifikasi
         $this->wbs_status = 'Verifikasi';
-        $this->wbs_review = $aliasReview;
-        $this->wbs_tanggal_review = now();
+        $this->wbs_verifikasi = $aliasReview;
+        $this->wbs_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -291,8 +295,8 @@ class WBSModel extends Model
         // Update status menjadi Ditolak
         $this->wbs_status = 'Ditolak';
         $this->wbs_alasan_penolakan = $alasanPenolakan;
-        $this->wbs_review = $aliasReview;
-        $this->wbs_tanggal_review = now();
+        $this->wbs_verifikasi = $aliasReview;
+        $this->wbs_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -339,7 +343,7 @@ class WBSModel extends Model
         }
 
         // Update flag hapus
-        $this->wbs_verif_isDeleted = 1;
+        $this->wbs_verifikasi_isDeleted = 1;
         $this->wbs_tanggal_dijawab = now();
         $this->save();
 

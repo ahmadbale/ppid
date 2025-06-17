@@ -238,7 +238,7 @@
                                     </tr>
                                     <tr>
                                         <td class="font-weight-bold">Review oleh</td>
-                                        <td>: {{ $PP->pp_review ?? '-' }}</td>
+                                        <td>: {{ $PP->pp_verifikasi ?? '-' }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -257,7 +257,7 @@
                                     </tr>
                                     <tr>
                                         <td class="font-weight-bold">Tanggal Review</td>
-                                        <td>: {{ $PP->pp_tanggal_review ? \Carbon\Carbon::parse($PP->pp_tanggal_review)->format('d M Y H:i:s') : '-' }}</td>
+                                        <td>: {{ $PP->pp_tanggal_verifikasi ? \Carbon\Carbon::parse($PP->pp_tanggal_verifikasi)->format('d M Y H:i:s') : '-' }}</td>
                                     </tr>
                                 </table>
                             </div>

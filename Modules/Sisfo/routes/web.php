@@ -51,6 +51,8 @@ use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPeng
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPMController;
@@ -511,10 +513,10 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan')], function () {
-        // Route utama - menampilkan index semua kategori verifikasi
+        // Route utama - menampilkan index semua kategori Hasil/Review
         Route::get('/', [VerifPengajuanController::class, 'index'])->middleware('permission:view');
         
-        // Route untuk Verifikasi Permohonan Informasi
+        // Route untuk Hasil/Review Permohonan Informasi
         Route::group(['prefix' => 'permohonan-informasi'], function() {
             Route::get('/', [VerifPIController::class, 'index'])->middleware('permission:view');
             Route::get('/approve-modal/{id}', [VerifPIController::class, 'getApproveModal'])->middleware('permission:update');
@@ -564,9 +566,22 @@ Route::middleware('auth')->group(function () {
             Route::post('/tandaiDibaca/{id}', [VerifPPController::class, 'tandaiDibaca'])->middleware('permission:update');
             Route::post('/hapusPermohonan/{id}', [VerifPPController::class, 'hapusPermohonan'])->middleware('permission:delete');
         });
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-review-pengajuan')], function () {
+        // Route utama - menampilkan index semua kategori Review
+        Route::get('/', [ReviewPengajuanController::class, 'index'])->middleware('permission:view');
         
-        // Tambahkan grup route untuk kategori pengajuan lainnya disini
-        // ...
+        // Route untuk Review Permohonan Informasi
+        Route::group(['prefix' => 'permohonan-informasi'], function() {
+            Route::get('/', [ReviewPIController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [ReviewPIController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [ReviewPIController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [ReviewPIController::class, 'setujuiReview'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [ReviewPIController::class, 'tolakReview'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [ReviewPIController::class, 'tandaiDibacaReview'])->middleware('permission:update');
+            Route::delete('/hapusPermohonan/{id}', [ReviewPIController::class, 'hapusReview'])->middleware('permission:delete');
+        });
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('management-menu-url')], function () {

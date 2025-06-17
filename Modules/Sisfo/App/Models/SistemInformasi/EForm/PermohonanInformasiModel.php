@@ -2,6 +2,7 @@
 
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
+use App\Mail\ReviewPermohonanInformasiMail;
 use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
@@ -40,13 +41,14 @@ class PermohonanInformasiModel extends Model
         'pi_alasan_penolakan',
         'pi_sudah_dibaca',
         'pi_tanggal_dibaca',
-        'pi_review',
-        'pi_tanggal_review',
-        'pi_hasil_sudah_dibaca',
-        'pi_hasil_tanggal_dibaca',
+        'pi_verifikasi',
+        'pi_tanggal_verifikasi',
+        'pi_review_sudah_dibaca',
+        'pi_review_tanggal_dibaca',
         'pi_dijawab',
-        'pi_tanggal_jawaban',
-        'pi_verif_isDeleted'
+        'pi_tanggal_dijawab',
+        'pi_verifikasi_isDeleted',
+        'pi_review_isDeleted'
     ];
 
     public function PiDiriSendiri()
@@ -233,7 +235,7 @@ class PermohonanInformasiModel extends Model
         // Hanya menghitung verifikasi untuk Permohonan Informasi
         return self::where('pi_status', 'Masuk')
             ->where('isDeleted', 0)
-            ->where('pi_verif_isDeleted', 0)
+            ->where('pi_verifikasi_isDeleted', 0)
             ->whereNull('pi_sudah_dibaca')
             ->count();
     }
@@ -243,7 +245,7 @@ class PermohonanInformasiModel extends Model
         // Mengambil daftar permohonan untuk verifikasi
         return self::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
             ->where('isDeleted', 0)
-            ->where('pi_verif_isDeleted', 0)
+            ->where('pi_verifikasi_isDeleted', 0)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -265,8 +267,8 @@ class PermohonanInformasiModel extends Model
 
         // Update status menjadi Verifikasi
         $this->pi_status = 'Verifikasi';
-        $this->pi_review = $aliasReview;
-        $this->pi_tanggal_review = now();
+        $this->pi_verifikasi = $aliasReview;
+        $this->pi_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -329,8 +331,8 @@ class PermohonanInformasiModel extends Model
         // Update status menjadi Ditolak
         $this->pi_status = 'Ditolak';
         $this->pi_alasan_penolakan = $alasanPenolakan;
-        $this->pi_review = $aliasReview;
-        $this->pi_tanggal_review = now();
+        $this->pi_verifikasi = $aliasReview;
+        $this->pi_tanggal_verifikasi = now();
         $this->save();
 
         // Kirim email notifikasi
@@ -380,8 +382,7 @@ class PermohonanInformasiModel extends Model
         }
 
         // Update flag hapus
-        $this->pi_verif_isDeleted = 1;
-        $this->pi_tanggal_dijawab = now();
+        $this->pi_verifikasi_isDeleted = 1;
         $this->save();
 
         return $this;
@@ -592,5 +593,286 @@ class PermohonanInformasiModel extends Model
             'nomor_hp' => $nomorHp,
             'nama' => $nama ?: 'Tidak Diketahui'
         ];
+    }
+
+    public static function hitungJumlahReview()
+    {
+        // Hanya menghitung review untuk Permohonan Informasi
+        return self::where('pi_status', 'Verifikasi')
+            ->where('isDeleted', 0)
+            ->where('pi_review_isDeleted', 0)
+            ->whereNull('pi_review_sudah_dibaca')
+            ->count();
+    }
+
+    public static function getDaftarReview()
+    {
+        // Mengambil daftar permohonan untuk review
+        return self::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            ->where('isDeleted', 0)
+            ->where('pi_review_isDeleted', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiReview($jawaban)
+    {
+        // Validasi jawaban
+        $validator = Validator::make(
+            ['jawaban' => $jawaban],
+            ['jawaban' => 'required|string'],
+            [
+                'jawaban.required' => 'Jawaban wajib diisi',
+                'jawaban.string' => 'Format jawaban tidak valid'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pi_status !== 'Verifikasi') {
+            throw new \Exception('Permohonan harus dalam status Verifikasi untuk dapat direview');
+        }
+
+        // Load relasi yang diperlukan
+        $this->load(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi']);
+
+        // Ambil nama pengguna yang mereview
+        $namaReviewer = Auth::user()->nama_pengguna;
+
+        // Ambil alias dan hak akses untuk format review
+        $aliasReview = $this->getAliasWithHakAkses();
+
+        // Update status menjadi Disetujui
+        $this->pi_status = 'Disetujui';
+        $this->pi_jawaban = $jawaban;
+        $this->pi_dijawab = $aliasReview;
+        $this->pi_tanggal_dijawab = now();
+        $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasiReview('Disetujui', $jawaban);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasiReview('Disetujui', $jawaban);
+
+        // Buat log transaksi untuk persetujuan review
+        $aktivitasSetuju = "{$namaReviewer} menyetujui review permohonan informasi {$this->pi_informasi_yang_dibutuhkan}";
+        TransactionModel::createData(
+            'APPROVED_REVIEW',
+            $this->permohonan_informasi_id,
+            $aktivitasSetuju
+        );
+
+        return $this;
+    }
+
+    public function validasiDanTolakReview($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pi_status !== 'Verifikasi') {
+            throw new \Exception('Permohonan harus dalam status Verifikasi untuk dapat direview');
+        }
+
+        // Load relasi yang diperlukan
+        $this->load(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi']);
+
+        // Ambil nama pengguna yang menolak
+        $namaPenolak = Auth::user()->nama_pengguna;
+
+        // Ambil alias dan hak akses untuk format review
+        $aliasReview = $this->getAliasWithHakAkses();
+
+        // Update status menjadi Ditolak
+        $this->pi_status = 'Ditolak';
+        $this->pi_alasan_penolakan = $alasanPenolakan;
+        $this->pi_dijawab = $aliasReview;
+        $this->pi_tanggal_dijawab = now();
+        $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasiReview('Ditolak', null, $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasiReview('Ditolak', null, $alasanPenolakan);
+
+        // Buat log transaksi untuk penolakan review
+        $aktivitasTolak = "{$namaPenolak} menolak review permohonan informasi {$this->pi_informasi_yang_dibutuhkan} dengan alasan {$alasanPenolakan}";
+        TransactionModel::createData(
+            'REJECTED_REVIEW',
+            $this->permohonan_informasi_id,
+            $aktivitasTolak
+        );
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibacaReview()
+    {
+        // Validasi status permohonan
+        if (!in_array($this->pi_status, ['Disetujui', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak review ini terlebih dahulu');
+        }
+
+        // Ambil alias dan hak akses untuk format sudah dibaca
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
+        // Tandai sebagai dibaca
+        $this->pi_review_sudah_dibaca = $aliasDibaca;
+        $this->pi_review_tanggal_dibaca = now();
+        $this->save();
+
+        // Update notifikasi MPU jika masih NULL (karena notif MPU dibuat saat verifikasi)
+        $this->updateNotifikasiMPU();
+
+        return $this;
+    }
+
+    public function validasiDanHapusReview()
+    {
+        // Validasi status dibaca
+        if (empty($this->pi_review_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai review ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->pi_review_isDeleted = 1;
+        $this->save();
+
+        return $this;
+    }
+
+    private function updateNotifikasiMPU()
+    {
+        try {
+            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Permohonan Informasi')
+                ->where('notif_mpu_form_id', $this->permohonan_informasi_id)
+                ->where('isDeleted', 0)
+                ->whereNull('sudah_dibaca_notif_mpu')
+                ->get();
+
+            if ($notifikasiMPU->isNotEmpty()) {
+                foreach ($notifikasiMPU as $notif) {
+                    $notif->sudah_dibaca_notif_mpu = now();
+                    $notif->save();
+                }
+                
+                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for permohonan ID: {$this->permohonan_informasi_id}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Error updating MPU notifications: " . $e->getMessage());
+        }
+    }
+
+    private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil data email berdasarkan kategori pemohon
+            $emailData = $this->getEmailData();
+
+            if (empty($emailData['emails'])) {
+                Log::info("Tidak ada email yang valid untuk review permohonan ID: {$this->permohonan_informasi_id}");
+                return;
+            }
+
+            // Kirim email ke setiap alamat yang valid
+            foreach ($emailData['emails'] as $email) {
+                if ($this->isValidEmail($email)) {
+                    try {
+                        // Kirim email
+                        Mail::to($email)->send(new ReviewPermohonanInformasiMail(
+                            $emailData['nama'],
+                            $status,
+                            $this->pi_kategori_pemohon,
+                            $emailData['status_pemohon'],
+                            $this->pi_informasi_yang_dibutuhkan,
+                            $jawaban,
+                            $alasanPenolakan
+                        ));
+
+                        // Log email yang berhasil dikirim
+                        EmailModel::createData($status . '_REVIEW', $email);
+
+                        Log::info("Email review {$status} berhasil dikirim ke: {$email}");
+                    } catch (\Exception $e) {
+                        Log::error("Gagal mengirim email review ke {$email}: " . $e->getMessage());
+                    }
+                } else {
+                    Log::warning("Email tidak valid: {$email}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim email notifikasi review: " . $e->getMessage());
+        }
+    }
+
+    private function kirimWhatsAppNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
+    {
+        try {
+            Log::info("Starting WhatsApp review notification for permohonan ID: {$this->permohonan_informasi_id}");
+
+            // Ambil data WhatsApp berdasarkan kategori pemohon
+            $whatsappData = $this->getWhatsAppData();
+
+            Log::info("WhatsApp review data retrieved:", $whatsappData);
+
+            if (empty($whatsappData['nomor_hp'])) {
+                Log::info("Tidak ada nomor WhatsApp yang valid untuk review permohonan ID: {$this->permohonan_informasi_id}");
+                return;
+            }
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            // Generate pesan WhatsApp untuk review
+            $pesanWhatsApp = $whatsappService->generatePesanReviewPermohonanInformasi(
+                $whatsappData['nama'],
+                $status,
+                $this->pi_kategori_pemohon,
+                $this->pi_informasi_yang_dibutuhkan,
+                $jawaban,
+                $alasanPenolakan
+            );
+
+            Log::info("Generated WhatsApp review message:", ['message' => $pesanWhatsApp]);
+
+            // Kirim WhatsApp ke setiap nomor yang valid
+            foreach ($whatsappData['nomor_hp'] as $index => $nomorHp) {
+                if (!empty($nomorHp)) {
+                    Log::info("Attempting to send WhatsApp review #{$index} to: {$nomorHp}");
+
+                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+
+                    if ($berhasil) {
+                        Log::info("WhatsApp review {$status} berhasil dikirim ke: {$nomorHp}");
+                    } else {
+                        Log::error("Gagal mengirim WhatsApp review ke: {$nomorHp}");
+                    }
+                } else {
+                    Log::warning("Nomor WhatsApp kosong untuk kategori: {$this->pi_kategori_pemohon} index: {$index}");
+                }
+            }
+
+            Log::info("WhatsApp review notification process completed");
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi review: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+        }
     }
 }

@@ -432,4 +432,50 @@ class WhatsAppService
 
         return $this->kirimPesan($nomorTujuan, $pesanTest, 'Test');
     }
+
+    public function generatePesanReviewPermohonanInformasi($nama, $status, $kategori, $informasiYangDibutuhkan, $jawaban = null, $alasanPenolakan = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+        
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PERMOHONAN INFORMASI DISETUJUI*\n\n";
+            $template .= "Permohonan informasi Anda telah *SELESAI DIPROSES* dan disetujui.\n\n";
+            $template .= "📋 *Detail Permohonan:*\n";
+            $template .= "• Kategori: {$kategori}\n";
+            $template .= "• Informasi Diminta: {$informasiYangDibutuhkan}\n\n";
+            
+            $template .= "📝 *Jawaban:*\n";
+            if ($jawaban) {
+                // Cek apakah jawaban berupa file atau teks
+                if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+                    $template .= "📎 Dokumen jawaban telah dikirim melalui email.\n\n";
+                } else {
+                    // Batasi panjang jawaban untuk WhatsApp
+                    $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                    $template .= "{$jawabanPendek}\n\n";
+                    if (strlen($jawaban) > 200) {
+                        $template .= "📧 Jawaban lengkap dapat dilihat di email.\n\n";
+                    }
+                }
+            }
+        } else {
+            $template .= "❌ *PERMOHONAN INFORMASI DITOLAK*\n\n";
+            $template .= "Mohon maaf, permohonan informasi Anda *TIDAK DAPAT DIPROSES*.\n\n";
+            $template .= "📋 *Detail Permohonan:*\n";
+            $template .= "• Kategori: {$kategori}\n";
+            $template .= "• Informasi Diminta: {$informasiYangDibutuhkan}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+        
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
 }
