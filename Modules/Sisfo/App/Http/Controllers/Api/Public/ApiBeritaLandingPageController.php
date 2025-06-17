@@ -21,4 +21,14 @@ class ApiBeritaLandingPageController extends BaseApiController
             'Laman Berita LandingPage'
         );
     }
+    public function getDetailBeritaById($slug,$berita_id)
+    {
+        return $this->executeWithSystemAuth(
+            function () use ($slug,$berita_id) {
+                $berita = BeritaDinamisModel::getDetailBeritaById($slug,$berita_id);
+                return $berita;
+            },
+            'Laman Berita'
+        );
+    }
 }
