@@ -20,6 +20,7 @@ use Modules\User\App\Http\Controllers\Form\KeberatanController;
 use Modules\User\App\Http\Controllers\Form\WBSController;
 use Modules\User\App\Http\Controllers\Form\SaranaPrasaranaController;
 use Modules\User\App\Http\Controllers\Form\PengaduanMasyarakatController;
+use Modules\User\App\Http\Controllers\PenyelesaianSengketaController;
 
 
 /*
@@ -136,6 +137,7 @@ Route::get('/register', function () {
     return view('user::register');
 }) ->name('register');
 
+Route::get('/permohonan-penyelesaian-sengketa', [PenyelesaianSengketaController::class, 'index'])->name('permohonan-penyelesaian-sengketa');
 
     Route::get('/daftar-informasi-publik', [InformasiPublikController::class, 'index'])->name('daftar-informasi-publik');
     Route::get('/informasi-dikecualikan', [InformasiDikecualikanController::class, 'index'])->name('informasi-publik.dikecualikan');
