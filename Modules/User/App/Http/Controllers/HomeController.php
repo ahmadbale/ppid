@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Crypt;
 use App\Services\JwtTokenService;
 
 class HomeController extends Controller
@@ -374,5 +375,53 @@ class HomeController extends Controller
             ]);
             return [];
         }
+    }
+
+    public function detail($slug, $encryptedId)
+    {
+        try {
+            // Dekripsi ID dari URL
+            $beritaId = Crypt::decryptString(urldecode($encryptedId));
+
+            // Ambil data detail berita dari API berdasarkan ID
+            $detailResponse = $this->makeAuthenticatedRequest("public/getDetailBeritaById/{$slug}/{$beritaId}");
+
+            $detailData = $this->fetchBeritaDetail($detailResponse);
+
+            // Validasi data kosong atau slug tidak cocok
+            if (empty($detailData) || $detailData['slug'] !== $slug) {
+                return view('user::404', [
+                    'message' => 'Laman Tidak Ditemukan',
+                ]);
+            }
+
+            return view('user::landing_page', [
+                'beritaDetail' => $detailData
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saat mengambil detail berita dari API', [
+                'encrypted_id' => $encryptedId,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Jika gagal dekripsi atau terjadi error lain, arahkan ke 404
+            return view('user::404', [
+                'message' => 'Laman Tidak Ditemukan',
+            ]);
+        }
+    }
+
+
+    private function fetchBeritaDetail($response)
+    {
+        if ($response->failed() || !$response->json('success')) {
+            Log::warning('API Detail Berita gagal atau data tidak lengkap', [
+                'response' => $response->json() ?? 'Tidak ada response'
+            ]);
+            return null;
+        }
+
+        return $this->processBeritaDetail($response->json('data'));
     }
 }
