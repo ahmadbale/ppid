@@ -12,6 +12,7 @@
 <body>
     @include('user::layouts.header')
     @include('user::layouts.navbar')
+     <div class="spacer" style="height: 80px;"></div> 
     <div class="container px-2 px-md-5">
         <h2 class="fw-bold mt-4 mb-2 text-center text-md-center" style="font-size:2.5rem;">
             Prosedur Layanan Informasi Lainnya
@@ -26,7 +27,7 @@
         </div>
 
 
-        <div class="prosedur-list mx-auto" style="max-width:900px;">
+        <div class="prosedur-list mx-auto mb-5" style="max-width:900px;">
             <div class="list-group shadow-sm rounded-3">
                 @foreach ($sopLainnya as $sop)
                     <a href="{{ $sop['route'] }}"

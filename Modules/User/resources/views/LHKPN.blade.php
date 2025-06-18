@@ -13,7 +13,7 @@
 <body>
     @include('user::layouts.header')
     @include('user::layouts.navbar')
-
+ <div class="spacer" style="height: 50px;"></div> 
     <div class="container">
         <div class="lhkpn-section" x-data="lhkpnHandler()">
             <h2 class="fw-bold pb-2 text-center text-md-start">Laporan Harta Kekayaan Penyelenggara Negara</h2>
