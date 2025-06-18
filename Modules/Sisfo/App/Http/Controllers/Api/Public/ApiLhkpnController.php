@@ -3,7 +3,7 @@
 namespace Modules\Sisfo\App\Http\Controllers\Api\Public;
 
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
-use Modules\Sisfo\App\Models\Website\InformasiPublik\LHKPN\LHKPNModel;
+use Modules\Sisfo\App\Models\Website\InformasiPublik\LHKPN\LhkpnModel;
 use Illuminate\Http\Request;
 
 class ApiLhkpnController extends BaseApiController
