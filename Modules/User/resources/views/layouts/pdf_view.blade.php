@@ -1,6 +1,6 @@
 @extends('user::layouts.mainpage')
 
-@section('title', $pageTitle ?? 'Daftar Informasi Publik')
+@section('title', $pageTitle ?? 'Prosedur Layanan Informasi')
 
 @section('content')
     <h2 class="fw-bold mt-4 mb-2 text-center text-md-center">
@@ -18,6 +18,7 @@
             @endif
         </span>
     </div>
+
     <div class="pdf-header shadow-sm rounded p-4 mb-4 bg-white">
         <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -36,3 +37,47 @@
         <embed src="{{ asset($pdfFile) }}" type="application/pdf" style="width: 100%; height: 700px; border-radius: 8px;" />
     </div>
 @endsection
+
+@push('styles')
+<style>
+/* Responsive for PDF card and embed */
+.pdf-header {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.pdf-header h5 {
+    font-size: 1.1rem;
+    word-break: break-word;
+}
+
+.pdf-container {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pdf-embed {
+    width: 100%;
+    min-height: 400px;
+    height: 70vh;
+    border-radius: 8px;
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .pdf-header {
+        padding: 1rem !important;
+        max-width: 100%;
+    }
+    .pdf-container {
+        padding: 0 !important;
+    }
+    .pdf-embed {
+        min-height: 300px;
+        height: 55vw;
+        border-radius: 6px;
+    }
+}
+</style>
+@endpush
+
