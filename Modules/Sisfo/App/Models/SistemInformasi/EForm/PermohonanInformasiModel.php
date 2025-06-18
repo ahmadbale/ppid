@@ -611,6 +611,7 @@ class PermohonanInformasiModel extends Model
         return self::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
             ->where('isDeleted', 0)
             ->where('pi_review_isDeleted', 0)
+            ->where('pi_status', '!=', 'Masuk')
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -661,7 +662,7 @@ class PermohonanInformasiModel extends Model
         // Buat log transaksi untuk persetujuan review
         $aktivitasSetuju = "{$namaReviewer} menyetujui review permohonan informasi {$this->pi_informasi_yang_dibutuhkan}";
         TransactionModel::createData(
-            'APPROVED_REVIEW',
+            'APPROVED',
             $this->permohonan_informasi_id,
             $aktivitasSetuju
         );
@@ -715,7 +716,7 @@ class PermohonanInformasiModel extends Model
         // Buat log transaksi untuk penolakan review
         $aktivitasTolak = "{$namaPenolak} menolak review permohonan informasi {$this->pi_informasi_yang_dibutuhkan} dengan alasan {$alasanPenolakan}";
         TransactionModel::createData(
-            'REJECTED_REVIEW',
+            'REJECTED',
             $this->permohonan_informasi_id,
             $aktivitasTolak
         );
@@ -807,7 +808,7 @@ class PermohonanInformasiModel extends Model
                         ));
 
                         // Log email yang berhasil dikirim
-                        EmailModel::createData($status . '_REVIEW', $email);
+                        EmailModel::createData($status, $email);
 
                         Log::info("Email review {$status} berhasil dikirim ke: {$email}");
                     } catch (\Exception $e) {
@@ -854,42 +855,45 @@ class PermohonanInformasiModel extends Model
                         $this->pi_informasi_yang_dibutuhkan,
                         $jawaban,
                         $alasanPenolakan,
-                        $strategiPengiriman // Parameter baru untuk strategi
+                        $strategiPengiriman
                     );
 
                     $berhasil = false;
 
+                    // PERBAIKAN: Ubah status log WhatsApp sesuai permintaan
+                    $statusLog = $status; // Hapus '_REVIEW' suffix
+
                     // Kirim berdasarkan strategi yang ditentukan
                     switch ($strategiPengiriman['metode']) {
                         case 'kirim_file':
-                            // File < 10MB - kirim dengan attachment
+                            // File < 9MB - kirim dengan attachment
                             $berhasil = $whatsappService->kirimPesanDenganFile(
                                 $nomorHp,
                                 $pesanWhatsApp,
                                 $strategiPengiriman['file_path'],
-                                $status . '_REVIEW'
+                                $statusLog
                             );
 
                             Log::info("WhatsApp dengan file dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
                             break;
 
                         case 'notif_file_besar':
-                            // File > 10MB - kirim pesan notifikasi saja
-                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+                            // File > 9MB - kirim pesan notifikasi saja (TETAP BERHASIL)
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
 
                             Log::info("WhatsApp notifikasi file besar dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
                             break;
 
                         case 'pesan_biasa':
                             // Jawaban text atau tidak ada file
-                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
 
                             Log::info("WhatsApp pesan biasa dikirim");
                             break;
 
                         case 'file_tidak_ada':
                             // File tidak ditemukan - kirim notifikasi
-                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $status . '_REVIEW');
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
 
                             Log::warning("File tidak ditemukan: {$strategiPengiriman['file_path']}");
                             break;
@@ -950,8 +954,15 @@ class PermohonanInformasiModel extends Model
         $ukuranByte = filesize($filePath);
         $ukuranMB = round($ukuranByte / 1024 / 1024, 2);
 
-        // BATAS 10MB sesuai keputusan Anda
-        $batasUkuranMB = 10;
+        // PERBAIKAN: Turunkan batas menjadi 9 MB untuk antisipasi selisih ukuran
+        $batasUkuranMB = 9;
+
+        Log::info("File size analysis", [
+            'file_path' => $filePath,
+            'ukuran_byte' => $ukuranByte,
+            'ukuran_mb' => $ukuranMB,
+            'batas_mb' => $batasUkuranMB
+        ]);
 
         if ($ukuranMB <= $batasUkuranMB) {
             return [

@@ -39,10 +39,10 @@ class ReviewPengajuanController extends Controller
         // Ambil jumlah review dari masing-masing model
         $jumlahReview = [
             'permohonanInformasi' => PermohonanInformasiModel::hitungJumlahReview(),
-            'pernyataanKeberatan' => 0, // Akan diimplementasikan nanti
-            'pengaduanMasyarakat' => 0, // Akan diimplementasikan nanti
-            'wbs' => 0, // Akan diimplementasikan nanti
-            'permohonanPerawatan' => 0 // Akan diimplementasikan nanti
+            'pernyataanKeberatan' => PernyataanKeberatanModel::hitungJumlahReview(),
+            'pengaduanMasyarakat' => PengaduanMasyarakatModel::hitungJumlahReview(),
+            'wbs' => WBSModel::hitungJumlahReview(),
+            'permohonanPerawatan' => PermohonanPerawatanModel::hitungJumlahReview(),
         ];
 
         return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.index', [
