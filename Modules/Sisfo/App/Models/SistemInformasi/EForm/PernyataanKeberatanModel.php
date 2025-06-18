@@ -2,6 +2,7 @@
 
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
+use App\Mail\ReviewPernyataanKeberatanMail;
 use App\Services\WhatsAppService;
 use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
@@ -16,6 +17,7 @@ use App\Mail\VerifPernyataanKeberatanMail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\Log\EmailModel;
+use Modules\Sisfo\App\Models\Log\NotifMPUModel;
 
 class PernyataanKeberatanModel extends Model
 {
@@ -41,7 +43,7 @@ class PernyataanKeberatanModel extends Model
         'pk_review_sudah_dibaca',
         'pk_review_tanggal_dibaca',
         'pk_dijawab',
-        'pk_tanggal_jawaban',
+        'pk_tanggal_dijawab',
         'pk_verifikasi_isDeleted',
         'pk_review_isDeleted'
     ];
@@ -248,6 +250,17 @@ class PernyataanKeberatanModel extends Model
         // Kirim WhatsApp notifikasi
         $this->kirimWhatsAppNotifikasi('Disetujui');
 
+        // Ambil nama pengaju berdasarkan kategori pemohon
+        $namaPengaju = $this->getNamaPengaju();
+
+        // Buat notifikasi MPU (hanya untuk permohonan yang disetujui)
+        $pesanNotifMPU = "{$namaPengaju} mengajukan Pernyataan Keberatan yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifMPUModel::createData(
+            $this->pernyataan_keberatan_id,
+            $pesanNotifMPU,
+            'E-Form Pernyataan Keberatan',
+        );
+
         // Buat log transaksi untuk persetujuan
         $aktivitasSetuju = "{$namaPenyetuju} menyetujui pengajuan keberatan {$this->pk_alasan_pengajuan_keberatan}";
         TransactionModel::createData(
@@ -257,7 +270,7 @@ class PernyataanKeberatanModel extends Model
         );
 
         return $this;
-    }    
+    }
 
     public function validasiDanTolakPermohonan($alasanPenolakan)
     {
@@ -531,5 +544,370 @@ class PernyataanKeberatanModel extends Model
             'nomor_hp' => $nomorHp,
             'nama' => $nama ?: 'Tidak Diketahui'
         ];
+    }
+
+    public static function hitungJumlahReview()
+    {
+        // Hanya menghitung review untuk Pernyataan Keberatan
+        return self::where('pk_status', 'Verifikasi')
+            ->where('isDeleted', 0)
+            ->where('pk_review_isDeleted', 0)
+            ->whereNull('pk_review_sudah_dibaca')
+            ->count();
+    }
+
+    public static function getDaftarReview()
+    {
+        // Mengambil daftar pernyataan keberatan untuk review
+        return self::with(['PkDiriSendiri', 'PkOrangLain'])
+            ->where('isDeleted', 0)
+            ->where('pk_review_isDeleted', 0)
+            ->where('pk_status', '!=', 'Masuk')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiReview($jawaban)
+    {
+        // Validasi jawaban
+        $validator = Validator::make(
+            ['jawaban' => $jawaban],
+            ['jawaban' => 'required|string'],
+            [
+                'jawaban.required' => 'Jawaban wajib diisi',
+                'jawaban.string' => 'Format jawaban tidak valid'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pk_status !== 'Verifikasi') {
+            throw new \Exception('Pernyataan keberatan harus dalam status Verifikasi untuk dapat direview');
+        }
+
+        // Load relasi yang diperlukan
+        $this->load(['PkDiriSendiri', 'PkOrangLain']);
+
+        // Ambil nama pengguna yang mereview
+        $namaReviewer = Auth::user()->nama_pengguna;
+
+        // Ambil alias dan hak akses untuk format review
+        $aliasReview = $this->getAliasWithHakAkses();
+
+        // Update status menjadi Disetujui
+        $this->pk_status = 'Disetujui';
+        $this->pk_jawaban = $jawaban;
+        $this->pk_dijawab = $aliasReview;
+        $this->pk_tanggal_dijawab = now();
+        $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasiReview('Disetujui', $jawaban);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasiReview('Disetujui', $jawaban);
+
+        // Buat log transaksi untuk persetujuan review
+        $aktivitasSetuju = "{$namaReviewer} menyetujui review pernyataan keberatan {$this->pk_alasan_pengajuan_keberatan}";
+        TransactionModel::createData(
+            'APPROVED',
+            $this->pernyataan_keberatan_id,
+            $aktivitasSetuju
+        );
+
+        return $this;
+    }
+
+    public function validasiDanTolakReview($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->pk_status !== 'Verifikasi') {
+            throw new \Exception('Pernyataan keberatan harus dalam status Verifikasi untuk dapat direview');
+        }
+
+        // Load relasi yang diperlukan
+        $this->load(['PkDiriSendiri', 'PkOrangLain']);
+
+        // Ambil nama pengguna yang menolak
+        $namaPenolak = Auth::user()->nama_pengguna;
+
+        // Ambil alias dan hak akses untuk format review
+        $aliasReview = $this->getAliasWithHakAkses();
+
+        // Update status menjadi Ditolak
+        $this->pk_status = 'Ditolak';
+        $this->pk_alasan_penolakan = $alasanPenolakan;
+        $this->pk_dijawab = $aliasReview;
+        $this->pk_tanggal_dijawab = now();
+        $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasiReview('Ditolak', null, $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasiReview('Ditolak', null, $alasanPenolakan);
+
+        // Buat log transaksi untuk penolakan review
+        $aktivitasTolak = "{$namaPenolak} menolak review pernyataan keberatan {$this->pk_alasan_pengajuan_keberatan} dengan alasan {$alasanPenolakan}";
+        TransactionModel::createData(
+            'REJECTED',
+            $this->pernyataan_keberatan_id,
+            $aktivitasTolak
+        );
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibacaReview()
+    {
+        // Validasi status pernyataan keberatan
+        if (!in_array($this->pk_status, ['Disetujui', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak review ini terlebih dahulu');
+        }
+
+        // Ambil alias dan hak akses untuk format sudah dibaca
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
+        // Tandai sebagai dibaca
+        $this->pk_review_sudah_dibaca = $aliasDibaca;
+        $this->pk_review_tanggal_dibaca = now();
+        $this->save();
+
+        // Update notifikasi MPU jika masih NULL
+        $this->updateNotifikasiMPU();
+
+        return $this;
+    }
+
+    public function validasiDanHapusReview()
+    {
+        // Validasi status dibaca
+        if (empty($this->pk_review_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai review ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->pk_review_isDeleted = 1;
+        $this->save();
+
+        return $this;
+    }
+
+    private function updateNotifikasiMPU()
+    {
+        try {
+            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Pernyataan Keberatan')
+                ->where('notif_mpu_form_id', $this->pernyataan_keberatan_id)
+                ->where('isDeleted', 0)
+                ->whereNull('sudah_dibaca_notif_mpu')
+                ->get();
+
+            if ($notifikasiMPU->isNotEmpty()) {
+                foreach ($notifikasiMPU as $notif) {
+                    $notif->sudah_dibaca_notif_mpu = now();
+                    $notif->save();
+                }
+
+                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Error updating MPU notifications: " . $e->getMessage());
+        }
+    }
+
+    private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil data email berdasarkan kategori pemohon
+            $emailData = $this->getEmailData();
+
+            if (empty($emailData['emails'])) {
+                Log::info("Tidak ada email yang valid untuk review pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+                return;
+            }
+
+            // Kirim email ke setiap alamat yang valid
+            foreach ($emailData['emails'] as $email) {
+                if ($this->isValidEmail($email)) {
+                    try {
+                        // Kirim email
+                        Mail::to($email)->send(new ReviewPernyataanKeberatanMail(
+                            $emailData['nama'],
+                            $status,
+                            $this->pk_kategori_pemohon,
+                            $this->pk_alasan_pengajuan_keberatan,
+                            $this->pk_kasus_posisi,
+                            $jawaban,
+                            $alasanPenolakan
+                        ));
+
+                        // Log email yang berhasil dikirim
+                        EmailModel::createData($status, $email);
+
+                        Log::info("Email review {$status} berhasil dikirim ke: {$email}");
+                    } catch (\Exception $e) {
+                        Log::error("Gagal mengirim email review ke {$email}: " . $e->getMessage());
+                    }
+                } else {
+                    Log::warning("Email tidak valid: {$email}");
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim email notifikasi review: " . $e->getMessage());
+        }
+    }
+
+    private function kirimWhatsAppNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
+    {
+        try {
+            Log::info("Starting WhatsApp review notification for pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+
+            // Ambil data WhatsApp berdasarkan kategori pemohon
+            $whatsappData = $this->getWhatsAppData();
+
+            if (empty($whatsappData['nomor_hp'])) {
+                Log::info("Tidak ada nomor WhatsApp yang valid untuk review pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
+                return;
+            }
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            // Kirim WhatsApp ke setiap nomor yang valid
+            foreach ($whatsappData['nomor_hp'] as $index => $nomorHp) {
+                if (!empty($nomorHp)) {
+                    Log::info("Attempting to send WhatsApp review #{$index} to: {$nomorHp}");
+
+                    // Tentukan strategi pengiriman
+                    $strategiPengiriman = $this->tentukanStrategiPengiriman($status, $jawaban);
+
+                    // Generate pesan WhatsApp berdasarkan strategi
+                    $pesanWhatsApp = $whatsappService->generatePesanReviewPernyataanKeberatan(
+                        $whatsappData['nama'],
+                        $status,
+                        $this->pk_kategori_pemohon,
+                        $this->pk_alasan_pengajuan_keberatan,
+                        $this->pk_kasus_posisi,
+                        $jawaban,
+                        $alasanPenolakan,
+                        $strategiPengiriman
+                    );
+
+                    $berhasil = false;
+                    $statusLog = $status;
+
+                    // Kirim berdasarkan strategi yang ditentukan
+                    switch ($strategiPengiriman['metode']) {
+                        case 'kirim_file':
+                            $berhasil = $whatsappService->kirimPesanDenganFile(
+                                $nomorHp,
+                                $pesanWhatsApp,
+                                $strategiPengiriman['file_path'],
+                                $statusLog
+                            );
+                            Log::info("WhatsApp dengan file dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
+                            break;
+
+                        case 'notif_file_besar':
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
+                            Log::info("WhatsApp notifikasi file besar dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
+                            break;
+
+                        case 'pesan_biasa':
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
+                            Log::info("WhatsApp pesan biasa dikirim");
+                            break;
+
+                        case 'file_tidak_ada':
+                            $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
+                            Log::warning("File tidak ditemukan: {$strategiPengiriman['file_path']}");
+                            break;
+                    }
+
+                    if ($berhasil) {
+                        Log::info("WhatsApp review {$status} berhasil dikirim ke: {$nomorHp} (strategi: {$strategiPengiriman['metode']})");
+                    } else {
+                        Log::error("Gagal mengirim WhatsApp review ke: {$nomorHp}");
+                    }
+                }
+            }
+
+            Log::info("WhatsApp review notification process completed");
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi review: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+        }
+    }
+
+    private function tentukanStrategiPengiriman($status, $jawaban)
+    {
+        // Default strategy untuk status ditolak atau tidak ada jawaban
+        if ($status !== 'Disetujui' || !$jawaban) {
+            return [
+                'metode' => 'pesan_biasa',
+                'ukuran_mb' => 0,
+                'file_path' => null,
+                'keterangan' => 'Tidak ada file'
+            ];
+        }
+
+        // Cek apakah jawaban berupa file
+        if (!preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+            return [
+                'metode' => 'pesan_biasa',
+                'ukuran_mb' => 0,
+                'file_path' => null,
+                'keterangan' => 'Jawaban berupa teks'
+            ];
+        }
+
+        // Cek keberadaan dan ukuran file
+        $filePath = storage_path('app/public/' . $jawaban);
+
+        if (!file_exists($filePath)) {
+            return [
+                'metode' => 'file_tidak_ada',
+                'ukuran_mb' => 0,
+                'file_path' => $filePath,
+                'keterangan' => 'File tidak ditemukan'
+            ];
+        }
+
+        $ukuranByte = filesize($filePath);
+        $ukuranMB = round($ukuranByte / 1024 / 1024, 2);
+        $batasUkuranMB = 9;
+
+        if ($ukuranMB <= $batasUkuranMB) {
+            return [
+                'metode' => 'kirim_file',
+                'ukuran_mb' => $ukuranMB,
+                'file_path' => $filePath,
+                'keterangan' => 'File kecil, kirim via WhatsApp'
+            ];
+        } else {
+            return [
+                'metode' => 'notif_file_besar',
+                'ukuran_mb' => $ukuranMB,
+                'file_path' => $filePath,
+                'keterangan' => 'File besar, hanya notifikasi'
+            ];
+        }
     }
 }

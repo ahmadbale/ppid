@@ -1126,10 +1126,10 @@ app.post('/api/send-message-with-media', async (req, res) => {
             try {
                 console.log(`📎 Mengirim pesan dengan file: ${media.filename}`);
                 
-                // VALIDASI UKURAN FILE
+                // VALIDASI UKURAN FILE - PERBAIKI: Turunkan batas menjadi 9MB
                 const fileBuffer = Buffer.from(media.data, 'base64');
                 const fileSizeMB = fileBuffer.length / 1024 / 1024;
-                const maxSizeMB = 10; // Batas 10MB sesuai keputusan Anda
+                const maxSizeMB = 9; // Turunkan dari 10MB ke 9MB untuk antisipasi
 
                 console.log(`📊 Ukuran file: ${fileSizeMB.toFixed(2)} MB (limit: ${maxSizeMB} MB)`);
 
@@ -1147,7 +1147,7 @@ app.post('/api/send-message-with-media', async (req, res) => {
                         message_id: sentMessage.id._serialized,
                         has_media: false,
                         file_size_mb: fileSizeMB.toFixed(2),
-                        fallback_reason: 'File size exceeds 10MB limit',
+                        fallback_reason: 'File size exceeds 9MB limit',
                         timestamp: new Date().toISOString()
                     });
                 }
