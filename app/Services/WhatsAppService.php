@@ -347,10 +347,10 @@ class WhatsAppService
     {
         $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
         $template .= "Halo *{$nama}*,\n\n";
-        
+
         // Format tanggal menggunakan date() dan strtotime()
         $tanggalKejadian = date('d M Y', strtotime($waktuKejadian));
-        
+
         if ($status === 'Disetujui') {
             $template .= "✅ *WHISTLE BLOWING SYSTEM DISETUJUI*\n\n";
             $template .= "Laporan Whistle Blowing System Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
@@ -372,10 +372,10 @@ class WhatsAppService
             $template .= "• Waktu Kejadian: {$tanggalKejadian}\n";
             $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
         }
-        
+
         $template .= "🔒 *Kerahasiaan Terjamin*\n";
         $template .= "Identitas Anda akan dijaga kerahasiaannya sesuai dengan kebijakan WBS.\n\n";
-        
+
         $template .= "📞 *Butuh Bantuan?*\n";
         $template .= "• Email: ppid@polinema.ac.id\n";
         $template .= "• Telepon: 085804049240\n";
@@ -391,7 +391,7 @@ class WhatsAppService
     {
         $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
         $template .= "Halo *{$nama}*,\n\n";
-        
+
         if ($status === 'Disetujui') {
             $template .= "✅ *PERMOHONAN PERAWATAN DISETUJUI*\n\n";
             $template .= "Permohonan perawatan sarana prasarana Anda telah *DISETUJUI* pada tahap verifikasi.\n\n";
@@ -411,7 +411,7 @@ class WhatsAppService
             $template .= "• Keluhan: {$keluhanKerusakan}\n";
             $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
         }
-        
+
         $template .= "📞 *Butuh Bantuan?*\n";
         $template .= "• Email: ppid@polinema.ac.id\n";
         $template .= "• Telepon: 085804049240\n";
@@ -433,29 +433,67 @@ class WhatsAppService
         return $this->kirimPesan($nomorTujuan, $pesanTest, 'Test');
     }
 
-    public function generatePesanReviewPermohonanInformasi($nama, $status, $kategori, $informasiYangDibutuhkan, $jawaban = null, $alasanPenolakan = null)
+    public function generatePesanReviewPermohonanInformasi($nama, $status, $kategori, $informasiYangDibutuhkan, $jawaban = null, $alasanPenolakan = null, $strategiPengiriman = null)
     {
         $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
         $template .= "Halo *{$nama}*,\n\n";
-        
+
         if ($status === 'Disetujui') {
             $template .= "✅ *PERMOHONAN INFORMASI DISETUJUI*\n\n";
             $template .= "Permohonan informasi Anda telah *SELESAI DIPROSES* dan disetujui.\n\n";
             $template .= "📋 *Detail Permohonan:*\n";
             $template .= "• Kategori: {$kategori}\n";
             $template .= "• Informasi Diminta: {$informasiYangDibutuhkan}\n\n";
-            
-            $template .= "📝 *Jawaban:*\n";
-            if ($jawaban) {
-                // Cek apakah jawaban berupa file atau teks
-                if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
-                    $template .= "📎 Dokumen jawaban telah dikirim melalui email.\n\n";
-                } else {
-                    // Batasi panjang jawaban untuk WhatsApp
-                    $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
-                    $template .= "{$jawabanPendek}\n\n";
-                    if (strlen($jawaban) > 200) {
-                        $template .= "📧 Jawaban lengkap dapat dilihat di email.\n\n";
+
+            // IMPLEMENTASI STRATEGI PENGIRIMAN
+            if ($strategiPengiriman && isset($strategiPengiriman['metode'])) {
+                $template .= "📝 *Jawaban:*\n";
+
+                switch ($strategiPengiriman['metode']) {
+                    case 'kirim_file':
+                        // File kecil < 10MB - akan dikirim via WhatsApp
+                        $template .= "📎 Dokumen jawaban dikirim bersamaan dengan pesan ini.\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'notif_file_besar':
+                        // File besar > 10MB - hanya notifikasi
+                        $template .= "📎 *DOKUMEN JAWABAN TERSEDIA*\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB (melebihi 10 MB)\n";
+                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat dokumen jawaban lengkap*\n";
+                        $template .= "⚠️ File terlalu besar untuk dikirim via WhatsApp\n\n";
+                        break;
+
+                    case 'file_tidak_ada':
+                        // File tidak ditemukan
+                        $template .= "⚠️ Dokumen jawaban tidak dapat dikirim via WhatsApp\n";
+                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat jawaban lengkap*\n\n";
+                        break;
+
+                    case 'pesan_biasa':
+                    default:
+                        // Jawaban berupa teks
+                        if ($jawaban) {
+                            // Batasi panjang jawaban untuk WhatsApp
+                            $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                            $template .= "{$jawabanPendek}\n\n";
+                            if (strlen($jawaban) > 200) {
+                                $template .= "📧 Jawaban lengkap dapat dilihat di email.\n\n";
+                            }
+                        }
+                        break;
+                }
+            } else {
+                // Fallback untuk backward compatibility
+                if ($jawaban) {
+                    if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+                        $template .= "📎 Dokumen jawaban telah dikirim melalui email.\n\n";
+                    } else {
+                        $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                        $template .= "{$jawabanPendek}\n\n";
+                        if (strlen($jawaban) > 200) {
+                            $template .= "📧 Jawaban lengkap dapat dilihat di email.\n\n";
+                        }
                     }
                 }
             }
@@ -467,7 +505,7 @@ class WhatsAppService
             $template .= "• Informasi Diminta: {$informasiYangDibutuhkan}\n";
             $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
         }
-        
+
         $template .= "📞 *Butuh Bantuan?*\n";
         $template .= "• Email: ppid@polinema.ac.id\n";
         $template .= "• Telepon: 085804049240\n";
@@ -477,5 +515,139 @@ class WhatsAppService
         $template .= "Pesan otomatis dari Sistem PPID";
 
         return $template;
+    }
+
+    /**
+     * Kirim pesan dengan file attachment - DIPERBAIKI DENGAN VALIDASI UKURAN
+     */
+    public function kirimPesanDenganFile($nomorTujuan, $pesan, $filePath = null, $status = 'Notifikasi')
+    {
+        // Cek apakah WhatsApp service diaktifkan
+        if (!$this->enabled) {
+            Log::info('WhatsApp service dinonaktifkan');
+            return false;
+        }
+
+        $logEntry = null;
+
+        try {
+            $nomorFormatted = $this->formatNomorTelepon($nomorTujuan);
+
+            if (!$nomorFormatted) {
+                Log::warning("Nomor WhatsApp tidak valid: {$nomorTujuan}");
+                return false;
+            }
+
+            // Buat log sebelum mengirim
+            $logEntry = WhatsAppModel::createData($status, $nomorFormatted, $pesan, 'Pending');
+
+            if (!$logEntry) {
+                Log::error('Failed to create WhatsApp log entry');
+                return false;
+            }
+
+            // Cek apakah WhatsApp server berjalan
+            if (!$this->cekServerBerjalan()) {
+                Log::warning('WhatsApp server tidak berjalan');
+                if ($logEntry) {
+                    $logEntry->updateDeliveryStatus('Error');
+                }
+                return false;
+            }
+
+            // VALIDASI UKURAN FILE - IMPLEMENTASI SOLUSI ANDA
+            if ($filePath && file_exists($filePath)) {
+                $ukuranByte = filesize($filePath);
+                $ukuranMB = round($ukuranByte / 1024 / 1024, 2);
+                $batasUkuranMB = 10; // Sesuai keputusan Anda
+
+                Log::info("File size check: {$ukuranMB} MB (limit: {$batasUkuranMB} MB)");
+
+                if ($ukuranMB > $batasUkuranMB) {
+                    // File terlalu besar - fallback ke pesan tanpa file
+                    Log::warning("File terlalu besar untuk WhatsApp: {$ukuranMB} MB, mengirim pesan fallback");
+
+                    $pesanFallback = $pesan . "\n\n📎 *Catatan:* Dokumen jawaban ({$ukuranMB} MB) terlalu besar untuk WhatsApp.\n📧 Silakan cek email Anda untuk melihat dokumen lengkap.";
+
+                    // Update log entry dengan info file besar
+                    if ($logEntry) {
+                        $logEntry->updatePesan($pesanFallback);
+                    }
+
+                    return $this->kirimPesan($nomorFormatted, $pesanFallback, $status);
+                }
+            }
+
+            // Prepare headers
+            $headers = [
+                'Content-Type' => 'application/json',
+            ];
+
+            if (!empty($this->token)) {
+                $headers['Authorization'] = 'Bearer ' . $this->token;
+                $headers['X-Token'] = $this->token;
+            }
+
+            // Prepare data
+            $requestData = [
+                'number' => $nomorFormatted,
+                'message' => $pesan,
+                'token' => $this->token
+            ];
+
+            // Tambahkan file jika ada dan ukurannya valid
+            if ($filePath && file_exists($filePath)) {
+                // Convert file ke base64
+                $fileContent = base64_encode(file_get_contents($filePath));
+                $fileName = basename($filePath);
+                $mimeType = mime_content_type($filePath);
+
+                $requestData['media'] = [
+                    'data' => $fileContent,
+                    'mimetype' => $mimeType,
+                    'filename' => $fileName
+                ];
+
+                Log::info("Sending WhatsApp with file: {$fileName} ({$mimeType})");
+            }
+
+            // Kirim pesan melalui API
+            $response = Http::timeout($this->timeout)
+                ->withHeaders($headers)
+                ->post($this->baseUrl . '/send-message-with-media', $requestData);
+
+            Log::info("WhatsApp API Response Status: " . $response->status());
+            Log::info("WhatsApp API Response Body: " . $response->body());
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+
+                if (isset($responseData['success']) && $responseData['success']) {
+                    if ($logEntry) {
+                        $logEntry->updateDeliveryStatus('Sent');
+                    }
+                    Log::info("WhatsApp dengan file berhasil dikirim ke: {$nomorFormatted}");
+                    return true;
+                } else {
+                    if ($logEntry) {
+                        $logEntry->updateDeliveryStatus('Error');
+                    }
+                    Log::error("WhatsApp API returned success=false untuk {$nomorFormatted}: " . $response->body());
+                    return false;
+                }
+            } else {
+                if ($logEntry) {
+                    $logEntry->updateDeliveryStatus('Error');
+                }
+                Log::error("Gagal mengirim WhatsApp ke {$nomorFormatted}. HTTP Status: {$response->status()}, Body: " . $response->body());
+                return false;
+            }
+        } catch (\Exception $e) {
+            if ($logEntry) {
+                $logEntry->updateDeliveryStatus('Error');
+            }
+            Log::error("Exception saat mengirim WhatsApp dengan file: " . $e->getMessage());
+            return false;
+        }
     }
 }
