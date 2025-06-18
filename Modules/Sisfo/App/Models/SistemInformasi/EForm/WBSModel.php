@@ -2,6 +2,7 @@
 
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
+use App\Mail\ReviewWBSMail;
 use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifWBSMail;
 use App\Services\WhatsAppService;
 use Modules\Sisfo\App\Models\Log\EmailModel;
+use Modules\Sisfo\App\Models\Log\NotifMPUModel;
 
 class WBSModel extends Model
 {
@@ -255,6 +257,14 @@ class WBSModel extends Model
         // Kirim WhatsApp notifikasi
         $this->kirimWhatsAppNotifikasi('Disetujui');
 
+        // TAMBAHAN: Buat notifikasi MPU (hanya untuk WBS yang disetujui) - SESUAI PERMOHONAN INFORMASI
+        $pesanNotifMPU = "{$this->wbs_nama_tanpa_gelar} mengajukan Whistle Blowing System yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifMPUModel::createData(
+            $this->wbs_id,
+            $pesanNotifMPU,
+            'E-Form Whistle Blowing System'
+        );
+
         // Buat log transaksi untuk persetujuan
         $aktivitasSetuju = "{$namaPenyetuju} menyetujui whistle blowing system {$this->wbs_jenis_laporan}";
         TransactionModel::createData(
@@ -264,7 +274,7 @@ class WBSModel extends Model
         );
 
         return $this;
-    }    
+    }
 
     public function validasiDanTolakPermohonan($alasanPenolakan)
     {
@@ -304,6 +314,9 @@ class WBSModel extends Model
 
         // Kirim WhatsApp notifikasi
         $this->kirimWhatsAppNotifikasi('Ditolak', $alasanPenolakan);
+
+        // TIDAK membuat notifikasi MPU untuk WBS yang ditolak
+        // (sesuai ketentuan: notif_mpu hanya dibuat ketika disetujui) - SESUAI PERMOHONAN INFORMASI
 
         // Buat log transaksi untuk penolakan
         $aktivitasTolak = "{$namaPenolak} menolak whistle blowing system {$this->wbs_jenis_laporan} dengan alasan {$alasanPenolakan}";
@@ -382,7 +395,6 @@ class WBSModel extends Model
             } catch (\Exception $e) {
                 Log::error("Gagal mengirim email ke {$email}: " . $e->getMessage());
             }
-
         } catch (\Exception $e) {
             Log::error("Error saat mengirim email notifikasi: " . $e->getMessage());
         }
@@ -443,5 +455,376 @@ class WBSModel extends Model
         }
     }
 
-    // ... existing static methods createData, validasiData, dll ...
+    public static function hitungJumlahReview()
+    {
+        // Hanya menghitung review untuk WBS
+        return self::where('wbs_status', 'Verifikasi')
+            ->where('isDeleted', 0)
+            ->where('wbs_review_isDeleted', 0)
+            ->whereNull('wbs_review_sudah_dibaca')
+            ->count();
+    }
+
+    public static function getDaftarReview()
+    {
+        // Mengambil daftar WBS untuk review
+        return self::where('isDeleted', 0)
+            ->where('wbs_review_isDeleted', 0)
+            ->where('wbs_status', '!=', 'Masuk')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function validasiDanSetujuiReview($jawaban)
+    {
+        // Validasi jawaban
+        $validator = Validator::make(
+            ['jawaban' => $jawaban],
+            ['jawaban' => 'required|string'],
+            [
+                'jawaban.required' => 'Jawaban wajib diisi',
+                'jawaban.string' => 'Format jawaban tidak valid'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->wbs_status !== 'Verifikasi') {
+            throw new \Exception('WBS harus dalam status Verifikasi untuk dapat direview');
+        }
+
+        // Ambil nama pengguna yang mereview
+        $namaReviewer = Auth::user()->nama_pengguna;
+
+        // Ambil alias dan hak akses untuk format review
+        $aliasReview = $this->getAliasWithHakAkses();
+
+        // Update status menjadi Disetujui
+        $this->wbs_status = 'Disetujui';
+        $this->wbs_jawaban = $jawaban;
+        $this->wbs_dijawab = $aliasReview;
+        $this->wbs_tanggal_dijawab = now();
+        $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasiReview('Disetujui', $jawaban);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasiReview('Disetujui', $jawaban);
+
+        // Buat log transaksi untuk persetujuan review
+        $aktivitasSetuju = "{$namaReviewer} menyetujui review whistle blowing system {$this->wbs_jenis_laporan}";
+        TransactionModel::createData(
+            'APPROVED',
+            $this->wbs_id,
+            $aktivitasSetuju
+        );
+
+        return $this;
+    }
+
+    public function validasiDanTolakReview($alasanPenolakan)
+    {
+        // Validasi alasan penolakan
+        $validator = Validator::make(
+            ['alasan_penolakan' => $alasanPenolakan],
+            ['alasan_penolakan' => 'required|string|max:255'],
+            [
+                'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
+            ]
+        );
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        // Validasi status
+        if ($this->wbs_status !== 'Verifikasi') {
+            throw new \Exception('WBS harus dalam status Verifikasi untuk dapat direview');
+        }
+
+        // Ambil nama pengguna yang menolak
+        $namaPenolak = Auth::user()->nama_pengguna;
+
+        // Ambil alias dan hak akses untuk format review
+        $aliasReview = $this->getAliasWithHakAkses();
+
+        // Update status menjadi Ditolak
+        $this->wbs_status = 'Ditolak';
+        $this->wbs_alasan_penolakan = $alasanPenolakan;
+        $this->wbs_dijawab = $aliasReview;
+        $this->wbs_tanggal_dijawab = now();
+        $this->save();
+
+        // Kirim email notifikasi
+        $this->kirimEmailNotifikasiReview('Ditolak', null, $alasanPenolakan);
+
+        // Kirim WhatsApp notifikasi
+        $this->kirimWhatsAppNotifikasiReview('Ditolak', null, $alasanPenolakan);
+
+        // Buat log transaksi untuk penolakan review
+        $aktivitasTolak = "{$namaPenolak} menolak review whistle blowing system {$this->wbs_jenis_laporan} dengan alasan {$alasanPenolakan}";
+        TransactionModel::createData(
+            'REJECTED',
+            $this->wbs_id,
+            $aktivitasTolak
+        );
+
+        return $this;
+    }
+
+    public function validasiDanTandaiDibacaReview()
+    {
+        // Validasi status WBS
+        if (!in_array($this->wbs_status, ['Disetujui', 'Ditolak'])) {
+            throw new \Exception('Anda harus menyetujui/menolak review ini terlebih dahulu');
+        }
+
+        // Ambil alias dan hak akses untuk format sudah dibaca
+        $aliasDibaca = $this->getAliasWithHakAkses();
+
+        // Tandai sebagai dibaca
+        $this->wbs_review_sudah_dibaca = $aliasDibaca;
+        $this->wbs_review_tanggal_dibaca = now();
+        $this->save();
+
+        // Update notifikasi MPU jika masih NULL (sesuai dengan permohonan informasi)
+        $this->updateNotifikasiMPU();
+
+        return $this;
+    }
+
+    public function validasiDanHapusReview()
+    {
+        // Validasi status dibaca
+        if (empty($this->wbs_review_sudah_dibaca)) {
+            throw new \Exception('Anda harus menandai review ini telah dibaca terlebih dahulu');
+        }
+
+        // Update flag hapus
+        $this->wbs_review_isDeleted = 1;
+        $this->save();
+
+        return $this;
+    }
+
+    /**
+     * Update notifikasi MPU - SAMA SEPERTI PERMOHONAN INFORMASI
+     */
+    private function updateNotifikasiMPU()
+    {
+        try {
+            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Whistle Blowing System')
+                ->where('notif_mpu_form_id', $this->wbs_id)
+                ->where('isDeleted', 0)
+                ->whereNull('sudah_dibaca_notif_mpu')
+                ->get();
+
+            if ($notifikasiMPU->isNotEmpty()) {
+                foreach ($notifikasiMPU as $notif) {
+                    $notif->sudah_dibaca_notif_mpu = now();
+                    $notif->save();
+                }
+
+                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for WBS ID: {$this->wbs_id}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Error updating MPU notifications: " . $e->getMessage());
+        }
+    }
+
+    private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
+    {
+        try {
+            // Ambil email pelapor
+            $email = $this->wbs_email_pengguna;
+
+            if (empty($email) || !$this->isValidEmail($email)) {
+                Log::info("Email tidak valid atau kosong untuk review WBS ID: {$this->wbs_id}");
+                return;
+            }
+
+            // Kirim email
+            try {
+                Mail::to($email)->send(new ReviewWBSMail(
+                    $this->wbs_nama_tanpa_gelar,
+                    $status,
+                    $this->wbs_jenis_laporan,
+                    $this->wbs_yang_dilaporkan,
+                    $this->wbs_jabatan,
+                    $this->wbs_lokasi_kejadian,
+                    $this->wbs_waktu_kejadian,
+                    $this->wbs_kronologis_kejadian,
+                    $jawaban,
+                    $alasanPenolakan
+                ));
+
+                // Log email yang berhasil dikirim
+                EmailModel::createData($status, $email);
+
+                Log::info("Email review {$status} berhasil dikirim ke: {$email}");
+            } catch (\Exception $e) {
+                Log::error("Gagal mengirim email review ke {$email}: " . $e->getMessage());
+            }
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim email notifikasi review: " . $e->getMessage());
+        }
+    }
+
+    private function kirimWhatsAppNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
+    {
+        try {
+            Log::info("Starting WhatsApp review notification for WBS ID: {$this->wbs_id}");
+
+            // Ambil nomor HP pelapor
+            $nomorHp = $this->wbs_no_hp_pengguna;
+
+            if (empty($nomorHp)) {
+                Log::info("Nomor WhatsApp kosong untuk review WBS ID: {$this->wbs_id}");
+                return;
+            }
+
+            // Inisialisasi WhatsApp service
+            $whatsappService = new WhatsAppService();
+
+            Log::info("Attempting to send WhatsApp review to: {$nomorHp}");
+
+            // IMPLEMENTASI SOLUSI: Cek ukuran file dan tentukan strategi pengiriman
+            $strategiPengiriman = $this->tentukanStrategiPengiriman($status, $jawaban);
+
+            // Generate pesan WhatsApp berdasarkan strategi
+            $pesanWhatsApp = $whatsappService->generatePesanReviewWBS(
+                $this->wbs_nama_tanpa_gelar,
+                $status,
+                $this->wbs_jenis_laporan,
+                $this->wbs_yang_dilaporkan,
+                $this->wbs_jabatan,
+                $this->wbs_lokasi_kejadian,
+                $this->wbs_waktu_kejadian,
+                $this->wbs_kronologis_kejadian,
+                $jawaban,
+                $alasanPenolakan,
+                $strategiPengiriman
+            );
+
+            $berhasil = false;
+
+            // PERBAIKAN: Ubah status log WhatsApp sesuai permintaan
+            $statusLog = $status; // Hapus '_REVIEW' suffix
+
+            // Kirim berdasarkan strategi yang ditentukan
+            switch ($strategiPengiriman['metode']) {
+                case 'kirim_file':
+                    // File < 9MB - kirim dengan attachment
+                    $berhasil = $whatsappService->kirimPesanDenganFile(
+                        $nomorHp,
+                        $pesanWhatsApp,
+                        $strategiPengiriman['file_path'],
+                        $statusLog
+                    );
+                    Log::info("WhatsApp dengan file dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
+                    break;
+
+                case 'notif_file_besar':
+                    // File > 9MB - kirim pesan notifikasi saja (TETAP BERHASIL)
+                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
+                    Log::info("WhatsApp notifikasi file besar dikirim: {$strategiPengiriman['file_path']} ({$strategiPengiriman['ukuran_mb']} MB)");
+                    break;
+
+                case 'pesan_biasa':
+                    // Jawaban text atau tidak ada file
+                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
+                    Log::info("WhatsApp pesan biasa dikirim");
+                    break;
+
+                case 'file_tidak_ada':
+                    // File tidak ditemukan - kirim notifikasi
+                    $berhasil = $whatsappService->kirimPesan($nomorHp, $pesanWhatsApp, $statusLog);
+                    Log::warning("File tidak ditemukan: {$strategiPengiriman['file_path']}");
+                    break;
+            }
+
+            if ($berhasil) {
+                Log::info("WhatsApp review {$status} berhasil dikirim ke: {$nomorHp} (strategi: {$strategiPengiriman['metode']})");
+            } else {
+                Log::error("Gagal mengirim WhatsApp review ke: {$nomorHp}");
+            }
+
+            Log::info("WhatsApp review notification process completed");
+        } catch (\Exception $e) {
+            Log::error("Error saat mengirim WhatsApp notifikasi review: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+        }
+    }
+
+    /**
+     * Tentukan strategi pengiriman berdasarkan ukuran file - SAMA SEPERTI PERMOHONAN INFORMASI
+     */
+    private function tentukanStrategiPengiriman($status, $jawaban)
+    {
+        // Default strategy untuk status ditolak atau tidak ada jawaban
+        if ($status !== 'Disetujui' || !$jawaban) {
+            return [
+                'metode' => 'pesan_biasa',
+                'ukuran_mb' => 0,
+                'file_path' => null,
+                'keterangan' => 'Tidak ada file'
+            ];
+        }
+
+        // Cek apakah jawaban berupa file
+        if (!preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+            return [
+                'metode' => 'pesan_biasa',
+                'ukuran_mb' => 0,
+                'file_path' => null,
+                'keterangan' => 'Jawaban berupa teks'
+            ];
+        }
+
+        // Cek keberadaan dan ukuran file
+        $filePath = storage_path('app/public/' . $jawaban);
+
+        if (!file_exists($filePath)) {
+            return [
+                'metode' => 'file_tidak_ada',
+                'ukuran_mb' => 0,
+                'file_path' => $filePath,
+                'keterangan' => 'File tidak ditemukan'
+            ];
+        }
+
+        $ukuranByte = filesize($filePath);
+        $ukuranMB = round($ukuranByte / 1024 / 1024, 2);
+
+        // PERBAIKAN: Turunkan batas menjadi 9 MB untuk antisipasi selisih ukuran
+        $batasUkuranMB = 9;
+
+        Log::info("File size analysis", [
+            'file_path' => $filePath,
+            'ukuran_byte' => $ukuranByte,
+            'ukuran_mb' => $ukuranMB,
+            'batas_mb' => $batasUkuranMB
+        ]);
+
+        if ($ukuranMB <= $batasUkuranMB) {
+            return [
+                'metode' => 'kirim_file',
+                'ukuran_mb' => $ukuranMB,
+                'file_path' => $filePath,
+                'keterangan' => 'File kecil, kirim via WhatsApp'
+            ];
+        } else {
+            return [
+                'metode' => 'notif_file_besar',
+                'ukuran_mb' => $ukuranMB,
+                'file_path' => $filePath,
+                'keterangan' => 'File besar, hanya notifikasi'
+            ];
+        }
+    }
 }
