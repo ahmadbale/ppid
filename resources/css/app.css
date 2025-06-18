@@ -1832,3 +1832,14 @@ button:disabled {
             text-align: left !important;
         }
     }
+.prosedur-item:hover {
+        background: #f5faff !important;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .prosedur-list .list-group-item:last-child {
+        border-bottom: none !important;
+    }
+    .prosedur-list {
+        margin-bottom: 60px;
+    }
