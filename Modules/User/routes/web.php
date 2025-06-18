@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\User\App\Http\Controllers\EFormController;
 use Modules\User\App\Http\Controllers\PermohonanController;
 use Modules\User\App\Http\Controllers\InformasiPublikController;
+use Modules\User\App\Http\Controllers\LayananInformasiController;
 use Modules\User\App\Http\Controllers\InformasiDikecualikanController;
 use Modules\User\App\Http\Controllers\RegulasiController;
 use Modules\User\App\Http\Controllers\HomeController;
@@ -147,6 +148,23 @@ Route::get('/register', function () {
     Route::get('/informasi-serta-merta', [InformasiPublikController::class, 'sertaMerta'])->name('informasi-publik.serta-merta');
 
 Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
+
+
+// Layanan informasi ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Route::get('/pedoman-umum-pengelolaan-layanan', [LayananInformasiController::class, 'PedomanUmumPengelolaanLayanan'])->name('pedoman-umum-pengelolaan-layanan');
+Route::get('/pedoman-layanan-kerjasama', [LayananInformasiController::class, 'PedomanKerjaSama'])->name('pedoman-layanan-kerjasama');
+Route::get('/prosedur-layanan-informasi', [LayananInformasiController::class, 'ListSOPLainnya'])->name('prosedur-layanan-informasi');
+Route::get('/sop-informasi-lainnya/permohonan-informasi', [LayananInformasiController::class, 'ProsedurPermohonanInformasi'])->name('sopl-permohonan-informasi');
+Route::get('/sop-informasi-lainnya/pengaduan-masyarakat', [LayananInformasiController::class, 'ProsedurPengaduanMasyarakat'])->name('sopl-pengaduan-masyarakat');
+Route::get('/sop-informasi-lainnya/penanganan-keberatan', [LayananInformasiController::class, 'ProsedurPenangananKeberatan'])->name('sopl-penanganan-keberatan');
+Route::get('/sop-informasi-lainnya/periksa-akurasi-informasi', [LayananInformasiController::class, 'ProsedurAkurasiInformasi'])->name('sopl-periksa-akurasi');
+Route::get('/sop-informasi-lainnya/uji-konsekuensi', [LayananInformasiController::class, 'ProsedurKonsekuensiInformasi'])->name('sopl-uji-konsekuensi');
+Route::get('/sop-informasi-lainnya/penyusunan-daftar-informasi', [LayananInformasiController::class, 'ProsedurPenyusunanDaftarInfo'])->name('sopl-penyusunan-daftar-info');
+Route::get('/sop-informasi-lainnya/fasilitasi-keberatan', [LayananInformasiController::class, 'ProsedurFasilitasiKeberatan'])->name('sopl-fasilitasi-keberatan');
+Route::get('/sop-informasi-lainnya/publikasi-pengumuman', [LayananInformasiController::class, 'ProsedurPublikasiPengumuman'])->name('sopl-publikasi-pengumuman');
+Route::get('/sop-informasi-lainnya/pengaduan-WBS', [LayananInformasiController::class, 'ProsedurPengaduanWBS'])->name('sopl-pengaduan-wbs');
+
+
 
 // route kemarin tanggal 11 maret
 // Route::get('/login-ppid', [UserController::class, 'showLoginForm']);
