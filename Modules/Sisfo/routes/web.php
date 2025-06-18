@@ -671,3 +671,4 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset-expired-scan', [WhatsAppController::class, 'resetExpiredScan'])->middleware('permission:update'); // Route baru
     });
 });
+

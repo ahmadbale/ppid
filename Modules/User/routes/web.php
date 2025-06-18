@@ -45,11 +45,7 @@ Route::get('/', [HomeController::class, 'index'])->name('beranda');
 Route::get('/beranda', [HomeController::class, 'index']);
 Route::get('/berita-detail/{slug}/{beritaId}', [HomeController::class, 'detail'])->name('berita.detail');
 
-// Route::get('/footer', [FooterController::class, 'index']);
-Route::get('/debug-path', function () {
-    $path = asset('img/login-pic.webp');
-    return "File exists: " . (file_exists($path) ? "Yes" : "No") . "<br>Path: $path";
-});
+
 
 // Form Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::prefix('form-permohonan-informasi')->group(function () {
