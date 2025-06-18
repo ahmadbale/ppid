@@ -445,23 +445,21 @@ class WhatsAppService
             $template .= "• Kategori: {$kategori}\n";
             $template .= "• Informasi Diminta: {$informasiYangDibutuhkan}\n\n";
 
-            // IMPLEMENTASI STRATEGI PENGIRIMAN
+            // IMPLEMENTASI STRATEGI PENGIRIMAN - DIPERBAIKI
             if ($strategiPengiriman && isset($strategiPengiriman['metode'])) {
                 $template .= "📝 *Jawaban:*\n";
 
                 switch ($strategiPengiriman['metode']) {
                     case 'kirim_file':
-                        // File kecil < 10MB - akan dikirim via WhatsApp
+                        // File kecil ≤ 9MB - akan dikirim via WhatsApp
                         $template .= "📎 Dokumen jawaban dikirim bersamaan dengan pesan ini.\n";
                         $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
                         break;
 
                     case 'notif_file_besar':
-                        // File besar > 10MB - hanya notifikasi
-                        $template .= "📎 *DOKUMEN JAWABAN TERSEDIA*\n";
-                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB (melebihi 10 MB)\n";
-                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat dokumen jawaban lengkap*\n";
-                        $template .= "⚠️ File terlalu besar untuk dikirim via WhatsApp\n\n";
+                        // File besar > 9MB - hanya notifikasi
+                        $template .= "📎 *Jawaban yang diberikan berupa media yang ukurannya terlalu besar (melebihi 10 MB) silahkan check email anda untuk melihat jawabannya*\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
                         break;
 
                     case 'file_tidak_ada':
@@ -555,11 +553,11 @@ class WhatsAppService
                 return false;
             }
 
-            // VALIDASI UKURAN FILE - IMPLEMENTASI SOLUSI ANDA
+            // VALIDASI UKURAN FILE - DIPERBAIKI: Gunakan batas 9MB untuk antisipasi
             if ($filePath && file_exists($filePath)) {
                 $ukuranByte = filesize($filePath);
                 $ukuranMB = round($ukuranByte / 1024 / 1024, 2);
-                $batasUkuranMB = 10; // Sesuai keputusan Anda
+                $batasUkuranMB = 9; // Turunkan dari 10MB ke 9MB
 
                 Log::info("File size check: {$ukuranMB} MB (limit: {$batasUkuranMB} MB)");
 
@@ -568,11 +566,6 @@ class WhatsAppService
                     Log::warning("File terlalu besar untuk WhatsApp: {$ukuranMB} MB, mengirim pesan fallback");
 
                     $pesanFallback = $pesan . "\n\n📎 *Catatan:* Dokumen jawaban ({$ukuranMB} MB) terlalu besar untuk WhatsApp.\n📧 Silakan cek email Anda untuk melihat dokumen lengkap.";
-
-                    // Update log entry dengan info file besar
-                    if ($logEntry) {
-                        $logEntry->updatePesan($pesanFallback);
-                    }
 
                     return $this->kirimPesan($nomorFormatted, $pesanFallback, $status);
                 }
@@ -649,5 +642,367 @@ class WhatsAppService
             Log::error("Exception saat mengirim WhatsApp dengan file: " . $e->getMessage());
             return false;
         }
+    }
+
+    public function generatePesanReviewPernyataanKeberatan($nama, $status, $kategori, $alasanPengajuanKeberatan, $kasusPosisi, $jawaban = null, $alasanPenolakan = null, $strategiPengiriman = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PERNYATAAN KEBERATAN DISETUJUI*\n\n";
+            $template .= "Pernyataan keberatan Anda telah *SELESAI DIPROSES* dan disetujui.\n\n";
+            $template .= "📋 *Detail Pernyataan Keberatan:*\n";
+            $template .= "• Kategori: {$kategori}\n";
+            $template .= "• Alasan Pengajuan: {$alasanPengajuanKeberatan}\n";
+            $template .= "• Kasus Posisi: {$kasusPosisi}\n\n";
+
+            // IMPLEMENTASI STRATEGI PENGIRIMAN - SAMA SEPERTI PERMOHONAN INFORMASI
+            if ($strategiPengiriman && isset($strategiPengiriman['metode'])) {
+                $template .= "📝 *Jawaban:*\n";
+
+                switch ($strategiPengiriman['metode']) {
+                    case 'kirim_file':
+                        // File kecil ≤ 9MB - akan dikirim via WhatsApp
+                        $template .= "📎 Dokumen jawaban dikirim bersamaan dengan pesan ini.\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'notif_file_besar':
+                        // File besar > 9MB - hanya notifikasi
+                        $template .= "📎 *Jawaban yang diberikan berupa media yang ukurannya terlalu besar (melebihi 10 MB) silahkan check email anda untuk melihat jawabannya*\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'file_tidak_ada':
+                        // File tidak ditemukan
+                        $template .= "⚠️ Dokumen jawaban tidak dapat dikirim via WhatsApp\n";
+                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat jawaban lengkap*\n\n";
+                        break;
+
+                    case 'pesan_biasa':
+                    default:
+                        // Jawaban berupa teks
+                        if ($jawaban) {
+                            // Batasi panjang jawaban untuk WhatsApp
+                            $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                            $template .= "{$jawabanPendek}\n\n";
+                            if (strlen($jawaban) > 200) {
+                                $template .= "📧 Jawaban lengkap dapat dilihat di email.\n\n";
+                            }
+                        }
+                        break;
+                }
+            } else {
+                // Fallback untuk backward compatibility
+                if ($jawaban) {
+                    if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+                        $template .= "📎 Dokumen jawaban telah dikirim melalui email.\n\n";
+                    } else {
+                        $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                        $template .= "{$jawabanPendek}\n\n";
+                        if (strlen($jawaban) > 200) {
+                            $template .= "📧 Jawaban lengkap dapat dilihat di email.\n\n";
+                        }
+                    }
+                }
+            }
+        } else {
+            $template .= "❌ *PERNYATAAN KEBERATAN DITOLAK*\n\n";
+            $template .= "Mohon maaf, pernyataan keberatan Anda *TIDAK DAPAT DIPROSES*.\n\n";
+            $template .= "📋 *Detail Pernyataan Keberatan:*\n";
+            $template .= "• Kategori: {$kategori}\n";
+            $template .= "• Alasan Pengajuan: {$alasanPengajuanKeberatan}\n";
+            $template .= "• Kasus Posisi: {$kasusPosisi}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
+    public function generatePesanReviewPengaduanMasyarakat($nama, $status, $jenisLaporan, $yangDilaporkan, $lokasiKejadian, $waktuKejadian, $kronologisKejadian, $jawaban = null, $alasanPenolakan = null, $strategiPengiriman = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+
+        // Format tanggal menggunakan date() dan strtotime()
+        $tanggalKejadian = date('d M Y', strtotime($waktuKejadian));
+
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PENGADUAN MASYARAKAT DISETUJUI*\n\n";
+            $template .= "Pengaduan masyarakat Anda telah *SELESAI DIPROSES* dan disetujui.\n\n";
+            $template .= "📋 *Detail Pengaduan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n\n";
+
+            // IMPLEMENTASI STRATEGI PENGIRIMAN - SAMA SEPERTI PERMOHONAN INFORMASI
+            if ($strategiPengiriman && isset($strategiPengiriman['metode'])) {
+                $template .= "📝 *Tanggapan:*\n";
+
+                switch ($strategiPengiriman['metode']) {
+                    case 'kirim_file':
+                        // File kecil ≤ 9MB - akan dikirim via WhatsApp
+                        $template .= "📎 Dokumen tanggapan dikirim bersamaan dengan pesan ini.\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'notif_file_besar':
+                        // File besar > 9MB - hanya notifikasi
+                        $template .= "📎 *Tanggapan yang diberikan berupa media yang ukurannya terlalu besar (melebihi 10 MB) silahkan check email anda untuk melihat tanggapannya*\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'file_tidak_ada':
+                        // File tidak ditemukan
+                        $template .= "⚠️ Dokumen tanggapan tidak dapat dikirim via WhatsApp\n";
+                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat tanggapan lengkap*\n\n";
+                        break;
+
+                    case 'pesan_biasa':
+                    default:
+                        // Jawaban berupa teks
+                        if ($jawaban) {
+                            // Batasi panjang jawaban untuk WhatsApp
+                            $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                            $template .= "{$jawabanPendek}\n\n";
+                            if (strlen($jawaban) > 200) {
+                                $template .= "📧 Tanggapan lengkap dapat dilihat di email.\n\n";
+                            }
+                        }
+                        break;
+                }
+            } else {
+                // Fallback untuk backward compatibility
+                if ($jawaban) {
+                    if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+                        $template .= "📎 Dokumen tanggapan telah dikirim melalui email.\n\n";
+                    } else {
+                        $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                        $template .= "{$jawabanPendek}\n\n";
+                        if (strlen($jawaban) > 200) {
+                            $template .= "📧 Tanggapan lengkap dapat dilihat di email.\n\n";
+                        }
+                    }
+                }
+            }
+        } else {
+            $template .= "❌ *PENGADUAN MASYARAKAT DITOLAK*\n\n";
+            $template .= "Mohon maaf, pengaduan masyarakat Anda *TIDAK DAPAT DIPROSES*.\n\n";
+            $template .= "📋 *Detail Pengaduan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+        }
+
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
+    public function generatePesanReviewWBS($nama, $status, $jenisLaporan, $yangDilaporkan, $jabatan, $lokasiKejadian, $waktuKejadian, $kronologisKejadian, $jawaban = null, $alasanPenolakan = null, $strategiPengiriman = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+
+        // Format tanggal menggunakan date() dan strtotime()
+        $tanggalKejadian = date('d M Y', strtotime($waktuKejadian));
+
+        if ($status === 'Disetujui') {
+            $template .= "✅ *WHISTLE BLOWING SYSTEM DISETUJUI*\n\n";
+            $template .= "Laporan Whistle Blowing System Anda telah *SELESAI DIPROSES* dan disetujui.\n\n";
+            $template .= "📋 *Detail Laporan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Jabatan: {$jabatan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n\n";
+
+            // IMPLEMENTASI STRATEGI PENGIRIMAN - SAMA SEPERTI PERMOHONAN INFORMASI
+            if ($strategiPengiriman && isset($strategiPengiriman['metode'])) {
+                $template .= "📝 *Tanggapan:*\n";
+
+                switch ($strategiPengiriman['metode']) {
+                    case 'kirim_file':
+                        // File kecil ≤ 9MB - akan dikirim via WhatsApp
+                        $template .= "📎 Dokumen tanggapan dikirim bersamaan dengan pesan ini.\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'notif_file_besar':
+                        // File besar > 9MB - hanya notifikasi
+                        $template .= "📎 *Tanggapan yang diberikan berupa media yang ukurannya terlalu besar (melebihi 10 MB) silahkan check email anda untuk melihat tanggapannya*\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'file_tidak_ada':
+                        // File tidak ditemukan
+                        $template .= "⚠️ Dokumen tanggapan tidak dapat dikirim via WhatsApp\n";
+                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat tanggapan lengkap*\n\n";
+                        break;
+
+                    case 'pesan_biasa':
+                    default:
+                        // Jawaban berupa teks
+                        if ($jawaban) {
+                            // Batasi panjang jawaban untuk WhatsApp
+                            $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                            $template .= "{$jawabanPendek}\n\n";
+                            if (strlen($jawaban) > 200) {
+                                $template .= "📧 Tanggapan lengkap dapat dilihat di email.\n\n";
+                            }
+                        }
+                        break;
+                }
+            } else {
+                // Fallback untuk backward compatibility
+                if ($jawaban) {
+                    if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+                        $template .= "📎 Dokumen tanggapan telah dikirim melalui email.\n\n";
+                    } else {
+                        $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                        $template .= "{$jawabanPendek}\n\n";
+                        if (strlen($jawaban) > 200) {
+                            $template .= "📧 Tanggapan lengkap dapat dilihat di email.\n\n";
+                        }
+                    }
+                }
+            }
+
+            $template .= "🔒 *Kerahasiaan Terjamin*\n";
+            $template .= "Identitas Anda akan dijaga kerahasiaannya sesuai dengan kebijakan WBS.\n\n";
+        } else {
+            $template .= "❌ *WHISTLE BLOWING SYSTEM DITOLAK*\n\n";
+            $template .= "Mohon maaf, laporan Whistle Blowing System Anda *TIDAK DAPAT DIPROSES*.\n\n";
+            $template .= "📋 *Detail Laporan:*\n";
+            $template .= "• Jenis Laporan: {$jenisLaporan}\n";
+            $template .= "• Yang Dilaporkan: {$yangDilaporkan}\n";
+            $template .= "• Jabatan: {$jabatan}\n";
+            $template .= "• Lokasi Kejadian: {$lokasiKejadian}\n";
+            $template .= "• Waktu Kejadian: {$tanggalKejadian}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+
+            $template .= "🔒 *Kerahasiaan Tetap Terjamin*\n";
+            $template .= "Meskipun laporan ditolak, identitas Anda tetap dijaga kerahasiaannya.\n\n";
+        }
+
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
+    }
+
+    public function generatePesanReviewPermohonanPerawatan($nama, $status, $unitKerja, $perawatanYangDiusulkan, $keluhanKerusakan, $lokasiPerawatan, $jawaban = null, $alasanPenolakan = null, $strategiPengiriman = null)
+    {
+        $template = "🏛️ *PPID POLINEMA* 🏛️\n\n";
+        $template .= "Halo *{$nama}*,\n\n";
+
+        if ($status === 'Disetujui') {
+            $template .= "✅ *PERMOHONAN PERAWATAN DISETUJUI*\n\n";
+            $template .= "Permohonan perawatan sarana prasarana Anda telah *SELESAI DIPROSES* dan disetujui.\n\n";
+            $template .= "📋 *Detail Permohonan:*\n";
+            $template .= "• Unit Kerja: {$unitKerja}\n";
+            $template .= "• Perawatan Diusulkan: {$perawatanYangDiusulkan}\n";
+            $template .= "• Keluhan: " . \Illuminate\Support\Str::limit($keluhanKerusakan, 100) . "\n";
+            $template .= "• Lokasi Perawatan: {$lokasiPerawatan}\n\n";
+
+            // IMPLEMENTASI STRATEGI PENGIRIMAN - SAMA SEPERTI PERMOHONAN INFORMASI
+            if ($strategiPengiriman && isset($strategiPengiriman['metode'])) {
+                $template .= "📝 *Tanggapan:*\n";
+
+                switch ($strategiPengiriman['metode']) {
+                    case 'kirim_file':
+                        // File kecil ≤ 9MB - akan dikirim via WhatsApp
+                        $template .= "📎 Dokumen tanggapan dikirim bersamaan dengan pesan ini.\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'notif_file_besar':
+                        // File besar > 9MB - hanya notifikasi
+                        $template .= "📎 *Tanggapan yang diberikan berupa media yang ukurannya terlalu besar (melebihi 10 MB) silahkan check email anda untuk melihat tanggapannya*\n";
+                        $template .= "📊 Ukuran file: {$strategiPengiriman['ukuran_mb']} MB\n\n";
+                        break;
+
+                    case 'file_tidak_ada':
+                        // File tidak ditemukan
+                        $template .= "⚠️ Dokumen tanggapan tidak dapat dikirim via WhatsApp\n";
+                        $template .= "📧 *Silakan cek EMAIL Anda untuk melihat tanggapan lengkap*\n\n";
+                        break;
+
+                    case 'pesan_biasa':
+                    default:
+                        // Jawaban berupa teks
+                        if ($jawaban) {
+                            // Batasi panjang jawaban untuk WhatsApp
+                            $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                            $template .= "{$jawabanPendek}\n\n";
+                            if (strlen($jawaban) > 200) {
+                                $template .= "📧 Tanggapan lengkap dapat dilihat di email.\n\n";
+                            }
+                        }
+                        break;
+                }
+            } else {
+                // Fallback untuk backward compatibility
+                if ($jawaban) {
+                    if (preg_match('/\.(pdf|doc|docx|jpg|jpeg|png|gif)$/i', $jawaban)) {
+                        $template .= "📎 Dokumen tanggapan telah dikirim melalui email.\n\n";
+                    } else {
+                        $jawabanPendek = strlen($jawaban) > 200 ? substr($jawaban, 0, 200) . '...' : $jawaban;
+                        $template .= "{$jawabanPendek}\n\n";
+                        if (strlen($jawaban) > 200) {
+                            $template .= "📧 Tanggapan lengkap dapat dilihat di email.\n\n";
+                        }
+                    }
+                }
+            }
+
+            $template .= "🔧 *Proses Selanjutnya*\n";
+            $template .= "Tim teknis akan segera melakukan koordinasi untuk pelaksanaan perawatan.\n\n";
+        } else {
+            $template .= "❌ *PERMOHONAN PERAWATAN DITOLAK*\n\n";
+            $template .= "Mohon maaf, permohonan perawatan sarana prasarana Anda *TIDAK DAPAT DIPROSES*.\n\n";
+            $template .= "📋 *Detail Permohonan:*\n";
+            $template .= "• Unit Kerja: {$unitKerja}\n";
+            $template .= "• Perawatan Diusulkan: {$perawatanYangDiusulkan}\n";
+            $template .= "• Keluhan: " . \Illuminate\Support\Str::limit($keluhanKerusakan, 100) . "\n";
+            $template .= "• Lokasi Perawatan: {$lokasiPerawatan}\n";
+            $template .= "• Alasan Penolakan: {$alasanPenolakan}\n\n";
+
+            $template .= "💡 *Saran:*\n";
+            $template .= "Anda dapat mengajukan permohonan baru dengan melengkapi informasi atau dokumen yang diperlukan.\n\n";
+        }
+
+        $template .= "📞 *Butuh Bantuan?*\n";
+        $template .= "• Email: ppid@polinema.ac.id\n";
+        $template .= "• Telepon: 085804049240\n";
+        $template .= "• Website: ppid.polinema.ac.id\n\n";
+        $template .= "Keterangan:\n";
+        $template .= "Politeknik Negeri Malang\n";
+        $template .= "Pesan otomatis dari Sistem PPID";
+
+        return $template;
     }
 }

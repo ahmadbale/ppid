@@ -53,6 +53,10 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSeng
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPKController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPMController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPPController;
+use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewWBSController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPMController;
@@ -581,6 +585,46 @@ Route::middleware('auth')->group(function () {
             Route::post('/tolakPermohonan/{id}', [ReviewPIController::class, 'tolakReview'])->middleware('permission:update');
             Route::post('/tandaiDibaca/{id}', [ReviewPIController::class, 'tandaiDibacaReview'])->middleware('permission:update');
             Route::delete('/hapusPermohonan/{id}', [ReviewPIController::class, 'hapusReview'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'pernyataan-keberatan'], function() {
+            Route::get('/', [ReviewPKController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [ReviewPKController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [ReviewPKController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [ReviewPKController::class, 'setujuiReview'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [ReviewPKController::class, 'tolakReview'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [ReviewPKController::class, 'tandaiDibacaReview'])->middleware('permission:update');
+            Route::delete('/hapusPermohonan/{id}', [ReviewPKController::class, 'hapusReview'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'pengaduan-masyarakat'], function() {
+            Route::get('/', [ReviewPMController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [ReviewPMController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [ReviewPMController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [ReviewPMController::class, 'setujuiReview'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [ReviewPMController::class, 'tolakReview'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [ReviewPMController::class, 'tandaiDibacaReview'])->middleware('permission:update');
+            Route::delete('/hapusPermohonan/{id}', [ReviewPMController::class, 'hapusReview'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'whistle-blowing-system'], function() {
+            Route::get('/', [ReviewWBSController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [ReviewWBSController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [ReviewWBSController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [ReviewWBSController::class, 'setujuiReview'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [ReviewWBSController::class, 'tolakReview'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [ReviewWBSController::class, 'tandaiDibacaReview'])->middleware('permission:update');
+            Route::delete('/hapusPermohonan/{id}', [ReviewWBSController::class, 'hapusReview'])->middleware('permission:delete');
+        });
+
+        Route::group(['prefix' => 'permohonan-perawatan'], function() {
+            Route::get('/', [ReviewPPController::class, 'index'])->middleware('permission:view');
+            Route::get('/approve-modal/{id}', [ReviewPPController::class, 'getApproveModal'])->middleware('permission:update');
+            Route::get('/decline-modal/{id}', [ReviewPPController::class, 'getDeclineModal'])->middleware('permission:update');
+            Route::post('/setujuiPermohonan/{id}', [ReviewPPController::class, 'setujuiReview'])->middleware('permission:update');
+            Route::post('/tolakPermohonan/{id}', [ReviewPPController::class, 'tolakReview'])->middleware('permission:update');
+            Route::post('/tandaiDibaca/{id}', [ReviewPPController::class, 'tandaiDibacaReview'])->middleware('permission:update');
+            Route::delete('/hapusPermohonan/{id}', [ReviewPPController::class, 'hapusReview'])->middleware('permission:delete');
         });
     });
 
