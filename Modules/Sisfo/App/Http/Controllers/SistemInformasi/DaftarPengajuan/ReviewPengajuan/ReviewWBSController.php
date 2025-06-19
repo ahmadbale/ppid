@@ -32,13 +32,13 @@ class ReviewWBSController extends Controller
             'title' => 'Review Whistle Blowing System'
         ];
 
-        // Ambil daftar WBS untuk review dari model
-        $wbs = WBSModel::getDaftarReview();
+        // Ubah variabel dari $wbs menjadi $whistleBlowingSystem agar konsisten dengan view
+        $whistleBlowingSystem = WBSModel::getDaftarReview();
 
         return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewWBS.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
-            'wbs' => $wbs,
+            'whistleBlowingSystem' => $whistleBlowingSystem, // Ubah nama variabel
             'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
         ]);
     }
@@ -46,10 +46,10 @@ class ReviewWBSController extends Controller
     public function getApproveModal($id)
     {
         try {
-            $wbs = WBSModel::findOrFail($id);
+            $whistleBlowingSystem = WBSModel::findOrFail($id);
 
             return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewWBS.approve', [
-                'wbs' => $wbs,
+                'whistleBlowingSystem' => $whistleBlowingSystem, // Ubah nama variabel
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -60,10 +60,10 @@ class ReviewWBSController extends Controller
     public function getDeclineModal($id)
     {
         try {
-            $wbs = WBSModel::findOrFail($id);
+            $whistleBlowingSystem = WBSModel::findOrFail($id);
 
             return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewWBS.decline', [
-                'wbs' => $wbs,
+                'whistleBlowingSystem' => $whistleBlowingSystem, // Ubah nama variabel
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -74,26 +74,27 @@ class ReviewWBSController extends Controller
     public function setujuiReview(Request $request, $id)
     {
         try {
-            // Validasi input jawaban dengan file
+            // Validasi input jawaban dengan file - sesuaikan dengan pola permohonan informasi
             $request->validate([
                 'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
             ], [
+                'jawaban_file.mimes' => 'File harus berformat: pdf, doc, docx, jpg, jpeg, png',
                 'jawaban_file.max' => 'Ukuran file maksimal 10MB'
             ]);
 
-            $wbs = WBSModel::findOrFail($id);
+            $whistleBlowingSystem = WBSModel::findOrFail($id);
             
             $jawaban = $request->jawaban;
             
             // Jika ada file yang diupload
             if ($request->hasFile('jawaban_file')) {
                 $file = $request->file('jawaban_file');
-                $filename = 'wbs_jawaban_' . time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('wbs/jawaban', $filename, 'public');
-                $jawaban = $path;
+                $fileName = 'jawaban_wbs_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('jawaban_whistle_blowing_system', $fileName, 'public');
+                $jawaban = $filePath; // Gunakan path file sebagai jawaban
             }
             
-            $result = $wbs->validasiDanSetujuiReview($jawaban);
+            $result = $whistleBlowingSystem->validasiDanSetujuiReview($jawaban);
             return $this->jsonSuccess($result, 'Review whistle blowing system berhasil disetujui');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menyetujui review whistle blowing system');
@@ -103,8 +104,8 @@ class ReviewWBSController extends Controller
     public function tolakReview(Request $request, $id)
     {
         try {
-            $wbs = WBSModel::findOrFail($id);
-            $result = $wbs->validasiDanTolakReview($request->alasan_penolakan);
+            $whistleBlowingSystem = WBSModel::findOrFail($id);
+            $result = $whistleBlowingSystem->validasiDanTolakReview($request->alasan_penolakan);
             return $this->jsonSuccess($result, 'Review whistle blowing system berhasil ditolak');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menolak review whistle blowing system');
@@ -114,8 +115,8 @@ class ReviewWBSController extends Controller
     public function tandaiDibacaReview($id)
     {
         try {
-            $wbs = WBSModel::findOrFail($id);
-            $result = $wbs->validasiDanTandaiDibacaReview();
+            $whistleBlowingSystem = WBSModel::findOrFail($id);
+            $result = $whistleBlowingSystem->validasiDanTandaiDibacaReview();
             return $this->jsonSuccess($result, 'Review whistle blowing system berhasil ditandai dibaca');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menandai review sebagai dibaca');
@@ -125,8 +126,8 @@ class ReviewWBSController extends Controller
     public function hapusReview($id)
     {
         try {
-            $wbs = WBSModel::findOrFail($id);
-            $result = $wbs->validasiDanHapusReview();
+            $whistleBlowingSystem = WBSModel::findOrFail($id);
+            $result = $whistleBlowingSystem->validasiDanHapusReview();
             return $this->jsonSuccess($result, 'Review pengajuan ini telah dihapus dari halaman daftar Review Pengajuan');
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Gagal menghapus review');
