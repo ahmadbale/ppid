@@ -1,6 +1,6 @@
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('dinamis-tabel');
+  $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('kategori-informasi-publik-dinamis-tabel');
 @endphp
 <div class="modal-header">
      <h5 class="modal-title">Tambah IP Dinamis Tabel Baru</h5>

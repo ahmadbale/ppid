@@ -11,7 +11,7 @@ class IpDinamisTabelController extends Controller
 {
      use TraitsController;
 
-     public $breadcrumb = 'Ip Dinamis Tabel';
+     public $breadcrumb = 'Informasi Publik Dinamis Tabel';
      public $pagename = 'AdminWeb/InformasiPublik/IpDinamisTabel';
      
      public function index (Request $request)
@@ -19,15 +19,15 @@ class IpDinamisTabelController extends Controller
           $search = $request->query('search', '');
 
           $breadcrumb = (object)[
-               'title' => 'Pengaturan IpDinamis Tabel',
-               'list' => ['Home', 'Pengaturan IpDinamis Tabel']
+               'title' => 'Pengaturan Informasi Publik Dinamis Tabel',
+               'list' => ['Home', 'Pengaturan Informasi Publik Dinamis Tabel']
           ];
 
           $page = (object)[
-               'title' => 'Daftar IpDinamis Tabel'
+               'title' => 'Daftar Informasi Publik Dinamis Tabel'
           ];
           
-          $activeMenu = 'ipdinamis-tabel';
+          $activeMenu = 'Informasi Publik Dinamis Tabel';
 
           $ipDinamisTabel = IpDinamisTabelModel:: selectData(10, $search);
           
@@ -51,7 +51,7 @@ class IpDinamisTabelController extends Controller
              return view('sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.data', compact('ipDinamisTabel', 'search'))->render();
          }
          
-         return redirect()->route('ipdinamis-tabel.index');
+         return redirect()->route('kategori-informasi-publik-dinamis-tabel.index');
      }
     
     public function addData()
