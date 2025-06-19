@@ -53,28 +53,28 @@
     </section>
 
      <!-- Pengantar Section -->
-    {{-- <section class="pengantar-section">
+    <section class="pengantar-section">
         <h3 class="title-section">PPID Politeknik Negeri Malang</h3>
         <div class="mt-4 border-top border-1 pt-3 mb-4 w-65 mx-auto"></div>
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <p>
-                        {{ $pengantar['content'] }}
+                        {{-- {{ $pengantar['content'] }} --}}
+                        Politeknik Negeri Malang (Polinema) berkomitmen untuk mewujudkan transparansi dan akuntabilitas publik sesuai dengan amanat Undang-Undang Nomor 14 Tahun 2008. Melalui Pejabat Pengelola Informasi dan Dokumentasi (PPID), Polinema menyediakan akases mudah bagi masyarakat terhadap berbagai informasi terkait kegiatan akademik, penelitian, keuangan dan pengelolaan kampus. Selain itu PPID Polinema siap membantu anda dalam mengajukan permohonan informasi, menyampaikan pengaduan, atau sekadar mencari tahu lebih lanjut tentang Polinema.
                     </p>
                 </div>
-                <div class="col-md-6 text-center"> --}}
-                    {{-- <img src="{{ asset('img/direktur-polinema-bendera.webp') }}" alt="gambar-pengantar" class="pengantar-img"> --}}
-                    {{-- <img src="{{ $pengantar['image'] }}" alt="gambar-pengantar" class="pengantar-img img-fluid">
+                <div class="col-md-6 text-center"> 
+                    <img src="{{ asset('img/direktur-polinema-bendera.webp') }}" alt="gambar-pengantar" class="pengantar-img">
+                    {{-- <img src="{{ $pengantar['image'] }}" alt="gambar-pengantar" class="pengantar-img img-fluid"> --}}
                 </div>
             </div>
         </div>
-    </section> --}}
+    </section>
 
      <!-- Akses Menu Cepat -->
      <section class="akses-menu-cepat" style="background-color: #ffffff; margin: 100px 0">
         <div class="container text-center" style="margin: 50px auto;">
-            {{-- <h3 class="title-section">Akses Menu Cepat</h3> --}}
             <h3 class="title-section">
                 {{ $aksesCepatMenus[0]['title'] ?? 'Akses Menu Cepat' }}
             </h3>
@@ -331,14 +331,13 @@
                     </div>
                 @endforeach
 
-                @if($itemBerita && !empty($itemBerita['url_selengkapnya']))
+                
                     <div class="d-flex flex-wrap justify-content-center mt-3 mb-3">
-                        <a href="{{ url($itemBerita['url_selengkapnya']) }}" class="btn-custom">
+                        <a href='{{ route('berita') }}' class="btn-custom">
                             <i class="bi bi-arrow-right"></i>
                             <span class="ms-2">Berita Lainnya</span>
                         </a>
                     </div>
-                @endif
             </div>
     @else
         <p class="text-center">Tidak ada berita tersedia.</p>
