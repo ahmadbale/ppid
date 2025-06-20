@@ -35,7 +35,7 @@ class ReviewPPController extends Controller
         // Ambil daftar Permohonan Perawatan untuk review dari model
         $permohonanPerawatan = PermohonanPerawatanModel::getDaftarReview();
 
-        return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPP.index', [
+        return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'permohonanPerawatan' => $permohonanPerawatan,
@@ -48,7 +48,7 @@ class ReviewPPController extends Controller
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPP.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.approve', [
                 'permohonanPerawatan' => $permohonanPerawatan,
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
@@ -62,7 +62,7 @@ class ReviewPPController extends Controller
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPP.decline', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.decline', [
                 'permohonanPerawatan' => $permohonanPerawatan,
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
