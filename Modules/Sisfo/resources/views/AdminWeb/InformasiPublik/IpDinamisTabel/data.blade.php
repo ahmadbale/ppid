@@ -1,7 +1,7 @@
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
-  $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('dinamis-tabel');
+  $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('kategori-informasi-publik-dinamis-tabel');
 @endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
      <div class="showing-text">

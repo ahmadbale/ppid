@@ -481,7 +481,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/removeHakAkses/{userId}', [UserController::class, 'removeHakAkses'])->middleware('permission:update');
     });
 
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('dinamis-tabel')], function () {
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('kategori-informasi-publik-dinamis-tabel')], function () {
         Route::get('/', [IpDinamisTabelController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [IpDinamisTabelController::class, 'getData']);
         Route::get('/addData', [IpDinamisTabelController::class, 'addData']);
