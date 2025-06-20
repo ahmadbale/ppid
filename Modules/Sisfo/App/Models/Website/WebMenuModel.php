@@ -2,22 +2,23 @@
 
 namespace Modules\Sisfo\App\Models\Website;
 
-use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
-use Modules\Sisfo\App\Models\HakAksesModel;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
-use Modules\Sisfo\App\Models\Log\TransactionModel;
-use Modules\Sisfo\App\Models\TraitsModel;
-use Modules\Sisfo\App\Models\UserModel;
-use Modules\Sisfo\App\Models\WebMenuGlobalModel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Modules\Sisfo\App\Models\Website\WebKontenModel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
+use Modules\Sisfo\App\Models\UserModel;
 use Illuminate\Support\Facades\Validator;
+use Modules\Sisfo\App\Models\TraitsModel;
+use Modules\Sisfo\App\Models\HakAksesModel;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\ApplicationModel;
+use Modules\Sisfo\App\Models\WebMenuGlobalModel;
+use Modules\Sisfo\App\Models\Log\NotifAdminModel;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\Website\WebKontenModel;
+use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
 
 class WebMenuModel extends Model
 {
@@ -60,6 +61,19 @@ class WebMenuModel extends Model
             'web_menu_url_id',    // Kunci utama pada WebMenuUrl
             'fk_web_menu_global', // Kunci untuk menghubungkan WebMenu dengan WebMenuGlobal
             'fk_web_menu_url'     // Kunci untuk menghubungkan WebMenuGlobal dengan WebMenuUrl
+        );
+    }
+    // tambahan 
+    //  Relasi langsung ke aplikasi melalui webMenuGlobal
+    public function application()
+    {
+        return $this->hasOneThrough(
+            ApplicationModel::class,
+            WebMenuGlobalModel::class,
+            'web_menu_global_id', // Foreign key pada WebMenuGlobal table
+            'application_id',     // Foreign key pada Application table  
+            'fk_web_menu_global', // Local key pada WebMenu table
+            'fk_m_application'    // Local key pada WebMenuGlobal table (melalui WebMenuUrl)
         );
     }
 

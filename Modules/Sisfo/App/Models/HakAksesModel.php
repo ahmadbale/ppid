@@ -2,12 +2,13 @@
 
 namespace Modules\Sisfo\App\Models;
 
-use Modules\Sisfo\App\Models\Log\TransactionModel;
-use Modules\Sisfo\App\Models\TraitsModel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 
 class HakAksesModel extends Model
 {
@@ -26,19 +27,53 @@ class HakAksesModel extends Model
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
 
-    public static function selectData($perPage = null, $search = '')
-    {
-        $query = self::query()
-            ->where('isDeleted', 0);
+    // public static function selectData($perPage = null, $search = '')
+    // {
+    //     $query = self::query()
+    //         ->where('isDeleted', 0);
 
+    //     // Tambahkan fungsionalitas pencarian
+    //     if (!empty($search)) {
+    //         $query->where(function($q) use ($search) {
+    //             $q->where('hak_akses_kode', 'like', "%{$search}%")
+    //               ->orWhere('hak_akses_nama', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     return self::paginateResults($query, $perPage);
+    // }
+    // tambahan
+    // Tambahkan relasi ke web_menu
+    public function webMenus()
+    {
+        return $this->hasMany(WebMenuModel::class, 'fk_m_hak_akses', 'hak_akses_id');
+    }
+    // tambahan
+    public static function selectData($perPage = null, $search = '', $appKey = 'app ppid')
+    {
+        
+        $query = self::query()
+            ->select('m_hak_akses.*')
+            ->join('web_menu as wm', 'wm.fk_m_hak_akses', '=', 'm_hak_akses.hak_akses_id')
+            ->join('web_menu_global as wmg', 'wm.fk_web_menu_global', '=', 'wmg.web_menu_global_id')
+            ->join('web_menu_url as wmu', 'wmg.fk_web_menu_url', '=', 'wmu.web_menu_url_id')
+            ->join('m_application as ma', 'wmu.fk_m_application', '=', 'ma.application_id')
+            ->where('m_hak_akses.isDeleted', 0)
+            ->where('wm.isDeleted', 0)
+            ->where('wmg.isDeleted', 0)
+            ->where('wmu.isDeleted', 0)
+            ->where('ma.isDeleted', 0)
+            ->where('ma.app_key', $appKey)
+            ->distinct();
+    
         // Tambahkan fungsionalitas pencarian
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('hak_akses_kode', 'like', "%{$search}%")
-                  ->orWhere('hak_akses_nama', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('m_hak_akses.hak_akses_kode', 'like', "%{$search}%")
+                  ->orWhere('m_hak_akses.hak_akses_nama', 'like', "%{$search}%");
             });
         }
-
+    
         return self::paginateResults($query, $perPage);
     }
 
@@ -90,7 +125,7 @@ class HakAksesModel extends Model
         }
     }
 
-  
+
     public static function deleteData($id)
     {
         try {
@@ -108,9 +143,8 @@ class HakAksesModel extends Model
 
             DB::commit();
 
-            
+
             return self::responFormatSukses($level, 'Level berhasil dihapus');
-            
         } catch (\Exception $e) {
             DB::rollBack();
             return self::responFormatError($e, 'Gagal menghapus level');

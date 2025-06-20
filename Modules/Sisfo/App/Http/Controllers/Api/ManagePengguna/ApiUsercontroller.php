@@ -29,6 +29,143 @@ class ApiUserController extends BaseApiController
         );
     }
 
+    
+    public function getData(Request $request)
+    {
+        return $this->executeWithAuthentication(
+            function ($user) use ($request) {
+                $search = $request->query('search', '');
+                $perPage = $request->query('per_page', 10);
+                $levelId = $request->query('hak_akses_id', null);
+                
+                if ($levelId) {
+                    $users = UserModel::getUsersByLevel($levelId, $perPage, $search);
+                    $level = HakAksesModel::findOrFail($levelId);
+                    return [
+                        'users' => $users,
+                        'currentLevel' => $level
+                    ];
+                } else {
+                    return [
+                        'users' => UserModel::selectData($perPage, $search),
+                        'currentLevel' => null
+                    ];
+                }
+            },
+            'pengguna',
+            self::ACTION_GET
+        );
+    }
+
+    
+    public function addData(Request $request)
+    {
+        return $this->executeWithAuthentication(
+            function ($user) use ($request) {
+                $levelId = $request->query('hak_akses_id', null);
+
+                // Ambil semua level
+                $hakAkses = HakAksesModel::where('isDeleted', 0)
+                    ->when(Auth::user()->level->hak_akses_kode !== 'SAR', function ($query) {
+                        return $query->where('hak_akses_kode', '!=', 'SAR');
+                    })
+                    ->get();
+
+                $selectedLevel = null;
+                if ($levelId) {
+                    $selectedLevel = HakAksesModel::findOrFail($levelId);
+
+                    // Jika user bukan SAR dan mencoba menambah user ke level SAR
+                    if (Auth::user()->level->hak_akses_kode !== 'SAR' && $selectedLevel->hak_akses_kode === 'SAR') {
+                        return $this->errorResponse(
+                            self::AUTH_FORBIDDEN,
+                            'Anda tidak memiliki izin untuk menambahkan pengguna ke level Super Administrator',
+                            self::HTTP_FORBIDDEN
+                        );
+                    }
+                }
+
+                return [
+                    'hakAkses' => $hakAkses,
+                    'selectedLevel' => $selectedLevel
+                ];
+            },
+            'form tambah pengguna',
+            self::ACTION_GET
+        );
+    }
+
+    public function editData($id)
+    {
+        return $this->executeWithAuthentication(
+            function ($authenticatedUser) use ($id) { 
+                $targetUser = UserModel::detailData($id);
+                
+                // $currentUserLevel = $authenticatedUser->level ?? null;
+                
+                // Cek apakah user yang diedit memiliki hak akses SAR
+                $targetUserIsSAR = $targetUser->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if ($targetUserIsSAR) {
+                    // Cek apakah user yang login memiliki akses SAR
+                    $currentUserHasSAR = $authenticatedUser->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                    
+                    if (!$currentUserHasSAR) {
+                        return $this->errorResponse(
+                            self::AUTH_FORBIDDEN,
+                            'Anda tidak memiliki izin untuk mengedit pengguna dengan level Super Administrator',
+                            self::HTTP_FORBIDDEN
+                        );
+                    }
+                }
+    
+                // Ambil semua hak akses yang bisa ditambahkan ke user
+                $availableHakAkses = HakAksesModel::where('isDeleted', 0)
+                    ->when(!$currentUserHasSAR, function ($query) {
+                        return $query->where('hak_akses_kode', '!=', 'SAR');
+                    })
+                    ->whereNotIn('hak_akses_id', $targetUser->hakAkses->pluck('hak_akses_id'))
+                    ->get();
+    
+                return [
+                    'user' => $targetUser,
+                    'availableHakAkses' => $availableHakAkses,
+                    'debug' => [
+                        'current_user_levels' => $authenticatedUser->hakAkses->pluck('hak_akses_kode')->toArray(),
+                        'current_user_has_sar' => $currentUserHasSAR ?? false
+                    ]
+                ];
+            },
+            'form edit pengguna',
+            self::ACTION_GET
+        );
+    }
+
+    
+    public function deleteDataView($id)
+    {
+        return $this->executeWithAuthentication(
+            function ($user) use ($id) {
+                $user = UserModel::detailData($id);
+
+                // Cek apakah user yang dihapus memiliki hak akses SAR
+                $isSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                if ($isSAR && Auth::user()->level->hak_akses_kode !== 'SAR') {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Anda tidak memiliki izin untuk menghapus pengguna dengan level Super Administrator',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+
+                return $user;
+            },
+            'konfirmasi hapus pengguna',
+            self::ACTION_GET
+        );
+    }
+
+    
     public function createData(Request $request)
     {
         return $this->executeWithAuthAndValidation(
@@ -72,17 +209,21 @@ class ApiUserController extends BaseApiController
     public function updateData(Request $request, $id)
     {
         return $this->executeWithAuthAndValidation(
-            function ($user) use ($request, $id) {
+            function ($authenticatedUser) use ($request, $id) {
                 // Cek apakah user yang diedit memiliki hak akses SAR
                 $userToUpdate = UserModel::findOrFail($id);
                 $isSAR = $userToUpdate->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
                 
-                if ($isSAR && Auth::user()->level->hak_akses_kode !== 'SAR') {
-                    return $this->errorResponse(
-                        self::AUTH_FORBIDDEN,
-                        'Anda tidak memiliki izin untuk mengedit pengguna dengan level Super Administrator',
-                        self::HTTP_FORBIDDEN
-                    );
+                if ($isSAR) {
+                    $currentUserHasSAR = $authenticatedUser->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                    
+                    if (!$currentUserHasSAR) {
+                        return $this->errorResponse(
+                            self::AUTH_FORBIDDEN,
+                            'Anda tidak memiliki izin untuk mengedit pengguna dengan level Super Administrator',
+                            self::HTTP_FORBIDDEN
+                        );
+                    }
                 }
                 
                 // Handle form-data format yang benar
@@ -268,6 +409,7 @@ class ApiUserController extends BaseApiController
         );
     }
 
+
     public function detailData($id)
     {
         return $this->executeWithAuthentication(
@@ -278,6 +420,7 @@ class ApiUserController extends BaseApiController
             self::ACTION_GET
         );
     }
+    
     
     public function addHakAkses(Request $request, $userId)
     {
@@ -320,6 +463,7 @@ class ApiUserController extends BaseApiController
             self::ACTION_CREATE
         );
     }
+    
     
     public function removeHakAkses(Request $request, $userId)
     {

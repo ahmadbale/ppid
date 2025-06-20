@@ -72,5 +72,7 @@ class Kernel extends HttpKernel
         # tambahan 
         'jwt.system' => \App\Http\Middleware\VerifyApiToken::class, // Add this line
         'jwt.user' => \App\Http\Middleware\VerifyUserToken::class,
+        // tamabahan middleware untuk validasi app_key
+        'validate.app_key' => \App\Http\Middleware\ValidateAppKey::class,
     ];
 }
