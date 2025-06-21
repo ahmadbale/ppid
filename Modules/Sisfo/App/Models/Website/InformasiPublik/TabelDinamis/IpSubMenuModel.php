@@ -4,8 +4,10 @@ namespace Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis;
 
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
 
 class IpSubMenuModel extends Model
 {
@@ -33,10 +35,10 @@ class IpSubMenuModel extends Model
     public static function createDataForSubMenuUtama($subMenuUtamaId, $request, $menuIndex, $subMenuIndex, $jumlahSubMenu, &$dokumenFiles)
     {
         $createdSubMenus = [];
-        
+
         for ($k = 1; $k <= $jumlahSubMenu; $k++) {
             $namaSubMenu = $request->{"nama_sub_menu_{$menuIndex}_{$subMenuIndex}_{$k}"};
-            
+
             $dokumenFile = self::uploadFile(
                 $request->file("dokumen_sub_menu_{$menuIndex}_{$subMenuIndex}_{$k}"),
                 'dokumen_ip_sub_menu'
@@ -55,7 +57,7 @@ class IpSubMenuModel extends Model
             $subMenu = self::create($subMenuData);
             $createdSubMenus[] = $subMenu;
         }
-        
+
         return $createdSubMenus;
     }
 
@@ -67,10 +69,10 @@ class IpSubMenuModel extends Model
 
         foreach ($existingSubMenus as $subMenu) {
             $updateKey = "update_sub_menu_{$subMenu->ip_sub_menu_id}";
-            
+
             if ($request->has($updateKey)) {
                 $subMenu->nama_ip_sm = $request->{$updateKey};
-                
+
                 // Handle dokumen update
                 $dokumenKey = "dokumen_sub_menu_{$subMenu->ip_sub_menu_id}";
                 if ($request->hasFile($dokumenKey)) {
@@ -86,16 +88,16 @@ class IpSubMenuModel extends Model
                         $subMenu->dokumen_ip_sm = $dokumenFile;
                     }
                 }
-                
+
                 $subMenu->save();
             }
-            
+
             $deleteKey = "delete_sub_menu_{$subMenu->ip_sub_menu_id}";
             if ($request->has($deleteKey)) {
                 if ($subMenu->dokumen_ip_sm) {
                     self::removeFile($subMenu->dokumen_ip_sm);
                 }
-                
+
                 $subMenu->delete();
             }
         }
@@ -105,16 +107,30 @@ class IpSubMenuModel extends Model
 
     public static function deleteDataWithValidation($id)
     {
-        $subMenu = self::findOrFail($id);
+        try {
+            DB::beginTransaction();
 
-        // Hapus dokumen jika ada
-        if ($subMenu->dokumen_ip_sm) {
-            self::removeFile($subMenu->dokumen_ip_sm);
+            $subMenu = self::findOrFail($id);
+
+            // Hapus dokumen jika ada
+            if ($subMenu->dokumen_ip_sm) {
+                self::removeFile($subMenu->dokumen_ip_sm);
+            }
+
+            $subMenu->delete();
+
+            TransactionModel::createData(
+                'DELETED',
+                $subMenu->ip_sub_menu_id,
+                'Sub Menu - ' . $subMenu->nama_ip_sm
+            );
+
+            DB::commit();
+            return self::responFormatSukses($subMenu, 'Sub Menu berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return self::responFormatError($e, $e->getMessage());
         }
-
-        $subMenu->delete();
-
-        return true;
     }
 
     public static function validasiData($request)
@@ -126,17 +142,17 @@ class IpSubMenuModel extends Model
         if (is_numeric($jumlahMenuUtama)) {
             for ($i = 1; $i <= $jumlahMenuUtama; $i++) {
                 $adaSubMenuUtama = $request->{"ada_sub_menu_utama_$i"};
-                
+
                 if ($adaSubMenuUtama === 'ya') {
                     $jumlahSubMenuUtama = $request->{"jumlah_sub_menu_utama_$i"};
-                    
+
                     if (is_numeric($jumlahSubMenuUtama)) {
                         for ($j = 1; $j <= $jumlahSubMenuUtama; $j++) {
                             $adaSubMenu = $request->{"ada_sub_menu_{$i}_{$j}"};
-                            
+
                             if ($adaSubMenu === 'ya') {
                                 $jumlahSubMenu = $request->{"jumlah_sub_menu_{$i}_{$j}"};
-                                
+
                                 if (is_numeric($jumlahSubMenu)) {
                                     for ($k = 1; $k <= $jumlahSubMenu; $k++) {
                                         $rules["nama_sub_menu_{$i}_{$j}_{$k}"] = 'required|max:255';
@@ -166,5 +182,52 @@ class IpSubMenuModel extends Model
         }
 
         return true;
+    }
+
+    public static function updateDataSimple($request, $id)
+    {
+        $dokumenFiles = [];
+
+        try {
+            DB::beginTransaction();
+
+            $subMenu = self::findOrFail($id);
+            $oldDokumen = $subMenu->dokumen_ip_sm;
+
+            // Update nama sub menu
+            $subMenu->nama_ip_sm = $request->nama_ip_sm;
+
+            // Handle dokumen update
+            if ($request->hasFile('dokumen_ip_sm')) {
+                $dokumenFile = self::uploadFile(
+                    $request->file('dokumen_ip_sm'),
+                    'dokumen_ip_sub_menu'
+                );
+                if ($dokumenFile) {
+                    $dokumenFiles[] = $dokumenFile;
+                    if ($oldDokumen) {
+                        self::removeFile($oldDokumen);
+                    }
+                    $subMenu->dokumen_ip_sm = $dokumenFile;
+                }
+            }
+
+            $subMenu->save();
+
+            TransactionModel::createData(
+                'UPDATED',
+                $subMenu->ip_sub_menu_id,
+                'Sub Menu - ' . $subMenu->nama_ip_sm
+            );
+
+            DB::commit();
+            return self::responFormatSukses($subMenu, 'Sub Menu berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            foreach ($dokumenFiles as $file) {
+                self::removeFile($file);
+            }
+            return self::responFormatError($e, $e->getMessage());
+        }
     }
 }

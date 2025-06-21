@@ -8,6 +8,8 @@ use Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis\IpDinamisTabel
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis\IpSubMenuModel;
+use Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis\IpSubMenuUtamaModel;
 
 class SetIpDinamisTabelController extends Controller
 {
@@ -96,32 +98,38 @@ class SetIpDinamisTabelController extends Controller
 
     public function editData($id)
     {
-        // Ambil data menu utama dengan hierarki
-        $setIpDinamisTabel = IpMenuUtamaModel::detailDataWithHierarchy($id);
+        try {
+            // Ambil data menu utama dengan hierarki
+            $ipMenuUtama = IpMenuUtamaModel::detailDataWithHierarchy($id);
 
-        // Ambil daftar kategori IP dinamis tabel untuk dropdown
-        $ipDinamisTabel = IpDinamisTabelModel::where('isDeleted', 0)->get();
+            // Ambil daftar kategori IP dinamis tabel untuk dropdown
+            $ipDinamisTabel = IpDinamisTabelModel::where('isDeleted', 0)->get();
 
-        return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.update", [
-            'setIpDinamisTabel' => $setIpDinamisTabel,
-            'ipDinamisTabel' => $ipDinamisTabel
-        ]);
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.update", [
+                'ipMenuUtama' => $ipMenuUtama,
+                'ipDinamisTabel' => $ipDinamisTabel
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function updateData(Request $request, $id)
     {
         try {
-            IpMenuUtamaModel::validasiDataUpdate($request);
-            $result = IpMenuUtamaModel::updateDataWithHierarchy($request, $id);
+            $result = IpMenuUtamaModel::updateDataWithComplexHierarchy($request, $id);
 
             return $this->jsonSuccess(
                 $result['data'] ?? null,
-                $result['message'] ?? 'Set Informasi Publik Dinamis Tabel berhasil diperbarui'
+                $result['message'] ?? 'Menu Utama berhasil diperbarui'
             );
         } catch (ValidationException $e) {
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Terjadi kesalahan saat memperbarui Set Informasi Publik Dinamis Tabel');
+            return $this->jsonError($e, 'Terjadi kesalahan saat memperbarui Menu Utama');
         }
     }
 
@@ -151,6 +159,163 @@ class SetIpDinamisTabelController extends Controller
             return $this->jsonSuccess(
                 $result['data'] ?? null,
                 $result['message'] ?? 'Set Informasi Publik Dinamis Tabel berhasil dihapus'
+            );
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function editSubMenuUtama($id)
+    {
+        try {
+            $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
+
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.updateSubMenuUtama", [
+                'ipSubMenuUtama' => $ipSubMenuUtama
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateSubMenuUtama(Request $request, $id)
+    {
+        try {
+            $result = IpSubMenuUtamaModel::updateDataWithChildren($request, $id);
+
+            return $this->jsonSuccess(
+                $result['data'] ?? null,
+                $result['message'] ?? 'Sub Menu Utama berhasil diperbarui'
+            );
+        } catch (ValidationException $e) {
+            return $this->jsonValidationError($e);
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Terjadi kesalahan saat memperbarui Sub Menu Utama');
+        }
+    }
+
+    public function detailSubMenuUtama($id)
+    {
+        try {
+            $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
+
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detailSubMenuUtama", [
+                'ipSubMenuUtama' => $ipSubMenuUtama,
+                'title' => 'Detail Sub Menu Utama'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteSubMenuUtama(Request $request, $id)
+    {
+        if ($request->isMethod('get')) {
+            try {
+                $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
+
+                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.deleteSubMenuUtama", [
+                    'ipSubMenuUtama' => $ipSubMenuUtama
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        try {
+            $result = IpSubMenuUtamaModel::deleteDataWithValidation($id);
+
+            return $this->jsonSuccess(
+                $result['data'] ?? null,
+                $result['message'] ?? 'Sub Menu Utama berhasil dihapus'
+            );
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // Sub Menu Methods
+    public function editSubMenu($id)
+    {
+        try {
+            $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
+
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.updateSubMenu", [
+                'ipSubMenu' => $ipSubMenu
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateSubMenu(Request $request, $id)
+    {
+        try {
+            $result = IpSubMenuModel::updateDataSimple($request, $id);
+
+            return $this->jsonSuccess(
+                $result['data'] ?? null,
+                $result['message'] ?? 'Sub Menu berhasil diperbarui'
+            );
+        } catch (ValidationException $e) {
+            return $this->jsonValidationError($e);
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Terjadi kesalahan saat memperbarui Sub Menu');
+        }
+    }
+
+    public function detailSubMenu($id)
+    {
+        try {
+            $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
+
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detailSubMenu", [
+                'ipSubMenu' => $ipSubMenu,
+                'title' => 'Detail Sub Menu'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteSubMenu(Request $request, $id)
+    {
+        if ($request->isMethod('get')) {
+            try {
+                $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
+
+                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.deleteSubMenu", [
+                    'ipSubMenu' => $ipSubMenu
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+
+        try {
+            $result = IpSubMenuModel::deleteDataWithValidation($id);
+
+            return $this->jsonSuccess(
+                $result['data'] ?? null,
+                $result['message'] ?? 'Sub Menu berhasil dihapus'
             );
         } catch (\Exception $e) {
             return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
