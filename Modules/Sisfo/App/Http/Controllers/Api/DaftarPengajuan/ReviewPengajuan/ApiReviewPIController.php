@@ -124,12 +124,13 @@ class ApiReviewPIController extends BaseApiController
     {
         return $this->executeWithAuthAndValidation(
             function ($user) use ($request, $id) {
-                // Validasi input
+               
                 $request->validate([
-                    'alasan_penolakan' => 'required|string|max:500'
+                    'alasan_penolakan' => 'required|string|max:255'
                 ], [
-                    'alasan_penolakan.required' => 'Alasan penolakan harus diisi',
-                    'alasan_penolakan.max' => 'Alasan penolakan maksimal 500 karakter'
+                    'alasan_penolakan.required' => 'Alasan penolakan wajib diisi', 
+                    'alasan_penolakan.string' => 'Alasan penolakan harus berupa teks',
+                    'alasan_penolakan.max' => 'Alasan penolakan maksimal 255 karakter'
                 ]);
 
                 $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
