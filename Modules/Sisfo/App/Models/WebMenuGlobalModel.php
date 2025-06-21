@@ -2,12 +2,13 @@
 
 namespace Modules\Sisfo\App\Models;
 
-use Modules\Sisfo\App\Models\Website\WebMenuUrlModel;
-use Modules\Sisfo\App\Models\Log\TransactionModel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
+use Modules\Sisfo\App\Models\Website\WebMenuUrlModel;
 
 class WebMenuGlobalModel extends Model
 {
@@ -40,6 +41,23 @@ class WebMenuGlobalModel extends Model
     {
         return $this->hasMany(WebMenuGlobalModel::class, 'wmg_parent_id', 'web_menu_global_id')
             ->orderBy('wmg_urutan_menu');
+    }
+    // tambahan 
+    public function application()
+    {
+        return $this->hasOneThrough(
+            ApplicationModel::class,
+            WebMenuUrlModel::class,
+            'web_menu_url_id',    // Foreign key pada WebMenuUrl table
+            'application_id',     // Primary key pada Application table
+            'fk_web_menu_url',    // Local key pada WebMenuGlobal table
+            'fk_m_application'    // Foreign key pada WebMenuUrl table
+        );
+    }
+    // tambahan 
+    public function webMenus()
+    {
+        return $this->hasMany(WebMenuModel::class, 'fk_web_menu_global', 'web_menu_global_id');
     }
 
     public function __construct(array $attributes = [])

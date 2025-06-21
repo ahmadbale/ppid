@@ -2,13 +2,14 @@
 
 namespace Modules\Sisfo\App\Models\Website;
 
-use Modules\Sisfo\App\Models\ApplicationModel;
-use Modules\Sisfo\App\Models\Log\TransactionModel;
-use Modules\Sisfo\App\Models\TraitsModel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
+use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Validation\ValidationException;
+use Modules\Sisfo\App\Models\ApplicationModel;
+use Modules\Sisfo\App\Models\WebMenuGlobalModel;
+use Modules\Sisfo\App\Models\Log\TransactionModel;
 
 class WebMenuUrlModel extends Model
 {
@@ -33,27 +34,59 @@ class WebMenuUrlModel extends Model
     {
         return $this->belongsTo(ApplicationModel::class, 'fk_m_application', 'application_id');
     }
-
-    public static function selectData($perPage = null, $search = '')
+    // tambahan
+    public function webMenuGlobal()
     {
-        $query = self::query()
-            ->where('isDeleted', 0)
-            ->with('application');
-
-        // Tambahkan fungsionalitas pencarian
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('wmu_nama', 'like', "%{$search}%")
-                    ->orWhereHas('application', function ($app) use ($search) {
-                        $app->where('app_nama', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        $query->orderBy('created_at', 'desc');
-
-        return self::paginateResults($query, $perPage);
+        return $this->hasMany(WebMenuGlobalModel::class, 'fk_web_menu_url', 'web_menu_url_id');
     }
+
+    // public static function selectData($perPage = null, $search = '')
+    // {
+    //     $query = self::query()
+    //         ->where('isDeleted', 0)
+    //         ->with('application');
+
+    //     // Tambahkan fungsionalitas pencarian
+    //     if (!empty($search)) {
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('wmu_nama', 'like', "%{$search}%")
+    //                 ->orWhereHas('application', function ($app) use ($search) {
+    //                     $app->where('app_nama', 'like', "%{$search}%");
+    //                 });
+    //         });
+    //     }
+
+    //     $query->orderBy('created_at', 'desc');
+
+    //     return self::paginateResults($query, $perPage);
+    // }
+    public static function selectData($perPage = null, $search = '', $appKey = null)
+{
+    $query = self::query()
+        ->where('isDeleted', 0)
+        ->with('application');
+
+    //  Filter berdasarkan app_key jika diberikan
+    if ($appKey) {
+        $query->whereHas('application', function ($q) use ($appKey) {
+            $q->where('app_key', $appKey);
+        });
+    }
+
+    // Tambahkan fungsionalitas pencarian
+    if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('wmu_nama', 'like', "%{$search}%")
+                ->orWhereHas('application', function ($app) use ($search) {
+                    $app->where('app_nama', 'like', "%{$search}%");
+                });
+        });
+    }
+
+    $query->orderBy('created_at', 'desc');
+
+    return self::paginateResults($query, $perPage);
+}
 
     public static function createData($request)
     {
@@ -168,12 +201,21 @@ class WebMenuUrlModel extends Model
 
         return true;
     }
-
-    // Filter untuk PPID only
-    public function scopePpidOnly($query)
+    public static function validateAppKey($appKey)
     {
-        return $query->whereHas('application', function ($q) {
-            $q->where('app_key', 'app ppid');
+        return ApplicationModel::where('app_key', $appKey)->exists();
+    }
+
+    public function scopeByAppKey($query, $app_key)
+    {
+        return $query->whereHas('application', function ($q) use ($app_key) {
+            $q->where('app_key', $app_key);
         });
     }
+    public static function getApplications()
+{
+    return ApplicationModel::where('isDeleted', 0)
+        ->orderBy('app_nama')
+        ->get();
+}
 }

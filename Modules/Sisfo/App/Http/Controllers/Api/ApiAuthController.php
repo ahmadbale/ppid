@@ -2,11 +2,12 @@
 
 namespace Modules\Sisfo\App\Http\Controllers\Api;
 
-use Modules\Sisfo\App\Models\UserModel;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Modules\Sisfo\App\Models\UserModel;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Modules\Sisfo\App\Models\Website\WebMenuUrlModel;
 
 class ApiAuthController extends BaseApiController
 {
@@ -14,6 +15,18 @@ class ApiAuthController extends BaseApiController
     {
         return $this->execute(
             function () use ($request) {
+                // Get app_key from query parameter, default to 'app ppid' if not provided
+                $appKey = $request->query('app_key', 'app ppid');
+                
+                // Validate app_key - FIXED inverted logic
+                if (!WebMenuUrlModel::validateAppKey($appKey)) {
+                    return $this->errorResponse(
+                        'APP_KEY_INVALID',
+                        "App key '{$appKey}' tidak ditemukan dalam sistem",
+                        self::HTTP_BAD_REQUEST
+                    );
+                }
+
                 // Validasi input request
                 $validator = Validator::make($request->all(), [
                     'username' => 'required|string',
@@ -32,8 +45,8 @@ class ApiAuthController extends BaseApiController
                     );
                 }
 
-                // Panggil method prosesLogin dari UserModel
-                $loginResult = UserModel::prosesLogin($request);
+                // Panggil method prosesLogin dari UserModel dengan app_key
+                $loginResult = UserModel::prosesLogin($request, $appKey);
 
                 if (!$loginResult['success']) {
                     return $this->errorResponse(
@@ -51,7 +64,8 @@ class ApiAuthController extends BaseApiController
                     'type' => 'user',
                     'exp' => now()->addMinutes(config('jwt.ttl.user', 60))->timestamp,
                     'user_id' => $user->user_id,
-                    'role' => $user->getRoleName()
+                    'role' => $user->getRoleName(),
+                    'app_key' => $appKey
                 ];
 
                 // Generate token dengan custom claims
@@ -78,7 +92,8 @@ class ApiAuthController extends BaseApiController
                     'token' => $token,
                     'token_type' => 'bearer',
                     'expires_in' => config('jwt.ttl.user', 60) * 60, // dalam detik
-                    'user' => UserModel::getDataUser($user)
+                    'user' => UserModel::getDataUser($user),
+                    'app_key' => $appKey
                 ])->withCookie($cookie);
             },
             'login',
@@ -86,11 +101,13 @@ class ApiAuthController extends BaseApiController
         );
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         return $this->executeWithAuthentication(
-            function ($user) {
+            function ($user) use ($request) {
                 try {
+                    $appKey = $request->query('app_key') ?? JWTAuth::parseToken()->getPayload()->get('app_key') ?? 'app ppid';
+                    
                     $token = JWTAuth::getToken();
                     JWTAuth::invalidate($token);
 
@@ -99,7 +116,8 @@ class ApiAuthController extends BaseApiController
 
                     return response()->json([
                         'success' => true,
-                        'message' => self::AUTH_LOGOUT_SUCCESS
+                        'message' => self::AUTH_LOGOUT_SUCCESS,
+                        'app_key' => $appKey
                     ])->withCookie($cookie);
 
                 } catch (JWTException $e) {

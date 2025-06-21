@@ -4,11 +4,12 @@ namespace Modules\Sisfo\App\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Illuminate\Support\Facades\Log;
 
 class BaseApiController extends Controller
 {
@@ -414,6 +415,27 @@ protected function executeWithAuthentication(callable $action, string $resourceN
             return $this->errorResponse(self::VALIDATION_FAILED, $e->getMessage(), self::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
+    // app key validation
+    protected function validateUserAccess($user, $appKey, $resource = null)
+{
+    // Validasi bahwa user memiliki akses ke aplikasi ini
+    $hasAccess = DB::table('set_user_hak_akses')
+        ->join('m_hak_akses', 'set_user_hak_akses.fk_m_hak_akses', '=', 'm_hak_akses.hak_akses_id')
+        ->join('web_menu', 'web_menu.fk_m_hak_akses', '=', 'm_hak_akses.hak_akses_id')
+        ->join('web_menu_global', 'web_menu.fk_web_menu_global', '=', 'web_menu_global.web_menu_global_id')
+        ->join('web_menu_url', 'web_menu_global.fk_web_menu_url', '=', 'web_menu_url.web_menu_url_id')
+        ->join('m_application', 'web_menu_url.fk_m_application', '=', 'm_application.application_id')
+        ->where('set_user_hak_akses.fk_m_user', $user->user_id)
+        ->where('m_application.app_key', $appKey)
+        ->where('set_user_hak_akses.isDeleted', 0)
+        ->exists();
+        
+    if (!$hasAccess) {
+        throw new \Exception("User tidak memiliki akses ke aplikasi '{$appKey}'");
+    }
+    
+    return true;
+}
 
     /**
      * Return success response in JSON format.
