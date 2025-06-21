@@ -124,7 +124,7 @@ class IpMenuUtamaModel extends Model
     public static function createDataWithHierarchy($request)
     {
         $dokumenFiles = [];
-        
+
         try {
             DB::beginTransaction();
 
@@ -158,9 +158,9 @@ class IpMenuUtamaModel extends Model
                 if ($adaSubMenuUtama === 'ya') {
                     $jumlahSubMenuUtama = $request->{"jumlah_sub_menu_utama_$i"};
                     IpSubMenuUtamaModel::createDataForMenuUtama(
-                        $menuUtama->ip_menu_utama_id, 
-                        $request, 
-                        $i, 
+                        $menuUtama->ip_menu_utama_id,
+                        $request,
+                        $i,
                         $jumlahSubMenuUtama,
                         $dokumenFiles
                     );
@@ -187,7 +187,7 @@ class IpMenuUtamaModel extends Model
     public static function updateDataWithHierarchy($request, $id)
     {
         $dokumenFiles = [];
-        
+
         try {
             DB::beginTransaction();
 
@@ -282,7 +282,7 @@ class IpMenuUtamaModel extends Model
     public static function detailDataWithHierarchy($id)
     {
         return self::with([
-            'IpDinamisTabel', 
+            'IpDinamisTabel',
             'IpSubMenuUtama' => function ($query) {
                 $query->where('isDeleted', 0)
                     ->with(['IpSubMenu' => function ($subQuery) {
@@ -321,7 +321,7 @@ class IpMenuUtamaModel extends Model
                 $messages["ada_sub_menu_utama_$i.in"] = "Jawaban Sub Menu Utama ke-$i harus Ya atau Tidak";
 
                 $adaSubMenuUtama = $request->{"ada_sub_menu_utama_$i"};
-                
+
                 if ($adaSubMenuUtama === 'tidak') {
                     $rules["dokumen_menu_utama_$i"] = 'required|file|mimes:pdf|max:5120';
                     $messages["dokumen_menu_utama_$i.required"] = "Dokumen Menu Utama ke-$i wajib diupload";
@@ -375,5 +375,165 @@ class IpMenuUtamaModel extends Model
         }
 
         return true;
+    }
+
+    public static function updateDataWithComplexHierarchy($request, $id)
+    {
+        $dokumenFiles = [];
+
+        try {
+            DB::beginTransaction();
+
+            $menuUtama = self::findOrFail($id);
+            $oldDokumen = $menuUtama->dokumen_ip_mu;
+
+            // Update nama menu utama
+            $menuUtama->nama_ip_mu = $request->nama_ip_mu;
+
+            // Logic 1: Menu Utama dengan children (memiliki sub menu utama)
+            if ($menuUtama->IpSubMenuUtama->count() > 0) {
+                // Handle update/delete existing sub menu utama
+                foreach ($menuUtama->IpSubMenuUtama as $subMenuUtama) {
+                    $updateKey = "update_sub_menu_utama_{$subMenuUtama->ip_sub_menu_utama_id}";
+                    $deleteKey = "delete_sub_menu_utama_{$subMenuUtama->ip_sub_menu_utama_id}";
+
+                    if ($request->has($deleteKey)) {
+                        // Validasi apakah masih ada children
+                        if ($subMenuUtama->IpSubMenu->count() > 0) {
+                            throw new \Exception('Sub Menu Utama ini tidak bisa dihapus dikarenakan masih terdapat children');
+                        }
+
+                        if ($subMenuUtama->dokumen_ip_smu) {
+                            self::removeFile($subMenuUtama->dokumen_ip_smu);
+                        }
+
+                        $subMenuUtama->delete();
+                    } elseif ($request->has($updateKey)) {
+                        $subMenuUtama->nama_ip_smu = $request->{$updateKey};
+                        $subMenuUtama->save();
+                    }
+                }
+
+                // Handle new sub menu utama
+                if ($request->has('new_sub_menu_utama')) {
+                    $newSubMenus = $request->new_sub_menu_utama;
+                    foreach ($newSubMenus as $newId) {
+                        $namaKey = "new_sub_menu_utama_nama_{$newId}";
+                        $typeKey = "new_sub_menu_utama_type_{$newId}";
+                        $dokumenKey = "new_sub_menu_utama_dokumen_{$newId}";
+
+                        if ($request->has($namaKey)) {
+                            $subMenuUtamaData = [
+                                'fk_ip_menu_utama' => $menuUtama->ip_menu_utama_id,
+                                'nama_ip_smu' => $request->{$namaKey},
+                                'dokumen_ip_smu' => null
+                            ];
+
+                            // Jika type dokumen, upload file
+                            if ($request->{$typeKey} === 'dokumen' && $request->hasFile($dokumenKey)) {
+                                $dokumenFile = self::uploadFile(
+                                    $request->file($dokumenKey),
+                                    'dokumen_ip_sub_menu_utama'
+                                );
+                                if ($dokumenFile) {
+                                    $dokumenFiles[] = $dokumenFile;
+                                    $subMenuUtamaData['dokumen_ip_smu'] = $dokumenFile;
+                                }
+                            }
+
+                            IpSubMenuUtamaModel::create($subMenuUtamaData);
+                        }
+                    }
+                }
+
+                // Cek apakah semua sub menu utama dihapus
+                $remainingSubMenuUtama = $menuUtama->IpSubMenuUtama()->where('isDeleted', 0)->count();
+                if ($remainingSubMenuUtama == 0) {
+                    // Jika tidak ada sub menu utama lagi, wajib ada dokumen
+                    if ($request->hasFile('dokumen_ip_mu')) {
+                        $dokumenFile = self::uploadFile(
+                            $request->file('dokumen_ip_mu'),
+                            'dokumen_ip_menu_utama'
+                        );
+                        if ($dokumenFile) {
+                            $dokumenFiles[] = $dokumenFile;
+                            $menuUtama->dokumen_ip_mu = $dokumenFile;
+                        }
+                    } else {
+                        throw new \Exception('Dokumen Menu Utama wajib diupload karena tidak memiliki Sub Menu Utama');
+                    }
+                }
+            } else {
+                // Logic 2: Menu Utama tanpa children (tidak memiliki sub menu utama)
+
+                // Handle dokumen update
+                if ($request->hasFile('dokumen_ip_mu')) {
+                    $dokumenFile = self::uploadFile(
+                        $request->file('dokumen_ip_mu'),
+                        'dokumen_ip_menu_utama'
+                    );
+                    if ($dokumenFile) {
+                        $dokumenFiles[] = $dokumenFile;
+                        if ($oldDokumen) {
+                            self::removeFile($oldDokumen);
+                        }
+                        $menuUtama->dokumen_ip_mu = $dokumenFile;
+                    }
+                }
+
+                // Jika menambah sub menu utama, hapus dokumen
+                if ($request->has('menambah_sub_menu_utama') && $request->menambah_sub_menu_utama === 'ya') {
+                    if ($oldDokumen) {
+                        self::removeFile($oldDokumen);
+                    }
+                    $menuUtama->dokumen_ip_mu = null;
+
+                    // Create new sub menu utama
+                    $jumlahSubMenuUtamaBaru = $request->jumlah_sub_menu_utama_baru;
+                    for ($i = 1; $i <= $jumlahSubMenuUtamaBaru; $i++) {
+                        $namaKey = "new_sub_menu_utama_nama_{$i}";
+                        $dokumenKey = "new_sub_menu_utama_dokumen_{$i}";
+
+                        if ($request->has($namaKey)) {
+                            $subMenuUtamaData = [
+                                'fk_ip_menu_utama' => $menuUtama->ip_menu_utama_id,
+                                'nama_ip_smu' => $request->{$namaKey},
+                                'dokumen_ip_smu' => null
+                            ];
+
+                            if ($request->hasFile($dokumenKey)) {
+                                $dokumenFile = self::uploadFile(
+                                    $request->file($dokumenKey),
+                                    'dokumen_ip_sub_menu_utama'
+                                );
+                                if ($dokumenFile) {
+                                    $dokumenFiles[] = $dokumenFile;
+                                    $subMenuUtamaData['dokumen_ip_smu'] = $dokumenFile;
+                                }
+                            }
+
+                            IpSubMenuUtamaModel::create($subMenuUtamaData);
+                        }
+                    }
+                }
+            }
+
+            $menuUtama->save();
+
+            TransactionModel::createData(
+                'UPDATED',
+                $menuUtama->ip_menu_utama_id,
+                'Menu Utama - ' . $menuUtama->nama_ip_mu
+            );
+
+            DB::commit();
+            return self::responFormatSukses($menuUtama, 'Menu Utama berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            foreach ($dokumenFiles as $file) {
+                self::removeFile($file);
+            }
+            return self::responFormatError($e, $e->getMessage());
+        }
     }
 }
