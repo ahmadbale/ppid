@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis;
 
 use Illuminate\Http\Request;
@@ -7,58 +8,57 @@ use Modules\Sisfo\App\Http\Controllers\TraitsController;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\Website\InformasiPublik\TabelDinamis\IpDinamisTabelModel;
 
-class IpDinamisTabelController extends Controller 
+class IpDinamisTabelController extends Controller
 {
-     use TraitsController;
+    use TraitsController;
 
-     public $breadcrumb = 'Informasi Publik Dinamis Tabel';
-     public $pagename = 'AdminWeb/InformasiPublik/IpDinamisTabel';
-     
-     public function index (Request $request)
-     {
-          $search = $request->query('search', '');
+    public $breadcrumb = 'Informasi Publik Dinamis Tabel';
+    public $pagename = 'AdminWeb/InformasiPublik/IpDinamisTabel';
 
-          $breadcrumb = (object)[
-               'title' => 'Pengaturan Informasi Publik Dinamis Tabel',
-               'list' => ['Home', 'Pengaturan Informasi Publik Dinamis Tabel']
-          ];
+    public function index(Request $request)
+    {
+        $search = $request->query('search', '');
 
-          $page = (object)[
-               'title' => 'Daftar Informasi Publik Dinamis Tabel'
-          ];
-          
-          $activeMenu = 'Informasi Publik Dinamis Tabel';
+        $breadcrumb = (object)[
+            'title' => 'Pengaturan Informasi Publik Dinamis Tabel',
+            'list' => ['Home', 'Pengaturan Informasi Publik Dinamis Tabel']
+        ];
 
-          $ipDinamisTabel = IpDinamisTabelModel:: selectData(10, $search);
-          
-          
+        $page = (object)[
+            'title' => 'Daftar Informasi Publik Dinamis Tabel'
+        ];
+
+        $activeMenu = 'Informasi Publik Dinamis Tabel';
+
+        $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search);
+
+
         return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.index", [
-          'breadcrumb' => $breadcrumb,
-          'page' => $page,
-          'activeMenu' => $activeMenu,
-          'ipDinamisTabel' => $ipDinamisTabel,
-          'search' => $search
-      ]);
-          
-     }
-     
-     public function getData(Request $request)
-     {
-         $search = $request->query('search', '');
-         $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search);
-         
-         if ($request->ajax()) {
-             return view('sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.data', compact('ipDinamisTabel', 'search'))->render();
-         }
-         
-         return redirect()->route('kategori-informasi-publik-dinamis-tabel.index');
-     }
-    
+            'breadcrumb' => $breadcrumb,
+            'page' => $page,
+            'activeMenu' => $activeMenu,
+            'ipDinamisTabel' => $ipDinamisTabel,
+            'search' => $search
+        ]);
+    }
+
+    public function getData(Request $request)
+    {
+        $search = $request->query('search', '');
+        $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search);
+
+        if ($request->ajax()) {
+            return view('sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.data', compact('ipDinamisTabel', 'search'))->render();
+        }
+
+        return redirect()->route('kategori-informasi-publik-dinamis-tabel.index');
+    }
+
     public function addData()
     {
         return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.create");
     }
-    
+
     public function createData(Request $request)
     {
         try {
@@ -66,7 +66,7 @@ class IpDinamisTabelController extends Controller
             $result = IpDinamisTabelModel::createData($request);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'IpDinamis Tabel berhasil dibuat'
             );
         } catch (ValidationException $e) {
@@ -77,7 +77,7 @@ class IpDinamisTabelController extends Controller
     }
     public function editData($id)
     {
-        $ipDinamisTabel= IpDinamisTabelModel::detailData($id);
+        $ipDinamisTabel = IpDinamisTabelModel::detailData($id);
 
         return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.update", [
             'IpDinamisTabel' => $ipDinamisTabel
@@ -90,7 +90,7 @@ class IpDinamisTabelController extends Controller
             $result = IpDinamisTabelModel::updateData($request, $id);
 
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'IpDinamis Tabel berhasil diperbarui'
             );
         } catch (ValidationException $e) {
@@ -103,28 +103,28 @@ class IpDinamisTabelController extends Controller
     public function detailData($id)
     {
         $ipDinamisTabel = IpDinamisTabelModel::detailData($id);
-        
+
         return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.detail", [
             'IpDinamisTabel' => $ipDinamisTabel,
             'title' => 'Detail IpDinamis Tabel'
         ]);
-     }
+    }
 
-     public function deleteData(Request $request, $id)
+    public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             $ipDinamisTabel = IpDinamisTabelModel::detailData($id);
-            
+
             return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.delete", [
-               'IpDinamisTabel' => $ipDinamisTabel
-           ]);
+                'IpDinamisTabel' => $ipDinamisTabel
+            ]);
         }
-        
+
         try {
             $result = IpDinamisTabelModel::deleteData($id);
-            
+
             return $this->jsonSuccess(
-                $result['data'] ?? null, 
+                $result['data'] ?? null,
                 $result['message'] ?? 'IpDinamis Tabel berhasil dihapus'
             );
         } catch (\Exception $e) {

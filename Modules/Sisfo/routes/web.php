@@ -51,6 +51,7 @@ use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPeng
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\SetIpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPKController;
@@ -491,6 +492,30 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailData/{id}', [IpDinamisTabelController::class, 'detailData']);
         Route::get('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData']);
         Route::delete('/deleteData/{id}', [IpDinamisTabelController::class, 'deleteData'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel')], function () {
+        Route::get('/', [SetIpDinamisTabelController::class, 'index'])->middleware('permission:view');
+        Route::get('/getData', [SetIpDinamisTabelController::class, 'getData']);
+        Route::get('/addData', [SetIpDinamisTabelController::class, 'addData']);
+        Route::post('/createData', [SetIpDinamisTabelController::class, 'createData'])->middleware('permission:create');
+        Route::get('/editData/{id}', [SetIpDinamisTabelController::class, 'editData']);
+        Route::post('/updateData/{id}', [SetIpDinamisTabelController::class, 'updateData'])->middleware('permission:update');
+        Route::get('/detailData/{id}', [SetIpDinamisTabelController::class, 'detailData']);
+        Route::get('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData']);
+        Route::delete('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData'])->middleware('permission:delete');
+
+        Route::get('/editSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'editSubMenuUtama']);
+        Route::post('/updateSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'updateSubMenuUtama'])->middleware('permission:update');
+        Route::get('/detailSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'detailSubMenuUtama']);
+        Route::get('/deleteSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenuUtama']);
+        Route::delete('/deleteSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenuUtama'])->middleware('permission:delete');
+
+        Route::get('/editSubMenu/{id}', [SetIpDinamisTabelController::class, 'editSubMenu']);
+        Route::post('/updateSubMenu/{id}', [SetIpDinamisTabelController::class, 'updateSubMenu'])->middleware('permission:update');
+        Route::get('/detailSubMenu/{id}', [SetIpDinamisTabelController::class, 'detailSubMenu']);
+        Route::get('/deleteSubMenu/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenu']);
+        Route::delete('/deleteSubMenu/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenu'])->middleware('permission:delete');
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('dinamis-konten')], function () {

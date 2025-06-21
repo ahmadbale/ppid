@@ -118,7 +118,7 @@
                                 <table class="table table-borderless table-sm">
                                     <tr>
                                         <td width="40%" class="font-weight-bold">Waktu Kejadian</td>
-                                        <td>: {{ \Carbon\Carbon::parse($WBS->wbs_waktu_kejadian)->format('d M Y H:i:s') }}</td>
+                                        <td>: {{ $WBS->wbs_waktu_kejadian ? \Carbon\Carbon::parse($WBS->wbs_waktu_kejadian)->format('d M Y H:i:s') : '-' }}</td>
                                     </tr>
                                     <tr>
                                         <td class="font-weight-bold">Lokasi Kejadian</td>
