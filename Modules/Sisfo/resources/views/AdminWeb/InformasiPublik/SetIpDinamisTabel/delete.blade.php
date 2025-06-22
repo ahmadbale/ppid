@@ -1,3 +1,4 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\SetIpDinamisTabel\delete.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $setIpDinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel');
@@ -68,16 +69,16 @@
         </tr>
         <tr>
           <th>Tanggal Dibuat</th>
-          <td>{{ date('d-m-Y H:i:s', strtotime($ipMenuUtama->created_at)) }}</td>
+          <td>{{ $ipMenuUtama->created_at ? $ipMenuUtama->created_at->format('d-m-Y H:i:s') : '-' }}</td>
         </tr>
         <tr>
           <th>Dibuat Oleh</th>
-          <td>{{ $ipMenuUtama->created_by }}</td>
+          <td>{{ $ipMenuUtama->created_by ?? '-' }}</td>
         </tr>
         @if($ipMenuUtama->updated_by)
         <tr>
           <th>Terakhir Diperbarui</th>
-          <td>{{ date('d-m-Y H:i:s', strtotime($ipMenuUtama->updated_at)) }}</td>
+          <td>{{ $ipMenuUtama->updated_at ? $ipMenuUtama->updated_at->format('d-m-Y H:i:s') : '-' }}</td>
         </tr>
         <tr>
           <th>Diperbarui Oleh</th>

@@ -2,6 +2,7 @@
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
+  use Illuminate\Support\Facades\Storage;
   $setIpDinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel');
 @endphp
 @extends('sisfo::layouts.template')
@@ -56,12 +57,38 @@
         </div>
       </div>
 
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" onclick="expandAll()">
+              <i class="fas fa-expand"></i> Buka Semua
+            </button>
+            <button class="btn btn-outline-secondary" onclick="collapseAll()">
+              <i class="fas fa-compress"></i> Tutup Semua
+            </button>
+            <button class="btn btn-outline-primary" onclick="reloadTable()">
+              <i class="fas fa-sync"></i> Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
       @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ session('success') }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
       @endif
 
       @if (session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ session('error') }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
       @endif
 
       <div id="menu-container">
@@ -89,6 +116,7 @@
     
     .menu-item {
       transition: all 0.3s ease;
+      margin-bottom: 0.75rem;
     }
     
     .menu-item:hover {
@@ -98,6 +126,7 @@
     .card {
       border-radius: 8px;
       transition: all 0.2s ease;
+      border: 1px solid #dee2e6;
     }
     
     .card:hover {
@@ -124,6 +153,10 @@
       align-items: center;
       justify-content: center;
       border-radius: 3px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      transition: all 0.2s ease;
     }
 
     .toggle-submenu:hover {
@@ -139,10 +172,13 @@
       padding-left: 1rem;
       display: none; /* Default hidden */
       margin-top: 0.5rem;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
     }
     
     .badge-sm {
       font-size: 0.7em;
+      padding: 0.25em 0.5em;
     }
     
     /* Button Groups */
@@ -151,16 +187,12 @@
       font-size: 0.875rem;
     }
     
-    /* Animation for expand/collapse */
-    .submenu-container {
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-    
     /* Search highlight */
     .search-highlight {
-      background-color: yellow;
+      background-color: #fff3cd;
       padding: 0 2px;
+      border-radius: 2px;
+      font-weight: bold;
     }
     
     /* Category filter buttons */
@@ -168,6 +200,55 @@
       background-color: #007bff;
       color: white;
       border-color: #007bff;
+    }
+    
+    /* Loading animation */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0,0,0,.3);
+      border-radius: 50%;
+      border-top-color: #007bff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      
+      .btn-group .btn {
+        margin-bottom: 0.25rem;
+      }
+      
+      .input-group {
+        width: 100% !important;
+      }
+      
+      .col-md-6.text-right {
+        text-align: left !important;
+        margin-top: 1rem;
+      }
     }
   </style>
 @endpush
@@ -250,7 +331,12 @@
           type: 'GET',
           data: params,
           beforeSend: function() {
-            $('#menu-container').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Memuat data...</p></div>');
+            $('#menu-container').html(`
+              <div class="text-center py-5">
+                <div class="loading-spinner"></div>
+                <p class="mt-3 text-muted">Memuat data...</p>
+              </div>
+            `);
           },
           success: function(response) {
             $('#menu-container').html(response);
@@ -263,7 +349,12 @@
             }
           },
           error: function(xhr) {
-            $('#menu-container').html('<div class="alert alert-danger">Terjadi kesalahan saat memuat data</div>');
+            $('#menu-container').html(`
+              <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Terjadi kesalahan saat memuat data. Silakan coba lagi.
+              </div>
+            `);
             console.error('Error loading data:', xhr.responseText);
           }
         });
@@ -271,7 +362,12 @@
 
       // Modal action functions
       window.modalAction = function(action) {
-        $('#myModal .modal-content').html('<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Memuat...</p></div>');
+        $('#myModal .modal-content').html(`
+          <div class="text-center p-5">
+            <div class="loading-spinner"></div>
+            <p class="mt-3 text-muted">Memuat...</p>
+          </div>
+        `);
         $('#myModal').modal('show');
 
         $.ajax({
@@ -281,7 +377,20 @@
             $('#myModal .modal-content').html(response);
           },
           error: function(xhr) {
-            $('#myModal .modal-content').html('<div class="modal-header"><h5 class="modal-title">Error</h5><button type="button" class="close" data-dismiss="modal">&times;</button></div><div class="modal-body"><div class="alert alert-danger">Terjadi kesalahan saat memuat data</div></div>');
+            $('#myModal .modal-content').html(`
+              <div class="modal-header">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="alert alert-danger">
+                  <i class="fas fa-exclamation-triangle mr-2"></i>
+                  Terjadi kesalahan saat memuat data. Silakan coba lagi.
+                </div>
+              </div>
+            `);
             console.error('Error loading modal:', xhr.responseText);
           }
         });
@@ -313,13 +422,41 @@
         modalAction(setIpDinamisTabelUrl + '/deleteSubMenu/' + id);
       }
 
-      // Reload function
+      // Reload function - ini adalah function utama untuk reload data
       window.reloadTable = function() {
         var search = $('#searchForm input[name="search"]').val();
-        loadSetIpDinamisTabelData(search);
+        var activeKategori = '';
+        
+        // Cek kategori yang sedang aktif
+        $('.btn-group .btn.active').each(function() {
+          var onclick = $(this).attr('onclick');
+          if (onclick && onclick.includes('filterByKategori')) {
+            var match = onclick.match(/filterByKategori\('([^']*)'\)/);
+            if (match) {
+              activeKategori = match[1];
+            }
+          }
+        });
+        
+        loadSetIpDinamisTabelData(search, activeKategori);
       }
-      
-      console.log('Set IP Dinamis Tabel page loaded');
+
+      // Function untuk load data dengan parameter lengkap
+      window.loadData = function(search, kategori) {
+        loadSetIpDinamisTabelData(search, kategori);
+      }
+
+      // Function untuk show modal dengan alias
+      window.showModal = function(url) {
+        modalAction(url);
+      }
+
+      // Auto-dismiss alerts after 5 seconds
+      setTimeout(function() {
+        $('.alert-dismissible').fadeOut();
+      }, 5000);
+
+      console.log('Set IP Dinamis Tabel page loaded successfully');
     });
   </script>
 @endpush

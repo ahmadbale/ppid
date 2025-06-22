@@ -1,3 +1,8 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\SetIpDinamisTabel\detail.blade.php -->
+@php
+  use Illuminate\Support\Facades\Storage;
+@endphp
+
 <div class="modal-header">
   <h5 class="modal-title">{{ $title }}</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -49,16 +54,16 @@
         </tr>
         <tr>
           <th>Tanggal Dibuat</th>
-          <td>{{ date('d-m-Y H:i:s', strtotime($ipMenuUtama->created_at)) }}</td>
+          <td>{{ $ipMenuUtama->created_at ? $ipMenuUtama->created_at->format('d-m-Y H:i:s') : '-' }}</td>
         </tr>
         <tr>
           <th>Dibuat Oleh</th>
-          <td>{{ $ipMenuUtama->created_by }}</td>
+          <td>{{ $ipMenuUtama->created_by ?? '-' }}</td>
         </tr>
         @if($ipMenuUtama->updated_by)
         <tr>
           <th>Terakhir Diperbarui</th>
-          <td>{{ date('d-m-Y H:i:s', strtotime($ipMenuUtama->updated_at)) }}</td>
+          <td>{{ $ipMenuUtama->updated_at ? $ipMenuUtama->updated_at->format('d-m-Y H:i:s') : '-' }}</td>
         </tr>
         <tr>
           <th>Diperbarui Oleh</th>
@@ -130,6 +135,8 @@
                     <a href="{{ Storage::url($subMenu->dokumen_ip_sm) }}" target="_blank" class="btn btn-sm btn-primary">
                       <i class="fas fa-file-pdf"></i>
                     </a>
+                  @else
+                    <span class="badge badge-warning">Tidak ada dokumen</span>
                   @endif
                 </div>
               </div>
@@ -239,5 +246,9 @@
     width: 1rem;
     height: 2px;
     background: #ffc107;
+  }
+  
+  .font-weight-medium {
+    font-weight: 500;
   }
 </style>
