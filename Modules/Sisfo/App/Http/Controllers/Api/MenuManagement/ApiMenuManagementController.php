@@ -17,70 +17,69 @@ class ApiMenuManagementController extends BaseApiController
     {
         return $this->executeWithAuthentication(
             function () use ($request) {
-                // Dapatkan semua level dari database
-                $levels = HakAksesModel::where('isDeleted', 0)->get();
+                $result = WebMenuModel::selectData();
 
-                // Gunakan nama level sebagai daftar jenis menu
-                $jenisMenuList = $levels->pluck('hak_akses_nama', 'hak_akses_kode')->toArray();
-
-                // Dapatkan menu dikelompokkan berdasarkan level
-                $menusByJenis = [];
-                foreach ($levels as $level) {
-                    $hakAksesId = $level->hak_akses_id;
-                    $menusByJenis[$level->hak_akses_kode] = [
-                        'nama' => $level->hak_akses_nama,
-                        'menus' => WebMenuModel::where('fk_m_hak_akses', $hakAksesId)
-                            ->whereNull('wm_parent_id')
-                            ->where('isDeleted', 0)
-                            ->orderBy('wm_urutan_menu')
-                            ->with(['children' => function ($query) use ($hakAksesId) {
-                                $query->where('fk_m_hak_akses', $hakAksesId)
-                                    ->where('isDeleted', 0)
-                                    ->orderBy('wm_urutan_menu');
-                            }, 'WebMenuGlobal.WebMenuUrl', 'Level'])
-                            ->get()
-                    ];
+                if (!$result['success']) {
+                    return $this->errorResponse(
+                        'LOAD_DATA_FAILED',
+                        $result['message'],
+                        self::HTTP_INTERNAL_SERVER_ERROR
+                    );
                 }
 
-                // Get group menus for dropdown
-                $groupMenusGlobal = WebMenuGlobalModel::whereNull('fk_web_menu_url')
-                    ->where('isDeleted', 0)
-                    ->orderBy('wmg_nama_default')
-                    ->get();
+                return [
+                    'breadcrumb' => $result['data']['breadcrumb'],
+                    'page' => $result['data']['page'],
+                    'menus' => $result['data']['menus'],
+                    'activeMenu' => $result['data']['activeMenu'],
+                    'menusByJenis' => $result['data']['menusByJenis'],
+                    'jenisMenuList' => $result['data']['jenisMenuList'],
+                    'levels' => $result['data']['levels'],
+                    'groupMenusGlobal' => $result['data']['groupMenusGlobal'],
+                    'groupMenusFromWebMenu' => $result['data']['groupMenusFromWebMenu'],
+                    'nonGroupMenus' => $result['data']['nonGroupMenus'],
+                    'userHakAksesKode' => $result['data']['userHakAksesKode'] ?? null
+                ];
+            },
+            'menu management',
+            self::ACTION_GET
+        );
+    }
 
-                // Get group menus from web_menu for sub menu dropdown
-                $groupMenusFromWebMenu = WebMenuModel::whereHas('WebMenuGlobal', function ($query) {
-                    $query->whereNull('fk_web_menu_url');
-                })
-                    ->whereNull('wm_parent_id')
-                    ->where('isDeleted', 0)
-                    ->where('wm_status_menu', 'aktif')
-                    ->with('WebMenuGlobal')
-                    ->orderBy('wm_urutan_menu')
-                    ->get();
+    public function addData($hakAksesId, Request $request)
+    {
+        return $this->executeWithAuthentication(
+            function () use ($hakAksesId, $request) {
+                try {
+                    $result = WebMenuModel::getAddData($hakAksesId);
 
-                // Get non-group menus
-                $nonGroupMenus = WebMenuGlobalModel::whereNotNull('fk_web_menu_url')
-                    ->where('isDeleted', 0)
-                    ->with('WebMenuUrl.application')
-                    ->orderBy('wmg_nama_default')
-                    ->get();
+                    if (!$result['success']) {
+                        return $this->errorResponse(
+                            'LOAD_DATA_FAILED',
+                            $result['message'],
+                            self::HTTP_INTERNAL_SERVER_ERROR
+                        );
+                    }
 
-                // Get regular menus
-                $menus = WebMenuModel::getMenusWithChildren();
-
-                return response()->json([
-                    'success' => true,
-                    'data' => [
-                        'jenis_menu_list' => $jenisMenuList,
-                        'menus_by_jenis' => $menusByJenis,
-                        'group_menus_global' => $groupMenusGlobal,
-                        'group_menus_from_web_menu' => $groupMenusFromWebMenu,
-                        'non_group_menus' => $nonGroupMenus,
-                        'menus' => $menus,
-                        'levels' => $levels
-                    ]
-                ]);
+                    return [
+                        'breadcrumb' => $result['data']['breadcrumb'],
+                        'page' => $result['data']['page'],
+                        'activeMenu' => $result['data']['activeMenu'],
+                        'level' => $result['data']['level'],
+                        'menuGlobal' => $result['data']['menuGlobal'],
+                        'existingMenus' => $result['data']['existingMenus'],
+                        'createdMenusCount' => count($result['data']['existingMenus']),
+                        'percentage' => $result['data']['menuGlobal']->count() > 0 
+                            ? round((count($result['data']['existingMenus']) / $result['data']['menuGlobal']->count()) * 100, 1) 
+                            : 0
+                    ];
+                } catch (\Exception $e) {
+                    return $this->errorResponse(
+                        'LOAD_SET_MENU_FAILED',
+                        'Error loading set menu data: ' . $e->getMessage(),
+                        self::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
             },
             'menu management',
             self::ACTION_GET
@@ -92,26 +91,25 @@ class ApiMenuManagementController extends BaseApiController
         return $this->executeWithAuthentication(
             function () use ($request) {
                 try {
-                    // Use the existing model method to create menu
                     $result = WebMenuModel::createData($request);
                     
                     if (!$result['success']) {
                         return $this->errorResponse(
-                            $result['message'] ?? self::SERVER_ERROR,
-                            isset($result['errors']) ? $result['errors'] : null,
-                            self::HTTP_UNPROCESSABLE_ENTITY
+                            'CREATE_FAILED',
+                            $result['message'] ?? 'Gagal membuat menu',
+                            self::HTTP_UNPROCESSABLE_ENTITY,
+                            $result['errors'] ?? null
                         );
                     }
                     
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Menu berhasil dibuat',
-                        'data' => $result['data']
-                    ]);
+                    return [
+                        'message' => $result['message'],
+                        'data' => $result['data'] ?? null
+                    ];
                 } catch (ValidationException $e) {
                     return $this->errorResponse(
                         self::VALIDATION_FAILED,
-                        $e->getMessage(),
+                        'Validasi gagal: ' . collect($e->errors())->flatten()->implode(', '),
                         self::HTTP_UNPROCESSABLE_ENTITY,
                         $e->errors()
                     );
@@ -128,31 +126,62 @@ class ApiMenuManagementController extends BaseApiController
         );
     }
 
+    public function editData($id, Request $request)
+    {
+        return $this->executeWithAuthentication(
+            function () use ($id, $request) {
+                try {
+                    $result = WebMenuModel::getEditData($id);
+                    
+                    if (!$result['success']) {
+                        return $this->errorResponse(
+                            self::RESOURCE_NOT_FOUND,
+                            $result['message'] ?? 'Menu tidak ditemukan',
+                            self::HTTP_NOT_FOUND
+                        );
+                    }
+                    
+                    return [
+                        'menu' => $result['menu'],
+                        'parentMenus' => $result['parentMenus']
+                    ];
+                } catch (\Exception $e) {
+                    return $this->errorResponse(
+                        self::SERVER_ERROR,
+                        'Terjadi kesalahan saat mengambil data edit menu: ' . $e->getMessage(),
+                        self::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+            },
+            'menu management',
+            self::ACTION_GET
+        );
+    }
+
     public function updateData(Request $request, $id)
     {
         return $this->executeWithAuthentication(
             function () use ($request, $id) {
                 try {
-                    // Use the existing model method to update menu
                     $result = WebMenuModel::updateData($request, $id);
                     
                     if (!$result['success']) {
                         return $this->errorResponse(
-                            $result['message'] ?? self::SERVER_ERROR,
-                            isset($result['errors']) ? $result['errors'] : null,
-                            self::HTTP_UNPROCESSABLE_ENTITY
+                            'UPDATE_FAILED',
+                            $result['message'] ?? 'Gagal memperbarui menu',
+                            self::HTTP_UNPROCESSABLE_ENTITY,
+                            $result['errors'] ?? null
                         );
                     }
                     
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Menu berhasil diperbarui',
+                    return [
+                        'message' => $result['message'],
                         'data' => $result['data']
-                    ]);
+                    ];
                 } catch (ValidationException $e) {
                     return $this->errorResponse(
                         self::VALIDATION_FAILED,
-                        $e->getMessage(),
+                        'Validasi gagal: ' . collect($e->errors())->flatten()->implode(', '),
                         self::HTTP_UNPROCESSABLE_ENTITY,
                         $e->errors()
                     );
@@ -169,57 +198,24 @@ class ApiMenuManagementController extends BaseApiController
         );
     }
 
-    public function deleteData($id)
+    public function detailData($id, Request $request)
     {
         return $this->executeWithAuthentication(
-            function () use ($id) {
+            function () use ($id, $request) {
                 try {
-                    $result = WebMenuModel::deleteData($id);
+                    $result = WebMenuModel::detailData($id);
                     
                     if (!$result['success']) {
                         return $this->errorResponse(
-                            $result['message'] ?? 'Gagal menghapus menu',
-                            null,
-                            self::HTTP_UNPROCESSABLE_ENTITY
-                        );
-                    }
-                    
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Menu berhasil dihapus'
-                    ]);
-                } catch (\Exception $e) {
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        'Terjadi kesalahan saat menghapus menu: ' . $e->getMessage(),
-                        self::HTTP_INTERNAL_SERVER_ERROR
-                    );
-                }
-            },
-            'menu management',
-            self::ACTION_DELETE
-        );
-    }
-
-    public function detailData($id)
-    {
-        return $this->executeWithAuthentication(
-            function () use ($id) {
-                try {
-                    $result = WebMenuModel::getDetailData($id);
-                    
-                    if (!$result['success']) {
-                        return $this->errorResponse(
+                            self::RESOURCE_NOT_FOUND,
                             $result['message'] ?? 'Menu tidak ditemukan',
-                            null,
                             self::HTTP_NOT_FOUND
                         );
                     }
                     
-                    return response()->json([
-                        'success' => true,
-                        'data' => $result['menu']
-                    ]);
+                    return [
+                        'menu' => $result['menu']
+                    ];
                 } catch (\Exception $e) {
                     return $this->errorResponse(
                         self::SERVER_ERROR,
@@ -233,82 +229,96 @@ class ApiMenuManagementController extends BaseApiController
         );
     }
 
-    public function editData($id)
+    public function deleteData($id, Request $request)
     {
         return $this->executeWithAuthentication(
-            function () use ($id) {
+            function () use ($id, $request) {
                 try {
-                    $result = WebMenuModel::getEditData($id);
+                    $result = WebMenuModel::deleteData($id);
                     
                     if (!$result['success']) {
+                        // Handle berbagai jenis error delete
+                        if (strpos($result['message'], 'SAR') !== false) {
+                            return $this->errorResponse(
+                                'PERMISSION_DENIED',
+                                $result['message'],
+                                self::HTTP_FORBIDDEN
+                            );
+                        }
+                        
+                        if (strpos($result['message'], 'submenu yang masih aktif') !== false) {
+                            return $this->errorResponse(
+                                'HAS_ACTIVE_CHILDREN',
+                                $result['message'],
+                                self::HTTP_BAD_REQUEST
+                            );
+                        }
+                        
                         return $this->errorResponse(
-                            $result['message'] ?? 'Menu tidak ditemukan',
-                            null,
-                            self::HTTP_NOT_FOUND
+                            'DELETE_FAILED',
+                            $result['message'],
+                            self::HTTP_BAD_REQUEST
                         );
                     }
-                    
-                    return response()->json([
-                        'success' => true,
-                        'data' => $result
-                    ]);
+
+                    return [
+                        'message' => $result['message'],
+                        'deleted_item' => [
+                            'web_menu_id' => $result['data']->web_menu_id,
+                            'menu_name' => $result['data']->getDisplayName(),
+                            'deleted_at' => now()
+                        ]
+                    ];
                 } catch (\Exception $e) {
                     return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        'Terjadi kesalahan saat mengambil data edit menu: ' . $e->getMessage(),
+                        'DELETE_ERROR',
+                        'Terjadi kesalahan saat menghapus menu: ' . $e->getMessage(),
                         self::HTTP_INTERNAL_SERVER_ERROR
                     );
                 }
             },
             'menu management',
-            self::ACTION_GET
+            self::ACTION_DELETE
         );
     }
-    
-    public function getParentMenus($hakAksesId)
-    {
-        return $this->executeWithAuthentication(
-            function () use ($hakAksesId) {
-                try {
-                    $excludeId = request()->input('exclude_id');
-                    $parentMenus = WebMenuModel::getParentMenusByLevel($hakAksesId, $excludeId);
-                    
-                    return response()->json([
-                        'success' => true,
-                        'parentMenus' => $parentMenus
-                    ]);
-                } catch (\Exception $e) {
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        'Terjadi kesalahan saat mengambil parent menu: ' . $e->getMessage(),
-                        self::HTTP_INTERNAL_SERVER_ERROR
-                    );
-                }
-            },
-            'menu management',
-            self::ACTION_GET
-        );
-    }
-    
+
     public function reorder(Request $request)
     {
         return $this->executeWithAuthentication(
             function () use ($request) {
                 try {
-                    $result = WebMenuModel::reorderMenus($request->input('data', []));
+                    $data = $request->input('data', []);
+                    
+                    if (empty($data)) {
+                        return $this->errorResponse(
+                            'INVALID_DATA',
+                            'Data reorder tidak valid atau kosong',
+                            self::HTTP_BAD_REQUEST
+                        );
+                    }
+
+                    $result = WebMenuModel::reorderMenus($data);
                     
                     if (!$result['success']) {
+                        // Handle error SAR permission
+                        if (strpos($result['message'], 'SAR') !== false) {
+                            return $this->errorResponse(
+                                'PERMISSION_DENIED',
+                                $result['message'],
+                                self::HTTP_FORBIDDEN
+                            );
+                        }
+                        
                         return $this->errorResponse(
+                            'REORDER_FAILED',
                             $result['message'] ?? 'Gagal menyusun ulang menu',
-                            null,
                             self::HTTP_UNPROCESSABLE_ENTITY
                         );
                     }
                     
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Urutan menu berhasil disimpan'
-                    ]);
+                    return [
+                        'message' => $result['message']
+                    ];
                 } catch (\Exception $e) {
                     return $this->errorResponse(
                         self::SERVER_ERROR,
@@ -322,220 +332,29 @@ class ApiMenuManagementController extends BaseApiController
         );
     }
     
-    public function setMenu($hakAksesId)
+    public function getParentMenus($hakAksesId, Request $request)
     {
         return $this->executeWithAuthentication(
-            function () use ($hakAksesId) {
+            function () use ($hakAksesId, $request) {
                 try {
-                    $level = HakAksesModel::findOrFail($hakAksesId);
-                    $menuGlobal = WebMenuGlobalModel::where('isDeleted', 0)
-                        ->orderBy('wmg_urutan_menu')
-                        ->get();
-
-                    // Get existing menus for this level
-                    $existingMenus = [];
-                    $webMenus = WebMenuModel::where('fk_m_hak_akses', $hakAksesId)
-                        ->where('isDeleted', 0)
-                        ->with('hakAkses')
-                        ->get();
-
-                    foreach ($webMenus as $webMenu) {
-                        $permissions = [];
-                        foreach ($webMenu->hakAkses as $hakAkses) {
-                            if ($hakAkses->ha_menu == 1) $permissions[] = 'menu';
-                            if ($hakAkses->ha_view == 1) $permissions[] = 'view';
-                            if ($hakAkses->ha_create == 1) $permissions[] = 'create';
-                            if ($hakAkses->ha_update == 1) $permissions[] = 'update';
-                            if ($hakAkses->ha_delete == 1) $permissions[] = 'delete';
-                        }
-
-                        $existingMenus[$webMenu->fk_web_menu_global] = [
-                            'web_menu_id' => $webMenu->web_menu_id,
-                            'alias' => $webMenu->wm_menu_nama,
-                            'status' => $webMenu->wm_status_menu,
-                            'permissions' => $permissions
-                        ];
-                    }
-
-                    return response()->json([
-                        'success' => true,
-                        'data' => [
-                            'level' => $level,
-                            'menuGlobal' => $menuGlobal,
-                            'existingMenus' => $existingMenus
-                        ]
-                    ]);
-                } catch (\Exception $e) {
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        'Terjadi kesalahan saat mengambil data set menu: ' . $e->getMessage(),
-                        self::HTTP_INTERNAL_SERVER_ERROR
-                    );
-                }
-            },
-            'menu management',
-            self::ACTION_GET
-        );
-    }
-    
-    public function storeSetMenu(Request $request)
-    {
-        return $this->executeWithAuthentication(
-            function () use ($request) {
-                DB::beginTransaction();
-                try {
-                    $hakAksesId = $request->input('hak_akses_id');
-                    $menus = $request->input('menus');
-
-                    // Get user IDs for this level
-                    $userIds = DB::table('set_user_hak_akses')
-                        ->where('fk_m_hak_akses', $hakAksesId)
-                        ->where('isDeleted', 0)
-                        ->pluck('fk_m_user');
-
-                    $parentMapping = [];
-                    $modifiedParents = [];
-
-                    // First pass: identify which parent menus need to be created
-                    foreach ($menus as $globalId => $menuData) {
-                        if (isset($menuData['modified']) && $menuData['modified'] == '1') {
-                            // If this is a sub menu and it's modified, mark its parent as needing creation
-                            if ($menuData['type'] == 'sub' && isset($menuData['parent_id'])) {
-                                $modifiedParents[$menuData['parent_id']] = true;
-                            }
-                        }
-                    }
-
-                    // Second pass: process all menus
-                    foreach ($menus as $globalId => $menuData) {
-                        // Check if this menu should be processed
-                        $shouldProcess = false;
-
-                        // Process if explicitly modified
-                        if (isset($menuData['modified']) && $menuData['modified'] == '1') {
-                            $shouldProcess = true;
-                        }
-
-                        // Process if this is a parent of a modified sub menu
-                        if ($menuData['type'] == 'group' && isset($modifiedParents[$globalId])) {
-                            $shouldProcess = true;
-                        }
-
-                        if (!$shouldProcess) {
-                            // Still need to track parent IDs for sub menus
-                            if ($menuData['type'] == 'group') {
-                                $existingMenu = WebMenuModel::where('fk_web_menu_global', $globalId)
-                                    ->where('fk_m_hak_akses', $hakAksesId)
-                                    ->where('isDeleted', 0)
-                                    ->first();
-
-                                if ($existingMenu) {
-                                    $parentMapping[$globalId] = $existingMenu->web_menu_id;
-                                }
-                            }
-                            continue;
-                        }
-
-                        $webMenuGlobal = WebMenuGlobalModel::find($globalId);
-                        if (!$webMenuGlobal) continue;
-
-                        // Determine parent ID
-                        $parentId = null;
-                        if ($menuData['type'] == 'sub' && isset($menuData['parent_id'])) {
-                            $parentId = $parentMapping[$menuData['parent_id']] ?? null;
-                        }
-
-                        // Determine order
-                        $order = 1;
-                        if ($parentId) {
-                            $order = WebMenuModel::where('wm_parent_id', $parentId)
-                                ->where('fk_m_hak_akses', $hakAksesId)
-                                ->where('isDeleted', 0)
-                                ->max('wm_urutan_menu') + 1;
-                        } else {
-                            $order = WebMenuModel::whereNull('wm_parent_id')
-                                ->where('fk_m_hak_akses', $hakAksesId)
-                                ->where('isDeleted', 0)
-                                ->max('wm_urutan_menu') + 1;
-                        }
-
-                        // Create or update menu
-                        $webMenu = WebMenuModel::updateOrCreate(
-                            [
-                                'fk_web_menu_global' => $globalId,
-                                'fk_m_hak_akses' => $hakAksesId
-                            ],
-                            [
-                                'wm_parent_id' => $parentId,
-                                'wm_menu_nama' => !empty($menuData['alias']) ? $menuData['alias'] : null,
-                                'wm_status_menu' => $menuData['status'],
-                                'wm_urutan_menu' => $order,
-                                'isDeleted' => 0
-                            ]
-                        );
-
-                        // Track parent mapping for group menus
-                        if ($menuData['type'] == 'group') {
-                            $parentMapping[$globalId] = $webMenu->web_menu_id;
-                        }
-
-                        // Handle permissions (not for group menus)
-                        if (isset($menuData['permissions']) && $menuData['type'] != 'group') {
-                            foreach ($userIds as $userId) {
-                                SetHakAksesModel::updateOrCreate(
-                                    [
-                                        'ha_pengakses' => $userId,
-                                        'fk_web_menu' => $webMenu->web_menu_id
-                                    ],
-                                    [
-                                        'ha_menu' => isset($menuData['permissions']['menu']) ? 1 : 0,
-                                        'ha_view' => isset($menuData['permissions']['view']) ? 1 : 0,
-                                        'ha_create' => isset($menuData['permissions']['create']) ? 1 : 0,
-                                        'ha_update' => isset($menuData['permissions']['update']) ? 1 : 0,
-                                        'ha_delete' => isset($menuData['permissions']['delete']) ? 1 : 0,
-                                        'isDeleted' => 0
-                                    ]
-                                );
-                            }
-                        }
-                    }
-
-                    DB::commit();
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Menu berhasil disimpan'
-                    ]);
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    return $this->errorResponse(
-                        self::SERVER_ERROR,
-                        'Terjadi kesalahan saat menyimpan menu: ' . $e->getMessage(),
-                        self::HTTP_INTERNAL_SERVER_ERROR
-                    );
-                }
-            },
-            'menu management',
-            self::ACTION_CREATE
-        );
-    }
-
-    public function menuItems()
-    {
-        return $this->executeWithAuthentication(
-            function () {
-                try {
-                    // Implementasi menu-item endpoint
-                    // Bisa digunakan untuk mendapatkan menu dalam format khusus
-                    $menus = WebMenuModel::getMenusWithChildren();
+                    $excludeId = $request->input('exclude_id');
+                    $result = WebMenuModel::getParentMenusData($hakAksesId, $excludeId);
                     
-                    return response()->json([
-                        'success' => true,
-                        'data' => $menus
-                    ]);
+                    if (!$result['success']) {
+                        return $this->errorResponse(
+                            'LOAD_PARENT_MENUS_FAILED',
+                            $result['message'] ?? 'Gagal mengambil parent menu',
+                            self::HTTP_INTERNAL_SERVER_ERROR
+                        );
+                    }
+                    
+                    return [
+                        'parentMenus' => $result['parentMenus']
+                    ];
                 } catch (\Exception $e) {
                     return $this->errorResponse(
                         self::SERVER_ERROR,
-                        'Terjadi kesalahan saat mengambil menu items: ' . $e->getMessage(),
+                        'Terjadi kesalahan saat mengambil parent menu: ' . $e->getMessage(),
                         self::HTTP_INTERNAL_SERVER_ERROR
                     );
                 }
@@ -544,4 +363,5 @@ class ApiMenuManagementController extends BaseApiController
             self::ACTION_GET
         );
     }
+
 }

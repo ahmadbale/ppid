@@ -3,21 +3,107 @@
 namespace Modules\Sisfo\App\Http\Controllers\Api\HakAkses;
 
 use Illuminate\Http\Request;
-
+use Modules\Sisfo\App\Models\HakAksesModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 use Modules\Sisfo\App\Http\Controllers\Api\BaseApiController;
 
-class APISetHakAksesController extends BaseApiController
+class ApiSetHakAksesController extends BaseApiController
 {
-
     public function index()
     {
         return $this->executeWithAuthentication(
             function() {
+                //  Validasi SAR
+                $user = auth()->user();
+                $hasSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if (!$hasSAR) {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Hanya Super Administrator yang dapat mengakses pengaturan hak akses',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+
+                // Mengambil data dari model
                 $result = SetHakAksesModel::selectData();
-                return $result['data']; // mengembalikan leveluser
+                $levelUsers = $result['data'];
+
+                return [
+                    'success' => true,
+                    'message' => 'Data pengaturan hak akses berhasil diambil',
+                    'data' => [
+                        'levelUsers' => $levelUsers,
+                        'breadcrumb' => [
+                            'title' => 'Pengaturan Hak Akses',
+                            'list' => ['Home', 'Hak Akses']
+                        ],
+                        'page' => [
+                            'title' => 'Pengaturan Hak Akses'
+                        ]
+                    ]
+                ];
             },
-            'hak akses',
+            'pengaturan hak akses',
+            self::ACTION_GET
+        );
+    }
+
+    public function getData()
+    {
+        return $this->executeWithAuthentication(
+            function() {
+                
+                $user = auth()->user();
+                $hasSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if (!$hasSAR) {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Hanya Super Administrator yang dapat mengakses pengaturan hak akses',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+
+            
+                $result = SetHakAksesModel::selectData();
+                
+                return [
+                    'success' => true,
+                    'message' => 'Data berhasil diambil',
+                    'data' => $result['data']
+                ];
+            },
+            'data pengaturan hak akses',
+            self::ACTION_GET
+        );
+    }
+
+    public function addData()
+    {
+        return $this->executeWithAuthentication(
+            function() {
+                //  Validasi SAR
+                $user = auth()->user();
+                $hasSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if (!$hasSAR) {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Hanya Super Administrator yang dapat mengakses pengaturan hak akses',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+
+                // 
+                return [
+                    'form_action' => 'create',
+                    'available_levels' => HakAksesModel::where('isDeleted', 0)->get(),
+                    'available_menus' => WebMenuModel::where('isDeleted', 0)->get()
+                ];
+            },
+            'form tambah hak akses',
             self::ACTION_GET
         );
     }
@@ -26,94 +112,128 @@ class APISetHakAksesController extends BaseApiController
     {
         return $this->executeWithAuthentication(
             function() use ($param1, $param2) {
-                // Jika param2 tidak ada, ini adalah permintaan hak akses berdasarkan level
+                // Validasi SAR
+                $user = auth()->user();
+                $hasSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if (!$hasSAR) {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Hanya Super Administrator yang dapat mengakses pengaturan hak akses',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+
+              
+                // Jika param2 tidak ada, maka ini adalah permintaan hak akses berdasarkan level
                 if ($param2 === null) {
                     $hak_akses_kode = $param1;
-                    return SetHakAksesModel::getHakAksesData($hak_akses_kode);
+                    $menuData = SetHakAksesModel::getHakAksesData($hak_akses_kode);
+                    
+                    return [
+                        'success' => true,
+                        'message' => 'Data hak akses berdasarkan level berhasil diambil',
+                        'data' => $menuData
+                    ];
                 }
-                // Jika param2 ada, ini adalah permintaan hak akses spesifik user dan menu
+                // Jika param2 ada, maka ini adalah permintaan hak akses spesifik user dan menu
                 else {
                     $pengakses_id = $param1;
                     $menu_id = $param2;
-                    return SetHakAksesModel::getHakAksesData($pengakses_id, $menu_id);
+                    $hakAkses = SetHakAksesModel::getHakAksesData($pengakses_id, $menu_id);
+                    
+                    return [
+                        'success' => true,
+                        'message' => 'Data hak akses spesifik berhasil diambil',
+                        'data' => $hakAkses
+                    ];
                 }
             },
-            'detail hak akses',
+            'edit hak akses',
             self::ACTION_GET
         );
     }
+
     public function updateData(Request $request)
     {
         return $this->executeWithAuthAndValidation(
             function($user) use ($request) {
-                // Validasi input berdasarkan tipe akses
-                $rules = [];
-                $messages = [];
+                $hasSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
                 
-                // Untuk level hak akses
-                if ($request->has('hak_akses_kode')) {
-                    $rules = [
-                        'hak_akses_kode' => 'required',
-                        'menu_akses' => 'required|array'
-                    ];
-                    $messages = [
-                        'hak_akses_kode.required' => 'Kode hak akses wajib diisi',
-                        'menu_akses.required' => 'Menu akses wajib diisi',
-                        'menu_akses.array' => 'Format menu akses tidak valid'
-                    ];
-                } 
-                // Untuk hak akses individual
-                else {
-                    // Validasi untuk pattern set_hak_akses_*_*_*
-                    foreach ($request->all() as $key => $value) {
-                        if (strpos($key, 'set_hak_akses_') === 0) {
-                            $parts = explode('_', $key);
-                            if (count($parts) >= 5) {
-                                $rules[$key] = 'required|boolean';
-                            }
-                        }
-                    }
-                    
-                    if (empty($rules)) {
-                        $rules['pengakses_id'] = 'required';
-                        $rules['menu_id'] = 'required';
-                    }
-                }
-    
-                // Validate request
-                $validator = validator($request->all(), $rules, $messages);
-                if ($validator->fails()) {
+                if (!$hasSAR) {
                     return $this->errorResponse(
-                        self::VALIDATION_FAILED, 
-                        $validator->errors()->first(), 
-                        422
+                        self::AUTH_FORBIDDEN,
+                        'Hanya Super Administrator yang dapat mengakses pengaturan hak akses',
+                        self::HTTP_FORBIDDEN
                     );
                 }
-    
-                // Proses update data
-                $isLevel = $request->has('hak_akses_kode');
-                
-                // Proses data dengan model
-                $result = SetHakAksesModel::updateData($request->all(), $isLevel);
-                
 
-                if (!$result['success']) {
-                    $errorMessage = $result['message'] ?? sprintf(
-                        $this->messageTemplates[self::ACTION_UPDATE]['error'], 
-                        'hak akses'
+                try {
+                    $isLevel = $request->has('hak_akses_kode');
+                    $result = SetHakAksesModel::updateData($request->all(), $isLevel);
+
+                
+                    return [
+                        'result' => $result,
+                        'update_type' => $isLevel ? 'Hak akses Kode' : 'individu(user_id)',
+                    ];
+
+                } catch (\Exception $e) {
+                    return $this->errorResponse(
+                        'UPDATE_ERROR',
+                        'Terjadi kesalahan: ' . $e->getMessage(),
+                        self::HTTP_INTERNAL_SERVER_ERROR
                     );
-                    return $this->errorResponse($errorMessage, null, 422);
                 }
-    
-                // Kembalikan data jika ada, atau pesan sukses saja
-                return [
-                    'success' => true,
-                    'message' => $result['message'] ?? 'Hak akses berhasil diperbarui.',
-                    'data' => $result['data'] ?? null
-                ];
             },
-            'hak akses',
+            'pengaturan hak akses',
             self::ACTION_UPDATE
+        );
+    }
+
+    public function detailData($id)
+    {
+        return $this->executeWithAuthentication(
+            function() use ($id) {
+                // Validasi SAR
+                $user = auth()->user();
+                $hasSAR = $user->hakAkses->where('hak_akses_kode', 'SAR')->count() > 0;
+                
+                if (!$hasSAR) {
+                    return $this->errorResponse(
+                        self::AUTH_FORBIDDEN,
+                        'Hanya Super Administrator yang dapat mengakses pengaturan hak akses',
+                        self::HTTP_FORBIDDEN
+                    );
+                }
+
+                try {
+                    $hakAkses = SetHakAksesModel::find($id);
+                    
+                    if (!$hakAkses) {
+                        return $this->errorResponse(
+                            'DATA_NOT_FOUND',
+                            'Data hak akses tidak ditemukan',
+                            self::HTTP_NOT_FOUND
+                        );
+                    }
+
+                    return [
+                        'success' => true,
+                        'message' => 'Detail hak akses berhasil diambil',
+                        'data' => $hakAkses
+                    ];
+
+                } catch (\Exception $e) {
+                    return $this->errorResponse(
+                        'DETAIL_ERROR',
+                        'Terjadi kesalahan: ' . $e->getMessage(),
+                        self::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+            },
+            'detail hak akses',
+            self::ACTION_GET
         );
     }
 }
