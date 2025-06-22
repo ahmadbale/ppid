@@ -100,13 +100,16 @@ class IpMenuUtamaModel extends Model
     /**
      * Mengambil data menu berdasarkan kategori IP dinamis tabel
      */
-    public static function getMenusByKategori($kategoriId = null)
+    public static function getMenusByKategori($kategoriId = null, $search = '')
     {
-        if (empty($kategoriId)) {
-            return self::selectDataWithHierarchy();
+        // Pastikan kategoriId adalah integer atau null
+        if (empty($kategoriId) || !is_numeric($kategoriId)) {
+            return self::selectDataWithHierarchy(null, $search);
         }
 
-        return self::where('isDeleted', 0)
+        $kategoriId = (int) $kategoriId;
+
+        $query = self::where('isDeleted', 0)
             ->where('fk_t_ip_dinamis_tabel', $kategoriId)
             ->with([
                 'IpDinamisTabel',
@@ -116,9 +119,25 @@ class IpMenuUtamaModel extends Model
                             $subQuery->where('isDeleted', 0);
                         }]);
                 }
-            ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ]);
+
+        // Tambahkan pencarian jika ada
+        if (!empty($search) && is_string($search)) {
+            $search = trim($search);
+            if (strlen($search) > 0) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_ip_mu', 'like', "%{$search}%")
+                        ->orWhereHas('IpSubMenuUtama', function ($smu) use ($search) {
+                            $smu->where('nama_ip_smu', 'like', "%{$search}%")
+                                ->orWhereHas('IpSubMenu', function ($sm) use ($search) {
+                                    $sm->where('nama_ip_sm', 'like', "%{$search}%");
+                                });
+                        });
+                });
+            }
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     public static function createDataWithHierarchy($request)

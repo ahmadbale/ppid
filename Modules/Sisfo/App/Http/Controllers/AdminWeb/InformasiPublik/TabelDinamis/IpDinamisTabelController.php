@@ -18,6 +18,7 @@ class IpDinamisTabelController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search', '');
+        $kategori = $request->query('kategori', ''); // Tambahkan parameter kategori
 
         $breadcrumb = (object)[
             'title' => 'Pengaturan Informasi Publik Dinamis Tabel',
@@ -30,30 +31,34 @@ class IpDinamisTabelController extends Controller
 
         $activeMenu = 'Informasi Publik Dinamis Tabel';
 
-        $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search);
-
+        // Filter berdasarkan kategori jika diperlukan
+        $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search, $kategori);
 
         return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.index", [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
             'ipDinamisTabel' => $ipDinamisTabel,
-            'search' => $search
+            'search' => $search,
+            'kategori' => $kategori // Kirim variabel kategori ke view
         ]);
     }
 
     public function getData(Request $request)
     {
         $search = $request->query('search', '');
-        $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search);
+        $kategori = $request->query('kategori', ''); // Tambahkan parameter kategori
+        
+        $ipDinamisTabel = IpDinamisTabelModel::selectData(10, $search, $kategori);
 
         if ($request->ajax()) {
-            return view('sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.data', compact('ipDinamisTabel', 'search'))->render();
+            return view('sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.data', compact('ipDinamisTabel', 'search', 'kategori'))->render();
         }
 
         return redirect()->route('kategori-informasi-publik-dinamis-tabel.index');
     }
 
+    // ... existing methods remain the same ...
     public function addData()
     {
         return view("sisfo::AdminWeb/InformasiPublik/IpDinamisTabel.create");
@@ -75,6 +80,7 @@ class IpDinamisTabelController extends Controller
             return $this->jsonError($e, 'Terjadi kesalahan saat membuat IpDinamis Tabel');
         }
     }
+
     public function editData($id)
     {
         $ipDinamisTabel = IpDinamisTabelModel::detailData($id);
@@ -83,6 +89,7 @@ class IpDinamisTabelController extends Controller
             'IpDinamisTabel' => $ipDinamisTabel
         ]);
     }
+
     public function updateData(Request $request, $id)
     {
         try {

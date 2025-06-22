@@ -25,11 +25,11 @@
     </div>
     <div class="card-body">
       <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <form id="searchForm" class="form-inline">
             <div class="input-group">
               <input type="text" class="form-control" name="search" value="{{ $search }}" 
-                     placeholder="Cari nama menu atau kategori..." style="width: 300px;">
+                     placeholder="Cari nama menu atau kategori..." style="width: 250px;">
               <div class="input-group-append">
                 <button type="submit" class="btn btn-outline-secondary">
                   <i class="fas fa-search"></i>
@@ -43,23 +43,21 @@
             </div>
           </form>
         </div>
-        <div class="col-md-6 text-right">
-          <div class="btn-group">
-            <button class="btn btn-outline-info btn-sm" onclick="filterByKategori('')">
-              <i class="fas fa-list"></i> Semua
-            </button>
-            @foreach($ipDinamisTabel as $kategori)
-              <button class="btn btn-outline-primary btn-sm" onclick="filterByKategori('{{ $kategori->ip_dinamis_tabel_id }}')">
-                <i class="fas fa-table"></i> {{ Str::limit($kategori->ip_nama_submenu, 15) }}
-              </button>
-            @endforeach
+        <div class="col-md-4">
+          <div class="form-group mb-0">
+            <select class="form-control" id="kategoriFilter" onchange="filterByKategori(this.value)">
+              <option value="">Semua Kategori</option>
+              @foreach($ipDinamisTabel as $kategoriItem)
+                <option value="{{ $kategoriItem->ip_dinamis_tabel_id }}" 
+                  {{ (string)$kategoriItem->ip_dinamis_tabel_id === (string)$kategori ? 'selected' : '' }}>
+                  {{ $kategoriItem->ip_nama_submenu }}
+                </option>
+              @endforeach
+            </select>
           </div>
         </div>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col-md-12">
-          <div class="btn-group btn-group-sm">
+        <div class="col-md-4">
+          <div class="btn-group">
             <button class="btn btn-outline-secondary" onclick="expandAll()">
               <i class="fas fa-expand"></i> Buka Semua
             </button>
@@ -195,13 +193,6 @@
       font-weight: bold;
     }
     
-    /* Category filter buttons */
-    .btn-group .btn.active {
-      background-color: #007bff;
-      color: white;
-      border-color: #007bff;
-    }
-    
     /* Loading animation */
     .loading-spinner {
       display: inline-block;
@@ -245,9 +236,8 @@
         width: 100% !important;
       }
       
-      .col-md-6.text-right {
-        text-align: left !important;
-        margin-top: 1rem;
+      .col-md-4 {
+        margin-bottom: 1rem;
       }
     }
   </style>
@@ -257,6 +247,12 @@
   <script>
     $(document).ready(function () {
       var setIpDinamisTabelUrl = '{{ $setIpDinamisTabelUrl }}';
+      var currentKategori = '{{ $kategori ?? '' }}';
+      
+      // Set kategori filter value if exists
+      if (currentKategori && currentKategori !== '') {
+        $('#kategoriFilter').val(currentKategori);
+      }
       
       // Toggle submenu dengan delegasi event
       $(document).off('click', '.toggle-submenu').on('click', '.toggle-submenu', function(e) {
@@ -282,7 +278,8 @@
       $('#searchForm').on('submit', function (e) {
         e.preventDefault();
         var search = $(this).find('input[name="search"]').val();
-        loadSetIpDinamisTabelData(search);
+        var kategori = $('#kategoriFilter').val();
+        loadSetIpDinamisTabelData(search, kategori);
       });
 
       // Function untuk expand all submenus
@@ -299,32 +296,26 @@
 
       // Filter by kategori
       window.filterByKategori = function(kategori) {
-        // Update active button
-        $('.btn-group .btn').removeClass('active');
-        if (kategori === '') {
-          $('.btn-group .btn:first').addClass('active');
-        } else {
-          $('.btn-group .btn').each(function() {
-            if ($(this).attr('onclick').includes(kategori)) {
-              $(this).addClass('active');
-            }
-          });
-        }
-        
-        loadSetIpDinamisTabelData($('#searchForm input[name="search"]').val(), kategori);
+        var search = $('#searchForm input[name="search"]').val();
+        loadSetIpDinamisTabelData(search, kategori);
       }
 
       // Clear search
       window.clearSearch = function() {
         $('#searchForm input[name="search"]').val('');
-        loadSetIpDinamisTabelData('');
+        var kategori = $('#kategoriFilter').val();
+        loadSetIpDinamisTabelData('', kategori);
       }
 
       // Function to load data
       function loadSetIpDinamisTabelData(search, kategori) {
         var params = {};
-        if (search && typeof search === 'string') params.search = search;
-        if (kategori && typeof kategori === 'string') params.kategori = kategori;
+        if (search && typeof search === 'string' && search.trim() !== '') {
+          params.search = search.trim();
+        }
+        if (kategori && typeof kategori === 'string' && kategori.trim() !== '') {
+          params.kategori = kategori.trim();
+        }
         
         $.ajax({
           url: setIpDinamisTabelUrl + '/getData',
@@ -342,7 +333,7 @@
             $('#menu-container').html(response);
             
             // Auto expand if there's a search
-            if (search && search.length > 0) {
+            if (search && search.trim().length > 0) {
               setTimeout(function() {
                 expandAll();
               }, 300);
@@ -422,33 +413,11 @@
         modalAction(setIpDinamisTabelUrl + '/deleteSubMenu/' + id);
       }
 
-      // Reload function - ini adalah function utama untuk reload data
+      // Reload function
       window.reloadTable = function() {
         var search = $('#searchForm input[name="search"]').val();
-        var activeKategori = '';
-        
-        // Cek kategori yang sedang aktif
-        $('.btn-group .btn.active').each(function() {
-          var onclick = $(this).attr('onclick');
-          if (onclick && onclick.includes('filterByKategori')) {
-            var match = onclick.match(/filterByKategori\('([^']*)'\)/);
-            if (match) {
-              activeKategori = match[1];
-            }
-          }
-        });
-        
-        loadSetIpDinamisTabelData(search, activeKategori);
-      }
-
-      // Function untuk load data dengan parameter lengkap
-      window.loadData = function(search, kategori) {
+        var kategori = $('#kategoriFilter').val();
         loadSetIpDinamisTabelData(search, kategori);
-      }
-
-      // Function untuk show modal dengan alias
-      window.showModal = function(url) {
-        modalAction(url);
       }
 
       // Auto-dismiss alerts after 5 seconds

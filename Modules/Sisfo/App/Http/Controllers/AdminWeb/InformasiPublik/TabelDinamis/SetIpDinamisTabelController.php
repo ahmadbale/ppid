@@ -21,6 +21,7 @@ class SetIpDinamisTabelController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search', '');
+        $kategori = $request->query('kategori', '');
 
         $breadcrumb = (object) [
             'title' => 'Set Informasi Publik Dinamis Tabel',
@@ -33,11 +34,23 @@ class SetIpDinamisTabelController extends Controller
 
         $activeMenu = 'setipdinamistabel';
 
-        // Gunakan hierarkis dan pencarian
-        $setIpDinamisTabel = IpMenuUtamaModel::selectDataWithHierarchy(null, $search);
+        // Ambil kategori IP dinamis tabel untuk dropdown filter
+        $ipDinamisTabel = IpDinamisTabelModel::where('isDeleted', 0)
+            ->orderBy('ip_nama_submenu', 'asc')
+            ->get();
 
-        // Ambil kategori IP dinamis tabel untuk dropdown
-        $ipDinamisTabel = IpDinamisTabelModel::where('isDeleted', 0)->get();
+        // Pastikan kategori adalah string/integer yang valid
+        $kategoriId = null;
+        if (!empty($kategori) && is_numeric($kategori)) {
+            $kategoriId = (int) $kategori;
+        }
+
+        // Filter data berdasarkan kategori jika dipilih
+        if ($kategoriId) {
+            $setIpDinamisTabel = IpMenuUtamaModel::getMenusByKategori($kategoriId, $search);
+        } else {
+            $setIpDinamisTabel = IpMenuUtamaModel::selectDataWithHierarchy(null, $search);
+        }
 
         return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.index", [
             'breadcrumb' => $breadcrumb,
@@ -45,6 +58,7 @@ class SetIpDinamisTabelController extends Controller
             'activeMenu' => $activeMenu,
             'setIpDinamisTabel' => $setIpDinamisTabel,
             'search' => $search,
+            'kategori' => $kategori, // Kirim sebagai string untuk view
             'ipDinamisTabel' => $ipDinamisTabel
         ]);
     }
@@ -54,21 +68,34 @@ class SetIpDinamisTabelController extends Controller
         $search = $request->query('search', '');
         $kategori = $request->query('kategori', '');
 
-        if ($kategori) {
+        // Pastikan kategori adalah string/integer yang valid
+        $kategoriId = null;
+        if (!empty($kategori) && is_numeric($kategori)) {
+            $kategoriId = (int) $kategori;
+        }
+
+        if ($kategoriId) {
             // Filter berdasarkan kategori IP dinamis tabel
-            $setIpDinamisTabel = IpMenuUtamaModel::getMenusByKategori($kategori);
+            $setIpDinamisTabel = IpMenuUtamaModel::getMenusByKategori($kategoriId, $search);
         } else {
             // Gunakan filter cerdas dengan pencarian
             $setIpDinamisTabel = IpMenuUtamaModel::selectDataWithHierarchy(null, $search);
         }
 
+        // Ambil info kategori untuk pesan kosong
+        $kategoriInfo = null;
+        if ($kategoriId) {
+            $kategoriInfo = IpDinamisTabelModel::find($kategoriId);
+        }
+
         if ($request->ajax()) {
-            return view('sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.data', compact('setIpDinamisTabel', 'search'))->render();
+            return view('sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.data', compact('setIpDinamisTabel', 'search', 'kategori', 'kategoriInfo'))->render();
         }
 
         return redirect()->back();
     }
 
+    // ... existing methods remain the same ...
     public function addData()
     {
         // Ambil daftar kategori IP dinamis tabel untuk dropdown
@@ -139,7 +166,7 @@ class SetIpDinamisTabelController extends Controller
             $ipMenuUtama = IpMenuUtamaModel::detailDataWithHierarchy($id);
 
             return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detail", [
-                'ipMenuUtama' => $ipMenuUtama, // Ganti dari setIpDinamisTabel ke ipMenuUtama
+                'ipMenuUtama' => $ipMenuUtama,
                 'title' => 'Detail Set Informasi Publik Dinamis Tabel'
             ]);
         } catch (\Exception $e) {
@@ -157,7 +184,7 @@ class SetIpDinamisTabelController extends Controller
                 $ipMenuUtama = IpMenuUtamaModel::detailDataWithHierarchy($id);
 
                 return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.delete", [
-                    'ipMenuUtama' => $ipMenuUtama  // Ganti dari setIpDinamisTabel ke ipMenuUtama
+                    'ipMenuUtama' => $ipMenuUtama
                 ]);
             } catch (\Exception $e) {
                 return response()->json([
