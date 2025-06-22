@@ -184,6 +184,33 @@ class IpSubMenuModel extends Model
         return true;
     }
 
+    public static function validasiDataUpdate($request)
+    {
+        $rules = [
+            'nama_ip_sm' => 'required|max:255',
+        ];
+
+        $messages = [
+            'nama_ip_sm.required' => 'Nama Sub Menu wajib diisi',
+            'nama_ip_sm.max' => 'Nama Sub Menu maksimal 255 karakter',
+        ];
+
+        if ($request->hasFile('dokumen_ip_sm')) {
+            $rules['dokumen_ip_sm'] = 'file|mimes:pdf|max:5120';
+            $messages['dokumen_ip_sm.file'] = 'Dokumen Sub Menu harus berupa file';
+            $messages['dokumen_ip_sm.mimes'] = 'Dokumen Sub Menu harus berformat PDF';
+            $messages['dokumen_ip_sm.max'] = 'Ukuran Dokumen Sub Menu maksimal 5 MB';
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return true;
+    }
+
     public static function updateDataSimple($request, $id)
     {
         $dokumenFiles = [];

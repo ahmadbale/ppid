@@ -251,14 +251,26 @@ class IpMenuUtamaModel extends Model
         try {
             DB::beginTransaction();
 
-            $menuUtama = self::with('IpSubMenuUtama')->findOrFail($id);
+            $menuUtama = self::with(['IpSubMenuUtama.IpSubMenu'])->findOrFail($id);
 
-            // Validasi apakah masih ada children
-            if ($menuUtama->IpSubMenuUtama->count() > 0) {
-                throw new \Exception('Menu ini tidak bisa dihapus dikarenakan masih terdapat children');
+            // Hapus semua sub menu terlebih dahulu
+            foreach ($menuUtama->IpSubMenuUtama as $subMenuUtama) {
+                // Hapus semua sub menu dari sub menu utama
+                foreach ($subMenuUtama->IpSubMenu as $subMenu) {
+                    if ($subMenu->dokumen_ip_sm) {
+                        self::removeFile($subMenu->dokumen_ip_sm);
+                    }
+                    $subMenu->delete();
+                }
+
+                // Hapus dokumen sub menu utama
+                if ($subMenuUtama->dokumen_ip_smu) {
+                    self::removeFile($subMenuUtama->dokumen_ip_smu);
+                }
+                $subMenuUtama->delete();
             }
 
-            // Hapus dokumen jika ada
+            // Hapus dokumen menu utama
             if ($menuUtama->dokumen_ip_mu) {
                 self::removeFile($menuUtama->dokumen_ip_mu);
             }

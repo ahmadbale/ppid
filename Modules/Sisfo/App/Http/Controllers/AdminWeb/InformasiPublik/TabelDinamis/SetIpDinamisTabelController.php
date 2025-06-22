@@ -135,22 +135,36 @@ class SetIpDinamisTabelController extends Controller
 
     public function detailData($id)
     {
-        $setIpDinamisTabel = IpMenuUtamaModel::detailDataWithHierarchy($id);
+        try {
+            $ipMenuUtama = IpMenuUtamaModel::detailDataWithHierarchy($id);
 
-        return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detail", [
-            'setIpDinamisTabel' => $setIpDinamisTabel,
-            'title' => 'Detail Set Informasi Publik Dinamis Tabel'
-        ]);
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detail", [
+                'ipMenuUtama' => $ipMenuUtama, // Ganti dari setIpDinamisTabel ke ipMenuUtama
+                'title' => 'Detail Set Informasi Publik Dinamis Tabel'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            $setIpDinamisTabel = IpMenuUtamaModel::detailDataWithHierarchy($id);
+            try {
+                $ipMenuUtama = IpMenuUtamaModel::detailDataWithHierarchy($id);
 
-            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.delete", [
-                'setIpDinamisTabel' => $setIpDinamisTabel
-            ]);
+                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.delete", [
+                    'ipMenuUtama' => $ipMenuUtama  // Ganti dari setIpDinamisTabel ke ipMenuUtama
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ], 500);
+            }
         }
 
         try {
@@ -184,6 +198,7 @@ class SetIpDinamisTabelController extends Controller
     public function updateSubMenuUtama(Request $request, $id)
     {
         try {
+            IpSubMenuUtamaModel::validasiDataUpdate($request);
             $result = IpSubMenuUtamaModel::updateDataWithChildren($request, $id);
 
             return $this->jsonSuccess(
@@ -263,6 +278,7 @@ class SetIpDinamisTabelController extends Controller
     public function updateSubMenu(Request $request, $id)
     {
         try {
+            IpSubMenuModel::validasiDataUpdate($request);
             $result = IpSubMenuModel::updateDataSimple($request, $id);
 
             return $this->jsonSuccess(
