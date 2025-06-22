@@ -26,22 +26,34 @@ class IpDinamisTabelModel extends Model
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
 
-    public static function selectData($perPage = null, $search = '')
+    public static function selectData($perPage = null, $search = '', $kategori = '')
     {
         $query = self::query()
             ->where('isDeleted', 0);
 
         // Tambahkan fungsionalitas pencarian
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('ip_nama_submenu', 'like', "%{$search}%")
-                  ->orWhere('ip_judul', 'like', "%{$search}%");
-            });
+        if (!empty($search) && is_string($search)) {
+            $search = trim($search);
+            if (strlen($search) > 0) {
+                $query->where(function($q) use ($search) {
+                    $q->where('ip_nama_submenu', 'like', "%{$search}%")
+                      ->orWhere('ip_judul', 'like', "%{$search}%");
+                });
+            }
         }
+
+        // Tambahkan filter kategori jika diperlukan
+        if (!empty($kategori) && is_numeric($kategori)) {
+            $kategoriId = (int) $kategori;
+            $query->where('ip_dinamis_tabel_id', $kategoriId);
+        }
+
+        $query->orderBy('created_at', 'desc');
 
         return self::paginateResults($query, $perPage);
     }
 
+    // ... existing methods remain the same ...
     public static function createData($request)
     {
         try {
@@ -109,6 +121,7 @@ class IpDinamisTabelModel extends Model
             return self::responFormatError($e, 'Gagal menghapus IpDinamis Tabel');
         }
     }
+
     public static function detailData($id) {
         return self::findOrFail($id);
     }
@@ -119,19 +132,19 @@ class IpDinamisTabelModel extends Model
             'm_ip_dinamis_tabel.ip_nama_submenu' => 'required|max:100',
             'm_ip_dinamis_tabel.ip_judul' => 'required|max:100',
         ];
-    $messages = [
-        'm_ip_dinamis_tabel.ip_nama_submenu.required' => 'Nama IpDinamis Tabel wajib diisi',
-        'm_ip_dinamis_tabel.ip_nama_submenu.max' => 'Nama submenu maksimal 100 karakter',
-        'm_ip_dinamis_tabel.ip_judul.required' => 'Judul wajib diisi',
-        'm_ip_dinamis_tabel.ip_judul.max' => 'Judul maksimal 100 karakter',
-    ];
+        $messages = [
+            'm_ip_dinamis_tabel.ip_nama_submenu.required' => 'Nama IpDinamis Tabel wajib diisi',
+            'm_ip_dinamis_tabel.ip_nama_submenu.max' => 'Nama submenu maksimal 100 karakter',
+            'm_ip_dinamis_tabel.ip_judul.required' => 'Judul wajib diisi',
+            'm_ip_dinamis_tabel.ip_judul.max' => 'Judul maksimal 100 karakter',
+        ];
 
-    $validator = Validator::make($request->all(), $rules, $messages);
+        $validator = Validator::make($request->all(), $rules, $messages);
 
-    if ($validator->fails()) {
-        throw new ValidationException($validator);
-    }
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
 
-    return true;
+        return true;
     }
 }
