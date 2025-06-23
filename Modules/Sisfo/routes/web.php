@@ -50,6 +50,9 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\Ip
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiBerkalaController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSertaMertaController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSetiapSaatController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\SetIpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController;
@@ -516,6 +519,27 @@ Route::middleware('auth')->group(function () {
         Route::get('/detailSubMenu/{id}', [SetIpDinamisTabelController::class, 'detailSubMenu']);
         Route::get('/deleteSubMenu/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenu']);
         Route::delete('/deleteSubMenu/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenu'])->middleware('permission:delete');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-berkala')], function () {
+        Route::get('/', [GetIPInformasiBerkalaController::class, 'index'])->middleware('permission:view');
+        Route::get('/download/{type}/{id}', [GetIPInformasiBerkalaController::class, 'downloadDocument'])->name('download.document');
+        Route::get('/getData', [GetIPInformasiBerkalaController::class, 'getData']);
+        Route::get('/view/{type}/{id}', [GetIPInformasiBerkalaController::class, 'viewDocument'])->name('view.document');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-serta-merta')], function () {
+        Route::get('/', [GetIPInformasiSertaMertaController::class, 'index'])->middleware('permission:view');
+        Route::get('/download/{type}/{id}', [GetIPInformasiSertaMertaController::class, 'downloadDocument'])->name('download.document');
+        Route::get('/getData', [GetIPInformasiSertaMertaController::class, 'getData']);
+        Route::get('/view/{type}/{id}', [GetIPInformasiSertaMertaController::class, 'viewDocument'])->name('view.document');
+    });
+
+    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-setiap-saat')], function () {
+        Route::get('/', [GetIPInformasiSetiapSaatController::class, 'index'])->middleware('permission:view');
+        Route::get('/download/{type}/{id}', [GetIPInformasiSetiapSaatController::class, 'downloadDocument'])->name('download.document');
+        Route::get('/getData', [GetIPInformasiSetiapSaatController::class, 'getData']);
+        Route::get('/view/{type}/{id}', [GetIPInformasiSetiapSaatController::class, 'viewDocument'])->name('view.document');
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('dinamis-konten')], function () {
