@@ -17,7 +17,8 @@ class IpDinamisTabelModel extends Model
     protected $primaryKey = 'ip_dinamis_tabel_id';
     protected $fillable = [
         'ip_nama_submenu',
-        'ip_judul'
+        'ip_judul',
+        'ip_deskripsi'
     ];
 
     public function __construct(array $attributes = [])
@@ -35,9 +36,9 @@ class IpDinamisTabelModel extends Model
         if (!empty($search) && is_string($search)) {
             $search = trim($search);
             if (strlen($search) > 0) {
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('ip_nama_submenu', 'like', "%{$search}%")
-                      ->orWhere('ip_judul', 'like', "%{$search}%");
+                        ->orWhere('ip_judul', 'like', "%{$search}%");
                 });
             }
         }
@@ -103,12 +104,12 @@ class IpDinamisTabelModel extends Model
 
     public static function deleteData($id)
     {
-        try{
+        try {
             DB::beginTransaction();
             $ipDinamisTabel = self::findOrFail($id);
 
             $ipDinamisTabel->delete();
-            
+
             TransactionModel::createData(
                 'DELETED',
                 $ipDinamisTabel->ip_dinamis_tabel_id,
@@ -122,7 +123,8 @@ class IpDinamisTabelModel extends Model
         }
     }
 
-    public static function detailData($id) {
+    public static function detailData($id)
+    {
         return self::findOrFail($id);
     }
 
@@ -131,12 +133,14 @@ class IpDinamisTabelModel extends Model
         $rules = [
             'm_ip_dinamis_tabel.ip_nama_submenu' => 'required|max:100',
             'm_ip_dinamis_tabel.ip_judul' => 'required|max:100',
+            'm_ip_dinamis_tabel.ip_deskripsi' => 'nullable|max:1000', // Tambahkan validasi untuk deskripsi
         ];
         $messages = [
             'm_ip_dinamis_tabel.ip_nama_submenu.required' => 'Nama IpDinamis Tabel wajib diisi',
             'm_ip_dinamis_tabel.ip_nama_submenu.max' => 'Nama submenu maksimal 100 karakter',
             'm_ip_dinamis_tabel.ip_judul.required' => 'Judul wajib diisi',
             'm_ip_dinamis_tabel.ip_judul.max' => 'Judul maksimal 100 karakter',
+            'm_ip_dinamis_tabel.ip_deskripsi.max' => 'Deskripsi maksimal 1000 karakter',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);

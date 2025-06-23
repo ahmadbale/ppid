@@ -1,3 +1,4 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\IpDinamisTabel\create.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('kategori-informasi-publik-dinamis-tabel');
@@ -24,6 +25,13 @@
          <input type="text" class="form-control" id="ip_judul" name="m_ip_dinamis_tabel[ip_judul]" maxlength="100">
          <div class="invalid-feedback" id="ip_judul_error"></div>
        </div>
+
+       <div class="form-group">
+         <label for="ip_deskripsi">Deskripsi</label>
+         <textarea class="form-control" id="ip_deskripsi" name="m_ip_dinamis_tabel[ip_deskripsi]" rows="4" maxlength="1000" placeholder="Masukkan deskripsi (opsional)"></textarea>
+         <small class="form-text text-muted">Maksimal 1000 karakter</small>
+         <div class="invalid-feedback" id="ip_deskripsi_error"></div>
+       </div>
      </form>
    </div>
    
@@ -42,12 +50,31 @@
          const errorId = `#${$(this).attr('id')}_error`;
          $(errorId).html('');
        });
+
+       // Character counter untuk textarea
+       $('#ip_deskripsi').on('input', function() {
+         const maxLength = 1000;
+         const currentLength = $(this).val().length;
+         const remaining = maxLength - currentLength;
+         
+         if (remaining < 0) {
+           $(this).addClass('is-invalid');
+           $('#ip_deskripsi_error').html(`Deskripsi melebihi batas maksimal ${Math.abs(remaining)} karakter.`);
+         } else {
+           $(this).removeClass('is-invalid');
+           $('#ip_deskripsi_error').html('');
+         }
+         
+         // Update helper text
+         $(this).siblings('.form-text').html(`Maksimal 1000 karakter (sisa: ${remaining})`);
+       });
    
        function validateForm() {
          let isValid = true;
    
          const namaSubmenu = $('#ip_nama_submenu').val().trim();
          const judul = $('#ip_judul').val().trim();
+         const deskripsi = $('#ip_deskripsi').val().trim();
    
          if (namaSubmenu === '') {
            $('#ip_nama_submenu').addClass('is-invalid');
@@ -66,6 +93,12 @@
          } else if (judul.length > 100) {
            $('#ip_judul').addClass('is-invalid');
            $('#ip_judul_error').html('Maksimal 100 karakter.');
+           isValid = false;
+         }
+
+         if (deskripsi.length > 1000) {
+           $('#ip_deskripsi').addClass('is-invalid');
+           $('#ip_deskripsi_error').html('Maksimal 1000 karakter.');
            isValid = false;
          }
    

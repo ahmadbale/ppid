@@ -1,3 +1,4 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\IpDinamisTabel\update.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
    $IpdinamisTabelUrl  = WebMenuModel::getDynamicMenuUrl('kategori-informasi-publik-dinamis-tabel');
@@ -26,6 +27,14 @@
                 value="{{ $IpDinamisTabel->ip_judul }}" maxlength="100">
          <div class="invalid-feedback" id="m_ip_dinamis_tabel.ip_judul.required_error"></div>
        </div>
+
+       <div class="form-group">
+         <label for="m_ip_dinamis_tabel_ip_deskripsi">Deskripsi</label>
+         <textarea class="form-control" id="m_ip_dinamis_tabel_ip_deskripsi" name="m_ip_dinamis_tabel[ip_deskripsi]" 
+                   rows="4" maxlength="1000" placeholder="Masukkan deskripsi (opsional)">{{ $IpDinamisTabel->ip_deskripsi }}</textarea>
+         <small class="form-text text-muted">Maksimal 1000 karakter</small>
+         <div class="invalid-feedback" id="m_ip_dinamis_tabel.ip_deskripsi.max_error"></div>
+       </div>
      </form>
    </div>
    
@@ -44,6 +53,27 @@
          const errorId = `#${$(this).attr('id').replace(/_/g, '.')}_error`;
          $(errorId).html('');
        });
+
+       // Character counter untuk textarea
+       $('#m_ip_dinamis_tabel_ip_deskripsi').on('input', function() {
+         const maxLength = 1000;
+         const currentLength = $(this).val().length;
+         const remaining = maxLength - currentLength;
+         
+         if (remaining < 0) {
+           $(this).addClass('is-invalid');
+           $('#m_ip_dinamis_tabel\\.ip_deskripsi\\.max_error').html(`Deskripsi melebihi batas maksimal ${Math.abs(remaining)} karakter.`);
+         } else {
+           $(this).removeClass('is-invalid');
+           $('#m_ip_dinamis_tabel\\.ip_deskripsi\\.max_error').html('');
+         }
+         
+         // Update helper text
+         $(this).siblings('.form-text').html(`Maksimal 1000 karakter (sisa: ${remaining})`);
+       });
+
+       // Trigger character counter on load
+       $('#m_ip_dinamis_tabel_ip_deskripsi').trigger('input');
    
        $('#btnSubmitForm').on('click', function() {
          // Bersihkan error
