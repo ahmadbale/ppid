@@ -1,3 +1,4 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\IpDinamisTabel\detail.blade.php -->
 <div class="modal-header">
      <h5 class="modal-title">{{ $title }}</h5>
      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -16,6 +17,18 @@
            <tr>
              <th>Judul</th>
              <td>{{ $IpDinamisTabel->ip_judul }}</td>
+           </tr>
+           <tr>
+             <th>Deskripsi</th>
+             <td>
+               @if($IpDinamisTabel->ip_deskripsi)
+                 <div class="border p-3 rounded bg-light">
+                   {{ $IpDinamisTabel->ip_deskripsi }}
+                 </div>
+               @else
+                 <em class="text-muted">Tidak ada deskripsi</em>
+               @endif
+             </td>
            </tr>
            <tr>
              <th>Tanggal Dibuat</th>

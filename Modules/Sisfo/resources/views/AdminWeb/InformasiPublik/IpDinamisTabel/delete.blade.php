@@ -1,3 +1,4 @@
+<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\IpDinamisTabel\delete.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $IpdinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('kategori-informasi-publik-dinamis-tabel');
@@ -23,6 +24,18 @@
            <tr>
              <th>Judul</th>
              <td>{{ $IpDinamisTabel->ip_judul }}</td>
+           </tr>
+           <tr>
+             <th>Deskripsi</th>
+             <td>
+               @if($IpDinamisTabel->ip_deskripsi)
+                 <div class="border p-2 rounded bg-light">
+                   {{ Str::limit($IpDinamisTabel->ip_deskripsi, 200) }}
+                 </div>
+               @else
+                 <em class="text-muted">Tidak ada deskripsi</em>
+               @endif
+             </td>
            </tr>
            <tr>
              <th>Tanggal Dibuat</th>
