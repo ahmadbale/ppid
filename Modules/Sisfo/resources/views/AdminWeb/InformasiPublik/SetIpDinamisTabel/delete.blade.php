@@ -2,6 +2,29 @@
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $setIpDinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel');
+
+  $totalSubMenu = 0;
+  if($ipMenuUtama->IpSubMenuUtama) {
+    foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
+      if($smu->IpSubMenu) {
+        $totalSubMenu += $smu->IpSubMenu->count();
+      }
+    }
+  }
+  
+  // Hitung total dokumen
+  $totalDokumen = 0;
+  if($ipMenuUtama->dokumen_ip_mu) $totalDokumen++;
+  if($ipMenuUtama->IpSubMenuUtama) {
+    foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
+      if($smu->dokumen_ip_smu) $totalDokumen++;
+      if($smu->IpSubMenu) {
+        foreach($smu->IpSubMenu as $sm) {
+          if($sm->dokumen_ip_sm) $totalDokumen++;
+        }
+      }
+    }
+  }
 @endphp
 <div class="modal-header">
   <h5 class="modal-title">Konfirmasi Hapus Set Informasi Publik Dinamis Tabel</h5>
@@ -16,28 +39,12 @@
     <strong>Peringatan!</strong> Menghapus Set Informasi Publik Dinamis Tabel ini akan menghapus:
     <ul class="mb-0 mt-2">
       <li>Menu Utama: <strong>{{ $ipMenuUtama->nama_ip_mu }}</strong></li>
-      @if($ipMenuUtama->IpSubMenuUtama->count() > 0)
+      @if($ipMenuUtama->IpSubMenuUtama && $ipMenuUtama->IpSubMenuUtama->count() > 0)
         <li>{{ $ipMenuUtama->IpSubMenuUtama->count() }} Sub Menu Utama beserta seluruh isinya</li>
-        @php
-          $totalSubMenu = 0;
-          foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
-            $totalSubMenu += $smu->IpSubMenu->count();
-          }
-        @endphp
         @if($totalSubMenu > 0)
           <li>{{ $totalSubMenu }} Sub Menu</li>
         @endif
       @endif
-      @php
-        $totalDokumen = 0;
-        if($ipMenuUtama->dokumen_ip_mu) $totalDokumen++;
-        foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
-          if($smu->dokumen_ip_smu) $totalDokumen++;
-          foreach($smu->IpSubMenu as $sm) {
-            if($sm->dokumen_ip_sm) $totalDokumen++;
-          }
-        }
-      @endphp
       @if($totalDokumen > 0)
         <li>{{ $totalDokumen }} Dokumen PDF yang terkait</li>
       @endif
@@ -89,7 +96,7 @@
     </div>
   </div>
 
-  @if($ipMenuUtama->IpSubMenuUtama->count() > 0)
+  @if($ipMenuUtama->IpSubMenuUtama && $ipMenuUtama->IpSubMenuUtama->count() > 0)
   <div class="card mt-3">
     <div class="card-header bg-warning text-dark">
       <h5 class="card-title mb-0">
@@ -116,12 +123,12 @@
             @if($subMenuUtama->dokumen_ip_smu)
               <i class="fas fa-file-pdf text-danger ml-2" title="Memiliki dokumen"></i>
             @endif
-            @if($subMenuUtama->IpSubMenu->count() > 0)
+            @if($subMenuUtama->IpSubMenu && $subMenuUtama->IpSubMenu->count() > 0)
               <span class="badge badge-info ml-2">{{ $subMenuUtama->IpSubMenu->count() }} sub menu</span>
             @endif
           </div>
 
-          @if($subMenuUtama->IpSubMenu->count() > 0)
+          @if($subMenuUtama->IpSubMenu && $subMenuUtama->IpSubMenu->count() > 0)
           <!-- Sub Menu -->
           @foreach($subMenuUtama->IpSubMenu as $subMenu)
           <div class="ml-3 mb-1">
@@ -137,6 +144,32 @@
           @endif
         </div>
         @endforeach
+      </div>
+    </div>
+  </div>
+  @else
+  <!-- Tampilkan pesan jika tidak ada sub menu -->
+  <div class="card mt-3">
+    <div class="card-header bg-info text-white">
+      <h5 class="card-title mb-0">
+        <i class="fas fa-info-circle mr-2"></i>Informasi Menu
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="text-center py-3">
+        <i class="fas fa-file-alt fa-3x text-info mb-3"></i>
+        <h5 class="text-info">Menu Utama Tanpa Sub Menu</h5>
+        <p class="text-muted">
+          Menu utama ini tidak memiliki sub menu dan hanya berisi dokumen langsung.
+        </p>
+        @if($ipMenuUtama->dokumen_ip_mu)
+          <div class="mt-3">
+            <span class="badge badge-success">
+              <i class="fas fa-file-pdf mr-1"></i>
+              Memiliki Dokumen PDF
+            </span>
+          </div>
+        @endif
       </div>
     </div>
   </div>
@@ -159,7 +192,7 @@
         </div>
         <div class="col-md-3">
           <div class="border-right">
-            <h4 class="text-success mb-0">{{ $ipMenuUtama->IpSubMenuUtama->count() }}</h4>
+            <h4 class="text-success mb-0">{{ $ipMenuUtama->IpSubMenuUtama ? $ipMenuUtama->IpSubMenuUtama->count() : 0 }}</h4>
             <small class="text-muted">Sub Menu Utama</small>
           </div>
         </div>
