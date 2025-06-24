@@ -484,8 +484,25 @@ class WebMenuModel extends Model
                     $parentMapping[$globalId] = $webMenu->web_menu_id;
                 }
 
-                // Handle permissions (not for group menus)
+                // PERBAIKAN: Handle permissions (not for group menus)
                 if (isset($menuData['permissions']) && $menuData['type'] != 'group') {
+                    // Buat array hak akses dengan nilai default 0
+                    $hakAksesValues = [
+                        'ha_menu' => 0,
+                        'ha_view' => 0,
+                        'ha_create' => 0,
+                        'ha_update' => 0,
+                        'ha_delete' => 0
+                    ];
+
+                    // Update nilai berdasarkan permissions yang dikirim
+                    foreach ($menuData['permissions'] as $permission => $value) {
+                        if (isset($hakAksesValues['ha_' . $permission])) {
+                            $hakAksesValues['ha_' . $permission] = 1;
+                        }
+                    }
+
+                    // Update hak akses untuk semua user di level ini
                     foreach ($userIds as $userId) {
                         SetHakAksesModel::updateOrCreate(
                             [
@@ -493,11 +510,29 @@ class WebMenuModel extends Model
                                 'fk_web_menu' => $webMenu->web_menu_id
                             ],
                             [
-                                'ha_menu' => isset($menuData['permissions']['menu']) ? 1 : 0,
-                                'ha_view' => isset($menuData['permissions']['view']) ? 1 : 0,
-                                'ha_create' => isset($menuData['permissions']['create']) ? 1 : 0,
-                                'ha_update' => isset($menuData['permissions']['update']) ? 1 : 0,
-                                'ha_delete' => isset($menuData['permissions']['delete']) ? 1 : 0,
+                                'ha_menu' => $hakAksesValues['ha_menu'],
+                                'ha_view' => $hakAksesValues['ha_view'],
+                                'ha_create' => $hakAksesValues['ha_create'],
+                                'ha_update' => $hakAksesValues['ha_update'],
+                                'ha_delete' => $hakAksesValues['ha_delete'],
+                                'isDeleted' => 0
+                            ]
+                        );
+                    }
+                } else {
+                    // Jika tidak ada permissions atau ini adalah group menu, set semua ke 0
+                    foreach ($userIds as $userId) {
+                        SetHakAksesModel::updateOrCreate(
+                            [
+                                'ha_pengakses' => $userId,
+                                'fk_web_menu' => $webMenu->web_menu_id
+                            ],
+                            [
+                                'ha_menu' => 0,
+                                'ha_view' => 0,
+                                'ha_create' => 0,
+                                'ha_update' => 0,
+                                'ha_delete' => 0,
                                 'isDeleted' => 0
                             ]
                         );
