@@ -639,7 +639,7 @@ $(document).ready(function() {
         }, 200);
     });
     
-    // Permission checkbox hierarchy with visual feedback
+    // Permission checkbox hierarchy with visual feedback - PERBAIKAN UTAMA
     $('.permission-checkbox').on('change', function() {
         var $this = $(this);
         var menuId = $this.data('menu-id');
@@ -651,6 +651,9 @@ $(document).ready(function() {
         
         // Visual feedback
         $this.closest('.card').addClass('border-warning');
+        
+        // PERBAIKAN: Hapus event handler sementara untuk mencegah loop
+        $('.permission-checkbox[data-menu-id="' + menuId + '"]').off('change.hierarchy');
         
         // Hierarchy logic
         if (!isChecked) {
@@ -675,13 +678,20 @@ $(document).ready(function() {
             });
         }
         
+        // PERBAIKAN: Re-attach event handler setelah perubahan selesai
+        setTimeout(() => {
+            $('.permission-checkbox[data-menu-id="' + menuId + '"]').on('change.hierarchy', function() {
+                $(this).trigger('change');
+            });
+        }, 100);
+        
         // Remove animation class after animation completes
         setTimeout(function() {
             $('.animate__animated').removeClass('animate__animated animate__pulse');
         }, 1000);
     });
     
-    // Form submission with better UX
+    // Form submission with better UX - PERBAIKAN UTAMA
     $('#setMenuForm').on('submit', function(e) {
         e.preventDefault();
         
@@ -689,6 +699,42 @@ $(document).ready(function() {
         if (!confirm('Apakah Anda yakin ingin menyimpan semua perubahan?')) {
             return;
         }
+        
+        // PERBAIKAN: Serialize form data dengan benar
+        var formData = new FormData(this);
+        
+        // PERBAIKAN: Pastikan semua checkbox permissions dikirim dengan nilai yang benar
+        $('.permission-checkbox').each(function() {
+            var $checkbox = $(this);
+            var name = $checkbox.attr('name');
+            
+            if (name) {
+                // Hapus nilai yang sudah ada dari FormData
+                formData.delete(name);
+                
+                // Tambahkan nilai yang benar (1 jika checked, tidak ada entry jika unchecked)
+                if ($checkbox.is(':checked')) {
+                    formData.append(name, '1');
+                }
+                // Jika tidak checked, jangan tambahkan entry (berarti 0)
+            }
+        });
+        
+        // PERBAIKAN: Pastikan status toggle dikirim dengan benar
+        $('.status-toggle').each(function() {
+            var $btn = $(this);
+            var menuId = $btn.data('menu-id');
+            var hiddenInputName = 'menus[' + menuId + '][status]';
+            
+            // Hapus dan update nilai status
+            formData.delete(hiddenInputName);
+            
+            if ($btn.hasClass('btn-success')) {
+                formData.append(hiddenInputName, 'aktif');
+            } else {
+                formData.append(hiddenInputName, 'nonaktif');
+            }
+        });
         
         // Disable submit button
         var $submitBtn = $('button[type="submit"]');
@@ -700,7 +746,9 @@ $(document).ready(function() {
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
-            data: $(this).serialize(),
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 if (response.success) {
                     showToast('Berhasil!', response.message, 'success');
@@ -713,7 +761,7 @@ $(document).ready(function() {
                     }, 1500);
                 } else {
                     showToast('Gagal!', response.message, 'error');
-                    $submitBtn.prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Semua Perubahan');
+                    $submitBtn.prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Perubahan');
                 }
             },
             error: function(xhr) {
@@ -722,12 +770,12 @@ $(document).ready(function() {
                     errorMsg = xhr.responseJSON.message;
                 }
                 showToast('Error!', errorMsg, 'error');
-                $submitBtn.prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Semua Perubahan');
+                $submitBtn.prop('disabled', false).html('<i class="fas fa-save"></i> Simpan Perubahan');
             }
         });
     });
     
-    // Quick Select All button for individual menu - Modified untuk single notification
+    // Quick Select All button for individual menu - PERBAIKAN
     $('.quick-select-all').on('click', function() {
         const menuId = $(this).data('menu-id');
         const $btn = $(this);
@@ -738,11 +786,18 @@ $(document).ready(function() {
         const originalFlag = changeNotificationShown;
         changeNotificationShown = true;
         
+        // PERBAIKAN: Disable event handler untuk mencegah loop
+        const $checkboxes = $(`input.permission-checkbox[data-menu-id="${menuId}"]`);
+        $checkboxes.off('change.hierarchy');
+        
         // Select all permissions for this specific menu
-        $(`input.permission-checkbox[data-menu-id="${menuId}"]`).each(function() {
+        $checkboxes.each(function() {
             $(this).prop('checked', true);
-            $(this).trigger('change');
         });
+        
+        // Mark as modified
+        $('input[name="menus[' + menuId + '][modified]"]').val('1');
+        $(this).closest('.card').addClass('border-warning');
         
         // Show single notification for bulk action
         showToast('Pilih Semua', 'Semua hak akses untuk menu ini telah dipilih', 'success');
@@ -750,12 +805,17 @@ $(document).ready(function() {
         setTimeout(() => {
             $btn.prop('disabled', false).html('<i class="fas fa-check-square"></i> Pilih Semua');
             
+            // Re-enable change handlers
+            $checkboxes.on('change.hierarchy', function() {
+                $(this).trigger('change');
+            });
+            
             // Reset notification flag setelah bulk action selesai
             changeNotificationShown = originalFlag;
         }, 500);
     });
     
-    // Quick Clear All button for individual menu - Modified untuk single notification
+    // Quick Clear All button for individual menu - PERBAIKAN
     $('.quick-clear-all').on('click', function() {
         const menuId = $(this).data('menu-id');
         const $btn = $(this);
@@ -766,17 +826,29 @@ $(document).ready(function() {
         const originalFlag = changeNotificationShown;
         changeNotificationShown = true;
         
+        // PERBAIKAN: Disable event handler untuk mencegah loop
+        const $checkboxes = $(`input.permission-checkbox[data-menu-id="${menuId}"]`);
+        $checkboxes.off('change.hierarchy');
+        
         // Clear all permissions for this specific menu
-        $(`input.permission-checkbox[data-menu-id="${menuId}"]`).each(function() {
+        $checkboxes.each(function() {
             $(this).prop('checked', false);
-            $(this).trigger('change');
         });
+        
+        // Mark as modified
+        $('input[name="menus[' + menuId + '][modified]"]').val('1');
+        $(this).closest('.card').addClass('border-warning');
         
         // Show single notification for bulk action
         showToast('Bersihkan', 'Semua hak akses untuk menu ini telah dibersihkan', 'info');
         
         setTimeout(() => {
             $btn.prop('disabled', false).html('<i class="fas fa-square"></i> Bersihkan');
+            
+            // Re-enable change handlers
+            $checkboxes.on('change.hierarchy', function() {
+                $(this).trigger('change');
+            });
             
             // Reset notification flag setelah bulk action selesai
             changeNotificationShown = originalFlag;
@@ -845,6 +917,16 @@ $(document).ready(function() {
             $(this).closest('.form-group').removeClass('animate__animated animate__pulse');
         }, 1000);
     });
+    
+    // PERBAIKAN: Debug helper untuk melihat data yang dikirim
+    window.debugFormData = function() {
+        console.log('Form data:', $('#setMenuForm').serializeArray());
+        
+        $('.permission-checkbox').each(function() {
+            const $cb = $(this);
+            console.log(`Checkbox ${$cb.attr('name')}: ${$cb.is(':checked') ? 'checked' : 'unchecked'}`);
+        });
+    };
 });
 </script>
 @endpush

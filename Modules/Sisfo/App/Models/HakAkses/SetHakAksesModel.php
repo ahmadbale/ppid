@@ -107,20 +107,13 @@ class SetHakAksesModel extends Model
                         continue;
                     }
 
-                    // Tentukan nilai hak akses baru
-                    // $newHakAkses = [
-                    //     'ha_menu' => isset($akses['menu']) ? 1 : 0,
-                    //     'ha_view' => isset($akses['view']) ? 1 : 0,
-                    //     'ha_create' => isset($akses['create']) ? 1 : 0,
-                    //     'ha_update' => isset($akses['update']) ? 1 : 0,
-                    //     'ha_delete' => isset($akses['delete']) ? 1 : 0
-                    // ];
+                    // PERBAIKAN: Tentukan nilai hak akses baru dengan lebih eksplisit
                     $newHakAkses = [
-                        'ha_menu' => (int)(isset($akses['menu']) && $akses['menu']),
-                        'ha_view' => (int)(isset($akses['view']) && $akses['view']),
-                        'ha_create' => (int)(isset($akses['create']) && $akses['create']),
-                        'ha_update' => (int)(isset($akses['update']) && $akses['update']),
-                        'ha_delete' => (int)(isset($akses['delete']) && $akses['delete'])
+                        'ha_menu' => isset($akses['menu']) && $akses['menu'] == '1' ? 1 : 0,
+                        'ha_view' => isset($akses['view']) && $akses['view'] == '1' ? 1 : 0,
+                        'ha_create' => isset($akses['create']) && $akses['create'] == '1' ? 1 : 0,
+                        'ha_update' => isset($akses['update']) && $akses['update'] == '1' ? 1 : 0,
+                        'ha_delete' => isset($akses['delete']) && $akses['delete'] == '1' ? 1 : 0
                     ];
 
                     // Update atau buat hak akses untuk setiap user
@@ -143,6 +136,7 @@ class SetHakAksesModel extends Model
                             $hakAkses->updated_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
                         }
 
+                        $hakAkses->isDeleted = 0;
                         $hakAkses->save();
                     }
                 }
@@ -205,11 +199,12 @@ class SetHakAksesModel extends Model
                             // Store the old value for comparison
                             $oldValue = $userMenuChanges[$pengakses_id][$menu_id][$hak];
 
-                            // Update nilai hak akses
-                            $userMenuChanges[$pengakses_id][$menu_id][$hak] = (int)$value;
+                            // PERBAIKAN: Update nilai hak akses dengan konversi yang benar
+                            $newValue = ($value == '1' || $value === true) ? 1 : 0;
+                            $userMenuChanges[$pengakses_id][$menu_id][$hak] = $newValue;
 
                             // Check if this field has changed
-                            if ($oldValue != (int)$value) {
+                            if ($oldValue != $newValue) {
                                 $userMenuChanges[$pengakses_id][$menu_id]['changed'] = true;
                             }
                         }
@@ -247,6 +242,7 @@ class SetHakAksesModel extends Model
                             $hakAkses->updated_by = Auth::check() ? Auth::user()->nama_pengguna : 'system';
                         }
 
+                        $hakAkses->isDeleted = 0;
                         $hakAkses->save();
 
                         // Ambil detail menu dan user untuk log
