@@ -95,10 +95,12 @@ Route::post('register', [AuthController::class, 'postRegister']);
 Route::middleware('auth')->group(function () {
     Route::get('/dashboardSAR', [DashboardSARController::class, 'index'])->middleware('authorize:SAR');
     Route::get('/dashboardADM', [DashboardAdminController::class, 'index'])->middleware('authorize:ADM');
+    Route::post('/dashboardADM/filter', [DashboardAdminController::class, 'filterData'])->name('sisfo.dashboard.admin.filter')->middleware('authorize:ADM');
+    Route::get('/dashboardADM/lihat-semua', [DashboardAdminController::class, 'lihatSemua'])->name('sisfo.dashboard.admin.lihat-semua')->middleware('authorize:ADM');
     Route::get('/dashboardRPN', [DashboardRespondenController::class, 'index'])->middleware('authorize:RPN');
     Route::get('/dashboardMPU', [DashboardMPUController::class, 'index'])->middleware('authorize:MPU');
     Route::get('/dashboardVFR', [DashboardVerifikatorController::class, 'index'])->middleware('authorize:VFR');
-
+    
     Route::group(['prefix' => 'HakAkses', 'middleware' => 'authorize:SAR'], function () {
         Route::get('/', [SetHakAksesController::class, 'index']);
         Route::get('/addData', [SetHakAksesController::class, 'addData']);
@@ -764,4 +766,3 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset-expired-scan', [WhatsAppController::class, 'resetExpiredScan'])->middleware('permission:update'); // Route baru
     });
 });
-
