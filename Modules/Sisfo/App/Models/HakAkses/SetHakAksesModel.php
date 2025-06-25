@@ -96,27 +96,42 @@ class SetHakAksesModel extends Model
                     throw new \Exception('Tidak ada pengguna dengan level ini');
                 }
 
-                // Proses setiap menu yang dipilih
+                // PERBAIKAN: Proses setiap menu yang ada dalam data
                 $menuAkses = $data['menu_akses'] ?? [];
 
-                foreach ($menuAkses as $menu_id => $akses) {
+                // Ambil semua menu untuk level ini
+                $allMenuIds = WebMenuModel::where('fk_m_hak_akses', $level->hak_akses_id)
+                    ->where('isDeleted', 0)
+                    ->pluck('web_menu_id');
+
+                foreach ($allMenuIds as $menu_id) {
                     // Cari menu yang sesuai
                     $menu = WebMenuModel::find($menu_id);
+                    if (!$menu) continue;
 
-                    if (!$menu) {
-                        continue;
-                    }
-
-                    // PERBAIKAN: Tentukan nilai hak akses baru dengan lebih eksplisit
+                    // PERBAIKAN: Tentukan nilai hak akses baru
                     $newHakAkses = [
-                        'ha_menu' => isset($akses['menu']) && $akses['menu'] == '1' ? 1 : 0,
-                        'ha_view' => isset($akses['view']) && $akses['view'] == '1' ? 1 : 0,
-                        'ha_create' => isset($akses['create']) && $akses['create'] == '1' ? 1 : 0,
-                        'ha_update' => isset($akses['update']) && $akses['update'] == '1' ? 1 : 0,
-                        'ha_delete' => isset($akses['delete']) && $akses['delete'] == '1' ? 1 : 0
+                        'ha_menu' => 0,
+                        'ha_view' => 0,
+                        'ha_create' => 0,
+                        'ha_update' => 0,
+                        'ha_delete' => 0
                     ];
 
-                    // Update atau buat hak akses untuk setiap user
+                    // Jika menu ada dalam data yang dikirim, update berdasarkan data
+                    if (isset($menuAkses[$menu_id])) {
+                        $akses = $menuAkses[$menu_id];
+                        $newHakAkses = [
+                            'ha_menu' => isset($akses['menu']) && $akses['menu'] == '1' ? 1 : 0,
+                            'ha_view' => isset($akses['view']) && $akses['view'] == '1' ? 1 : 0,
+                            'ha_create' => isset($akses['create']) && $akses['create'] == '1' ? 1 : 0,
+                            'ha_update' => isset($akses['update']) && $akses['update'] == '1' ? 1 : 0,
+                            'ha_delete' => isset($akses['delete']) && $akses['delete'] == '1' ? 1 : 0
+                        ];
+                    }
+                    // Jika menu tidak ada dalam data yang dikirim, set semua ke 0 (sudah default di atas)
+
+                    // Update hak akses untuk setiap user
                     foreach ($userIds as $userId) {
                         $hakAkses = self::firstOrNew([
                             'ha_pengakses' => $userId,
@@ -163,7 +178,7 @@ class SetHakAksesModel extends Model
                 $userMenuChanges = [];
                 $aktivitasLog = [];
 
-                // Proses data dari form
+                // PERBAIKAN: Hanya proses data yang benar-benar dikirim dari form
                 foreach ($data as $key => $value) {
                     if (strpos($key, 'set_hak_akses_') === 0) {
                         $parts = explode('_', $key);
@@ -174,7 +189,7 @@ class SetHakAksesModel extends Model
                             $menu_id = (int)$parts[4];
                             $hak = $parts[5]; // menu, view, create, update, delete
 
-                            // Inisialisasi tracking perubahan
+                            // Inisialisasi tracking perubahan jika belum ada
                             if (!isset($userMenuChanges[$pengakses_id])) {
                                 $userMenuChanges[$pengakses_id] = [];
                             }
