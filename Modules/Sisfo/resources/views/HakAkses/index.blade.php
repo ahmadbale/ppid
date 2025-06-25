@@ -246,10 +246,10 @@
     <script>
         // Pastikan document ready hanya dipanggil sekali
         $(function () {
-            // Hilangkan tombol "Tambah Hak Akses" karena fitur ini tidak diperlukan lagi sesuai revisi
-
             // Tambahkan flag untuk mencegah submit ganda
             let isSubmitting = false;
+            
+            let changedCheckboxes = new Set();
 
             // Set handler untuk tombol set-hak-level menggunakan event delegation
             $(document).off('click', '.set-hak-level').on('click', '.set-hak-level', function () {
@@ -303,7 +303,7 @@
                 });
             });
 
-            // Handler untuk tombol Simpan di modal hak akses level
+            // PERBAIKAN: Handler untuk tombol Simpan di modal hak akses level
             $('#btnSimpanHakAksesLevel').off('click').on('click', function () {
                 // Cek apakah sedang dalam proses submit
                 if (isSubmitting) return;
@@ -317,10 +317,39 @@
                 $btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
                 $btn.prop('disabled', true);
 
+                // PERBAIKAN: Serialize data dengan benar untuk level
+                var formData = {};
+                var hakAksesKode = $('#hakAksesKode').val();
+                formData['_token'] = $('input[name="_token"]').val();
+                formData['hak_akses_kode'] = hakAksesKode;
+                formData['menu_akses'] = {};
+
+                // Ambil semua checkbox dalam modal
+                $('#modalHakAksesLevel input[type="checkbox"]').each(function() {
+                    var name = $(this).attr('name');
+                    var isChecked = $(this).is(':checked');
+                    
+                    if (name && name.match(/menu_akses\[(\d+)\]\[(\w+)\]/)) {
+                        var matches = name.match(/menu_akses\[(\d+)\]\[(\w+)\]/);
+                        var menuId = matches[1];
+                        var permission = matches[2];
+                        
+                        if (!formData['menu_akses'][menuId]) {
+                            formData['menu_akses'][menuId] = {};
+                        }
+                        
+                        // Hanya set nilai jika checkbox dicentang
+                        if (isChecked) {
+                            formData['menu_akses'][menuId][permission] = '1';
+                        }
+                        // Jika tidak dicentang, tidak perlu set nilai (akan default ke 0 di server)
+                    }
+                });
+
                 $.ajax({
                     url: `{{ url('/HakAkses/updateData') }}`,
                     type: 'POST',
-                    data: $('#formHakAksesLevel').serialize(),
+                    data: formData,
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message);
@@ -349,10 +378,17 @@
                 });
             });
 
+            // PERBAIKAN: Track perubahan pada checkbox individual
+            $(document).on('change', '.hak-akses-checkbox', function() {
+                var checkboxName = $(this).attr('name');
+                changedCheckboxes.add(checkboxName);
+                console.log('Checkbox changed:', checkboxName, 'Checked:', $(this).is(':checked'));
+            });
+
             // Muat hak akses saat halaman dimuat
             loadAllHakAkses();
 
-            // Handler untuk tombol simpan semua perubahan
+            // PERBAIKAN: Handler untuk tombol simpan semua perubahan (individual)
             $('#btn-save-all').off('click').on('click', function (e) {
                 e.preventDefault();
 
@@ -368,14 +404,41 @@
                 $btn.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
                 $btn.prop('disabled', true);
 
-                // Gunakan AJAX untuk submit form agar lebih terkontrol
+                // PERBAIKAN: Hanya kirim data yang berubah
+                var formData = {};
+                formData['_token'] = $('input[name="_token"]').val();
+
+                // Ambil hanya checkbox yang berubah
+                changedCheckboxes.forEach(function(checkboxName) {
+                    var $checkbox = $('input[name="' + checkboxName + '"]');
+                    if ($checkbox.length > 0) {
+                        var isChecked = $checkbox.is(':checked');
+                        // Set nilai berdasarkan status checkbox
+                        formData[checkboxName] = isChecked ? '1' : '0';
+                        console.log('Sending changed data:', checkboxName, '=', formData[checkboxName]);
+                    }
+                });
+
+                // Jika tidak ada perubahan
+                if (Object.keys(formData).length <= 1) { // <= 1 karena ada _token
+                    toastr.info('Tidak ada perubahan yang perlu disimpan');
+                    $btn.html(originalText);
+                    $btn.prop('disabled', false);
+                    isSubmitting = false;
+                    return;
+                }
+
+                console.log('Form data yang akan dikirim:', formData);
+
                 $.ajax({
                     url: $('#form-hak-akses').attr('action'),
                     type: 'POST',
-                    data: $('#form-hak-akses').serialize(),
+                    data: formData,
                     success: function (response) {
                         if (response.success) {
                             toastr.success(response.message);
+                            // Reset tracking perubahan
+                            changedCheckboxes.clear();
                             setTimeout(() => {
                                 location.reload();
                             }, 1500);
