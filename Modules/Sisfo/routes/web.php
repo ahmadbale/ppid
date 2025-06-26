@@ -765,4 +765,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/confirm-scan-log', [WhatsAppController::class, 'confirmScanLog'])->middleware('permission:create'); // Route baru
         Route::post('/reset-expired-scan', [WhatsAppController::class, 'resetExpiredScan'])->middleware('permission:update'); // Route baru
     });
+
+    // Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('views-riwayat-pengajuan')], function (){
+    //     Route::get('/', [WhatsAppController::class, 'index'])->middleware('permission:view');
+    // });
 });
