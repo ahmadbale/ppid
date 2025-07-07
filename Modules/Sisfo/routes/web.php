@@ -55,6 +55,7 @@ use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\Get
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSetiapSaatController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\SetIpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\DashboardDefaultController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPKController;
@@ -100,6 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboardRPN', [DashboardRespondenController::class, 'index'])->middleware('authorize:RPN');
     Route::get('/dashboardMPU', [DashboardMPUController::class, 'index'])->middleware('authorize:MPU');
     Route::get('/dashboardVFR', [DashboardVerifikatorController::class, 'index'])->middleware('authorize:VFR');
+    Route::get('/dashboard', [DashboardDefaultController::class, 'index']);
     
     Route::group(['prefix' => 'HakAkses', 'middleware' => 'authorize:SAR'], function () {
         Route::get('/', [SetHakAksesController::class, 'index']);

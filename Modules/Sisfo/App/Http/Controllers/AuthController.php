@@ -25,7 +25,7 @@ class AuthController extends Controller
                 $levelCode = $user->getRole();
                 return redirect('/dashboard' . $levelCode);
             }
-            
+
             // Jika belum ada hak akses aktif, arahkan ke pemilihan level
             return redirect('/pilih-level');
         }
@@ -46,7 +46,7 @@ class AuthController extends Controller
                 if (isset($result['multi_level']) && $result['multi_level']) {
                     return redirect($result['redirect']);
                 }
-                
+
                 // Jika single level, arahkan sesuai level pengguna
                 return $this->redirectSuccess($result['redirect'], $result['message']);
             }
@@ -70,10 +70,10 @@ class AuthController extends Controller
         if (!Auth::check()) {
             return redirect('login');
         }
-        
+
         // Ambil user terlebih dahulu
         $user = UserModel::find(Auth::id());
-        
+
         // Ambil hak akses user
         // Gunakan query langsung karena method hakAkses mungkin tidak dikenali
         $hakAkses = DB::table('set_user_hak_akses')
@@ -83,17 +83,17 @@ class AuthController extends Controller
             ->where('m_hak_akses.isDeleted', 0)
             ->select('m_hak_akses.*')
             ->get();
-        
+
         // Jika hanya punya 1 level, arahkan langsung
         if ($hakAkses->count() == 1) {
             session(['active_hak_akses_id' => $hakAkses->first()->hak_akses_id]);
             $levelCode = $hakAkses->first()->hak_akses_kode;
             return redirect('/dashboard' . $levelCode);
         }
-        
+
         return view('sisfo::auth.pilih-level', compact('hakAkses', 'user'));
     }
-    
+
     public function pilihLevelPost(Request $request)
     {
         $request->validate([
@@ -102,25 +102,41 @@ class AuthController extends Controller
             'hak_akses_id.required' => 'Hak akses harus dipilih',
             'hak_akses_id.exists' => 'Hak akses tidak valid'
         ]);
-        
+
         // Cek apakah user memiliki hak akses tersebut
         $hakAkses = SetUserHakAksesModel::where('fk_m_user', Auth::id())
             ->where('fk_m_hak_akses', $request->hak_akses_id)
             ->where('isDeleted', 0)
             ->first();
-            
+
         if (!$hakAkses) {
             return $this->redirectError('Anda tidak memiliki hak akses tersebut');
         }
-        
+
         // Set hak akses aktif ke session
         session(['active_hak_akses_id' => $request->hak_akses_id]);
-        
+
         // Ambil kode hak akses untuk redirect ke dashboard
         $hakAksesInfo = HakAksesModel::find($request->hak_akses_id);
         $levelCode = $hakAksesInfo->hak_akses_kode;
-        
-        return redirect('/dashboard' . $levelCode);
+
+        // Tentukan URL redirect berdasarkan level
+        $redirectUrl = $this->getDashboardUrl($levelCode);
+
+        return redirect($redirectUrl);
+    }
+
+    private function getDashboardUrl($levelCode)
+    {
+        // Daftar level yang memiliki dashboard khusus
+        $specialDashboards = ['SAR', 'ADM', 'MPU', 'VFR', 'RPN'];
+
+        if (in_array($levelCode, $specialDashboards)) {
+            return url('/dashboard' . $levelCode);
+        }
+
+        // Jika bukan level khusus, arahkan ke dashboard default
+        return url('/dashboard');
     }
 
     public function getData()
