@@ -33,7 +33,25 @@ class SwitchRoleController extends Controller
         // Tambahkan flash message untuk notifikasi sukses
         session()->flash('success', 'Berhasil beralih ke level ' . $hakAksesInfo->hak_akses_nama);
         
-        // Redirect ke dashboard sesuai kode hak akses
-        return redirect('/dashboard' . $levelCode);
+        // Tentukan URL redirect berdasarkan level menggunakan logika yang sama
+        $redirectUrl = $this->getDashboardUrl($levelCode);
+        
+        return redirect($redirectUrl);
+    }
+
+    /**
+     * Menentukan URL dashboard berdasarkan kode level
+     */
+    private function getDashboardUrl($levelCode)
+    {
+        // Daftar level yang memiliki dashboard khusus
+        $specialDashboards = ['SAR', 'ADM', 'MPU', 'VFR', 'RPN'];
+
+        if (in_array($levelCode, $specialDashboards)) {
+            return url('/dashboard' . $levelCode);
+        }
+
+        // Jika bukan level khusus, arahkan ke dashboard default
+        return url('/dashboard');
     }
 }
