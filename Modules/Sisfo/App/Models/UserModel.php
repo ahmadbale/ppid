@@ -422,9 +422,9 @@ class UserModel extends Authenticatable implements JWTSubject
                 $userData = self::getDataUser($user);
                 session($userData);
 
-                // Perbaikan routing - sesuaikan dengan definisi route yang ada
+                // Tentukan URL redirect berdasarkan level dengan logika yang diperbaiki
                 $levelCode = $hakAkses->first()->hak_akses_kode;
-                $redirectUrl = url('/dashboard' . $levelCode);
+                $redirectUrl = self::getDashboardUrlStatic($levelCode);
 
                 return [
                     'success' => true,
@@ -448,6 +448,19 @@ class UserModel extends Authenticatable implements JWTSubject
             'success' => false,
             'message' => 'Login Gagal, Periksa Kredensial Anda',
         ];
+    }
+
+    private static function getDashboardUrlStatic($levelCode)
+    {
+        // Daftar level yang memiliki dashboard khusus
+        $specialDashboards = ['SAR', 'ADM', 'MPU', 'VFR', 'RPN'];
+
+        if (in_array($levelCode, $specialDashboards)) {
+            return url('/dashboard' . $levelCode);
+        }
+
+        // Jika bukan level khusus, arahkan ke dashboard default
+        return url('/dashboard');
     }
 
     public static function getDataUser($user = null)
