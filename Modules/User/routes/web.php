@@ -10,8 +10,6 @@ use Modules\User\App\Http\Controllers\InformasiDikecualikanController;
 use Modules\User\App\Http\Controllers\RegulasiController;
 use Modules\User\App\Http\Controllers\HomeController;
 use Modules\User\App\Http\Controllers\UserController;
-use Modules\User\App\Http\Controllers\FooterController;
-use Modules\User\App\Http\Controllers\TestController;
 use Modules\User\App\Http\Controllers\LHKPNController;
 use Modules\User\App\Http\Controllers\TimelineController;
 use Modules\User\App\Http\Controllers\PengumumanController;
@@ -44,8 +42,6 @@ Route::get('/', [HomeController::class, 'index'])->name('beranda');
 
 Route::get('/beranda', [HomeController::class, 'index']);
 Route::get('/berita-detail/{slug}/{beritaId}', [HomeController::class, 'detail'])->name('berita.detail');
-
-
 
 // Form Controller ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Route::prefix('form-permohonan-informasi')->group(function () {

@@ -21,3 +21,11 @@ if (!function_exists('image_asset')) {
         return env('IMAGE_ASSET', url('storage')) . '/' . ltrim($path, '/');
     }
 }
+
+if (!function_exists('vendor_asset')) {
+    function vendor_asset($path)
+    {
+        $assetUrl = env('VENDOR_ASSET_URL', config('app.url') . '/vendor');
+        return $assetUrl . '/' . ltrim($path, '/');
+    }
+}

@@ -2,37 +2,54 @@
 
 namespace Modules\User\App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Services\JwtTokenService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class PengumumanController extends Controller {
-     protected $baseUrl;
+class PengumumanController extends Controller
+{
+    public function index(Request $request){
+        $title = "Pengumuman PPID Polinema";
+        $pengumuman = [
+            [
+                'gambar' => 'img/gambarcoverpedoman.png',
+                'tanggal' => '15 Maret 2024',
+                'judul' => 'Nomor Verified WhatsApp Business Resmi Polinema',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/berita-1.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/gambarcoverpedoman.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/berita-1.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/gambarcoverpedoman.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+            [
+                'gambar' => 'img/berita-1.png',
+                'tanggal' => '12 Desember 2024',
+                'judul' => 'Politeknik Negeri Malang (Polinema) melalui Pengabdian Kepada Masyarakat (PKM)',
+                'link' => '#'
+            ],
+        ];
 
-    public function __construct()
-    {
-        $this->baseUrl = config('BASE_URL', env('BASE_URL'));
+        return view('user::pengumuman', compact('title', 'pengumuman'));
     }
-
-    private function makeAuthenticatedRequest($endpoint)
-    {
-        try {
-            $response = Http::get($this->baseUrl . '/api/' . $endpoint);
-            return $response;
-        } catch (\Exception $e) {
-            Log::error('API request failed', [
-                'endpoint' => $endpoint,
-                'error' => $e->getMessage()
-            ]);
-            throw $e;
-        }
-    }
-public function index(Request $request){
-       
-    }
-
-
 }
-

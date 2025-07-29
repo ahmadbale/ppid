@@ -1,5 +1,5 @@
 if (typeof BASE_URL === 'undefined') {
-    var BASE_URL = window.location.origin;
+    var BASE_URL = "http://ppid-polinema.test";
 }
 
 function aturSummernote(selector = '#content', urlUnggahGambar = null, urlHapusGambar = null, opsi = {}) {

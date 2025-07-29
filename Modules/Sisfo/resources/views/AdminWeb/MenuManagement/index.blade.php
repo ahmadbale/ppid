@@ -77,7 +77,7 @@
                                     <div class="dd nestable-{{ $kode }}" data-jenis="{{ $kode }}">
                                         <ol class="dd-list">
                                             @foreach($menusByJenis[$kode]['menus'] as $menu)
-                                                @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu, 'kode' => $kode])
+                                                @include('sisfo::AdminWeb.MenuManagement.menu-item', ['menu' => $menu, 'kode' => $kode])
                                             @endforeach
                                         </ol>
                                     </div>
@@ -107,17 +107,17 @@
             Auth::user()->level->hak_akses_kode === 'SAR' ||
             SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'create')
         )
-        @include('sisfo::adminweb.MenuManagement.create')
+        @include('sisfo::AdminWeb.MenuManagement.create')
     @endif
 
-    @include('sisfo::adminweb.MenuManagement.update')
-    @include('sisfo::adminweb.MenuManagement.detail')
-    @include('sisfo::adminweb.MenuManagement.delete')
+    @include('sisfo::AdminWeb.MenuManagement.update')
+    @include('sisfo::AdminWeb.MenuManagement.detail')
+    @include('sisfo::AdminWeb.MenuManagement.delete')
 @endsection
 
 @push('css')
-    <link rel="stylesheet" href="{{ asset('vendor/nestable2/jquery.nestable.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('vendor/toastr/toastr.min.css') }}">
+    <link rel="stylesheet" href="{{ vendor_asset('nestable2/jquery.nestable.min.css') }}">
+    <link rel="stylesheet" href="{{ vendor_asset('toastr/toastr.min.css') }}">
     <style>
         .card-body.menu,
         .card-body.menu .dd,
@@ -172,8 +172,8 @@
 @endpush
 
 @push('js')
-<script src="{{ asset('vendor/nestable2/jquery.nestable.min.js') }}"></script>
-<script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
+<script src="{{ vendor_asset('nestable2/jquery.nestable.min.js') }}"></script>
+<script src="{{ vendor_asset('toastr/toastr.min.js') }}"></script>
 <script>
 $(function () {
     // Dapatkan hak akses user dari PHP

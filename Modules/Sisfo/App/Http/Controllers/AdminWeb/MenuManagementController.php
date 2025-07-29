@@ -28,7 +28,7 @@ class MenuManagementController extends Controller
                 return redirect()->back()->with('error', $result['message']);
             }
 
-            return view('sisfo::AdminWeb.MenuManagement.index', $result['data']);
+            return view('sisfo::adminweb.MenuManagement.index', $result['data']);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error loading menu management page: ' . $e->getMessage());
         }
@@ -43,7 +43,7 @@ class MenuManagementController extends Controller
                 return redirect()->back()->with('error', $result['message']);
             }
 
-            return view('sisfo::AdminWeb.MenuManagement.set-menu', $result['data']);
+            return view('sisfo::adminweb.MenuManagement.set-menu', $result['data']);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error loading set menu page: ' . $e->getMessage());
         }
