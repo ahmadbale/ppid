@@ -1,6 +1,72 @@
 # 📚 Sistem Informasi PPID Polinema
 
-## 🚀 Project Pengembangan Layanan Informasi Publik
+## 🚀 Project Pengembangan Layanan In## 🔧 Setup Instalasi
+
+### Persyaratan Sistem
+- PHP 8.2.12 atau lebih tinggi
+- Node.js 18+ dan NPM
+- MySQL 8.0+
+- Composer
+
+### Langkah Instalasi
+
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/adeliashahahahaha/PPID-polinema.git
+   cd PPID-polinema
+   ```
+
+2. **Jalankan script setup (Windows)**
+   ```bash
+   setup.bat
+   ```
+
+3. **Atau setup manual:**
+   ```bash
+   composer install
+   copy .env.example .env
+   php artisan key:generate
+   php artisan config:clear
+   php artisan module:enable User
+   php artisan module:enable Sisfo
+   npm install
+   npm run build
+   php artisan migrate
+   php artisan serve
+   ```
+
+4. **Setup WhatsApp Service**
+   ```bash
+   start-whatsapp.bat
+   ```
+
+---
+
+## ⚠️ Troubleshooting
+
+### Error "No hint path defined for [user]"
+
+Jika terjadi error ini setelah download/clone project:
+
+**Solusi Cepat:**
+```bash
+# Jalankan quick fix
+quick-fix.bat
+```
+
+**Solusi Manual:**
+```bash
+php artisan module:enable User
+php artisan module:enable Sisfo
+php artisan config:clear
+php artisan module:optimize
+```
+
+**Lihat panduan lengkap:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
+---
+
+## 📁 Struktur Projectmasi Publik
 
 Selamat datang di repository **Sistem Informasi PPID Polinema**, sebuah sistem informasi modern untuk mendukung layanan keterbukaan informasi publik di **Politeknik Negeri Malang**.  
 Proyek ini bertujuan untuk memberikan akses informasi yang lebih **mudah**, **transparan**, dan **efisien** kepada masyarakat umum, sesuai dengan prinsip keterbukaan informasi publik.
