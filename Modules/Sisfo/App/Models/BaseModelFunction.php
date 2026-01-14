@@ -15,7 +15,7 @@ use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
 use Tymon\JWTAuth\Facades\JWTAuth;
 trait BaseModelFunction
 {
-    protected static $defaultPerPage = 1;
+    protected static $defaultPerPage = 10;
 
     protected $commonFields = [
         'isDeleted',
