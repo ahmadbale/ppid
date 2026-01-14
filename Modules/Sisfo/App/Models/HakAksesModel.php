@@ -27,53 +27,24 @@ class HakAksesModel extends Model
         $this->fillable = array_merge($this->fillable, $this->getCommonFields());
     }
 
-    // public static function selectData($perPage = null, $search = '')
-    // {
-    //     $query = self::query()
-    //         ->where('isDeleted', 0);
-
-    //     // Tambahkan fungsionalitas pencarian
-    //     if (!empty($search)) {
-    //         $query->where(function($q) use ($search) {
-    //             $q->where('hak_akses_kode', 'like', "%{$search}%")
-    //               ->orWhere('hak_akses_nama', 'like', "%{$search}%");
-    //         });
-    //     }
-
-    //     return self::paginateResults($query, $perPage);
-    // }
-    // tambahan
-    // Tambahkan relasi ke web_menu
     public function webMenus()
     {
         return $this->hasMany(WebMenuModel::class, 'fk_m_hak_akses', 'hak_akses_id');
     }
-    // tambahan
-    public static function selectData($perPage = null, $search = '', $appKey = 'app ppid')
+
+    public static function selectData($perPage = null, $search = '')
     {
-        
         $query = self::query()
-            ->select('m_hak_akses.*')
-            ->join('web_menu as wm', 'wm.fk_m_hak_akses', '=', 'm_hak_akses.hak_akses_id')
-            ->join('web_menu_global as wmg', 'wm.fk_web_menu_global', '=', 'wmg.web_menu_global_id')
-            ->join('web_menu_url as wmu', 'wmg.fk_web_menu_url', '=', 'wmu.web_menu_url_id')
-            ->join('m_application as ma', 'wmu.fk_m_application', '=', 'ma.application_id')
-            ->where('m_hak_akses.isDeleted', 0)
-            ->where('wm.isDeleted', 0)
-            ->where('wmg.isDeleted', 0)
-            ->where('wmu.isDeleted', 0)
-            ->where('ma.isDeleted', 0)
-            ->where('ma.app_key', $appKey)
-            ->distinct();
-    
-        // Tambahkan fungsionalitas pencarian
+            ->where('isDeleted', 0)
+            ->orderBy('hak_akses_id', 'asc');
+
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('m_hak_akses.hak_akses_kode', 'like', "%{$search}%")
-                  ->orWhere('m_hak_akses.hak_akses_nama', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('hak_akses_kode', 'like', "%{$search}%")
+                  ->orWhere('hak_akses_nama', 'like', "%{$search}%");
             });
         }
-    
+
         return self::paginateResults($query, $perPage);
     }
 
