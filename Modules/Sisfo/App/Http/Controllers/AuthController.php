@@ -4,6 +4,7 @@ namespace Modules\Sisfo\App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Modules\Sisfo\App\Models\UserModel;
 use Modules\Sisfo\App\Models\HakAksesModel;
 use Modules\Sisfo\App\Models\SetUserHakAksesModel;
@@ -155,23 +156,33 @@ class AuthController extends Controller
 
     public function register()
     {
-        $level = HakAksesModel::where('isDeleted', 0)->get(); // Ambil level dari basis data
-        return view('sisfo::auth.register', compact('level')); // Kirim level ke view
+        $level = HakAksesModel::where('isDeleted', 0)->get();
+        return view('sisfo::auth.register', compact('level'));
     }
 
     public function postRegister(Request $request)
     {
+        Log::info('==== POST REGISTER DIPANGGIL ====');
+        Log::info('Request method: ' . $request->method());
+        Log::info('Request URL: ' . $request->url());
+        Log::info('Request all data:', $request->all());
+        
         try {
+            Log::info('Memanggil UserModel::prosesRegister');
             $result = UserModel::prosesRegister($request);
+            Log::info('Hasil prosesRegister:', $result);
 
             if ($request->ajax() || $request->wantsJson()) {
+                Log::info('Request AJAX/JSON, mengembalikan JSON response');
                 return response()->json($result);
             }
 
             if ($result['success']) {
+                Log::info('Registrasi berhasil, redirect ke login');
                 return $this->redirectSuccess('login', $result['message']);
             }
 
+            Log::info('Registrasi gagal: ' . $result['message']);
             return $this->redirectError($result['message']);
         } catch (ValidationException $e) {
             if ($request->ajax() || $request->wantsJson()) {
