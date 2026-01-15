@@ -130,9 +130,11 @@ Route::get('/e-form_wbs', function () {
 //     return view('user::login');
 // }) ->name('login');
 
+// Register route - menggunakan tampilan User tapi backend Sisfo
 Route::get('/register', function () {
+    // Tidak perlu pass $level karena sudah hardcoded ke Responden (ID=5)
     return view('user::register');
-}) ->name('register');
+})->name('register');
 
 Route::get('/permohonan-penyelesaian-sengketa', [PenyelesaianSengketaController::class, 'index'])->name('permohonan-penyelesaian-sengketa');
 
