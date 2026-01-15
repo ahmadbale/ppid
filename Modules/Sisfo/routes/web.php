@@ -88,7 +88,9 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::get('/pilih-level', [AuthController::class, 'pilihLevel'])->name('pilih.level');
 Route::post('/pilih-level', [AuthController::class, 'pilihLevelPost'])->name('pilih.level.post');
 
-Route::get('register', [AuthController::class, 'register'])->name('register');
+// Register GET route disabled - menggunakan User module untuk tampilan
+// Route::get('register', [AuthController::class, 'register'])->name('register');
+// POST tetap aktif untuk backend logic
 Route::post('register', [AuthController::class, 'postRegister']);
 
 

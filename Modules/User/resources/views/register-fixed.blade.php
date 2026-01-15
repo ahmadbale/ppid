@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Register PPID</title>
-    @vite(['resources/css/app.css', 'resources/js/register.js'])
+    @vite(['resources/css/app.css'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -20,30 +20,46 @@
             <h3 class="text-center mb-4">Daftar Akun Baru</h3>
             <form id="form-register" enctype="multipart/form-data">
                 @csrf
-                <!-- Hidden input untuk default level Responden -->
-                <input type="hidden" name="hak_akses_id" value="5">
                 
+                <!-- Pilih Level -->
+                <div class="mb-3">
+                    <label class="form-label">-- Pilih Level --</label>
+                    <select id="hak_akses_id" name="hak_akses_id" class="form-control" required>
+                        <option value="">-- Pilih Level --</option>
+                        @foreach($level as $item)
+                            <option value="{{ $item->hak_akses_id }}">{{ $item->hak_akses_nama }}</option>
+                        @endforeach
+                    </select>
+                    <small id="error-hak_akses_id" class="text-danger d-block"></small>
+                </div>
+
+                <!-- Nama Lengkap -->
                 <div class="mb-3">
                     <label class="form-label">Nama Lengkap (sesuai KTP) *</label>
                     <input type="text" id="nama_pengguna" name="m_user[nama_pengguna]" class="form-control" required>
                     <small id="error-nama_pengguna" class="text-danger d-block"></small>
                 </div>
+
+                <!-- Email -->
                 <div class="mb-3">
                     <label class="form-label">E-mail *</label>
                     <input type="email" id="email_pengguna" name="m_user[email_pengguna]" class="form-control" required>
                     <small id="error-email_pengguna" class="text-danger d-block"></small>
                 </div>
+
+                <!-- Nomor HP -->
                 <div class="mb-3">
                     <label class="form-label">Nomor HP *</label>
                     <input type="text" id="no_hp_pengguna" name="m_user[no_hp_pengguna]" class="form-control" required>
                     <small id="error-no_hp_pengguna" class="text-danger d-block"></small>
                 </div>
+
+                <!-- Password & Confirm -->
                 <div class="row mb-3">
                     <div class="col">
                         <label class="form-label">Password *</label>
                         <div class="position-relative">
                             <input type="password" id="password" name="password" class="form-control" required>
-                            <i class="fa fa-eye password-toggle" onclick="togglePassword('password')"></i>
                         </div>
                         <small id="error-password" class="text-danger d-block"></small>
                     </div>
@@ -51,80 +67,44 @@
                         <label class="form-label">Confirm Password *</label>
                         <div class="position-relative">
                             <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
-                            <i class="fa fa-eye password-toggle" onclick="togglePassword('confirmPassword')"></i>
                         </div>
                         <small id="error-password_confirmation" class="text-danger d-block"></small>
                     </div>
                 </div>
+
+                <!-- Alamat -->
                 <div class="mb-3">
                     <label class="form-label">Alamat *</label>
                     <textarea id="alamat_pengguna" name="m_user[alamat_pengguna]" class="form-control" required></textarea>
                     <small id="error-alamat_pengguna" class="text-danger d-block"></small>
                 </div>
+
+                <!-- Pekerjaan -->
                 <div class="mb-3">
                     <label class="form-label">Pekerjaan *</label>
                     <input type="text" id="pekerjaan_pengguna" name="m_user[pekerjaan_pengguna]" class="form-control" required>
                     <small id="error-pekerjaan_pengguna" class="text-danger d-block"></small>
                 </div>
+
+                <!-- NIK -->
                 <div class="mb-3">
                     <label class="form-label">NIK (16 digit) *</label>
                     <input type="text" id="nik_pengguna" name="m_user[nik_pengguna]" class="form-control" required maxlength="16">
                     <small id="error-nik_pengguna" class="text-danger d-block"></small>
                 </div>
+
+                <!-- Upload KTP -->
                 <div class="mb-3">
                     <label class="form-label">Upload Foto KTP *</label>
-                    <div x-data="uploadHandler" class="upload-box">
-                        <div class="upload-zone relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-all hover:border-orange-500 text-center"
-                            @dragover.prevent="dragging = true; console.log('Dragging over')"
-                            @dragleave="dragging = false; console.log('Dragging left')"
-                            @drop.prevent="handleDrop($event); console.log('File dropped')"
-                            :class="{ 'border-orange-500': dragging }">
-
-
-
-                            <template x-if="previewUrl">
-                                <img :src="previewUrl" class="upload-preview" alt="Preview">
-                            </template>
-
-                            <div x-show="!previewUrl" class="upload-placeholder">
-                                <i class="fas fa-upload text-4xl text-gray-400 mb-3"></i>
-                                <p class="text-sm text-gray-600">
-                                   <strong> Drag and drop <span class="text-orange-500 font-semibold">or choose file</span> to
-                                    upload </strong>
-                                </p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
-                                <div x-data>
-                                    <button type="button" @click="$refs.fileInput.click()" class="btn btn-warning px-4 py-2 shadow-sm">
-                                        Pilih File
-                                    </button>
-                                    <input type="file" id="upload_nik_pengguna" name="upload_nik_pengguna" x-ref="fileInput" class="absolute invisible w-0 h-0" accept="image/*" @change="handleFileSelect">
-                                </div>
-
-
-                                <div id="file-error" class="text-red-500 text-sm mt-2" x-text="errorMessage"></div>
-                                <small id="error-upload_nik_pengguna" class="text-danger d-block"></small>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                            <div x-show="uploading" class="upload-progress mt-3">
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-orange-500 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`">
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-2 text-center">
-                                Mengupload... <span x-text="uploadProgress + '%'"></span>
-                            </p>
-                            </div>
-                        </div>
+                    <input type="file" id="upload_nik_pengguna" name="upload_nik_pengguna" class="form-control" accept="image/*" required>
+                    <small id="error-upload_nik_pengguna" class="text-danger d-block"></small>
                 </div>
 
-                <button type="submit" class="btn btn-warning w-100">DAFTAR</button>
+                <button type="submit" class="btn btn-warning w-100">Register</button>
                 
                 <div class="text-center mt-3">
                     <a href="{{ url('login') }}">Sudah Punya Akun?</a>
                 </div>
-
             </form>
         </div>
     </div>
@@ -148,7 +128,7 @@
                 }
             });
 
-            // Form submit AJAX ke backend Sisfo
+            // Form submit
             $('#form-register').on('submit', function(e) {
                 e.preventDefault();
                 
@@ -202,5 +182,4 @@
         });
     </script>
 </body>
-
 </html>

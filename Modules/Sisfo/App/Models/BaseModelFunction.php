@@ -40,30 +40,43 @@ trait BaseModelFunction
         //         }
         //     }
         // });
-        // tambahan
         static::creating(function ($model) {
             if (!isset($model->created_by)) {
+                Log::info('BaseModelFunction::creating - Model: ' . get_class($model));
+                
                 $alias = null;
-                // Cek session alias (web)
+                
+                // Prioritas 1: Cek session alias (untuk user yang sudah login via web)
                 if (session()->has('alias')) {
                     $alias = session('alias');
+                    Log::info('Alias dari session: ' . $alias);
                 } else {
-                    // Cek user login (web atau API)
+                    // Prioritas 2: Cek Auth user (login web/API)
                     $user = Auth::user();
+                    
+                    // Prioritas 3: Cek JWT token (untuk API)
                     if (!$user) {
-                        // Coba ambil dari JWT jika API
                         try {
                             $user = JWTAuth::parseToken()->authenticate();
+                            Log::info('User dari JWT token');
                         } catch (\Exception $e) {
                             $user = null;
+                            Log::info('Tidak ada JWT token');
                         }
                     }
-                    if ($user) {
-                        // Gunakan properti alias jika ada, fallback ke nama_pengguna
-                        $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);    
+                    
+                    // Jika user ditemukan, ambil alias-nya
+                    if ($user && isset($user->alias)) {
+                        $alias = $user->alias;
+                        Log::info('Alias dari user: ' . $alias);
+                    } else {
+                        Log::info('User tidak ditemukan atau alias tidak ada');
                     }
                 }
+                
+                // Jika alias masih null (tidak ada user login), set ke 'System'
                 $model->created_by = $alias ?? 'System';
+                Log::info('created_by diset ke: ' . $model->created_by);
             }
         });
     
@@ -76,13 +89,17 @@ trait BaseModelFunction
         //     // Pastikan updated_at diisi dengan timestamp sekarang
         //     $model->updated_at = now();
         // });
-        //  tambahan
         static::updating(function ($model) {
             $alias = null;
+            
+            // Prioritas 1: Cek session alias
             if (session()->has('alias')) {
                 $alias = session('alias');
             } else {
+                // Prioritas 2: Cek Auth user
                 $user = Auth::user();
+                
+                // Prioritas 3: Cek JWT token
                 if (!$user) {
                     try {
                         $user = JWTAuth::parseToken()->authenticate();
@@ -90,10 +107,14 @@ trait BaseModelFunction
                         $user = null;
                     }
                 }
-                if ($user) {
-                    $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);
+                
+                // Jika user ditemukan, ambil alias-nya
+                if ($user && isset($user->alias)) {
+                    $alias = $user->alias;
                 }
             }
+            
+            // Jika alias masih null, set ke 'System'
             $model->updated_by = $alias ?? 'System';
             $model->updated_at = now();
         });
@@ -109,13 +130,17 @@ trait BaseModelFunction
         //     // Ubah kode ini dari conditional menjadi selalu mengisi
         //     $model->deleted_at = now();
         // });
-        // tambahan
         static::deleting(function ($model) {
             $alias = null;
+            
+            // Prioritas 1: Cek session alias
             if (session()->has('alias')) {
                 $alias = session('alias');
             } else {
+                // Prioritas 2: Cek Auth user
                 $user = Auth::user();
+                
+                // Prioritas 3: Cek JWT token
                 if (!$user) {
                     try {
                         $user = JWTAuth::parseToken()->authenticate();
@@ -123,12 +148,15 @@ trait BaseModelFunction
                         $user = null;
                     }
                 }
-                if ($user) {
-                    $alias = $user->alias ?: UserModel::generateAlias($user->nama_pengguna);
+                
+                // Jika user ditemukan, ambil alias-nya
+                if ($user && isset($user->alias)) {
+                    $alias = $user->alias;
                 }
             }
+            
+            // Jika alias masih null, set ke 'System'
             $model->deleted_by = $alias ?? 'System';
-            // Pastikan deleted_at diisi dengan timestamp sekarang
             $model->deleted_at = now();
         });
     }
