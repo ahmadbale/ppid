@@ -39,8 +39,9 @@
                     <!-- Pilih Level -->
                     <div class="input-group mb-3">
                         <select class="form-control" id="hak_akses_id" name="hak_akses_id" required>
-                            @foreach($level)
-                                <option value="{{ $level->hak_akses_id }}">{{ $level->hak_akses_nama }}</option>
+                            <option value="">-- Pilih Level --</option>
+                            @foreach($level as $item)
+                                <option value="{{ $item->hak_akses_id }}">{{ $item->hak_akses_nama }}</option>
                             @endforeach
                         </select>
                         <div class="input-group-append">
@@ -207,6 +208,8 @@
 
             $("#form-register").on('submit', function (e) {
                 e.preventDefault();
+                console.log('=== FORM SUBMIT DIPANGGIL ===');
+                
                 $('.error-text').text(''); // Clear all previous error messages
 
                 let isValid = true;
@@ -219,6 +222,18 @@
                 const upload_nik_pengguna = $('#upload_nik_pengguna').val();
                 const password = $('#password').val();
                 const confirmPassword = $('#password_confirmation').val();
+
+                console.log('Validasi form dimulai...');
+                console.log('Data:', {
+                    nama_pengguna,
+                    email_pengguna,
+                    no_hp_pengguna,
+                    alamat_pengguna,
+                    pekerjaan_pengguna,
+                    nik_pengguna,
+                    upload_nik_pengguna,
+                    password_length: password.length
+                });
 
                 // Validation rules
                 if (nama_pengguna.length < 2 || nama_pengguna.length > 50) {
@@ -267,8 +282,15 @@
                 }
 
                 if (isValid) {
+                    console.log('Validasi sukses, mengirim AJAX request...');
+                    
                     // Create FormData object to handle file uploads
                     const formData = new FormData(this);
+                    
+                    console.log('FormData dibuat, menampilkan isi:');
+                    for (let pair of formData.entries()) {
+                        console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+                    }
 
                     $.ajax({
                         url: $(this).attr('action'),
@@ -279,7 +301,11 @@
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
+                        beforeSend: function() {
+                            console.log('AJAX request dimulai...');
+                        },
                         success: function (response) {
+                            console.log('AJAX Success Response:', response);
                             if (response.success) {
                                 Swal.fire({
                                     icon: 'success',
@@ -291,7 +317,11 @@
                             }
                         },
                         error: function (xhr) {
-                            if (xhr.success === 422) {
+                            console.log('AJAX Error Response:', xhr);
+                            console.log('Status:', xhr.status);
+                            console.log('Response:', xhr.responseJSON);
+                            
+                            if (xhr.status === 422) {
                                 const errors = xhr.responseJSON.errors;
                                 // Handle error messages with the m_user prefix
                                 Object.keys(errors).forEach(function (key) {
@@ -312,6 +342,8 @@
                             }
                         }
                     });
+                } else {
+                    console.log('Validasi gagal, form tidak dikirim');
                 }
             });
         });
