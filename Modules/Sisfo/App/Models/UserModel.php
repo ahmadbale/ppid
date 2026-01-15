@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class UserModel extends Authenticatable implements JWTSubject
@@ -503,48 +504,72 @@ class UserModel extends Authenticatable implements JWTSubject
     public static function prosesRegister($request)
     {
         try {
+            Log::info('=== MULAI PROSES REGISTRASI ===');
+            Log::info('Request data:', $request->all());
+            
             self::validasiRegistrasi($request);
+            Log::info('Validasi berhasil');
 
             DB::beginTransaction();
+            Log::info('Transaction dimulai');
 
             $data = $request->m_user;
+            Log::info('Data user:', $data);
 
             $fileName = null;
             if ($request->hasFile('upload_nik_pengguna')) {
+                Log::info('File KTP ditemukan, mulai upload');
                 $fileName = self::uploadFile(
                     $request->file('upload_nik_pengguna'),
                     'upload_nik'
                 );
+                Log::info('File KTP berhasil diupload: ' . $fileName);
             }
 
             // Tambahkan data tambahan yang tidak ada di request
             $data['upload_nik_pengguna'] = $fileName;
             $data['password'] = Hash::make($request->password);
+            Log::info('Password sudah di-hash');
 
             // Ambil hak akses yang dipilih
             $hakAksesId = $request->hak_akses_id;
+            Log::info('Hak akses ID: ' . $hakAksesId);
 
             // Simpan data user ke database
+            Log::info('Mencoba create user dengan data:', $data);
             $user = self::create($data);
+            Log::info('User berhasil dibuat dengan ID: ' . $user->user_id);
 
             // Buat relasi di tabel set_user_hak_akses
+            Log::info('Mencoba create relasi hak akses');
             SetUserHakAksesModel::create([
                 'fk_m_user' => $user->user_id,
                 'fk_m_hak_akses' => $hakAksesId
             ]);
+            Log::info('Relasi hak akses berhasil dibuat');
 
             DB::commit();
+            Log::info('Transaction berhasil di-commit');
+            Log::info('=== REGISTRASI SELESAI ===');
 
             return self::responFormatSukses($user, 'Register Berhasil', [
                 'redirect' => url('login')
             ]);
         } catch (ValidationException $e) {
             DB::rollback();
+            Log::error('Validasi gagal:', $e->errors());
             return self::responValidatorError($e);
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('=== ERROR REGISTRASI ===');
+            Log::error('Error message: ' . $e->getMessage());
+            Log::error('Error file: ' . $e->getFile());
+            Log::error('Error line: ' . $e->getLine());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             if (isset($fileName)) {
                 self::removeFile($fileName);
+                Log::info('File KTP dihapus karena error');
             }
             return self::responFormatError($e, 'Terjadi kesalahan saat memproses registrasi');
         }
