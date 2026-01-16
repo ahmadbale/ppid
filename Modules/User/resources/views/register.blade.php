@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Register PPID</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/register.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -142,17 +143,113 @@
                 const fieldName = $(this).attr('name');
                 if (fieldName && fieldName.includes('[')) {
                     const baseName = fieldName.split('[')[1].replace(']', '');
-                    $('#error-' + baseName).text('');
+                    $('#error-' + baseName).text('').hide();
                 } else if (fieldName) {
-                    $('#error-' + fieldName).text('');
+                    $('#error-' + fieldName).text('').hide();
                 }
             });
+
+            // Validasi client-side sebelum submit
+            function validateForm() {
+                let isValid = true;
+                $('.text-danger').text('').hide(); // Clear all errors
+
+                // Validasi Nama
+                const nama = $('#nama_pengguna').val().trim();
+                if (nama.length < 2 || nama.length > 50) {
+                    $('#error-nama_pengguna').text('Nama harus 2-50 karakter').show();
+                    isValid = false;
+                }
+
+                // Validasi Email
+                const email = $('#email_pengguna').val().trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    $('#error-email_pengguna').text('Format email tidak valid').show();
+                    isValid = false;
+                }
+
+                // Validasi Nomor HP
+                const hp = $('#no_hp_pengguna').val().trim();
+                if (hp.length < 4 || hp.length > 15) {
+                    $('#error-no_hp_pengguna').text('Nomor HP harus 4-15 digit').show();
+                    isValid = false;
+                }
+
+                // Validasi Password
+                const password = $('#password').val();
+                const passwordConfirm = $('#password_confirmation').val();
+                if (password.length < 5) {
+                    $('#error-password').text('Password minimal 5 karakter').show();
+                    isValid = false;
+                }
+                if (password !== passwordConfirm) {
+                    $('#error-password_confirmation').text('Password tidak cocok').show();
+                    isValid = false;
+                }
+
+                // Validasi Alamat
+                const alamat = $('#alamat_pengguna').val().trim();
+                if (alamat.length < 5) {
+                    $('#error-alamat_pengguna').text('Alamat minimal 5 karakter').show();
+                    isValid = false;
+                }
+
+                // Validasi Pekerjaan
+                const pekerjaan = $('#pekerjaan_pengguna').val().trim();
+                if (pekerjaan.length < 2) {
+                    $('#error-pekerjaan_pengguna').text('Pekerjaan minimal 2 karakter').show();
+                    isValid = false;
+                }
+
+                // Validasi NIK
+                const nik = $('#nik_pengguna').val().trim();
+                if (nik.length !== 16) {
+                    $('#error-nik_pengguna').text('NIK harus 16 digit').show();
+                    isValid = false;
+                }
+
+                // Validasi Upload File
+                const fileInput = $('#upload_nik_pengguna')[0];
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    $('#error-upload_nik_pengguna').text('Foto KTP harus diupload').show();
+                    isValid = false;
+                } else {
+                    const file = fileInput.files[0];
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+
+                    if (!allowedTypes.includes(file.type)) {
+                        $('#error-upload_nik_pengguna').text('File harus JPG, JPEG, atau PNG').show();
+                        isValid = false;
+                    } else if (file.size > maxSize) {
+                        $('#error-upload_nik_pengguna').text('Ukuran file maksimal 2MB').show();
+                        isValid = false;
+                    }
+                }
+
+                return isValid;
+            }
 
             // Form submit AJAX ke backend Sisfo
             $('#form-register').on('submit', function(e) {
                 e.preventDefault();
                 
-                $('.text-danger').text(''); // Clear errors
+                // Validasi client-side terlebih dahulu
+                if (!validateForm()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validasi Gagal',
+                        text: 'Mohon periksa kembali form yang Anda isi',
+                        confirmButtonColor: '#FFC107'
+                    });
+                    return false;
+                }
+
+                // Disable button saat proses submit
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Memproses...');
 
                 const formData = new FormData(this);
 
@@ -166,34 +263,65 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
+                        submitBtn.prop('disabled', false).html(originalText);
+                        
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Registrasi Berhasil!',
-                                text: response.message || 'Akun Anda berhasil dibuat',
-                                confirmButtonText: 'OK'
+                                text: response.message || 'Akun Anda berhasil dibuat. Silakan login.',
+                                confirmButtonColor: '#28a745',
+                                confirmButtonText: 'Login Sekarang'
                             }).then(() => {
                                 window.location.href = response.redirect || '{{ url("login") }}';
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        if (xhr.status === 422) {
-                            const errors = xhr.responseJSON.errors;
-                            Object.keys(errors).forEach(function(key) {
-                                if (key.startsWith('m_user.')) {
-                                    const fieldName = key.split('.')[1];
-                                    $('#error-' + fieldName).text(errors[key][0]);
-                                } else {
-                                    $('#error-' + key).text(errors[key][0]);
-                                }
                             });
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal!',
-                                text: xhr.responseJSON?.message || 'Terjadi kesalahan saat registrasi',
-                                confirmButtonText: 'OK'
+                                title: 'Gagal',
+                                text: response.message || 'Terjadi kesalahan',
+                                confirmButtonColor: '#FFC107'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        submitBtn.prop('disabled', false).html(originalText);
+                        
+                        if (xhr.status === 422) {
+                            // Validation errors dari server
+                            const errors = xhr.responseJSON.errors;
+                            let errorCount = 0;
+                            
+                            $.each(errors, function(key, value) {
+                                errorCount++;
+                                // Handle nested m_user fields
+                                if (key.includes('m_user.')) {
+                                    const fieldName = key.replace('m_user.', '');
+                                    $('#error-' + fieldName).text(value[0]).show();
+                                } else {
+                                    $('#error-' + key).text(value[0]).show();
+                                }
+                            });
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validasi Gagal',
+                                text: 'Terdapat ' + errorCount + ' kesalahan. Mohon periksa form kembali.',
+                                confirmButtonColor: '#FFC107'
+                            });
+                        } else if (xhr.status === 500) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Kesalahan Server',
+                                text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server. Silakan coba lagi.',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Terjadi kesalahan. Silakan coba lagi.',
+                                confirmButtonColor: '#dc3545'
                             });
                         }
                     }
