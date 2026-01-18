@@ -41,6 +41,32 @@
                 transform: translateY(0);
             }
         }
+
+        /* NIK Counter Styling */
+        #nik-counter {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            z-index: 10;
+            user-select: none;
+        }
+
+        /* Input NIK dengan padding kanan untuk counter */
+        #nik_pengguna {
+            padding-right: 70px !important;
+        }
+
+        /* Animasi pulse untuk counter */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            50% {
+                box-shadow: 0 4px 8px rgba(255, 193, 7, 0.4);
+            }
+            100% {
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+        }
     </style>
 </head>
 
@@ -101,7 +127,12 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">NIK (16 digit) *</label>
-                    <input type="text" id="nik_pengguna" name="m_user[nik_pengguna]" class="form-control" maxlength="16">
+                    <div class="position-relative">
+                        <input type="text" id="nik_pengguna" name="m_user[nik_pengguna]" class="form-control" maxlength="16" placeholder="Masukkan 16 digit NIK">
+                        <div id="nik-counter" class="position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%); background-color: #FFC107; color: white; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.875rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <span id="nik-count">0</span>/16
+                        </div>
+                    </div>
                     <span id="error-nik_pengguna" class="text-danger d-block mt-1" style="font-size: 0.875rem; display: none;"></span>
                 </div>
                 <div class="mb-3">
@@ -168,6 +199,42 @@
             // NIK dan HP hanya angka
             $('#nik_pengguna, #no_hp_pengguna').on('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            // Real-time NIK counter dengan animasi
+            $('#nik_pengguna').on('input', function() {
+                const length = $(this).val().length;
+                const counter = $('#nik-counter');
+                const countSpan = $('#nik-count');
+                
+                // Update angka
+                countSpan.text(length);
+                
+                // Animasi dan perubahan warna berdasarkan progress
+                if (length === 0) {
+                    counter.css({
+                        'background-color': '#FFC107',
+                        'transform': 'translateY(-50%) scale(1)'
+                    });
+                } else if (length < 16) {
+                    // Kuning untuk progress
+                    counter.css({
+                        'background-color': '#FFC107',
+                        'transform': 'translateY(-50%) scale(1.1)'
+                    });
+                    setTimeout(() => {
+                        counter.css('transform', 'translateY(-50%) scale(1)');
+                    }, 150);
+                } else if (length === 16) {
+                    // Hijau ketika sudah 16 digit
+                    counter.css({
+                        'background-color': '#28a745',
+                        'transform': 'translateY(-50%) scale(1.15)'
+                    });
+                    setTimeout(() => {
+                        counter.css('transform', 'translateY(-50%) scale(1)');
+                    }, 150);
+                }
             });
 
             // Clear error on input
