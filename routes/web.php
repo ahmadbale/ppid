@@ -75,3 +75,8 @@ use App\Http\Controllers\TimelineController;
 // Route::get('/permohonan/lacak', [PermohonanController::class, 'lacak'])->name('permohonan.lacak');
 
 // Route::get('/eform', [TimelineController::class, 'index'])->name('eform');
+
+// Route dummy untuk UBA Dashboard (tanpa autentikasi - standalone HTML)
+Route::get('/dummy-uba', function () {
+    return view('sisfo::dummy-uba-dashboard');
+})->name('dummy.uba');
