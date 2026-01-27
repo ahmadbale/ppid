@@ -36,7 +36,8 @@
         "files": [
             "Modules/Sisfo/App/Helpers/MenuHelper.php",
             "Modules/Sisfo/App/Helpers/EFormActiveMenuHelper.php",
-             "app/Helpers/asset_helper.php"
+             "app/Helpers/asset_helper.php",
+             "app/Helpers/RouteHelper.php"
         ]
     },
     "autoload-dev": {
