@@ -74,5 +74,7 @@ class Kernel extends HttpKernel
         'jwt.user' => \App\Http\Middleware\VerifyUserToken::class,
         // tamabahan middleware untuk validasi app_key
         'validate.app_key' => \App\Http\Middleware\ValidateAppKey::class,
+        // 🚀 Dynamic Route Middleware - Filter URL yang masuk ke PageController
+        'check.dynamic.route' => \App\Http\Middleware\CheckDynamicRoute::class,
     ];
 }
