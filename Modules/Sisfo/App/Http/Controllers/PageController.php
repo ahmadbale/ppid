@@ -136,13 +136,17 @@ class PageController extends Controller
         $methodsWithRequest = [
             'index',
             'getData',
-            'addData',
             'createData'
         ];
         
         // Jika method butuh Request
         if (in_array($action, $methodsWithRequest)) {
             return [$request];
+        }
+        
+        // Method addData butuh ID, bukan Request
+        if ($action === 'addData' && $id !== null) {
+            return [$id];
         }
         
         // Method lain tidak perlu parameter
