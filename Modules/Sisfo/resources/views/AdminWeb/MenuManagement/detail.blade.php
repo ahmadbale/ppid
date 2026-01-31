@@ -78,7 +78,7 @@ $(document).off('click', '.detail-menu').on('click', '.detail-menu', function() 
     }
 
     $.ajax({
-        url: "/{{ WebMenuModel::getDynamicMenuUrl('menu-management') }}/" + menuId + "/detailData",
+        url: "/{{ WebMenuModel::getDynamicMenuUrl('menu-management') }}/detailData/" + menuId,
         type: 'GET',
         dataType: 'json',
         success: function(response) {

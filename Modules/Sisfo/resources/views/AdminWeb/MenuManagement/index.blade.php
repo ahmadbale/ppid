@@ -14,9 +14,19 @@
                         Auth::user()->level->hak_akses_kode === 'SAR' ||
                         SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'create')
                     )
-                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addMenuModal">
-                        <i class="fas fa-plus"></i> Tambah Menu
-                    </button>
+                    <!-- Dropdown untuk pilih level -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <i class="fas fa-plus"></i> Tambah Menu
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            @foreach($levels as $level)
+                                <a class="dropdown-item" href="{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/addData/' . $level->hak_akses_id) }}">
+                                    <i class="fas fa-user-tag mr-2"></i> {{ $level->hak_akses_nama }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
                 @endif
             </div>
         </div>
@@ -76,9 +86,7 @@
                                 <div class="card-body menu">
                                     <div class="dd nestable-{{ $kode }}" data-jenis="{{ $kode }}">
                                         <ol class="dd-list">
-                                            @foreach($menusByJenis[$kode]['menus'] as $menu)
-                                                @include('sisfo::adminweb.MenuManagement.menu-item', ['menu' => $menu, 'kode' => $kode])
-                                            @endforeach
+                                            @include('sisfo::adminweb.MenuManagement.data', ['menus' => $menusByJenis[$kode]['menus'], 'kode' => $kode])
                                         </ol>
                                     </div>
                                     @if(count($menusByJenis[$kode]['menus']) == 0)
@@ -103,13 +111,6 @@
     </div>
 
     <!-- Include modals for CRUD operations -->
-    @if(
-            Auth::user()->level->hak_akses_kode === 'SAR' ||
-            SetHakAksesModel::cekHakAkses(Auth::user()->user_id, WebMenuModel::getDynamicMenuUrl('menu-management'), 'create')
-        )
-        @include('sisfo::adminweb.MenuManagement.create')
-    @endif
-
     @include('sisfo::adminweb.MenuManagement.update')
     @include('sisfo::adminweb.MenuManagement.detail')
     @include('sisfo::adminweb.MenuManagement.delete')
@@ -376,7 +377,7 @@ $(function () {
 
         // Kirim data ke server
         $.ajax({
-            url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/reorder') }}",
+            url: "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/getData') }}?action=reorder",
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
@@ -428,12 +429,16 @@ $(function () {
 
         if (!hakAksesId) return;
 
-        const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
+        const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/getData') }}";
 
         $.ajax({
-            url: `${dynamicUrl}/${hakAksesId}`,
+            url: dynamicUrl,
             type: 'GET',
-            data: { exclude_id: excludeId },
+            data: { 
+                action: 'parent-menus',
+                hak_akses_id: hakAksesId,
+                exclude_id: excludeId 
+            },
             success: function (response) {
                 if (response.success && response.parentMenus) {
                     response.parentMenus.forEach(function (menu) {

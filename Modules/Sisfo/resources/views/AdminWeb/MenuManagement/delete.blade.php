@@ -51,7 +51,7 @@ $('#confirmDelete').off('click').on('click', function() {
 
     if (menuId) {
         $.ajax({
-            url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/deleteData`,
+            url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/deleteData/${menuId}`,
             type: 'DELETE',
             data: {
                 _token: '{{ csrf_token() }}'

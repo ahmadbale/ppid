@@ -929,6 +929,7 @@ class WebMenuModel extends Model
     {
         try {
             $level = HakAksesModel::findOrFail($hakAksesId);
+            
             $menuGlobal = WebMenuGlobalModel::where('isDeleted', 0)
                 ->orderBy('wmg_urutan_menu')
                 ->get();
