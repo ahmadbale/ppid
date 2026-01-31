@@ -325,7 +325,7 @@
                 $('.permission-item').removeClass('selected');
 
                 $.ajax({
-                    url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/editData`,
+                    url: `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/editData/${menuId}`,
                     type: 'GET',
                     success: function (response) {
                         if (response.success) {
@@ -334,7 +334,7 @@
                             currentWebMenuUrl = menu.fk_web_menu_url;
                             currentLevelId = menu.fk_m_hak_akses;
 
-                            $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/${menuId}/updateData`);
+                            $('#editMenuForm').attr('action', `{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}/updateData/${menuId}`);
 
                             $('#edit_menu_global_name').val(menu.menu_global_name);
                             $('#edit_alias').val(menu.wm_menu_nama || '');
@@ -527,9 +527,17 @@
                     });
                 }
 
+                // Debug logging
+                console.log('🔍 Update Menu Debug:', {
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    hasMethodSpoofing: formDataObj['_method'],
+                    formData: formDataObj
+                });
+
                 $.ajax({
                     url: $(this).attr('action'),
-                    type: 'PUT',
+                    type: 'POST', // ✅ Gunakan POST, bukan PUT
                     data: formDataObj,
                     success: function (response) {
                         if (response.success) {
@@ -566,12 +574,16 @@
 
                 if (!hakAksesId) return;
 
-                const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/get-parent-menus') }}";
+                const dynamicUrl = "{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/getData') }}";
 
                 $.ajax({
-                    url: `${dynamicUrl}/${hakAksesId}`,
+                    url: dynamicUrl,
                     type: 'GET',
-                    data: { exclude_id: excludeId },
+                    data: { 
+                        action: 'parent-menus',
+                        hak_akses_id: hakAksesId,
+                        exclude_id: excludeId 
+                    },
                     success: function (response) {
                         if (response.success && response.parentMenus) {
                             response.parentMenus.forEach(function (menu) {
