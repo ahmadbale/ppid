@@ -1,5 +1,7 @@
 <?php
 ;
+
+use App\Helpers\RouteHelper;
 use Illuminate\Support\Facades\Route;
 use Modules\Sisfo\App\Models\Website\WebMenuModel;
 use Modules\Sisfo\App\Http\Controllers\AuthController;
@@ -10,51 +12,15 @@ use Modules\Sisfo\App\Http\Controllers\DashboardMPUController;
 use Modules\Sisfo\App\Http\Controllers\DashboardSARController;
 use Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
 use Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
-use Modules\Sisfo\App\Http\Controllers\ManagePengguna\UserController;
 use Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
 use Modules\Sisfo\App\Http\Controllers\HakAkses\SetHakAksesController;
 use Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\FooterController;
-use Modules\Sisfo\App\Http\Controllers\ManagePengguna\HakAksesController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\WBSController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\Berita\BeritaDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\Footer\KategoriFooterController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\AksesCepatController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\Timeline\TimelineController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\MediaDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuUrlController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\LayananInformasi\LIDUploadController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\LhkpnController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\KategoriAksesController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\WebMenuGlobalController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\Pengumuman\PengumumanDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\PintasanLainnyaController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\MediaDinamis\DetailMediaDinamisController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PengaduanMasyarakatController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanInformasiController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PermohonanPerawatanController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\EForm\PernyataanKeberatanController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KategoriForm\KategoriFormController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\KategoriAkses\DetailPintasanLainnyaController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController;
-use Modules\Sisfo\App\Http\Controllers\SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiBerkalaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSertaMertaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSetiapSaatController;
-use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\SetIpDinamisTabelController;
+use Modules\Sisfo\App\Http\Controllers\AdminWeb\MenuManagement\MenuManagementController;
 use Modules\Sisfo\App\Http\Controllers\DashboardDefaultController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController;
@@ -68,7 +34,7 @@ use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPeng
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPPController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifWBSController;
 use Modules\Sisfo\App\Http\Controllers\WhatsAppController;
-use Modules\Sisfo\App\Http\Controllers\PageController; // 🚀 Dynamic Routing Handler
+use Modules\Sisfo\App\Http\Controllers\PageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,17 +47,13 @@ use Modules\Sisfo\App\Http\Controllers\PageController; // 🚀 Dynamic Routing H
 |
 */
 
-Route::pattern('id', '[0-9]+'); // Artinya: Ketika ada parameter {id}, maka harus berupa angka
+Route::pattern('id', '[0-9]+'); 
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::get('/pilih-level', [AuthController::class, 'pilihLevel'])->name('pilih.level');
 Route::post('/pilih-level', [AuthController::class, 'pilihLevelPost'])->name('pilih.level.post');
-
-// Register GET route disabled - menggunakan User module untuk tampilan
-// Route::get('register', [AuthController::class, 'register'])->name('register');
-// POST tetap aktif untuk backend logic
 Route::post('register', [AuthController::class, 'postRegister']);
 
 
@@ -132,18 +94,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete_foto_ktp/{id}', [ProfileController::class, 'delete_foto_ktp']); // Tambah ini
     });
 
-    // ❌ ROUTE TIDAK STANDAR - menu-management (Pattern: {id}/editData, ada reorder & get-parent-menus)
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('menu-management'), 'middleware' => 'authorize:ADM,SAR'], function () {
-        Route::get('/', [MenuManagementController::class, 'index'])->middleware('permission:view');
-        Route::get('/addData/{hakAksesId}', [MenuManagementController::class, 'addData'])->middleware('permission:create');
-        Route::post('/createData', [MenuManagementController::class, 'createData'])->middleware('permission:create');
-        Route::get('/{id}/editData', [MenuManagementController::class, 'editData']);
-        Route::put('/{id}/updateData', [MenuManagementController::class, 'updateData'])->middleware('permission:update');
-        Route::get('/{id}/detailData', [MenuManagementController::class, 'detailData']);
-        Route::delete('/{id}/deleteData', [MenuManagementController::class, 'deleteData'])->middleware('permission:delete');
-        Route::post('/reorder', [MenuManagementController::class, 'reorder']); // New route for drag-drop reordering
-        Route::get('/get-parent-menus/{hakAksesId}', [MenuManagementController::class, 'getParentMenus']);
-    });
+    // ✅ ROUTE STANDAR - menu-management (Sekarang pakai dynamic routing, API Gateway via getData)
+    // Route dihapus karena sudah di-handle PageController otomatis
+    // Pattern: /menu-management, /menu-management/getData, /menu-management/addData/{id}, dll
 
     // ❌ ROUTE TIDAK STANDAR - NotifAdmin (Custom notification endpoints)
     Route::group(['prefix' => 'Notifikasi/NotifAdmin', 'middleware' => ['authorize:ADM']], function () {
@@ -337,76 +290,21 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset-expired-scan', [WhatsAppController::class, 'resetExpiredScan'])->middleware('permission:update'); // Route baru
     });
 
-    // Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('views-riwayat-pengajuan')], function (){
-    //     Route::get('/', [WhatsAppController::class, 'index'])->middleware('permission:view');
-    // });
-
-    // =======================================
-    // 🚀 DYNAMIC ROUTING - REFACTORED ROUTES (48 Routes → 3 Dynamic Patterns)
-    // =======================================
-    // Handler: Modules\Sisfo\App\Http\Controllers\PageController
-    // Filter: App\Helpers\RouteHelper (exclude User module & Non-standard Sisfo URLs)
-    // Middleware: check.dynamic.route (validate URL sebelum masuk PageController)
-    // 
-    // ✅ Route yang DI-HANDLE oleh Dynamic Routing (48 URLs):
-    // - kategori-footer, detail-footer, kategori-akses-cepat, detail-akses-cepat
-    // - kategori-berita, detail-berita, kategori-media, detail-media
-    // - kategori-tahun-lhkpn, detail-lhkpn, kategori-pintasan-lainnya, detail-pintasan-lainnya
-    // - regulasi-dinamis, detail-regulasi, kategori-regulasi
-    // - permohonan-informasi-admin, pernyataan-keberatan-admin
-    // - pengaduan-masyarakat-admin, whistle-blowing-system-admin
-    // - permohonan-sarana-dan-prasarana-admin
-    // - timeline, ketentuan-pelaporan, kategori-form
-    // - kategori-pengumuman, detail-pengumuman
-    // - management-level, management-user
-    // - kategori-informasi-publik-dinamis-tabel
-    // - dinamis-konten, upload-detail-konten
-    // - management-menu-url, management-menu-global
-    // - layanan-informasi-Dinamis, layanan-informasi-upload
-    // - penyelesaian-sengketa, upload-penyelesaian-sengketa
-    //
-    // ❌ Route yang TIDAK DI-HANDLE (Defined by RouteHelper):
-    // 1. User Module URLs (40+ URLs) - See RouteHelper::$userModuleUrls
-    //    - beranda, berita, pengumuman, lhkpn, form-*, profile-*, regulasi, dll
-    // 2. Non-Standard Sisfo URLs (8 URLs) - See RouteHelper::$nonStandardSisfoUrls
-    //    - menu-management, set-informasi-publik-dinamis-tabel
-    //    - get-informasi-publik-*, daftar-verifikasi-pengajuan
-    //    - daftar-review-pengajuan, whatsapp-management
-    // =======================================
-
     // Pattern 1: /{page} → index() atau store() tergantung HTTP method
     Route::match(['GET', 'POST'], '/{page}', [PageController::class, 'index'])
         ->middleware('check.dynamic.route')
-        ->where('page', \App\Helpers\RouteHelper::getDynamicRoutePattern());
+        ->where('page', RouteHelper::getDynamicRoutePattern());
 
     // Pattern 2: /{page}/{action} → getData(), addData(), editData/{id}, dll
     Route::match(['GET', 'POST'], '/{page}/{action}', [PageController::class, 'index'])
         ->middleware('check.dynamic.route')
-        ->where('page', \App\Helpers\RouteHelper::getDynamicRoutePattern())
+        ->where('page', RouteHelper::getDynamicRoutePattern())
         ->where('action', '[a-zA-Z0-9\-]+');
 
     // Pattern 3: /{page}/{action}/{id} → editData/123, updateData/123, deleteData/123
-    Route::match(['GET', 'POST', 'DELETE'], '/{page}/{action}/{id}', [PageController::class, 'index'])
+    Route::match(['GET', 'POST', 'PUT', 'DELETE'], '/{page}/{action}/{id}', [PageController::class, 'index'])
         ->middleware('check.dynamic.route')
-        ->where('page', \App\Helpers\RouteHelper::getDynamicRoutePattern())
+        ->where('page', RouteHelper::getDynamicRoutePattern())
         ->where('action', '[a-zA-Z0-9\-]+')
         ->where('id', '[0-9]+');
-
-    // =======================================
-    // 📊 ROUTE SUMMARY:
-    // - Total Original Routes: 700+ lines
-    // - Routes Refactored: 48 route groups → 3 dynamic patterns
-    // - Routes Kept (Non-standard): 8 route groups (defined in RouteHelper)
-    // - Lines Reduced: ~600 lines (84% reduction)
-    // - URL Management: Centralized in App\Helpers\RouteHelper
-    // =======================================
-
-    // 🔴 CATATAN PENTING:
-    // - Daftar URL yang di-exclude ada di: App\Helpers\RouteHelper
-    // - User Module URLs: RouteHelper::$userModuleUrls (40+ URLs)
-    // - Non-Standard Sisfo URLs: RouteHelper::$nonStandardSisfoUrls (8 URLs)
-    // - Middleware check.dynamic.route akan validate sebelum masuk PageController
-    // 
-    // Untuk menambah URL exception, edit file:
-    // app/Helpers/RouteHelper.php
 });
