@@ -11,7 +11,7 @@
 </div>
 
 <div class="modal-body">
-    <form id="formUpdateSubMenuUtama" action="{{ url($setIpDinamisTabelUrl . '/updateSubMenuUtama/' . $ipSubMenuUtama->ip_sub_menu_utama_id) }}"
+    <form id="formUpdateSubMenuUtama" action="{{ url($setIpDinamisTabelUrl . '/updateData/' . $ipSubMenuUtama->ip_sub_menu_utama_id . '?type=submenu_utama') }}"
         method="POST" enctype="multipart/form-data">
         @csrf
 
