@@ -66,7 +66,7 @@
 <script>
     function confirmDelete() {
         $.ajax({
-            url: '{{ url($setIpDinamisTabelUrl . "/deleteSubMenu/" . $ipSubMenu->ip_sub_menu_id) }}',
+            url: '{{ url($setIpDinamisTabelUrl . "/deleteData/" . $ipSubMenu->ip_sub_menu_id . "?type=submenu") }}',
             type: 'DELETE',
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content')

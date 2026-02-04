@@ -387,30 +387,30 @@
         });
       }
 
-      // Functions untuk Sub Menu Utama
+      // Functions untuk Sub Menu Utama - menggunakan query parameter ?type=submenu_utama
       window.editSubMenuUtama = function(id) {
-        modalAction(setIpDinamisTabelUrl + '/editSubMenuUtama/' + id);
+        modalAction(setIpDinamisTabelUrl + '/editData/' + id + '?type=submenu_utama');
       }
 
       window.detailSubMenuUtama = function(id) {
-        modalAction(setIpDinamisTabelUrl + '/detailSubMenuUtama/' + id);
+        modalAction(setIpDinamisTabelUrl + '/detailData/' + id + '?type=submenu_utama');
       }
 
       window.deleteSubMenuUtama = function(id) {
-        modalAction(setIpDinamisTabelUrl + '/deleteSubMenuUtama/' + id);
+        modalAction(setIpDinamisTabelUrl + '/deleteData/' + id + '?type=submenu_utama');
       }
 
-      // Functions untuk Sub Menu
+      // Functions untuk Sub Menu - menggunakan query parameter ?type=submenu
       window.editSubMenu = function(id) {
-        modalAction(setIpDinamisTabelUrl + '/editSubMenu/' + id);
+        modalAction(setIpDinamisTabelUrl + '/editData/' + id + '?type=submenu');
       }
 
       window.detailSubMenu = function(id) {
-        modalAction(setIpDinamisTabelUrl + '/detailSubMenu/' + id);
+        modalAction(setIpDinamisTabelUrl + '/detailData/' + id + '?type=submenu');
       }
 
       window.deleteSubMenu = function(id) {
-        modalAction(setIpDinamisTabelUrl + '/deleteSubMenu/' + id);
+        modalAction(setIpDinamisTabelUrl + '/deleteData/' + id + '?type=submenu');
       }
 
       // Reload function

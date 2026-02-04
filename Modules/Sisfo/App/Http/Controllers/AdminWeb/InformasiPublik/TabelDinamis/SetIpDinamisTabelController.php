@@ -118,12 +118,98 @@ class SetIpDinamisTabelController extends Controller
             );
         } catch (ValidationException $e) {
             return $this->jsonValidationError($e);
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Terjadi kesalahan saat membuat Set Informasi Publik Dinamis Tabel');
         }
     }
 
+    /**
+     * Edit Data - Universal method untuk semua tipe (Menu Utama, Sub Menu Utama, Sub Menu)
+     * Query parameter: type = menu|submenu_utama|submenu (default: menu)
+     * 
+     * Contoh penggunaan:
+     * - /set-informasi-publik-dinamis-tabel/editData/1 → Edit Menu Utama
+     * - /set-informasi-publik-dinamis-tabel/editData/1?type=submenu_utama → Edit Sub Menu Utama
+     * - /set-informasi-publik-dinamis-tabel/editData/1?type=submenu → Edit Sub Menu
+     */
     public function editData($id)
+    {
+        $type = request()->query('type', 'menu');
+
+        switch ($type) {
+            case 'submenu_utama':
+                return $this->editSubMenuUtamaInternal($id);
+            case 'submenu':
+                return $this->editSubMenuInternal($id);
+            case 'menu':
+            default:
+                return $this->editMenuUtamaInternal($id);
+        }
+    }
+
+    /**
+     * Update Data - Universal method untuk semua tipe
+     * Query parameter: type = menu|submenu_utama|submenu (default: menu)
+     */
+    public function updateData(Request $request, $id)
+    {
+        $type = request()->query('type', 'menu');
+
+        switch ($type) {
+            case 'submenu_utama':
+                return $this->updateSubMenuUtamaInternal($request, $id);
+            case 'submenu':
+                return $this->updateSubMenuInternal($request, $id);
+            case 'menu':
+            default:
+                return $this->updateMenuUtamaInternal($request, $id);
+        }
+    }
+
+    /**
+     * Detail Data - Universal method untuk semua tipe
+     * Query parameter: type = menu|submenu_utama|submenu (default: menu)
+     */
+    public function detailData($id)
+    {
+        $type = request()->query('type', 'menu');
+
+        switch ($type) {
+            case 'submenu_utama':
+                return $this->detailSubMenuUtamaInternal($id);
+            case 'submenu':
+                return $this->detailSubMenuInternal($id);
+            case 'menu':
+            default:
+                return $this->detailMenuUtamaInternal($id);
+        }
+    }
+
+    /**
+     * Delete Data - Universal method untuk semua tipe
+     * Query parameter: type = menu|submenu_utama|submenu (default: menu)
+     */
+    public function deleteData(Request $request, $id)
+    {
+        $type = request()->query('type', 'menu');
+
+        switch ($type) {
+            case 'submenu_utama':
+                return $this->deleteSubMenuUtamaInternal($request, $id);
+            case 'submenu':
+                return $this->deleteSubMenuInternal($request, $id);
+            case 'menu':
+            default:
+                return $this->deleteMenuUtamaInternal($request, $id);
+        }
+    }
+
+    // ========================================================================
+    // PRIVATE METHODS - Menu Utama Operations
+    // ========================================================================
+
+    /**
+     * Edit Menu Utama (Internal)
+     */
+    private function editMenuUtamaInternal($id)
     {
         try {
             // Ambil data menu utama dengan hierarki
@@ -144,7 +230,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function updateData(Request $request, $id)
+    /**
+     * Update Menu Utama (Internal)
+     */
+    private function updateMenuUtamaInternal(Request $request, $id)
     {
         try {
             $result = IpMenuUtamaModel::updateDataWithComplexHierarchy($request, $id);
@@ -160,7 +249,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function detailData($id)
+    /**
+     * Detail Menu Utama (Internal)
+     */
+    private function detailMenuUtamaInternal($id)
     {
         try {
             $ipMenuUtama = IpMenuUtamaModel::detailDataWithHierarchy($id);
@@ -177,7 +269,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function deleteData(Request $request, $id)
+    /**
+     * Delete Menu Utama (Internal)
+     */
+    private function deleteMenuUtamaInternal(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             try {
@@ -206,7 +301,14 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function editSubMenuUtama($id)
+    // ========================================================================
+    // PRIVATE METHODS - Sub Menu Utama Operations
+    // ========================================================================
+
+    /**
+     * Edit Sub Menu Utama (Internal)
+     */
+    private function editSubMenuUtamaInternal($id)
     {
         try {
             $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
@@ -222,7 +324,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function updateSubMenuUtama(Request $request, $id)
+    /**
+     * Update Sub Menu Utama (Internal)
+     */
+    private function updateSubMenuUtamaInternal(Request $request, $id)
     {
         try {
             IpSubMenuUtamaModel::validasiDataUpdate($request);
@@ -239,7 +344,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function detailSubMenuUtama($id)
+    /**
+     * Detail Sub Menu Utama (Internal)
+     */
+    private function detailSubMenuUtamaInternal($id)
     {
         try {
             $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
@@ -256,7 +364,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function deleteSubMenuUtama(Request $request, $id)
+    /**
+     * Delete Sub Menu Utama (Internal)
+     */
+    private function deleteSubMenuUtamaInternal(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             try {
@@ -285,8 +396,14 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    // Sub Menu Methods
-    public function editSubMenu($id)
+    // ========================================================================
+    // PRIVATE METHODS - Sub Menu Operations
+    // ========================================================================
+
+    /**
+     * Edit Sub Menu (Internal)
+     */
+    private function editSubMenuInternal($id)
     {
         try {
             $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
@@ -302,7 +419,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function updateSubMenu(Request $request, $id)
+    /**
+     * Update Sub Menu (Internal)
+     */
+    private function updateSubMenuInternal(Request $request, $id)
     {
         try {
             IpSubMenuModel::validasiDataUpdate($request);
@@ -319,7 +439,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function detailSubMenu($id)
+    /**
+     * Detail Sub Menu (Internal)
+     */
+    private function detailSubMenuInternal($id)
     {
         try {
             $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
@@ -336,7 +459,10 @@ class SetIpDinamisTabelController extends Controller
         }
     }
 
-    public function deleteSubMenu(Request $request, $id)
+    /**
+     * Delete Sub Menu (Internal)
+     */
+    private function deleteSubMenuInternal(Request $request, $id)
     {
         if ($request->isMethod('get')) {
             try {

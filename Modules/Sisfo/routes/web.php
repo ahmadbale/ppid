@@ -112,29 +112,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('/hapus-semua-dibaca', [NotifAdminController::class, 'hapusSemuaDibaca']);
     });
 
-    // ❌ ROUTE TIDAK STANDAR - set-informasi-publik-dinamis-tabel (Memiliki editSubMenuUtama & editSubMenu)
+    // ✅ ROUTE STANDAR - set-informasi-publik-dinamis-tabel (Sudah direfaktor dengan query parameter ?type=)
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel')], function () {
         Route::get('/', [SetIpDinamisTabelController::class, 'index'])->middleware('permission:view');
         Route::get('/getData', [SetIpDinamisTabelController::class, 'getData']);
         Route::get('/addData', [SetIpDinamisTabelController::class, 'addData']);
         Route::post('/createData', [SetIpDinamisTabelController::class, 'createData'])->middleware('permission:create');
-        Route::get('/editData/{id}', [SetIpDinamisTabelController::class, 'editData']);
-        Route::post('/updateData/{id}', [SetIpDinamisTabelController::class, 'updateData'])->middleware('permission:update');
-        Route::get('/detailData/{id}', [SetIpDinamisTabelController::class, 'detailData']);
-        Route::get('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData']);
-        Route::delete('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData'])->middleware('permission:delete');
-
-        Route::get('/editSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'editSubMenuUtama']);
-        Route::post('/updateSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'updateSubMenuUtama'])->middleware('permission:update');
-        Route::get('/detailSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'detailSubMenuUtama']);
-        Route::get('/deleteSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenuUtama']);
-        Route::delete('/deleteSubMenuUtama/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenuUtama'])->middleware('permission:delete');
-
-        Route::get('/editSubMenu/{id}', [SetIpDinamisTabelController::class, 'editSubMenu']);
-        Route::post('/updateSubMenu/{id}', [SetIpDinamisTabelController::class, 'updateSubMenu'])->middleware('permission:update');
-        Route::get('/detailSubMenu/{id}', [SetIpDinamisTabelController::class, 'detailSubMenu']);
-        Route::get('/deleteSubMenu/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenu']);
-        Route::delete('/deleteSubMenu/{id}', [SetIpDinamisTabelController::class, 'deleteSubMenu'])->middleware('permission:delete');
+        Route::get('/editData/{id}', [SetIpDinamisTabelController::class, 'editData']); // ?type=menu|submenu_utama|submenu
+        Route::post('/updateData/{id}', [SetIpDinamisTabelController::class, 'updateData'])->middleware('permission:update'); // ?type=menu|submenu_utama|submenu
+        Route::get('/detailData/{id}', [SetIpDinamisTabelController::class, 'detailData']); // ?type=menu|submenu_utama|submenu
+        Route::get('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData']); // ?type=menu|submenu_utama|submenu
+        Route::delete('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData'])->middleware('permission:delete'); // ?type=menu|submenu_utama|submenu
     });
 
     // ❌ ROUTE TIDAK STANDAR - get-informasi-publik-* (Hanya view & download, tidak ada CRUD lengkap)
