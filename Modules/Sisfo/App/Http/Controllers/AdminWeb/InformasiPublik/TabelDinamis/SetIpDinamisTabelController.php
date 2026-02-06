@@ -352,7 +352,7 @@ class SetIpDinamisTabelController extends Controller
         try {
             $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
 
-            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detailSubMenuUtama", [
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detail", [
                 'ipSubMenuUtama' => $ipSubMenuUtama,
                 'title' => 'Detail Sub Menu Utama'
             ]);
@@ -373,7 +373,7 @@ class SetIpDinamisTabelController extends Controller
             try {
                 $ipSubMenuUtama = IpSubMenuUtamaModel::with(['IpMenuUtama', 'IpSubMenu'])->findOrFail($id);
 
-                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.deleteSubMenuUtama", [
+                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.delete", [
                     'ipSubMenuUtama' => $ipSubMenuUtama
                 ]);
             } catch (\Exception $e) {
@@ -447,7 +447,7 @@ class SetIpDinamisTabelController extends Controller
         try {
             $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
 
-            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detailSubMenu", [
+            return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.detail", [
                 'ipSubMenu' => $ipSubMenu,
                 'title' => 'Detail Sub Menu'
             ]);
@@ -468,7 +468,7 @@ class SetIpDinamisTabelController extends Controller
             try {
                 $ipSubMenu = IpSubMenuModel::with(['IpSubMenuUtama.IpMenuUtama'])->findOrFail($id);
 
-                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.deleteSubMenu", [
+                return view("sisfo::AdminWeb.InformasiPublik.SetIpDinamisTabel.delete", [
                     'ipSubMenu' => $ipSubMenu
                 ]);
             } catch (\Exception $e) {
