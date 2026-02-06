@@ -1,39 +1,164 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\SetIpDinamisTabel\delete.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $setIpDinamisTabelUrl = WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel');
 
-  $totalSubMenu = 0;
-  if($ipMenuUtama->IpSubMenuUtama) {
-    foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
-      if($smu->IpSubMenu) {
-        $totalSubMenu += $smu->IpSubMenu->count();
-      }
-    }
-  }
+  // Detect type: menu, submenu_utama, or submenu
+  $type = 'menu';
+  $title = 'Konfirmasi Hapus Set Informasi Publik Dinamis Tabel';
+  $deleteUrl = '';
+  $itemName = '';
+  $canDelete = true;
   
-  // Hitung total dokumen
-  $totalDokumen = 0;
-  if($ipMenuUtama->dokumen_ip_mu) $totalDokumen++;
-  if($ipMenuUtama->IpSubMenuUtama) {
-    foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
-      if($smu->dokumen_ip_smu) $totalDokumen++;
-      if($smu->IpSubMenu) {
-        foreach($smu->IpSubMenu as $sm) {
-          if($sm->dokumen_ip_sm) $totalDokumen++;
+  if (isset($ipSubMenu)) {
+      $type = 'submenu';
+      $title = 'Konfirmasi Hapus Sub Menu';
+      $deleteUrl = url($setIpDinamisTabelUrl . "/deleteData/" . $ipSubMenu->ip_sub_menu_id . "?type=submenu");
+      $itemName = $ipSubMenu->nama_ip_sm;
+      $canDelete = true;
+  } elseif (isset($ipSubMenuUtama)) {
+      $type = 'submenu_utama';
+      $title = 'Konfirmasi Hapus Sub Menu Utama';
+      $deleteUrl = url($setIpDinamisTabelUrl . "/deleteData/" . $ipSubMenuUtama->ip_sub_menu_utama_id . "?type=submenu_utama");
+      $itemName = $ipSubMenuUtama->nama_ip_smu;
+      $canDelete = $ipSubMenuUtama->IpSubMenu->count() == 0;
+  } else {
+      $deleteUrl = url($setIpDinamisTabelUrl . "/deleteData/" . $ipMenuUtama->ip_menu_utama_id);
+      $itemName = $ipMenuUtama->nama_ip_mu;
+      
+      // Untuk menu utama, hitung total
+      $totalSubMenu = 0;
+      if($ipMenuUtama->IpSubMenuUtama) {
+        foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
+          if($smu->IpSubMenu) {
+            $totalSubMenu += $smu->IpSubMenu->count();
+          }
         }
       }
-    }
+      
+      $totalDokumen = 0;
+      if($ipMenuUtama->dokumen_ip_mu) $totalDokumen++;
+      if($ipMenuUtama->IpSubMenuUtama) {
+        foreach($ipMenuUtama->IpSubMenuUtama as $smu) {
+          if($smu->dokumen_ip_smu) $totalDokumen++;
+          if($smu->IpSubMenu) {
+            foreach($smu->IpSubMenu as $sm) {
+              if($sm->dokumen_ip_sm) $totalDokumen++;
+            }
+          }
+        }
+      }
   }
 @endphp
 <div class="modal-header">
-  <h5 class="modal-title">Konfirmasi Hapus Set Informasi Publik Dinamis Tabel</h5>
+  <h5 class="modal-title">{{ $title }}</h5>
   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 
-<div class="modal-body">    
+<div class="modal-body">
+  @if($type == 'submenu')
+    {{-- SUB MENU DELETE --}}
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <strong>Peringatan!</strong> Tindakan ini tidak dapat dibatalkan.
+    </div>
+
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0">Detail Sub Menu yang akan dihapus</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Menu Utama:</strong>
+            <p class="text-muted">{{ $ipSubMenu->IpSubMenuUtama->IpMenuUtama->nama_ip_mu ?? 'N/A' }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Sub Menu Utama:</strong>
+            <p class="text-muted">{{ $ipSubMenu->IpSubMenuUtama->nama_ip_smu ?? 'N/A' }}</p>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Sub Menu:</strong>
+            <p class="text-muted">{{ $ipSubMenu->nama_ip_sm }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Status Dokumen:</strong>
+            <p class="text-muted">
+              @if($ipSubMenu->dokumen_ip_sm)
+                <span class="badge badge-success">Memiliki Dokumen</span>
+              @else
+                <span class="badge badge-warning">Tidak ada dokumen</span>
+              @endif
+            </p>
+          </div>
+        </div>
+
+        <p class="text-center mt-3">
+          Apakah Anda yakin ingin menghapus Sub Menu ini?
+        </p>
+      </div>
+    </div>
+
+  @elseif($type == 'submenu_utama')
+    {{-- SUB MENU UTAMA DELETE --}}
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <strong>Peringatan!</strong> Tindakan ini tidak dapat dibatalkan.
+    </div>
+
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">
+        <h6 class="mb-0">Detail Sub Menu Utama yang akan dihapus</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Menu Utama:</strong>
+            <p class="text-muted">{{ $ipSubMenuUtama->IpMenuUtama->nama_ip_mu ?? 'N/A' }}</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Sub Menu Utama:</strong>
+            <p class="text-muted">{{ $ipSubMenuUtama->nama_ip_smu }}</p>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Jumlah Sub Menu:</strong>
+            <p class="text-muted">{{ $ipSubMenuUtama->IpSubMenu->count() }} Sub Menu</p>
+          </div>
+          <div class="col-md-6">
+            <strong>Status Dokumen:</strong>
+            <p class="text-muted">
+              @if($ipSubMenuUtama->dokumen_ip_smu)
+                <span class="badge badge-success">Memiliki Dokumen</span>
+              @else
+                <span class="badge badge-warning">Tidak ada dokumen</span>
+              @endif
+            </p>
+          </div>
+        </div>
+
+        @if($ipSubMenuUtama->IpSubMenu->count() > 0)
+          <div class="alert alert-danger mt-3">
+            <i class="fas fa-times-circle mr-2"></i>
+            <strong>Sub Menu Utama ini tidak dapat dihapus</strong> karena masih memiliki {{ $ipSubMenuUtama->IpSubMenu->count() }} Sub Menu.
+            <br><small>Silakan hapus semua Sub Menu terlebih dahulu.</small>
+          </div>
+        @else
+          <p class="text-center mt-3">
+            Apakah Anda yakin ingin menghapus Sub Menu Utama ini?
+          </p>
+        @endif
+      </div>
+    </div>
+
+  @else
+    {{-- MENU UTAMA DELETE --}}
   <div class="alert alert-danger">
     <i class="fas fa-exclamation-triangle mr-2"></i> 
     <strong>Peringatan!</strong> Menghapus Set Informasi Publik Dinamis Tabel ini akan menghapus:
@@ -214,78 +339,82 @@
     <i class="fas fa-info-circle mr-2"></i>
     <strong>Catatan:</strong> Pastikan Anda telah membackup dokumen-dokumen penting sebelum melanjutkan penghapusan.
   </div>
+  @endif
 </div>
 
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-  <button type="button" class="btn btn-danger" id="confirmDeleteButton" 
-    onclick="confirmDelete('{{ url($setIpDinamisTabelUrl . '/deleteData/' . $ipMenuUtama->ip_menu_utama_id) }}')">
-    <i class="fas fa-trash mr-1"></i> Ya, Hapus Semua
-  </button>
+  @if($canDelete)
+    @if($type == 'menu')
+      <button type="button" class="btn btn-danger" id="confirmDeleteButton" onclick="confirmDelete('{{ $deleteUrl }}')">
+        <i class="fas fa-trash mr-1"></i> Ya, Hapus Semua
+      </button>
+    @else
+      <button type="button" class="btn btn-danger" id="confirmDeleteButton" onclick="confirmDelete('{{ $deleteUrl }}')">
+        <i class="fas fa-trash mr-1"></i> Ya, Hapus {{ $type == 'submenu' ? 'Sub Menu' : 'Sub Menu Utama' }}
+      </button>
+    @endif
+  @endif
 </div>
 
 <script>
   function confirmDelete(url) {
-    const button = $('#confirmDeleteButton');
-    
-    // Konfirmasi tambahan dengan SweetAlert
-    Swal.fire({
-      title: 'Konfirmasi Final',
-      text: 'Apakah Anda benar-benar yakin ingin menghapus Set Informasi Publik Dinamis Tabel ini beserta seluruh isinya?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Ya, Hapus!',
-      cancelButtonText: 'Batal',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Proceed with deletion
-        button.html('<i class="fas fa-spinner fa-spin"></i> Menghapus...').prop('disabled', true);
+    @if($type == 'menu')
+      Swal.fire({
+        title: 'Konfirmasi Final',
+        text: 'Apakah Anda benar-benar yakin ingin menghapus Set Informasi Publik Dinamis Tabel ini beserta seluruh isinya?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          executeDelete(url);
+        }
+      });
+    @else
+      executeDelete(url);
+    @endif
+  }
+  
+  function executeDelete(url) {
+    $.ajax({
+      url: url,
+      type: 'DELETE',
+      data: {
+        _token: $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(response) {
+        if (response.success) {
+          $('#myModal').modal('hide');
+          reloadTable();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: response.message || 'Data berhasil dihapus'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: response.message || 'Terjadi kesalahan saat menghapus data'
+          });
+        }
+      },
+      error: function(xhr) {
+        let errorMessage = 'Terjadi kesalahan saat menghapus data';
         
-        $.ajax({
-          url: url,
-          type: 'DELETE',
-          headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          },
-          success: function(response) {
-            $('#myModal').modal('hide');
-            
-            if (response.success) {
-              reloadTable();
-              
-              Swal.fire({
-                icon: 'success',
-                title: 'Berhasil Dihapus',
-                text: response.message || 'Set Informasi Publik Dinamis Tabel berhasil dihapus',
-                timer: 3000,
-                showConfirmButton: false
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Gagal Menghapus',
-                text: response.message || 'Terjadi kesalahan saat menghapus data'
-              });
-            }
-          },
-          error: function(xhr) {
-            let errorMessage = 'Terjadi kesalahan saat menghapus data. Silakan coba lagi.';
-            
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-              errorMessage = xhr.responseJSON.message;
-            }
-            
-            Swal.fire({
-              icon: 'error',
-              title: 'Gagal Menghapus',
-              text: errorMessage
-            });
-            
-            button.html('<i class="fas fa-trash mr-1"></i> Ya, Hapus Semua').prop('disabled', false);
-          }
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMessage = xhr.responseJSON.message;
+        }
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: errorMessage
         });
       }
     });

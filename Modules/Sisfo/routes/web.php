@@ -94,10 +94,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete_foto_ktp/{id}', [ProfileController::class, 'delete_foto_ktp']); // Tambah ini
     });
 
-    // ✅ ROUTE STANDAR - menu-management (Sekarang pakai dynamic routing, API Gateway via getData)
-    // Route dihapus karena sudah di-handle PageController otomatis
-    // Pattern: /menu-management, /menu-management/getData, /menu-management/addData/{id}, dll
-
     // ❌ ROUTE TIDAK STANDAR - NotifAdmin (Custom notification endpoints)
     Route::group(['prefix' => 'Notifikasi/NotifAdmin', 'middleware' => ['authorize:ADM']], function () {
         Route::get('/', [NotifAdminController::class, 'index']);
@@ -110,19 +106,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/hapus/{id}', [NotifAdminController::class, 'hapusNotifikasi']);
         Route::post('/tandai-semua-dibaca', [NotifAdminController::class, 'tandaiSemuaDibaca']);
         Route::delete('/hapus-semua-dibaca', [NotifAdminController::class, 'hapusSemuaDibaca']);
-    });
-
-    // ✅ ROUTE STANDAR - set-informasi-publik-dinamis-tabel (Sudah direfaktor dengan query parameter ?type=)
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('set-informasi-publik-dinamis-tabel')], function () {
-        Route::get('/', [SetIpDinamisTabelController::class, 'index'])->middleware('permission:view');
-        Route::get('/getData', [SetIpDinamisTabelController::class, 'getData']);
-        Route::get('/addData', [SetIpDinamisTabelController::class, 'addData']);
-        Route::post('/createData', [SetIpDinamisTabelController::class, 'createData'])->middleware('permission:create');
-        Route::get('/editData/{id}', [SetIpDinamisTabelController::class, 'editData']); // ?type=menu|submenu_utama|submenu
-        Route::post('/updateData/{id}', [SetIpDinamisTabelController::class, 'updateData'])->middleware('permission:update'); // ?type=menu|submenu_utama|submenu
-        Route::get('/detailData/{id}', [SetIpDinamisTabelController::class, 'detailData']); // ?type=menu|submenu_utama|submenu
-        Route::get('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData']); // ?type=menu|submenu_utama|submenu
-        Route::delete('/deleteData/{id}', [SetIpDinamisTabelController::class, 'deleteData'])->middleware('permission:delete'); // ?type=menu|submenu_utama|submenu
     });
 
     // ❌ ROUTE TIDAK STANDAR - get-informasi-publik-* (Hanya view & download, tidak ada CRUD lengkap)
