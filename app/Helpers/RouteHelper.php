@@ -13,9 +13,9 @@ class RouteHelper
     
     // Daftar URL Sisfo yang punya route khusus (tidak pakai dynamic routing)
     private static array $nonStandardSisfoUrls = [
-        'get-informasi-publik-informasi-berkala',
-        'get-informasi-publik-informasi-serta-merta',
-        'get-informasi-publik-informasi-setiap-saat',
+        // 'get-informasi-publik-informasi-berkala',
+        // 'get-informasi-publik-informasi-serta-merta',
+        // 'get-informasi-publik-informasi-setiap-saat',
         'daftar-verifikasi-pengajuan',
         'daftar-review-pengajuan',
         'whatsapp-management',
