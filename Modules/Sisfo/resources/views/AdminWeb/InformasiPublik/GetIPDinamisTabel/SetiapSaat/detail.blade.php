@@ -1,4 +1,8 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\GetIPDinamisTabel\view-document-serta-merta.blade.php -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $getIpDinamisTabelInformasiSetiapSaatUrl = WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-setiap-saat');
+  $downloadUrl = url($getIpDinamisTabelInformasiSetiapSaatUrl . '/detailData/' . $id . '?type=' . $type . '&action=download');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">
         <i class="fas fa-file-pdf text-danger mr-2"></i>
@@ -13,19 +17,17 @@
     <div class="document-viewer">
         <div class="d-flex justify-content-between align-items-center p-3 bg-light border-bottom">
             <div class="document-info">
-                <h6 class="mb-0">{{ $filename }}</h6>
-                <small class="text-muted">Dokumen PDF</small>
+                <h6 class="mb-0">
+                    <i class="fas fa-file-pdf text-danger mr-2"></i>{{ $filename }}.pdf
+                </h6>
             </div>
             <div class="document-actions">
-                <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" 
-                   class="btn btn-sm btn-outline-primary" target="_blank">
-                    <i class="fas fa-download mr-1"></i>
-                    Download
-                </a>
-                <button type="button" class="btn btn-sm btn-outline-secondary ml-2" onclick="openFullscreen()">
-                    <i class="fas fa-expand mr-1"></i>
-                    Fullscreen
+                <button onclick="openFullscreen()" class="btn btn-sm btn-info">
+                    <i class="fas fa-expand-arrows-alt mr-1"></i> Fullscreen
                 </button>
+                <a href="{{ $downloadUrl }}" class="btn btn-sm btn-primary" target="_blank">
+                    <i class="fas fa-download mr-1"></i> Download
+                </a>
             </div>
         </div>
         
@@ -34,16 +36,13 @@
                     src="{{ $documentUrl }}" 
                     width="100%" 
                     height="100%" 
-                    style="border: none; min-height: 600px;">
-                <div class="text-center p-4">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Browser Anda tidak mendukung preview PDF. 
-                        <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" class="alert-link">
-                            Klik di sini untuk mengunduh dokumen
-                        </a>
-                    </div>
-                </div>
+                    style="border: none;"
+                    type="application/pdf">
+                <p>Browser Anda tidak mendukung tampilan PDF. 
+                   <a href="{{ $downloadUrl }}" target="_blank">
+                       Download PDF
+                   </a>
+                </p>
             </iframe>
         </div>
     </div>
@@ -54,7 +53,7 @@
         <i class="fas fa-times mr-1"></i>
         Tutup
     </button>
-    <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" 
+    <a href="{{ $downloadUrl }}" 
        class="btn btn-primary" target="_blank">
         <i class="fas fa-download mr-1"></i>
         Download PDF
@@ -72,14 +71,10 @@ document.getElementById('pdfViewer').onerror = function() {
     this.style.display = 'none';
     this.parentNode.innerHTML = `
         <div class="text-center p-5">
-            <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
-            <h5 class="text-danger">Tidak dapat menampilkan PDF</h5>
-            <p class="text-muted">
-                Browser Anda mungkin tidak mendukung preview PDF.<br>
-                Silakan download dokumen untuk melihat isinya.
-            </p>
-            <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" 
-               class="btn btn-primary" target="_blank">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <h5>Tidak dapat menampilkan PDF</h5>
+            <p class="text-muted">Browser Anda tidak mendukung preview PDF.</p>
+            <a href="{{ $downloadUrl }}" class="btn btn-primary" target="_blank">
                 <i class="fas fa-download mr-1"></i>
                 Download PDF
             </a>

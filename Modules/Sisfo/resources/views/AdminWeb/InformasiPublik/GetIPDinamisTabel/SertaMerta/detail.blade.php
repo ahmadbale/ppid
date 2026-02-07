@@ -1,4 +1,8 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\GetIPDinamisTabel\view-document-setiap-saat.blade.php -->
+@php
+  use Modules\Sisfo\App\Models\Website\WebMenuModel;
+  $getIpDinamisTabelInformasiSertaMertaUrl = WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-serta-merta');
+  $downloadUrl = url($getIpDinamisTabelInformasiSertaMertaUrl . '/detailData/' . $id . '?type=' . $type . '&action=download');
+@endphp
 <div class="modal-header">
     <h5 class="modal-title">
         <i class="fas fa-file-pdf text-danger mr-2"></i>
@@ -17,7 +21,7 @@
                 <small class="text-muted">Dokumen PDF</small>
             </div>
             <div class="document-actions">
-                <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" 
+                <a href="{{ $downloadUrl }}" 
                    class="btn btn-sm btn-outline-primary" target="_blank">
                     <i class="fas fa-download mr-1"></i>
                     Download
@@ -39,7 +43,7 @@
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
                         Browser Anda tidak mendukung preview PDF. 
-                        <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" class="alert-link">
+                        <a href="{{ $downloadUrl }}" class="alert-link">
                             Klik di sini untuk mengunduh dokumen
                         </a>
                     </div>
@@ -54,7 +58,7 @@
         <i class="fas fa-times mr-1"></i>
         Tutup
     </button>
-    <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" 
+    <a href="{{ $downloadUrl }}" 
        class="btn btn-primary" target="_blank">
         <i class="fas fa-download mr-1"></i>
         Download PDF
@@ -78,7 +82,7 @@ document.getElementById('pdfViewer').onerror = function() {
                 Browser Anda mungkin tidak mendukung preview PDF.<br>
                 Silakan download dokumen untuk melihat isinya.
             </p>
-            <a href="{{ route('download.document', ['type' => $type, 'id' => $id]) }}" 
+            <a href="{{ $downloadUrl }}" 
                class="btn btn-primary" target="_blank">
                 <i class="fas fa-download mr-1"></i>
                 Download PDF

@@ -108,28 +108,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/hapus-semua-dibaca', [NotifAdminController::class, 'hapusSemuaDibaca']);
     });
 
-    // ❌ ROUTE TIDAK STANDAR - get-informasi-publik-* (Hanya view & download, tidak ada CRUD lengkap)
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-berkala')], function () {
-        Route::get('/', [GetIPInformasiBerkalaController::class, 'index'])->middleware('permission:view');
-        Route::get('/download/{type}/{id}', [GetIPInformasiBerkalaController::class, 'downloadDocument'])->name('download.document');
-        Route::get('/getData', [GetIPInformasiBerkalaController::class, 'getData']);
-        Route::get('/view/{type}/{id}', [GetIPInformasiBerkalaController::class, 'viewDocument'])->name('view.document');
-    });
-
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-serta-merta')], function () {
-        Route::get('/', [GetIPInformasiSertaMertaController::class, 'index'])->middleware('permission:view');
-        Route::get('/download/{type}/{id}', [GetIPInformasiSertaMertaController::class, 'downloadDocument'])->name('download.document');
-        Route::get('/getData', [GetIPInformasiSertaMertaController::class, 'getData']);
-        Route::get('/view/{type}/{id}', [GetIPInformasiSertaMertaController::class, 'viewDocument'])->name('view.document');
-    });
-
-    Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-setiap-saat')], function () {
-        Route::get('/', [GetIPInformasiSetiapSaatController::class, 'index'])->middleware('permission:view');
-        Route::get('/download/{type}/{id}', [GetIPInformasiSetiapSaatController::class, 'downloadDocument'])->name('download.document');
-        Route::get('/getData', [GetIPInformasiSetiapSaatController::class, 'getData']);
-        Route::get('/view/{type}/{id}', [GetIPInformasiSetiapSaatController::class, 'viewDocument'])->name('view.document');
-    });
-
     // ❌ ROUTE TIDAK STANDAR - daftar-verifikasi-pengajuan (Nested structure dengan sub-prefix)
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan')], function () {
         // Route utama - menampilkan index semua kategori Hasil/Review

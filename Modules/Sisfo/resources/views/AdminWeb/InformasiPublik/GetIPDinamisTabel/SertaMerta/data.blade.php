@@ -1,11 +1,10 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\GetIPDinamisTabel\informasi-berkala-data.blade.php -->
 @if(isset($kategori) && $kategori && $menuUtamaList->count() > 0)
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <thead class="bg-primary text-white">
                 <tr>
                     <th width="50">No.</th>
-                    <th>Nama Informasi Berkala</th>
+                    <th>Nama Informasi Serta Merta</th>
                     <th width="150">Tanggal Informasi</th>
                     <th width="120">Dokumen</th>
                 </tr>
@@ -30,7 +29,7 @@
                         <td class="text-center">
                             @if($menuUtama->dokumen_ip_mu)
                                 <button type="button" 
-                                        class="btn btn-sm btn-success view-document-berkala" 
+                                        class="btn btn-sm btn-success view-document-serta-merta" 
                                         data-type="menu-utama" 
                                         data-id="{{ $menuUtama->ip_menu_utama_id }}"
                                         data-title="{{ $menuUtama->nama_ip_mu }}">
@@ -64,7 +63,7 @@
                             <td class="text-center">
                                 @if($subMenuUtama->dokumen_ip_smu)
                                     <button type="button" 
-                                            class="btn btn-sm btn-success view-document-berkala" 
+                                            class="btn btn-sm btn-success view-document-serta-merta" 
                                             data-type="sub-menu-utama" 
                                             data-id="{{ $subMenuUtama->ip_sub_menu_utama_id }}"
                                             data-title="{{ $subMenuUtama->nama_ip_smu }}">
@@ -98,7 +97,7 @@
                                 <td class="text-center">
                                     @if($subMenu->dokumen_ip_sm)
                                         <button type="button" 
-                                                class="btn btn-sm btn-success view-document-berkala" 
+                                                class="btn btn-sm btn-success view-document-serta-merta" 
                                                 data-type="sub-menu" 
                                                 data-id="{{ $subMenu->ip_sub_menu_id }}"
                                                 data-title="{{ $subMenu->nama_ip_sm }}">
@@ -125,9 +124,9 @@
             <h4 class="text-muted">Tidak Ada Data</h4>
             <p class="text-muted">
                 @if(!empty($search))
-                    Tidak ditemukan informasi berkala yang sesuai dengan pencarian "{{ $search }}"
+                    Tidak ditemukan informasi Serta Merta yang sesuai dengan pencarian "{{ $search }}"
                 @else
-                    Belum ada informasi berkala yang tersedia
+                    Belum ada informasi Serta Merta yang tersedia
                 @endif
             </p>
             @if(!empty($search))

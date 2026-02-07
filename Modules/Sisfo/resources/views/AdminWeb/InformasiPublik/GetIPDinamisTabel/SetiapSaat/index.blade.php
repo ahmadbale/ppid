@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\GetIPDinamisTabel\informasi-setiap-saat.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $getIpDinamisTabelInformasiSetiapSaatUrl = WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-setiap-saat');
@@ -107,7 +106,7 @@
 
             <!-- Container untuk data -->
             <div id="table-container">
-                @include('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.informasi-setiap-saat-data')
+                @include('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SetiapSaat.data')
             </div>
         @else
             <div class="text-center py-5">
@@ -268,7 +267,7 @@ $(document).ready(function() {
         
         // Load document modal
         $.ajax({
-            url: getIpDinamisTabelInformasiSetiapSaatUrl + '/view/' + type + '/' + id,
+            url: getIpDinamisTabelInformasiSetiapSaatUrl + '/detailData/' + id + '?type=' + type,
             type: 'GET',
             success: function(response) {
                 $('#documentModal .modal-content').html(response);
@@ -309,7 +308,7 @@ $(document).ready(function() {
     // Clear search function
     window.clearSearch = function() {
         $('#searchForm input[name="search"]').val('');
-        loadInformasiBerkaleData('');
+        loadInformasiSetiapSaatData('');
     }
 
     // Function to load data

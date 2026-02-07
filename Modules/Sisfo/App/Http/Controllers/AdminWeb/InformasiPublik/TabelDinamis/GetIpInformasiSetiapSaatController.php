@@ -41,7 +41,7 @@ class GetIPInformasiSetiapSaatController extends Controller
                 ->first();
 
             if (!$kategoriInformasiSetiapSaat) {
-                return view('sisfo::AdminWeb/InformasiPublik/GetIPDinamisTabel/informasi-setiap-saat', [
+                return view('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SetiapSaat.index', [
                     'breadcrumb' => $breadcrumb,
                     'page' => $page,
                     'activeMenu' => $activeMenu,
@@ -66,7 +66,7 @@ class GetIPInformasiSetiapSaatController extends Controller
             // Ambil tanggal terakhir update
             $lastUpdate = $this->getLastUpdateDate($kategoriInformasiSetiapSaat->ip_dinamis_tabel_id);
 
-            return view('sisfo::AdminWeb/InformasiPublik/GetIPDinamisTabel/informasi-setiap-saat', [
+            return view('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SetiapSaat.index', [
                 'breadcrumb' => $breadcrumb,
                 'page' => $page,
                 'activeMenu' => $activeMenu,
@@ -95,7 +95,7 @@ class GetIPInformasiSetiapSaatController extends Controller
 
             if (!$kategoriInformasiSetiapSaat) {
                 if ($request->ajax()) {
-                    return view('sisfo::AdminWeb/InformasiPublik/GetIPDinamisTabel/informasi-setiap-saat-data', [
+                    return view('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SetiapSaat.data', [
                         'kategori' => null,
                         'menuUtamaList' => collect(),
                         'totalDokumen' => 0,
@@ -112,7 +112,7 @@ class GetIPInformasiSetiapSaatController extends Controller
             $totalData = $this->hitungTotalData($menuUtamaList);
 
             if ($request->ajax()) {
-                return view('sisfo::AdminWeb/InformasiPublik/GetIPDinamisTabel/informasi-setiap-saat-data', [
+                return view('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SetiapSaat.data', [
                     'kategori' => $kategoriInformasiSetiapSaat,
                     'menuUtamaList' => $menuUtamaList,
                     'totalDokumen' => $totalDokumen,
@@ -227,9 +227,12 @@ class GetIPInformasiSetiapSaatController extends Controller
         return !empty($dates) ? max($dates) : null;
     }
 
-    public function viewDocument($type, $id)
+    public function detailData($id)
     {
         try {
+            $type = request()->query('type', 'menu-utama');
+            $action = request()->query('action', 'view');
+            
             $document = null;
             $filename = '';
             $title = '';
@@ -264,10 +267,13 @@ class GetIPInformasiSetiapSaatController extends Controller
                 return response()->json(['error' => 'Dokumen tidak ditemukan'], 404);
             }
 
-            // Generate URL untuk dokumen
+            if ($action === 'download') {
+                return response()->download(storage_path('app/public/' . $document), $filename . '.pdf');
+            }
+
             $documentUrl = asset('storage/' . $document);
             
-            return view('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.view-document-setiap-saat', [
+            return view('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SetiapSaat.detail', [
                 'documentUrl' => $documentUrl,
                 'title' => $title,
                 'filename' => $filename,
@@ -276,50 +282,7 @@ class GetIPInformasiSetiapSaatController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Terjadi kesalahan saat membuka dokumen'], 500);
-        }
-    }
-
-    public function downloadDocument($type, $id)
-    {
-        try {
-            $document = null;
-            $filename = '';
-
-            switch ($type) {
-                case 'menu-utama':
-                    $menuUtama = IpMenuUtamaModel::findOrFail($id);
-                    $document = $menuUtama->dokumen_ip_mu;
-                    $filename = $menuUtama->nama_ip_mu;
-                    break;
-
-                case 'sub-menu-utama':
-                    $subMenuUtama = IpSubMenuUtamaModel::findOrFail($id);
-                    $document = $subMenuUtama->dokumen_ip_smu;
-                    $filename = $subMenuUtama->nama_ip_smu;
-                    break;
-
-                case 'sub-menu':
-                    $subMenu = IpSubMenuModel::findOrFail($id);
-                    $document = $subMenu->dokumen_ip_sm;
-                    $filename = $subMenu->nama_ip_sm;
-                    break;
-
-                default:
-                    return response()->json(['error' => 'Tipe dokumen tidak valid'], 400);
-            }
-
-            if (!$document || !file_exists(storage_path('app/public/' . $document))) {
-                return response()->json(['error' => 'Dokumen tidak ditemukan'], 404);
-            }
-
-            return response()->download(
-                storage_path('app/public/' . $document),
-                $filename . '.pdf'
-            );
-
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Terjadi kesalahan saat mengunduh dokumen'], 500);
+            return response()->json(['error' => 'Terjadi kesalahan saat memproses dokumen'], 500);
         }
     }
 }

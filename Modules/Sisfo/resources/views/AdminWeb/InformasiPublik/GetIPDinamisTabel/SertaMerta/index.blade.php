@@ -1,7 +1,6 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\GetIPDinamisTabel\informasi-berkala.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  $getIpDinamisTabelInformasiBerkalaUrl = WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-berkala');
+  $getIpDinamisTabelInformasiSertaMertaUrl = WebMenuModel::getDynamicMenuUrl('get-informasi-publik-informasi-serta-merta');
 @endphp
 @extends('sisfo::layouts.template')
 
@@ -107,7 +106,7 @@
 
             <!-- Container untuk data -->
             <div id="table-container">
-                @include('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.informasi-berkala-data')
+                @include('sisfo::AdminWeb.InformasiPublik.GetIPDinamisTabel.SertaMerta.data')
             </div>
         @else
             <div class="text-center py-5">
@@ -115,7 +114,7 @@
                     <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
                     <h4 class="text-warning">Kategori Tidak Ditemukan</h4>
                     <p class="text-muted">
-                        Kategori "Informasi Berkala" belum tersedia dalam sistem.
+                        Kategori "Informasi Serta Merta" belum tersedia dalam sistem.
                         <br>Silakan hubungi administrator untuk menambahkan kategori ini.
                     </p>
                 </div>
@@ -252,10 +251,10 @@
 @push('js')
 <script>
 $(document).ready(function() {
-    var getIpDinamisTabelInformasiBerkalaUrl = '{{ $getIpDinamisTabelInformasiBerkalaUrl }}';
+    var getIpDinamisTabelInformasiSertaMertaUrl = '{{ $getIpDinamisTabelInformasiSertaMertaUrl }}';
     
     // Handle view document button click
-    $(document).on('click', '.view-document-berkala', function() {
+    $(document).on('click', '.view-document-serta-merta', function() {
         const type = $(this).data('type');
         const id = $(this).data('id');
         const title = $(this).data('title');
@@ -268,7 +267,7 @@ $(document).ready(function() {
         
         // Load document modal
         $.ajax({
-            url: getIpDinamisTabelInformasiBerkalaUrl + '/view/' + type + '/' + id,
+            url: getIpDinamisTabelInformasiSertaMertaUrl + '/detailData/' + id + '?type=' + type,
             type: 'GET',
             success: function(response) {
                 $('#documentModal .modal-content').html(response);
@@ -303,24 +302,24 @@ $(document).ready(function() {
     $('#searchForm').on('submit', function (e) {
         e.preventDefault();
         var search = $(this).find('input[name="search"]').val();
-        loadInformasiBerkalaData(search);
+        loadInformasiSertaMertaData(search);
     });
 
     // Clear search function
     window.clearSearch = function() {
         $('#searchForm input[name="search"]').val('');
-        loadInformasiBerkaleData('');
+        loadInformasiSertaMertaData('');
     }
 
     // Function to load data
-    function loadInformasiBerkalaData(search) {
+    function loadInformasiSertaMertaData(search) {
         var params = {};
         if (search && search.trim() !== '') {
             params.search = search.trim();
         }
         
         $.ajax({
-            url: getIpDinamisTabelInformasiBerkalaUrl + '/getData',
+            url: getIpDinamisTabelInformasiSertaMertaUrl + '/getData',
             type: 'GET',
             data: params,
             beforeSend: function() {
@@ -349,7 +348,7 @@ $(document).ready(function() {
     // Reload function
     window.reloadTable = function() {
         var search = $('#searchForm input[name="search"]').val();
-        loadInformasiBerkalaData(search);
+        loadInformasiSertaMertaData(search);
     }
 
     // Auto focus pada input pencarian jika ada parameter search
@@ -369,7 +368,7 @@ $(document).ready(function() {
         $('.alert-dismissible').fadeOut();
     }, 5000);
 
-    console.log('Informasi Berkala page loaded successfully');
+    console.log('Informasi Serta Merta page loaded successfully');
 });
 </script>
 @endpush

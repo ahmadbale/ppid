@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\InformasiPublik\GetIPDinamisTabel\informasi-setiap-saat-data.blade.php -->
 @if(isset($kategori) && $kategori && $menuUtamaList->count() > 0)
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
