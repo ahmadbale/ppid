@@ -43,77 +43,67 @@ class VerifPIController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
     {
         try {
-            $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
-                ->findOrFail($id);
+            $permohonanInformasi = PermohonanInformasiModel::getDaftarVerifikasi();
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.data', [
                 'permohonanInformasi' => $permohonanInformasi,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data permohonan tidak ditemukan'], 404);
+            return response()->json(['error' => 'Gagal memuat data'], 500);
         }
     }
 
-    public function getDeclineModal($id)
+    public function updateData($id)
     {
         try {
-            $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+            $action = request()->query('action', 'view');
+            $permohonan = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
                 ->findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.decline', [
-                'permohonanInformasi' => $permohonanInformasi,
-                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
-            ])->render();
+            
+            if ($action === 'view') {
+                $actionType = request()->query('type', 'approve');
+                return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.update', [
+                    'permohonanInformasi' => $permohonan,
+                    'actionType' => $actionType,
+                    'daftarPengajuanUrl' => $this->daftarPengajuanUrl
+                ])->render();
+            }
+            
+            if ($action === 'approve') {
+                $result = $permohonan->validasiDanSetujuiPermohonan();
+                return $this->jsonSuccess($result, 'Permohonan informasi berhasil disetujui');
+            }
+            
+            if ($action === 'decline') {
+                $alasanPenolakan = request()->input('alasan_penolakan');
+                $result = $permohonan->validasiDanTolakPermohonan($alasanPenolakan);
+                return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditolak');
+            }
+            
+            if ($action === 'read') {
+                $result = $permohonan->validasiDanTandaiDibaca();
+                return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditandai dibaca');
+            }
+            
+            return response()->json(['error' => 'Invalid action'], 400);
+            
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data permohonan tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
-    public function setujuiPermohonan($id)
+    public function deleteData($id)
     {
         try {
-            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonanInformasi->validasiDanSetujuiPermohonan();
-            return $this->jsonSuccess($result, 'Permohonan informasi berhasil disetujui');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui permohonan');
-        }
-    }
-
-    public function tolakPermohonan(Request $request, $id)
-    {
-        try {
-            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonanInformasi->validasiDanTolakPermohonan($request->alasan_penolakan);
-            return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak permohonan');
-        }
-    }
-
-    public function tandaiDibaca($id)
-    {
-        try {
-            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonanInformasi->validasiDanTandaiDibaca();
-            return $this->jsonSuccess($result, 'Permohonan informasi berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai permohonan dibaca');
-        }
-    }
-
-    public function hapusPermohonan($id)
-    {
-        try {
-            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonanInformasi->validasiDanHapusPermohonan();
+            $permohonan = PermohonanInformasiModel::findOrFail($id);
+            $result = $permohonan->validasiDanHapusPermohonan();
             return $this->jsonSuccess($result, 'Pengajuan ini telah dihapus dari halaman daftar Verifikasi Pengajuan');
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menghapus permohonan');
+            return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }
