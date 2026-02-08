@@ -110,18 +110,14 @@ Route::middleware('auth')->group(function () {
 
     // ❌ ROUTE TIDAK STANDAR - daftar-verifikasi-pengajuan (Nested structure dengan sub-prefix)
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan')], function () {
-        // Route utama - menampilkan index semua kategori Hasil/Review
+        // Route utama - menampilkan index semua kategori Verifikasi
         Route::get('/', [VerifPengajuanController::class, 'index'])->middleware('permission:view');
         
-        // Route untuk Hasil/Review Permohonan Informasi
         Route::group(['prefix' => 'permohonan-informasi'], function() {
             Route::get('/', [VerifPIController::class, 'index'])->middleware('permission:view');
-            Route::get('/approve-modal/{id}', [VerifPIController::class, 'getApproveModal'])->middleware('permission:update');
-            Route::get('/decline-modal/{id}', [VerifPIController::class, 'getDeclineModal'])->middleware('permission:update');
-            Route::post('/setujuiPermohonan/{id}', [VerifPIController::class, 'setujuiPermohonan'])->middleware('permission:update');
-            Route::post('/tolakPermohonan/{id}', [VerifPIController::class, 'tolakPermohonan'])->middleware('permission:update');
-            Route::post('/tandaiDibaca/{id}', [VerifPIController::class, 'tandaiDibaca'])->middleware('permission:update');
-            Route::post('/hapusPermohonan/{id}', [VerifPIController::class, 'hapusPermohonan'])->middleware('permission:delete');
+            Route::get('/getData', [VerifPIController::class, 'getData'])->middleware('permission:view');
+            Route::post('/updateData/{id}', [VerifPIController::class, 'updateData'])->middleware('permission:update');
+            Route::delete('/deleteData/{id}', [VerifPIController::class, 'deleteData'])->middleware('permission:delete');
         });
 
         Route::group(['prefix' => 'pernyataan-keberatan'], function() {
