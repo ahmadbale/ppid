@@ -409,6 +409,26 @@
         <!-- Tombol Aksi -->
         <div class="action-container mt-4 pt-3 border-top">
             <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-success btn-sm btn-action" 
+                        onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'approve')">
+                        <i class="fas fa-check"></i> Setujui
+                    </button>
+                    <button class="btn btn-danger btn-sm btn-action" 
+                        onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'decline')">
+                        <i class="fas fa-times"></i> Tolak
+                    </button>
+                    <button class="btn btn-info btn-sm btn-action" 
+                        onclick="tandaiDibaca({{ $PI->permohonan_informasi_id }}, '{{ $PI->pi_status_permohonan }}', {{ $PI->pi_sudah_dibaca }})">
+                        <i class="fas fa-eye"></i> Tandai Dibaca
+                    </button>
+                    <button class="btn btn-warning btn-sm btn-action" 
+                        onclick="hapusPermohonan({{ $PI->permohonan_informasi_id }}, {{ $PI->pi_sudah_dibaca }})">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
                 <div class="col-12">
                     <div class="d-flex flex-wrap">
                         @if($PI->pi_status == 'Masuk')
