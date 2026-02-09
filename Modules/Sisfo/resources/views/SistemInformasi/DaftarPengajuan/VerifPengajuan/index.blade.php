@@ -9,7 +9,7 @@
         <div class="row text-center">
             <!-- Permohonan Informasi -->
             <div class="col-md-4">
-                <a href="{{ url($daftarPengajuanUrl . '/permohonan-informasi') }}" class="custom-button d-block p-3 mb-2">
+                <a href="{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-permohonan-informasi')) }}" class="custom-button d-block p-3 mb-2">
                     <i class="fas fa-info-circle fa-2x"></i>
                     <h5>Daftar Verifikasi Pengajuan Permohonan Informasi</h5>
                     @if($jumlahDaftarVerifPermohonanInformasi > 0)
@@ -20,7 +20,7 @@
             
             <!-- Pernyataan Keberatan -->
             <div class="col-md-4">
-                <a href="{{ url($daftarPengajuanUrl . '/pernyataan-keberatan') }}" class="custom-button d-block p-3 mb-2">
+                <a href="{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-pernyataan-keberatan')) }}" class="custom-button d-block p-3 mb-2">
                     <i class="fas fa-exclamation-circle fa-2x"></i>
                     <h5>Daftar Verifikasi Pengajuan Pernyataan Keberatan</h5>
                     @if($jumlahDaftarVerifPernyataanKeberatan > 0)
@@ -31,7 +31,7 @@
             
             <!-- Pengaduan Masyarakat -->
             <div class="col-md-4">
-                <a href="{{ url($daftarPengajuanUrl . '/pengaduan-masyarakat') }}" class="custom-button d-block p-3 mb-2">
+                <a href="{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-pengaduan-masyarakat')) }}" class="custom-button d-block p-3 mb-2">
                     <i class="fas fa-comments fa-2x"></i>
                     <h5>Daftar Verifikasi Pengajuan Pengaduan Masyarakat</h5>
                     @if($jumlahDaftarVerifPengaduanMasyarakat > 0)
@@ -42,7 +42,7 @@
             
             <!-- Whistle Blowing System -->
             <div class="col-md-4">
-                <a href="{{ url($daftarPengajuanUrl . '/whistle-blowing-system') }}" class="custom-button d-block p-3 mb-2">
+                <a href="{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-whistle-blowing-system')) }}" class="custom-button d-block p-3 mb-2">
                     <i class="fas fa-bullhorn fa-2x"></i>
                     <h5>Daftar Verifikasi Pengajuan Whistle Blowing System</h5>
                     @if($jumlahDaftarVerifWBS > 0)
@@ -53,7 +53,7 @@
             
             <!-- Permohonan Perawatan -->
             <div class="col-md-4">
-                <a href="{{ url($daftarPengajuanUrl . '/permohonan-perawatan') }}" class="custom-button d-block p-3 mb-2">
+                <a href="{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-permohonan-perawatan')) }}" class="custom-button d-block p-3 mb-2">
                     <i class="fas fa-tools fa-2x"></i>
                     <h5>Daftar Verifikasi Pengajuan Permohonan Perawatan Sarana Prasarana</h5>
                     @if($jumlahDaftarVerifPermohonanPerawatan > 0)
