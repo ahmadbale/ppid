@@ -12,6 +12,7 @@ class PopulateDynamicRoutingDataSeeder extends Seeder
     {
         $this->populateControllerNames();
         $this->populateModuleTypes();
+        $this->insertSubMenus(); // Tambah sub-menu untuk verifikasi dan review
     }
     
     // Set controller_name untuk semua URL Sisfo
@@ -123,5 +124,177 @@ class PopulateDynamicRoutingDataSeeder extends Seeder
             ->whereNotNull('controller_name')
             ->where('controller_name', '!=', '')
             ->update(['module_type' => 'sisfo']);
+    }
+    
+    // Insert sub-menu untuk Verifikasi dan Review Pengajuan
+    private function insertSubMenus(): void
+    {
+        // Get parent IDs
+        $verifParentId = DB::table('web_menu_url')
+            ->where('wmu_nama', 'daftar-verifikasi-pengajuan')
+            ->value('web_menu_url_id');
+        
+        $reviewParentId = DB::table('web_menu_url')
+            ->where('wmu_nama', 'daftar-review-pengajuan')
+            ->value('web_menu_url_id');
+        
+        // Jika parent belum ada, skip
+        if (!$verifParentId || !$reviewParentId) {
+            echo "⚠️ Parent menu 'daftar-verifikasi-pengajuan' atau 'daftar-review-pengajuan' tidak ditemukan. Skip insert sub-menu.\n";
+            return;
+        }
+        
+        $now = now();
+        $insertedCount = 0;
+        
+        // 5 Sub-menu Verifikasi Pengajuan
+        $verifSubMenus = [
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $verifParentId,
+                'wmu_nama' => 'daftar-verifikasi-pengajuan-permohonan-informasi',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Verifikasi Pengajuan Permohonan Informasi',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $verifParentId,
+                'wmu_nama' => 'daftar-verifikasi-pengajuan-pernyataan-keberatan',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Verifikasi Pengajuan Pernyataan Keberatan',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $verifParentId,
+                'wmu_nama' => 'daftar-verifikasi-pengajuan-pengaduan-masyarakat',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPMController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Verifikasi Pengajuan Pengaduan Masyarakat',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $verifParentId,
+                'wmu_nama' => 'daftar-verifikasi-pengajuan-whistle-blowing-system',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifWBSController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Verifikasi Pengajuan Whistle Blowing System',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $verifParentId,
+                'wmu_nama' => 'daftar-verifikasi-pengajuan-permohonan-perawatan',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPPController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Verifikasi Pengajuan Permohonan Perawatan Sarana Prasarana',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+        ];
+        
+        // 5 Sub-menu Review Pengajuan
+        $reviewSubMenus = [
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $reviewParentId,
+                'wmu_nama' => 'daftar-review-pengajuan-permohonan-informasi',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Review Pengajuan Permohonan Informasi',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $reviewParentId,
+                'wmu_nama' => 'daftar-review-pengajuan-pernyataan-keberatan',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPKController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Review Pengajuan Pernyataan Keberatan',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $reviewParentId,
+                'wmu_nama' => 'daftar-review-pengajuan-pengaduan-masyarakat',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPMController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Review Pengajuan Pengaduan Masyarakat',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $reviewParentId,
+                'wmu_nama' => 'daftar-review-pengajuan-whistle-blowing-system',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewWBSController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Review Pengajuan Whistle Blowing System',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+            [
+                'fk_m_application' => 1,
+                'wmu_parent_id' => $reviewParentId,
+                'wmu_nama' => 'daftar-review-pengajuan-permohonan-perawatan',
+                'controller_name' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPPController',
+                'module_type' => 'sisfo',
+                'wmu_keterangan' => 'Daftar Review Pengajuan Permohonan Perawatan Sarana Prasarana',
+                'isDeleted' => 0,
+                'created_by' => 'system',
+                'created_at' => $now,
+            ],
+        ];
+        
+        // Insert Verifikasi sub-menus
+        foreach ($verifSubMenus as $menu) {
+            $exists = DB::table('web_menu_url')
+                ->where('wmu_nama', $menu['wmu_nama'])
+                ->exists();
+            
+            if (!$exists) {
+                DB::table('web_menu_url')->insert($menu);
+                $insertedCount++;
+                echo "✅ Inserted: {$menu['wmu_nama']}\n";
+            } else {
+                echo "⏭️ Skip (exists): {$menu['wmu_nama']}\n";
+            }
+        }
+        
+        // Insert Review sub-menus
+        foreach ($reviewSubMenus as $menu) {
+            $exists = DB::table('web_menu_url')
+                ->where('wmu_nama', $menu['wmu_nama'])
+                ->exists();
+            
+            if (!$exists) {
+                DB::table('web_menu_url')->insert($menu);
+                $insertedCount++;
+                echo "✅ Inserted: {$menu['wmu_nama']}\n";
+            } else {
+                echo "⏭️ Skip (exists): {$menu['wmu_nama']}\n";
+            }
+        }
+        
+        echo "\n🎯 Total sub-menu inserted: {$insertedCount}/10\n";
     }
 }

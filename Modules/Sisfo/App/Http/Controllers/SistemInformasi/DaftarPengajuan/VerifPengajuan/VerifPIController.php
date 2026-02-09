@@ -57,21 +57,29 @@ class VerifPIController extends Controller
         }
     }
 
-    public function updateData($id)
+    public function editData($id)
     {
         try {
-            $action = request()->query('action', 'view');
+            $actionType = request()->query('type', 'approve');
             $permohonan = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
                 ->findOrFail($id);
             
-            if ($action === 'view') {
-                $actionType = request()->query('type', 'approve');
-                return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.update', [
-                    'permohonanInformasi' => $permohonan,
-                    'actionType' => $actionType,
-                    'daftarPengajuanUrl' => $this->daftarPengajuanUrl
-                ])->render();
-            }
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanInformasi.update', [
+                'permohonanInformasi' => $permohonan,
+                'actionType' => $actionType,
+                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
+            ])->render();
+        } catch (\Exception $e) {
+            return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function updateData($id)
+    {
+        try {
+            $action = request()->input('action');
+            $permohonan = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
+                ->findOrFail($id);
             
             if ($action === 'approve') {
                 $result = $permohonan->validasiDanSetujuiPermohonan();

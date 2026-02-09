@@ -409,43 +409,27 @@
         <!-- Tombol Aksi -->
         <div class="action-container mt-4 pt-3 border-top">
             <div class="row">
-                <div class="col-md-12">
-                    <button class="btn btn-success btn-sm btn-action" 
-                        onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'approve')">
-                        <i class="fas fa-check"></i> Setujui
-                    </button>
-                    <button class="btn btn-danger btn-sm btn-action" 
-                        onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'decline')">
-                        <i class="fas fa-times"></i> Tolak
-                    </button>
-                    <button class="btn btn-info btn-sm btn-action" 
-                        onclick="tandaiDibaca({{ $PI->permohonan_informasi_id }}, '{{ $PI->pi_status_permohonan }}', {{ $PI->pi_sudah_dibaca }})">
-                        <i class="fas fa-eye"></i> Tandai Dibaca
-                    </button>
-                    <button class="btn btn-warning btn-sm btn-action" 
-                        onclick="hapusPermohonan({{ $PI->permohonan_informasi_id }}, {{ $PI->pi_sudah_dibaca }})">
-                        <i class="fas fa-trash"></i> Hapus
-                    </button>
-                </div>
-            </div>
-        </div>
                 <div class="col-12">
                     <div class="d-flex flex-wrap">
                         @if($PI->pi_status == 'Masuk')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $PI->permohonan_informasi_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" 
+                                onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'approve')">
                                 <i class="fas fa-check"></i> Setujui
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $PI->permohonan_informasi_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" 
+                                onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'decline')">
                                 <i class="fas fa-times"></i> Tolak
                             </button>
                         @endif
 
-                        <button class="btn btn-info btn-sm mr-2 mb-2" onclick="tandaiDibaca({{ $PI->permohonan_informasi_id }}, '{{ $PI->pi_status }}', {{ $PI->pi_sudah_dibaca ? 'true' : 'false' }})" 
+                        <button class="btn btn-info btn-sm mr-2 mb-2" 
+                            onclick="tandaiDibaca({{ $PI->permohonan_informasi_id }}, '{{ $PI->pi_status }}', {{ $PI->pi_sudah_dibaca ? 'true' : 'false' }})" 
                             data-status="{{ $PI->pi_status }}" data-dibaca="{{ $PI->pi_sudah_dibaca ? 'true' : 'false' }}">
                             <i class="fas fa-book-reader"></i> Tandai Dibaca
                         </button>
                         
-                        <button class="btn btn-warning btn-sm mb-2" onclick="hapusPermohonan({{ $PI->permohonan_informasi_id }}, {{ $PI->pi_sudah_dibaca ? 'true' : 'false' }})" 
+                        <button class="btn btn-warning btn-sm mb-2" 
+                            onclick="hapusPermohonan({{ $PI->permohonan_informasi_id }}, {{ $PI->pi_sudah_dibaca ? 'true' : 'false' }})" 
                             data-dibaca="{{ $PI->pi_sudah_dibaca ? 'true' : 'false' }}">
                             <i class="fas fa-trash"></i> Hapus
                         </button>
