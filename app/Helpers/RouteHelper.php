@@ -16,8 +16,8 @@ class RouteHelper
         // 'get-informasi-publik-informasi-berkala',
         // 'get-informasi-publik-informasi-serta-merta',
         // 'get-informasi-publik-informasi-setiap-saat',
-        'daftar-verifikasi-pengajuan',
-        'daftar-review-pengajuan',
+        'daftar-verifikasi-pengajuan',  // ❌ REMOVED - Parent only route, sub-menu pakai dynamic routing
+        'daftar-review-pengajuan',      // ❌ REMOVED - Parent only route, sub-menu pakai dynamic routing
         'whatsapp-management',
     ];
     
