@@ -43,71 +43,70 @@ class VerifPKController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
     {
         try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
-                ->findOrFail($id);
+            $pernyataanKeberatan = PernyataanKeberatanModel::getDaftarVerifikasi();
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.data', [
                 'pernyataanKeberatan' => $pernyataanKeberatan,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data Pernyataan Keberatan tidak ditemukan'], 404);
+            return response()->json(['error' => 'Gagal memuat data'], 500);
         }
     }
 
-    public function getDeclineModal($id)
+    public function editData($id)
     {
         try {
+            $actionType = request()->query('type', 'approve');
             $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
                 ->findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.decline', [
+            
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPernyataanKeberatan.update', [
                 'pernyataanKeberatan' => $pernyataanKeberatan,
+                'actionType' => $actionType,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data Pernyataan Keberatan tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
-    public function setujuiPermohonan($id)
+    public function updateData($id)
     {
         try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            $result = $pernyataanKeberatan->validasiDanSetujuiPermohonan();
-            return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil disetujui');
+            $action = request()->input('action');
+            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
+                ->findOrFail($id);
+            
+            if ($action === 'approve') {
+                $result = $pernyataanKeberatan->validasiDanSetujuiPermohonan();
+                return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil disetujui');
+            }
+            
+            if ($action === 'decline') {
+                $alasanPenolakan = request()->input('alasan_penolakan');
+                if (!$alasanPenolakan) {
+                    throw new \Exception('Alasan penolakan harus diisi');
+                }
+                $result = $pernyataanKeberatan->validasiDanTolakPermohonan($alasanPenolakan);
+                return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil ditolak');
+            }
+            
+            if ($action === 'read') {
+                $result = $pernyataanKeberatan->validasiDanTandaiDibaca();
+                return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil ditandai dibaca');
+            }
+            
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui Pernyataan Keberatan');
+            return $this->jsonError($e, 'Gagal memproses permohonan');
         }
     }
 
-    public function tolakPermohonan(Request $request, $id)
-    {
-        try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            $alasanPenolakan = $request->input('alasan_penolakan');
-            $result = $pernyataanKeberatan->validasiDanTolakPermohonan($alasanPenolakan);
-            return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak Pernyataan Keberatan');
-        }
-    }
-
-    public function tandaiDibaca($id)
-    {
-        try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            $result = $pernyataanKeberatan->validasiDanTandaiDibaca();
-            return $this->jsonSuccess($result, 'Pernyataan Keberatan berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai dibaca Pernyataan Keberatan');
-        }
-    }
-
-    public function hapusPermohonan($id)
+    public function deleteData($id)
     {
         try {
             $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
