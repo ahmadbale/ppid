@@ -43,13 +43,28 @@ class VerifPMController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
+    {
+        try {
+            $pengaduanMasyarakat = PengaduanMasyarakatModel::getDaftarVerifikasi();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPengaduanMasyarakat.data', [
+                'pengaduanMasyarakat' => $pengaduanMasyarakat,
+                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
+            ])->render();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat data'], 500);
+        }
+    }
+
+    public function editData($id)
     {
         try {
             $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
+            $actionType = request()->query('type', 'approve');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPengaduanMasyarakat.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPengaduanMasyarakat.update', [
                 'pengaduanMasyarakat' => $pengaduanMasyarakat,
+                'actionType' => $actionType,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -57,55 +72,35 @@ class VerifPMController extends Controller
         }
     }
 
-    public function getDeclineModal($id)
+    public function updateData($id)
     {
         try {
             $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
+            $action = request()->input('action');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPengaduanMasyarakat.decline', [
-                'pengaduanMasyarakat' => $pengaduanMasyarakat,
-                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
-            ])->render();
+            if ($action === 'approve') {
+                $result = $pengaduanMasyarakat->validasiDanSetujuiPermohonan();
+                return $this->jsonSuccess($result, 'Pengaduan Masyarakat berhasil disetujui');
+            }
+
+            if ($action === 'decline') {
+                $alasanPenolakan = request()->input('alasan_penolakan');
+                $result = $pengaduanMasyarakat->validasiDanTolakPermohonan($alasanPenolakan);
+                return $this->jsonSuccess($result, 'Pengaduan Masyarakat berhasil ditolak');
+            }
+
+            if ($action === 'read') {
+                $result = $pengaduanMasyarakat->validasiDanTandaiDibaca();
+                return $this->jsonSuccess($result, 'Pengaduan Masyarakat berhasil ditandai dibaca');
+            }
+
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data Pengaduan Masyarakat tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Gagal memproses Pengaduan Masyarakat');
         }
     }
 
-    public function setujuiPermohonan($id)
-    {
-        try {
-            $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-            $result = $pengaduanMasyarakat->validasiDanSetujuiPermohonan();
-            return $this->jsonSuccess($result, 'Pengaduan Masyarakat berhasil disetujui');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui Pengaduan Masyarakat');
-        }
-    }
-
-    public function tolakPermohonan(Request $request, $id)
-    {
-        try {
-            $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-            $alasanPenolakan = $request->input('alasan_penolakan');
-            $result = $pengaduanMasyarakat->validasiDanTolakPermohonan($alasanPenolakan);
-            return $this->jsonSuccess($result, 'Pengaduan Masyarakat berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak Pengaduan Masyarakat');
-        }
-    }
-
-    public function tandaiDibaca($id)
-    {
-        try {
-            $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-            $result = $pengaduanMasyarakat->validasiDanTandaiDibaca();
-            return $this->jsonSuccess($result, 'Pengaduan Masyarakat berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai dibaca Pengaduan Masyarakat');
-        }
-    }
-
-    public function hapusPermohonan($id)
+    public function deleteData($id)
     {
         try {
             $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
