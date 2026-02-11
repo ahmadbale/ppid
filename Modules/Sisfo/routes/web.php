@@ -131,12 +131,10 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-pengaduan-masyarakat')], function () {
         Route::get('/', [VerifPMController::class, 'index'])->middleware('permission:view');
-        Route::get('/approve-modal/{id}', [VerifPMController::class, 'getApproveModal'])->middleware('permission:update');
-        Route::get('/decline-modal/{id}', [VerifPMController::class, 'getDeclineModal'])->middleware('permission:update');
-        Route::post('/setujuiPermohonan/{id}', [VerifPMController::class, 'setujuiPermohonan'])->middleware('permission:update');
-        Route::post('/tolakPermohonan/{id}', [VerifPMController::class, 'tolakPermohonan'])->middleware('permission:update');
-        Route::post('/tandaiDibaca/{id}', [VerifPMController::class, 'tandaiDibaca'])->middleware('permission:update');
-        Route::post('/hapusPermohonan/{id}', [VerifPMController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        Route::get('/getData', [VerifPMController::class, 'getData'])->middleware('permission:view');
+        Route::get('/editData/{id}', [VerifPMController::class, 'editData'])->middleware('permission:update');
+        Route::post('/updateData/{id}', [VerifPMController::class, 'updateData'])->middleware('permission:update');
+        Route::delete('/deleteData/{id}', [VerifPMController::class, 'deleteData'])->middleware('permission:delete');
     });
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-whistle-blowing-system')], function () {
