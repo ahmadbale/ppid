@@ -293,10 +293,10 @@
                 <div class="col-12">
                     <div class="d-flex flex-wrap">
                         @if($PM->pm_status == 'Masuk')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $PM->pengaduan_masyarakat_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $PM->pengaduan_masyarakat_id }}, 'approve')">
                                 <i class="fas fa-check"></i> Setujui
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $PM->pengaduan_masyarakat_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $PM->pengaduan_masyarakat_id }}, 'decline')">
                                 <i class="fas fa-times"></i> Tolak
                             </button>
                         @endif
