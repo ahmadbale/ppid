@@ -139,22 +139,19 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-whistle-blowing-system')], function () {
         Route::get('/', [VerifWBSController::class, 'index'])->middleware('permission:view');
-        Route::get('/approve-modal/{id}', [VerifWBSController::class, 'getApproveModal'])->middleware('permission:update');
-        Route::get('/decline-modal/{id}', [VerifWBSController::class, 'getDeclineModal'])->middleware('permission:update');
-        Route::post('/setujuiPermohonan/{id}', [VerifWBSController::class, 'setujuiPermohonan'])->middleware('permission:update');
-        Route::post('/tolakPermohonan/{id}', [VerifWBSController::class, 'tolakPermohonan'])->middleware('permission:update');
-        Route::post('/tandaiDibaca/{id}', [VerifWBSController::class, 'tandaiDibaca'])->middleware('permission:update');
-        Route::post('/hapusPermohonan/{id}', [VerifWBSController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        Route::get('/getData', [VerifWBSController::class, 'getData'])->middleware('permission:view');
+        Route::get('/editData/{id}', [VerifWBSController::class, 'editData'])->middleware('permission:update');
+        Route::post('/updateData/{id}', [VerifWBSController::class, 'updateData'])->middleware('permission:update');
+        Route::delete('/deleteData/{id}', [VerifWBSController::class, 'deleteData'])->middleware('permission:delete');
     });
 
+    // ✅ ROUTE STANDAR - daftar-verifikasi-pengajuan-permohonan-perawatan
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('daftar-verifikasi-pengajuan-permohonan-perawatan')], function () {
         Route::get('/', [VerifPPController::class, 'index'])->middleware('permission:view');
-        Route::get('/approve-modal/{id}', [VerifPPController::class, 'getApproveModal'])->middleware('permission:update');
-        Route::get('/decline-modal/{id}', [VerifPPController::class, 'getDeclineModal'])->middleware('permission:update');
-        Route::post('/setujuiPermohonan/{id}', [VerifPPController::class, 'setujuiPermohonan'])->middleware('permission:update');
-        Route::post('/tolakPermohonan/{id}', [VerifPPController::class, 'tolakPermohonan'])->middleware('permission:update');
-        Route::post('/tandaiDibaca/{id}', [VerifPPController::class, 'tandaiDibaca'])->middleware('permission:update');
-        Route::post('/hapusPermohonan/{id}', [VerifPPController::class, 'hapusPermohonan'])->middleware('permission:delete');
+        Route::get('/getData', [VerifPPController::class, 'getData'])->middleware('permission:view');
+        Route::get('/editData/{id}', [VerifPPController::class, 'editData'])->middleware('permission:update');
+        Route::post('/updateData/{id}', [VerifPPController::class, 'updateData'])->middleware('permission:update');
+        Route::delete('/deleteData/{id}', [VerifPPController::class, 'deleteData'])->middleware('permission:delete');
     });
 
     // ✅ ROUTE STANDAR - daftar-review-pengajuan (Parent only, sub-menu pakai dynamic routing)
