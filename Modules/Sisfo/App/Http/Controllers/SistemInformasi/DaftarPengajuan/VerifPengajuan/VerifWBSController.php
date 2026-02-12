@@ -43,13 +43,28 @@ class VerifWBSController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
+    {
+        try {
+            $whistleBlowingSystem = WBSModel::getDaftarVerifikasi();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifWBS.data', [
+                'whistleBlowingSystem' => $whistleBlowingSystem,
+                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
+            ])->render();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat data'], 500);
+        }
+    }
+
+    public function editData($id)
     {
         try {
             $whistleBlowingSystem = WBSModel::findOrFail($id);
+            $actionType = request()->query('type', 'approve');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifWBS.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifWBS.update', [
                 'whistleBlowingSystem' => $whistleBlowingSystem,
+                'actionType' => $actionType,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -57,55 +72,35 @@ class VerifWBSController extends Controller
         }
     }
 
-    public function getDeclineModal($id)
+    public function updateData($id)
     {
         try {
             $whistleBlowingSystem = WBSModel::findOrFail($id);
+            $action = request()->input('action');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifWBS.decline', [
-                'whistleBlowingSystem' => $whistleBlowingSystem,
-                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
-            ])->render();
+            if ($action === 'approve') {
+                $result = $whistleBlowingSystem->validasiDanSetujuiPermohonan();
+                return $this->jsonSuccess($result, 'Whistle Blowing System berhasil disetujui');
+            }
+
+            if ($action === 'decline') {
+                $alasanPenolakan = request()->input('alasan_penolakan');
+                $result = $whistleBlowingSystem->validasiDanTolakPermohonan($alasanPenolakan);
+                return $this->jsonSuccess($result, 'Whistle Blowing System berhasil ditolak');
+            }
+
+            if ($action === 'read') {
+                $result = $whistleBlowingSystem->validasiDanTandaiDibaca();
+                return $this->jsonSuccess($result, 'Whistle Blowing System berhasil ditandai dibaca');
+            }
+
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data Whistle Blowing System tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Gagal memproses Whistle Blowing System');
         }
     }
 
-    public function setujuiPermohonan($id)
-    {
-        try {
-            $whistleBlowingSystem = WBSModel::findOrFail($id);
-            $result = $whistleBlowingSystem->validasiDanSetujuiPermohonan();
-            return $this->jsonSuccess($result, 'Whistle Blowing System berhasil disetujui');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui Whistle Blowing System');
-        }
-    }
-
-    public function tolakPermohonan(Request $request, $id)
-    {
-        try {
-            $whistleBlowingSystem = WBSModel::findOrFail($id);
-            $alasanPenolakan = $request->input('alasan_penolakan');
-            $result = $whistleBlowingSystem->validasiDanTolakPermohonan($alasanPenolakan);
-            return $this->jsonSuccess($result, 'Whistle Blowing System berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak Whistle Blowing System');
-        }
-    }
-
-    public function tandaiDibaca($id)
-    {
-        try {
-            $whistleBlowingSystem = WBSModel::findOrFail($id);
-            $result = $whistleBlowingSystem->validasiDanTandaiDibaca();
-            return $this->jsonSuccess($result, 'Whistle Blowing System berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai dibaca Whistle Blowing System');
-        }
-    }
-
-    public function hapusPermohonan($id)
+    public function deleteData($id)
     {
         try {
             $whistleBlowingSystem = WBSModel::findOrFail($id);

@@ -1,11 +1,15 @@
-{{-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPermohonanPerawatan\decline.blade.php --}}
+@php
+    $isApprove = $actionType === 'approve';
+@endphp
+
 <div class="modal-body">
-    <div class="alert alert-warning">
-        <i class="fas fa-exclamation-triangle mr-2"></i> Anda akan menolak Permohonan Perawatan dari
+    <div class="alert alert-warning mt-3">
+        <i class="fas fa-{{ $isApprove ? 'info-circle' : 'exclamation-triangle' }} mr-2"></i> 
+        Anda akan <strong>{{ $isApprove ? 'menyetujui' : 'menolak' }}</strong> Permohonan Perawatan dari
         <strong>{{ $permohonanPerawatan->pp_nama_pengguna }}</strong>
     </div>
 
-    <div class="detail-section mb-3">
+    <div class="detail-section mb-4">
         <h6 class="mb-3">Detail Permohonan</h6>
         <table class="table table-bordered table-sm">
             <tr>
@@ -20,9 +24,15 @@
                 <th>Perawatan yang Diusulkan</th>
                 <td>{{ $permohonanPerawatan->pp_perawatan_yang_diusulkan }}</td>
             </tr>
+            <tr>
+                <th>Keluhan Kerusakan</th>
+                <td>{{ $permohonanPerawatan->pp_keluhan_kerusakan }}</td>
+            </tr>
         </table>
     </div>
 
+    @if(!$isApprove)
+    {{-- Form untuk alasan penolakan (hanya tampil saat decline) --}}
     <form id="formTolakModal">
         <div class="form-group">
             <label for="alasan_penolakan_modal">Alasan Penolakan <span class="text-danger">*</span></label>
@@ -32,11 +42,16 @@
         </div>
         <input type="hidden" id="permohonan_id" value="{{ $permohonanPerawatan->permohonan_perawatan_id }}">
     </form>
+    @endif
 </div>
+
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-    <button type="button" id="btnConfirmDecline" data-id="{{ $permohonanPerawatan->permohonan_perawatan_id }}"
-        class="btn btn-danger">
-        <i class="fas fa-times mr-1"></i> Tolak Permohonan Perawatan
+    <button type="button" id="btnConfirmUpdate" 
+        data-id="{{ $permohonanPerawatan->permohonan_perawatan_id }}"
+        data-action="{{ $isApprove ? 'approve' : 'decline' }}"
+        class="btn btn-{{ $isApprove ? 'success' : 'danger' }}">
+        <i class="fas fa-{{ $isApprove ? 'check' : 'times' }} mr-1"></i> 
+        {{ $isApprove ? 'Setujui' : 'Tolak' }} Permohonan Perawatan
     </button>
 </div>

@@ -295,10 +295,10 @@
                 <div class="col-12">
                     <div class="d-flex flex-wrap">
                         @if($WBS->wbs_status == 'Masuk')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $WBS->wbs_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $WBS->wbs_id }}, 'approve')">
                                 <i class="fas fa-check"></i> Setujui
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $WBS->wbs_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $WBS->wbs_id }}, 'decline')">
                                 <i class="fas fa-times"></i> Tolak
                             </button>
                         @endif

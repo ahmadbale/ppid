@@ -97,81 +97,29 @@
 @push('js')
 <script>
     $(function() {
-        // Fungsi untuk menampilkan modal approve
-        window.showApproveModal = function(id) {
-            // Reset modal content
-            $('#detailModalLabel').text('Persetujuan Permohonan');
+        // Base URL untuk AJAX - Gunakan sub-menu URL langsung dari database
+        const baseUrl = '{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl("daftar-verifikasi-pengajuan-permohonan-perawatan")) }}';
+        
+        // Fungsi untuk menampilkan modal update (approve/decline)
+        window.showUpdateModal = function(id, type) {
+            const titleText = type === 'approve' ? 'Persetujuan Permohonan' : 'Penolakan Permohonan';
+            $('#detailModalLabel').text(titleText);
             $('#modalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Memuat data...</p></div>');
-            
-            // Tampilkan modal
             $('#detailModal').modal('show');
             
-            // Ambil konten modal via AJAX
             $.ajax({
-                url: '{{ url("$daftarPengajuanUrl/permohonan-perawatan/approve-modal") }}/' + id,
+                url: baseUrl + '/editData/' + id + '?type=' + type,
                 type: 'GET',
                 success: function(response) {
                     $('#modalContent').html(response);
                     
-                    // Event handler untuk tombol konfirmasi approve
-                    $('#btnConfirmApprove').on('click', function() {
-                        const permohonanId = $(this).data('id');
-                        
-                        Swal.fire({
-                            title: 'Konfirmasi',
-                            text: 'Anda yakin sudah mereview data pengguna dan akan melakukan penyetujuan pengajuan ini?',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'Ya, Setujui',
-                            cancelButtonText: 'Batal',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Tampilkan loading
-                                Swal.fire({
-                                    title: 'Memproses...',
-                                    text: 'Mohon tunggu sebentar',
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false,
-                                    didOpen: () => {
-                                        Swal.showLoading();
-                                    }
-                                });
-
-                                // Kirim permintaan AJAX
-                                $.ajax({
-                                    url: '{{ url("$daftarPengajuanUrl/permohonan-perawatan/setujuiPermohonan") }}/' + permohonanId,
-                                    type: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}'
-                                    },
-                                    success: function(response) {
-                                        if (response.success) {
-                                            Swal.fire({
-                                                title: 'Berhasil!',
-                                                text: response.message,
-                                                icon: 'success'
-                                            }).then(() => {
-                                                location.reload();
-                                            });
-                                        } else {
-                                            Swal.fire({
-                                                title: 'Peringatan!',
-                                                text: response.message,
-                                                icon: 'warning'
-                                            });
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        Swal.fire({
-                                            title: 'Error!',
-                                            text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
-                                            icon: 'error'
-                                        });
-                                    }
-                                });
-                            }
-                        });
+                    $('#btnConfirmUpdate').on('click', function() {
+                        const action = $(this).data('action');
+                        if (action === 'approve') {
+                            processApproval(id);
+                        } else {
+                            processDecline(id);
+                        }
                     });
                 },
                 error: function(xhr) {
@@ -180,105 +128,128 @@
             });
         };
         
-        // Fungsi untuk menampilkan modal decline
-        window.showDeclineModal = function(id) {
-            // Reset modal content
-            $('#detailModalLabel').text('Penolakan Permohonan');
-            $('#modalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Memuat data...</p></div>');
-            
-            // Tampilkan modal
-            $('#detailModal').modal('show');
-            
-            // Ambil konten modal via AJAX
-            $.ajax({
-                url: '{{ url("$daftarPengajuanUrl/permohonan-perawatan/decline-modal") }}/' + id,
-                type: 'GET',
-                success: function(response) {
-                    $('#modalContent').html(response);
-                    
-                    // Event handler untuk tombol konfirmasi decline
-                    $('#btnConfirmDecline').on('click', function() {
-                        // Reset error
-                        $('#alasan_penolakan_modal').removeClass('is-invalid');
-                        $('#alasanErrorModal').html('');
-                        
-                        // Ambil nilai alasan penolakan
-                        const alasanPenolakan = $('#alasan_penolakan_modal').val().trim();
-                        const permohonanId = $(this).data('id');
-                        
-                        if (!alasanPenolakan) {
-                            $('#alasan_penolakan_modal').addClass('is-invalid');
-                            $('#alasanErrorModal').html('Alasan penolakan harus diisi untuk menolak pengajuan');
-                            return;
-                        }
-                        
-                        Swal.fire({
-                            title: 'Konfirmasi',
-                            text: 'Jika anda yakin telah melakukan review dan akan menolak pengajuan ini dengan alasan yang telah diisi?',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'Ya, Tolak',
-                            cancelButtonText: 'Batal',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Tampilkan loading
-                                Swal.fire({
-                                    title: 'Memproses...',
-                                    text: 'Mohon tunggu sebentar',
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false,
-                                    didOpen: () => {
-                                        Swal.showLoading();
-                                    }
-                                });
+        // Fungsi helper untuk proses approval
+        function processApproval(id) {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Anda yakin sudah mereview data pengguna dan akan melakukan penyetujuan pengajuan ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Setujui',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
 
-                                // Kirim permintaan AJAX
-                                $.ajax({
-                                    url: '{{ url("$daftarPengajuanUrl/permohonan-perawatan/tolakPermohonan") }}/' + permohonanId,
-                                    type: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
-                                        alasan_penolakan: alasanPenolakan
-                                    },
-                                    success: function(response) {
-                                        if (response.success) {
-                                            Swal.fire({
-                                                title: 'Berhasil!',
-                                                text: response.message,
-                                                icon: 'success'
-                                            }).then(() => {
-                                                location.reload();
-                                            });
-                                        } else {
-                                            Swal.fire({
-                                                title: 'Peringatan!',
-                                                text: response.message,
-                                                icon: 'warning'
-                                            });
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        Swal.fire({
-                                            title: 'Error!',
-                                            text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
-                                            icon: 'error'
-                                        });
-                                    }
+                    $.ajax({
+                        url: baseUrl + '/updateData/' + id,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            action: 'approve'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    icon: 'success'
+                                }).then(() => { location.reload(); });
+                            } else {
+                                Swal.fire({
+                                    title: 'Peringatan!',
+                                    text: response.message,
+                                    icon: 'warning'
                                 });
                             }
-                        });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
+                                icon: 'error'
+                            });
+                        }
                     });
-                },
-                error: function(xhr) {
-                    $('#modalContent').html('<div class="alert alert-danger">Gagal memuat data. Silakan coba lagi.</div>');
                 }
             });
-        };
+        }
+        
+        // Fungsi helper untuk proses decline
+        function processDecline(id) {
+            $('#alasan_penolakan_modal').removeClass('is-invalid');
+            $('#alasanErrorModal').html('');
+            
+            const alasanPenolakan = $('#alasan_penolakan_modal').val().trim();
+            
+            if (!alasanPenolakan) {
+                $('#alasan_penolakan_modal').addClass('is-invalid');
+                $('#alasanErrorModal').html('Alasan penolakan harus diisi untuk menolak pengajuan');
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Jika anda yakin telah melakukan review dan akan menolak pengajuan ini dengan alasan yang telah diisi?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Tolak',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    $.ajax({
+                        url: baseUrl + '/updateData/' + id,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            action: 'decline',
+                            alasan_penolakan: alasanPenolakan
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    icon: 'success'
+                                }).then(() => { location.reload(); });
+                            } else {
+                                Swal.fire({
+                                    title: 'Peringatan!',
+                                    text: response.message,
+                                    icon: 'warning'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
+            });
+        }
         
         // Fungsi untuk tandai dibaca dengan validasi awal
         window.tandaiDibaca = function(id, status, sudahDibaca) {
-            // Validasi awal: permohonan harus sudah disetujui atau ditolak
             if (status !== 'Verifikasi' && status !== 'Ditolak') {
                 Swal.fire({
                     title: 'Perhatian!',
@@ -288,7 +259,6 @@
                 return;
             }
             
-            // Jika sudah dibaca, tampilkan peringatan
             if (sudahDibaca) {
                 Swal.fire({
                     title: 'Informasi',
@@ -298,7 +268,6 @@
                 return;
             }
             
-            // Jika validasi sukses, baru tampilkan konfirmasi
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Apakah anda yakin ingin menandai pengajuan Permohonan Perawatan ini sebagai telah dibaca?',
@@ -309,23 +278,20 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Tampilkan loading
                     Swal.fire({
                         title: 'Memproses...',
                         text: 'Mohon tunggu sebentar',
                         allowOutsideClick: false,
                         allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => { Swal.showLoading(); }
                     });
 
-                    // Kirim permintaan AJAX
                     $.ajax({
-                        url: '{{ url("$daftarPengajuanUrl/permohonan-perawatan/tandaiDibaca") }}/' + id,
+                        url: baseUrl + '/updateData/' + id,
                         type: 'POST',
                         data: {
-                            _token: '{{ csrf_token() }}'
+                            _token: '{{ csrf_token() }}',
+                            action: 'read'
                         },
                         success: function(response) {
                             if (response.success) {
@@ -333,9 +299,7 @@
                                     title: 'Berhasil!',
                                     text: response.message,
                                     icon: 'success'
-                                }).then(() => {
-                                    location.reload();
-                                });
+                                }).then(() => { location.reload(); });
                             } else {
                                 Swal.fire({
                                     title: 'Peringatan!',
@@ -358,7 +322,6 @@
 
         // Fungsi untuk hapus permohonan dengan validasi awal
         window.hapusPermohonan = function(id, sudahDibaca) {
-            // Validasi awal: permohonan harus sudah ditandai dibaca
             if (!sudahDibaca) {
                 Swal.fire({
                     title: 'Perhatian!',
@@ -368,7 +331,6 @@
                 return;
             }
             
-            // Jika validasi sukses, baru tampilkan konfirmasi
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Apakah anda yakin ingin menghapus pengajuan ini dari daftar verifikasi?',
@@ -379,21 +341,17 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Tampilkan loading
                     Swal.fire({
                         title: 'Memproses...',
                         text: 'Mohon tunggu sebentar',
                         allowOutsideClick: false,
                         allowEscapeKey: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => { Swal.showLoading(); }
                     });
 
-                    // Kirim permintaan AJAX
                     $.ajax({
-                        url: '{{ url("$daftarPengajuanUrl/permohonan-perawatan/hapusPermohonan") }}/' + id,
-                        type: 'POST',
+                        url: baseUrl + '/deleteData/' + id,
+                        type: 'DELETE',
                         data: {
                             _token: '{{ csrf_token() }}'
                         },
@@ -403,9 +361,7 @@
                                     title: 'Berhasil!',
                                     text: response.message,
                                     icon: 'success'
-                                }).then(() => {
-                                    location.reload();
-                                });
+                                }).then(() => { location.reload(); });
                             } else {
                                 Swal.fire({
                                     title: 'Peringatan!',
