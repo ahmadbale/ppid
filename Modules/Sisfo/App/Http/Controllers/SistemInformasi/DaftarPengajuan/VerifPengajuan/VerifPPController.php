@@ -43,13 +43,28 @@ class VerifPPController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
+    {
+        try {
+            $permohonanPerawatan = PermohonanPerawatanModel::getDaftarVerifikasi();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanPerawatan.data', [
+                'permohonanPerawatan' => $permohonanPerawatan,
+                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
+            ])->render();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat data'], 500);
+        }
+    }
+
+    public function editData($id)
     {
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
+            $actionType = request()->query('type', 'approve');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanPerawatan.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanPerawatan.update', [
                 'permohonanPerawatan' => $permohonanPerawatan,
+                'actionType' => $actionType,
                 'daftarPengajuanUrl' => $this->daftarPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -57,55 +72,35 @@ class VerifPPController extends Controller
         }
     }
 
-    public function getDeclineModal($id)
+    public function updateData($id)
     {
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
+            $action = request()->input('action');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.VerifPengajuan.VerifPermohonanPerawatan.decline', [
-                'permohonanPerawatan' => $permohonanPerawatan,
-                'daftarPengajuanUrl' => $this->daftarPengajuanUrl
-            ])->render();
+            if ($action === 'approve') {
+                $result = $permohonanPerawatan->validasiDanSetujuiPermohonan();
+                return $this->jsonSuccess($result, 'Permohonan Perawatan berhasil disetujui');
+            }
+
+            if ($action === 'decline') {
+                $alasanPenolakan = request()->input('alasan_penolakan');
+                $result = $permohonanPerawatan->validasiDanTolakPermohonan($alasanPenolakan);
+                return $this->jsonSuccess($result, 'Permohonan Perawatan berhasil ditolak');
+            }
+
+            if ($action === 'read') {
+                $result = $permohonanPerawatan->validasiDanTandaiDibaca();
+                return $this->jsonSuccess($result, 'Permohonan Perawatan berhasil ditandai dibaca');
+            }
+
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data Permohonan Perawatan tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Gagal memproses Permohonan Perawatan');
         }
     }
 
-    public function setujuiPermohonan($id)
-    {
-        try {
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-            $result = $permohonanPerawatan->validasiDanSetujuiPermohonan();
-            return $this->jsonSuccess($result, 'Permohonan Perawatan berhasil disetujui');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui Permohonan Perawatan');
-        }
-    }
-
-    public function tolakPermohonan(Request $request, $id)
-    {
-        try {
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-            $alasanPenolakan = $request->input('alasan_penolakan');
-            $result = $permohonanPerawatan->validasiDanTolakPermohonan($alasanPenolakan);
-            return $this->jsonSuccess($result, 'Permohonan Perawatan berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak Permohonan Perawatan');
-        }
-    }
-
-    public function tandaiDibaca($id)
-    {
-        try {
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-            $result = $permohonanPerawatan->validasiDanTandaiDibaca();
-            return $this->jsonSuccess($result, 'Permohonan Perawatan berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai dibaca Permohonan Perawatan');
-        }
-    }
-
-    public function hapusPermohonan($id)
+    public function deleteData($id)
     {
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
