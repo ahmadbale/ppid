@@ -330,10 +330,10 @@
                     <div class="d-flex flex-wrap">
                         {{-- Ganti kondisi dari 'Masuk' ke 'Verifikasi' untuk Review --}}
                         @if($PP->pp_status == 'Verifikasi')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $PP->permohonan_perawatan_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $PP->permohonan_perawatan_id }}, 'approve')">
                                 <i class="fas fa-check"></i> Setujui Review
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $PP->permohonan_perawatan_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $PP->permohonan_perawatan_id }}, 'decline')">
                                 <i class="fas fa-times"></i> Tolak Review
                             </button>
                         @endif
