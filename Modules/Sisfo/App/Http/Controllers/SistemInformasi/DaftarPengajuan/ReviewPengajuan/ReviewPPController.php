@@ -14,11 +14,11 @@ class ReviewPPController extends Controller
 
     public $breadcrumb = 'Daftar Review Pengajuan Permohonan Perawatan';
     public $pagename = 'Review Pengajuan Permohonan Perawatan';
-    public $daftarReviewPengajuanUrl;
+    public $reviewPPUrl;
 
     public function __construct()
     {
-        $this->daftarReviewPengajuanUrl = WebMenuModel::getDynamicMenuUrl('daftar-review-pengajuan');
+        $this->reviewPPUrl = WebMenuModel::getDynamicMenuUrl('daftar-review-pengajuan-permohonan-perawatan');
     }
 
     public function index()
@@ -39,90 +39,86 @@ class ReviewPPController extends Controller
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'permohonanPerawatan' => $permohonanPerawatan,
-            'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
+            'reviewPPUrl' => $this->reviewPPUrl,
+            'daftarReviewPengajuanUrl' => WebMenuModel::getDynamicMenuUrl('daftar-review-pengajuan')
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
     {
         try {
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.approve', [
-                'permohonanPerawatan' => $permohonanPerawatan,
-                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
+            $permohonanPerawatan = PermohonanPerawatanModel::getDaftarReview();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.data', [
+                'permohonanPerawatan' => $permohonanPerawatan
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data permohonan perawatan tidak ditemukan'], 404);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function getDeclineModal($id)
+    public function editData($id)
     {
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.decline', [
+            $actionType = request('type', 'approve');
+            
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanPerawatan.update', [
                 'permohonanPerawatan' => $permohonanPerawatan,
-                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
+                'actionType' => $actionType
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data permohonan perawatan tidak ditemukan'], 404);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function setujuiReview(Request $request, $id)
+    public function updateData(Request $request, $id)
     {
         try {
-            // Validasi input jawaban dengan file
-            $request->validate([
-                'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
-            ], [
-                'jawaban_file.max' => 'Ukuran file maksimal 10MB'
-            ]);
-
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
+            $action = $request->input('action');
             
-            $jawaban = $request->jawaban;
-            
-            // Jika ada file yang diupload
-            if ($request->hasFile('jawaban_file')) {
-                $file = $request->file('jawaban_file');
-                $filename = 'pp_jawaban_' . time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('permohonan_perawatan/jawaban', $filename, 'public');
-                $jawaban = $path;
+            if ($action === 'approve') {
+                $request->validate([
+                    'jawaban' => 'required|string',
+                    'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
+                ]);
+                
+                $jawaban = $request->input('jawaban');
+                
+                // Handle file upload jika ada
+                if ($request->hasFile('jawaban_file')) {
+                    $file = $request->file('jawaban_file');
+                    $filename = 'jawaban_pp_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('jawaban_permohonan_perawatan', $filename, 'public');
+                } else {
+                    $filename = null;
+                }
+                
+                $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
+                $result = $permohonanPerawatan->validasiDanSetujuiReview($jawaban);
+                return $this->jsonSuccess($result, 'Review permohonan perawatan berhasil disetujui');
+                
+            } elseif ($action === 'decline') {
+                $request->validate([
+                    'alasan_penolakan' => 'required|string'
+                ]);
+                
+                $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
+                $result = $permohonanPerawatan->validasiDanTolakReview($request->input('alasan_penolakan'));
+                return $this->jsonSuccess($result, 'Review permohonan perawatan berhasil ditolak');
+                
+            } elseif ($action === 'read') {
+                $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
+                $result = $permohonanPerawatan->validasiDanTandaiDibacaReview();
+                return $this->jsonSuccess($result, 'Review permohonan perawatan berhasil ditandai telah dibaca');
             }
             
-            $result = $permohonanPerawatan->validasiDanSetujuiReview($jawaban);
-            return $this->jsonSuccess($result, 'Review permohonan perawatan berhasil disetujui');
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui review permohonan perawatan');
+            return $this->jsonError($e, 'Terjadi kesalahan pada server');
         }
     }
 
-    public function tolakReview(Request $request, $id)
-    {
-        try {
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-            $result = $permohonanPerawatan->validasiDanTolakReview($request->alasan_penolakan);
-            return $this->jsonSuccess($result, 'Review permohonan perawatan berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak review permohonan perawatan');
-        }
-    }
-
-    public function tandaiDibacaReview($id)
-    {
-        try {
-            $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);
-            $result = $permohonanPerawatan->validasiDanTandaiDibacaReview();
-            return $this->jsonSuccess($result, 'Review permohonan perawatan berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai review sebagai dibaca');
-        }
-    }
-
-    public function hapusReview($id)
+    public function deleteData($id)
     {
         try {
             $permohonanPerawatan = PermohonanPerawatanModel::findOrFail($id);

@@ -43,14 +43,29 @@ class ReviewPKController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
+    {
+        try {
+            $pernyataanKeberatan = PernyataanKeberatanModel::getDaftarReview();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPernyataanKeberatan.data', [
+                'pernyataanKeberatan' => $pernyataanKeberatan,
+                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
+            ])->render();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat data'], 500);
+        }
+    }
+
+    public function editData($id)
     {
         try {
             $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
                 ->findOrFail($id);
+            $actionType = request()->query('type', 'approve');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPernyataanKeberatan.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPernyataanKeberatan.update', [
                 'pernyataanKeberatan' => $pernyataanKeberatan,
+                'actionType' => $actionType,
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -58,73 +73,54 @@ class ReviewPKController extends Controller
         }
     }
 
-    public function getDeclineModal($id)
+    public function updateData(Request $request, $id)
     {
         try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::with(['PkDiriSendiri', 'PkOrangLain'])
-                ->findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPernyataanKeberatan.decline', [
-                'pernyataanKeberatan' => $pernyataanKeberatan,
-                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
-            ])->render();
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Data pernyataan keberatan tidak ditemukan'], 404);
-        }
-    }
-
-    public function setujuiReview(Request $request, $id)
-    {
-        try {
-            // Validasi input jawaban
-            $request->validate([
-                'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
-            ], [
-                'jawaban_file.max' => 'Ukuran file maksimal 10MB'
-            ]);
-
             $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            
-            $jawaban = $request->jawaban;
-            
-            // Jika ada file yang diupload
-            if ($request->hasFile('jawaban_file')) {
-                $file = $request->file('jawaban_file');
-                $filename = 'pk_jawaban_' . time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('pernyataan_keberatan/jawaban', $filename, 'public');
-                $jawaban = $path;
+            $action = $request->input('action');
+
+            if ($action === 'approve') {
+                // Validasi input jawaban
+                $request->validate([
+                    'jawaban' => 'required',
+                    'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
+                ], [
+                    'jawaban.required' => 'Jawaban wajib diisi',
+                    'jawaban_file.mimes' => 'File harus berformat: pdf, doc, docx, jpg, jpeg, png',
+                    'jawaban_file.max' => 'Ukuran file maksimal 10MB'
+                ]);
+
+                $jawaban = $request->jawaban;
+                
+                // Jika ada file yang diupload
+                if ($request->hasFile('jawaban_file')) {
+                    $file = $request->file('jawaban_file');
+                    $fileName = 'jawaban_pk_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filePath = $file->storeAs('jawaban_pernyataan_keberatan', $fileName, 'public');
+                    $jawaban = $filePath; // Gunakan path file sebagai jawaban
+                }
+                
+                $result = $pernyataanKeberatan->validasiDanSetujuiReview($jawaban);
+                return $this->jsonSuccess($result, 'Review pernyataan keberatan berhasil disetujui');
             }
-            
-            $result = $pernyataanKeberatan->validasiDanSetujuiReview($jawaban);
-            return $this->jsonSuccess($result, 'Review pernyataan keberatan berhasil disetujui');
+
+            if ($action === 'decline') {
+                $result = $pernyataanKeberatan->validasiDanTolakReview($request->alasan_penolakan);
+                return $this->jsonSuccess($result, 'Review pernyataan keberatan berhasil ditolak');
+            }
+
+            if ($action === 'read') {
+                $result = $pernyataanKeberatan->validasiDanTandaiDibacaReview();
+                return $this->jsonSuccess($result, 'Review pernyataan keberatan berhasil ditandai dibaca');
+            }
+
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui review pernyataan keberatan');
+            return $this->jsonError($e, 'Gagal memproses data');
         }
     }
 
-    public function tolakReview(Request $request, $id)
-    {
-        try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            $result = $pernyataanKeberatan->validasiDanTolakReview($request->alasan_penolakan);
-            return $this->jsonSuccess($result, 'Review pernyataan keberatan berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak review pernyataan keberatan');
-        }
-    }
-
-    public function tandaiDibacaReview($id)
-    {
-        try {
-            $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
-            $result = $pernyataanKeberatan->validasiDanTandaiDibacaReview();
-            return $this->jsonSuccess($result, 'Review pernyataan keberatan berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai review sebagai dibaca');
-        }
-    }
-
-    public function hapusReview($id)
+    public function deleteData($id)
     {
         try {
             $pernyataanKeberatan = PernyataanKeberatanModel::findOrFail($id);
