@@ -331,10 +331,10 @@
                     <div class="d-flex flex-wrap">
                         {{-- Ganti kondisi dari 'Masuk' ke 'Verifikasi' untuk Review --}}
                         @if($WBS->wbs_status == 'Verifikasi')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $WBS->wbs_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $WBS->wbs_id }}, 'approve')">
                                 <i class="fas fa-check"></i> Setujui Review
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $WBS->wbs_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $WBS->wbs_id }}, 'decline')">
                                 <i class="fas fa-times"></i> Tolak Review
                             </button>
                         @endif

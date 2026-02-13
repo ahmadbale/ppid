@@ -43,75 +43,85 @@ class ReviewPMController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
     {
         try {
-            $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPengaduanMasyarakat.approve', [
+            $pengaduanMasyarakat = PengaduanMasyarakatModel::getDaftarReview();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPengaduanMasyarakat.data', [
                 'pengaduanMasyarakat' => $pengaduanMasyarakat,
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data pengaduan masyarakat tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Gagal memuat data review pengaduan masyarakat');
         }
     }
 
-    public function getDeclineModal($id)
+    public function editData($id)
     {
         try {
             $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPengaduanMasyarakat.decline', [
+            $actionType = request('type', 'approve');
+            
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPengaduanMasyarakat.update', [
                 'pengaduanMasyarakat' => $pengaduanMasyarakat,
-                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
+                'actionType' => $actionType
             ])->render();
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Data pengaduan masyarakat tidak ditemukan'], 404);
+            return $this->jsonError($e, 'Gagal memuat data pengaduan masyarakat');
         }
     }
 
-    public function setujuiReview(Request $request, $id)
+    public function updateData(Request $request, $id)
     {
         try {
+            $action = $request->input('action');
             $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-            $result = $pengaduanMasyarakat->validasiDanSetujuiReview($request->jawaban);
-            return $this->jsonSuccess($result, 'Review pengaduan masyarakat berhasil disetujui');
+
+            if ($action === 'approve') {
+                $request->validate([
+                    'jawaban' => 'required',
+                    'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
+                ]);
+
+                $jawaban = $request->jawaban;
+                
+                if ($request->hasFile('jawaban_file')) {
+                    $file = $request->file('jawaban_file');
+                    $fileName = 'jawaban_pm_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filePath = $file->storeAs('jawaban_pengaduan_masyarakat', $fileName, 'public');
+                    $jawaban = $filePath;
+                }
+
+                $result = $pengaduanMasyarakat->validasiDanSetujuiReview($jawaban);
+                return $this->jsonSuccess($result, 'Review pengaduan masyarakat berhasil disetujui');
+                
+            } elseif ($action === 'decline') {
+                $request->validate([
+                    'alasan_penolakan' => 'required'
+                ]);
+                
+                $result = $pengaduanMasyarakat->validasiDanTolakReview($request->alasan_penolakan);
+                return $this->jsonSuccess($result, 'Review pengaduan masyarakat berhasil ditolak');
+                
+            } elseif ($action === 'read') {
+                $result = $pengaduanMasyarakat->validasiDanTandaiDibacaReview();
+                return $this->jsonSuccess($result, 'Review pengaduan masyarakat berhasil ditandai dibaca');
+            }
+
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui review pengaduan masyarakat');
+            return $this->jsonError($e, 'Gagal memproses data review pengaduan masyarakat');
         }
     }
 
-    public function tolakReview(Request $request, $id)
-    {
-        try {
-            $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-            $result = $pengaduanMasyarakat->validasiDanTolakReview($request->alasan_penolakan);
-            return $this->jsonSuccess($result, 'Review pengaduan masyarakat berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak review pengaduan masyarakat');
-        }
-    }
-
-    public function tandaiDibacaReview($id)
-    {
-        try {
-            $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
-            $result = $pengaduanMasyarakat->validasiDanTandaiDibacaReview();
-            return $this->jsonSuccess($result, 'Review pengaduan masyarakat berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai review sebagai dibaca');
-        }
-    }
-
-    public function hapusReview($id)
+    public function deleteData($id)
     {
         try {
             $pengaduanMasyarakat = PengaduanMasyarakatModel::findOrFail($id);
             $result = $pengaduanMasyarakat->validasiDanHapusReview();
             return $this->jsonSuccess($result, 'Review pengajuan ini telah dihapus dari halaman daftar Review Pengajuan');
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menghapus review');
+            return $this->jsonError($e, 'Gagal menghapus review pengaduan masyarakat');
         }
     }
 }

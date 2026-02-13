@@ -448,10 +448,10 @@
                     <div class="d-flex flex-wrap">
                         {{-- PERBAIKAN: Ganti kondisi dari 'Masuk' ke 'Verifikasi' untuk Review --}}
                         @if($PI->pi_status == 'Verifikasi')
-                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showApproveModal({{ $PI->permohonan_informasi_id }})">
+                            <button type="button" class="btn btn-success btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'approve')">
                                 <i class="fas fa-check"></i> Setujui Review
                             </button>
-                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showDeclineModal({{ $PI->permohonan_informasi_id }})">
+                            <button type="button" class="btn btn-danger btn-sm mr-2 mb-2" onclick="showUpdateModal({{ $PI->permohonan_informasi_id }}, 'decline')">
                                 <i class="fas fa-times"></i> Tolak Review
                             </button>
                         @endif

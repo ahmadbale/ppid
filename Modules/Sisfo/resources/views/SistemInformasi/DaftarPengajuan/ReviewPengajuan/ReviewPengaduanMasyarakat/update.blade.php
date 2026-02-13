@@ -1,6 +1,11 @@
+@php
+    $isApprove = $actionType === 'approve';
+@endphp
+
 <div class="modal-body">
     <div class="alert alert-warning mt-3">
-        <i class="fas fa-info-circle mr-2"></i> Anda akan menyetujui review pengaduan masyarakat dari
+        <i class="fas fa-{{ $isApprove ? 'info-circle' : 'exclamation-triangle' }} mr-2"></i> 
+        Anda akan <strong>{{ $isApprove ? 'menyetujui' : 'menolak' }}</strong> review pengaduan masyarakat dari
         <strong>{{ $pengaduanMasyarakat->pm_nama_tanpa_gelar }}</strong>
     </div>
 
@@ -30,7 +35,8 @@
         </table>
     </div>
 
-    {{-- Form untuk mengisi jawaban --}}
+    @if($isApprove)
+    {{-- Form untuk jawaban (hanya tampil saat approve) --}}
     <form id="formSetujuiReview" enctype="multipart/form-data">
         <div class="form-group">
             <label for="jawaban">Jawaban Pengaduan <span class="text-danger">*</span></label>
@@ -44,19 +50,34 @@
             <input type="file" class="form-control-file" id="jawaban_file" name="jawaban_file" 
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
             <small class="form-text text-muted">
-                Format yang diizinkan: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 10MB.
-                <br><strong>Catatan:</strong> Jika file diupload, file akan menjadi jawaban utama dan teks di atas akan diabaikan.
+                Format yang diperbolehkan: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 10 MB.
             </small>
             <div class="invalid-feedback" id="fileError"></div>
         </div>
 
         <input type="hidden" id="pengaduan_id" value="{{ $pengaduanMasyarakat->pengaduan_masyarakat_id }}">
     </form>
+    @else
+    {{-- Form untuk alasan penolakan (hanya tampil saat decline) --}}
+    <form id="formTolakModal">
+        <div class="form-group">
+            <label for="alasan_penolakan_modal">Alasan Penolakan <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="alasan_penolakan_modal" name="alasan_penolakan" rows="4"
+                placeholder="Masukkan alasan penolakan review pengaduan masyarakat ini..." required></textarea>
+            <div class="invalid-feedback" id="alasanErrorModal"></div>
+        </div>
+        <input type="hidden" id="pengaduan_id" value="{{ $pengaduanMasyarakat->pengaduan_masyarakat_id }}">
+    </form>
+    @endif
 </div>
+
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-    <button type="button" id="btnConfirmApprove" data-id="{{ $pengaduanMasyarakat->pengaduan_masyarakat_id }}"
-        class="btn btn-success">
-        <i class="fas fa-check mr-1"></i> Setujui Review
+    <button type="button" id="btnConfirmUpdate" 
+        data-id="{{ $pengaduanMasyarakat->pengaduan_masyarakat_id }}"
+        data-action="{{ $isApprove ? 'approve' : 'decline' }}"
+        class="btn btn-{{ $isApprove ? 'success' : 'danger' }}">
+        <i class="fas fa-{{ $isApprove ? 'check' : 'times' }} mr-1"></i> 
+        {{ $isApprove ? 'Setujui' : 'Tolak' }} Review
     </button>
 </div>

@@ -43,14 +43,29 @@ class ReviewPIController extends Controller
         ]);
     }
 
-    public function getApproveModal($id)
+    public function getData()
+    {
+        try {
+            $permohonanInformasi = PermohonanInformasiModel::getDaftarReview();
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanInformasi.data', [
+                'permohonanInformasi' => $permohonanInformasi,
+                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
+            ])->render();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memuat data'], 500);
+        }
+    }
+
+    public function editData($id)
     {
         try {
             $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
                 ->findOrFail($id);
+            $actionType = request()->query('type', 'approve');
 
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanInformasi.approve', [
+            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanInformasi.update', [
                 'permohonanInformasi' => $permohonanInformasi,
+                'actionType' => $actionType,
                 'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
             ])->render();
         } catch (\Exception $e) {
@@ -58,76 +73,54 @@ class ReviewPIController extends Controller
         }
     }
 
-    public function getDeclineModal($id)
+    public function updateData(Request $request, $id)
     {
         try {
-            $permohonanInformasi = PermohonanInformasiModel::with(['PiDiriSendiri', 'PiOrangLain', 'PiOrganisasi'])
-                ->findOrFail($id);
-
-            return view('sisfo::SistemInformasi.DaftarPengajuan.ReviewPengajuan.ReviewPermohonanInformasi.decline', [
-                'permohonanInformasi' => $permohonanInformasi,
-                'daftarReviewPengajuanUrl' => $this->daftarReviewPengajuanUrl
-            ])->render();
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Data permohonan tidak ditemukan'], 404);
-        }
-    }
-
-    public function setujuiReview(Request $request, $id)
-    {
-        try {
-            // Validasi input jawaban
-            $request->validate([
-                'jawaban' => 'required',
-                'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
-            ], [
-                'jawaban.required' => 'Jawaban wajib diisi',
-                'jawaban_file.mimes' => 'File harus berformat: pdf, doc, docx, jpg, jpeg, png',
-                'jawaban_file.max' => 'Ukuran file maksimal 10MB'
-            ]);
-
             $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            
-            $jawaban = $request->jawaban;
-            
-            // Jika ada file yang diupload
-            if ($request->hasFile('jawaban_file')) {
-                $file = $request->file('jawaban_file');
-                $fileName = 'jawaban_pi_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('jawaban_permohonan_informasi', $fileName, 'public');
-                $jawaban = $filePath; // Gunakan path file sebagai jawaban
+            $action = $request->input('action');
+
+            if ($action === 'approve') {
+                // Validasi input jawaban
+                $request->validate([
+                    'jawaban' => 'required',
+                    'jawaban_file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
+                ], [
+                    'jawaban.required' => 'Jawaban wajib diisi',
+                    'jawaban_file.mimes' => 'File harus berformat: pdf, doc, docx, jpg, jpeg, png',
+                    'jawaban_file.max' => 'Ukuran file maksimal 10MB'
+                ]);
+
+                $jawaban = $request->jawaban;
+                
+                // Jika ada file yang diupload
+                if ($request->hasFile('jawaban_file')) {
+                    $file = $request->file('jawaban_file');
+                    $fileName = 'jawaban_pi_' . $id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filePath = $file->storeAs('jawaban_permohonan_informasi', $fileName, 'public');
+                    $jawaban = $filePath; // Gunakan path file sebagai jawaban
+                }
+                
+                $result = $permohonanInformasi->validasiDanSetujuiReview($jawaban);
+                return $this->jsonSuccess($result, 'Review permohonan informasi berhasil disetujui');
             }
-            
-            $result = $permohonanInformasi->validasiDanSetujuiReview($jawaban);
-            return $this->jsonSuccess($result, 'Review permohonan informasi berhasil disetujui');
+
+            if ($action === 'decline') {
+                $result = $permohonanInformasi->validasiDanTolakReview($request->alasan_penolakan);
+                return $this->jsonSuccess($result, 'Review permohonan informasi berhasil ditolak');
+            }
+
+            if ($action === 'read') {
+                $result = $permohonanInformasi->validasiDanTandaiDibacaReview();
+                return $this->jsonSuccess($result, 'Review permohonan informasi berhasil ditandai dibaca');
+            }
+
+            return response()->json(['error' => 'Invalid action'], 400);
         } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menyetujui review permohonan');
+            return $this->jsonError($e, 'Gagal memproses data');
         }
     }
 
-    public function tolakReview(Request $request, $id)
-    {
-        try {
-            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonanInformasi->validasiDanTolakReview($request->alasan_penolakan);
-            return $this->jsonSuccess($result, 'Review permohonan informasi berhasil ditolak');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menolak review permohonan');
-        }
-    }
-
-    public function tandaiDibacaReview($id)
-    {
-        try {
-            $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);
-            $result = $permohonanInformasi->validasiDanTandaiDibacaReview();
-            return $this->jsonSuccess($result, 'Review permohonan informasi berhasil ditandai dibaca');
-        } catch (\Exception $e) {
-            return $this->jsonError($e, 'Gagal menandai review permohonan dibaca');
-        }
-    }
-
-    public function hapusReview($id)
+    public function deleteData($id)
     {
         try {
             $permohonanInformasi = PermohonanInformasiModel::findOrFail($id);

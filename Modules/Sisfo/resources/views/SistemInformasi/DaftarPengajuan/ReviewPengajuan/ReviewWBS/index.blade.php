@@ -104,234 +104,228 @@
 
 @push('js')
     <script>
-        $(function () {
-            // Fungsi untuk menampilkan modal approve
-            window.showApproveModal = function (id) {
+        $(function() {
+            // Base URL untuk AJAX - Gunakan sub-menu URL langsung dari database
+            const baseUrl = '{{ url(\Modules\Sisfo\App\Models\Website\WebMenuModel::getDynamicMenuUrl("daftar-review-pengajuan-whistle-blowing-system")) }}';
+            
+            // Fungsi untuk menampilkan modal update (approve/decline)
+            window.showUpdateModal = function(id, type) {
                 // Reset modal content
-                $('#detailModalLabel').text('Persetujuan Review Whistle Blowing System');
+                const title = type === 'approve' ? 'Persetujuan Review Whistle Blowing System' : 'Penolakan Review Whistle Blowing System';
+                $('#detailModalLabel').text(title);
                 $('#modalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Memuat data...</p></div>');
-
+                
                 // Tampilkan modal
                 $('#detailModal').modal('show');
-
+                
                 // Ambil konten modal via AJAX
                 $.ajax({
-                    url: '{{ url("$daftarReviewPengajuanUrl/whistle-blowing-system/approve-modal") }}/' + id,
+                    url: `${baseUrl}/editData/${id}?type=${type}`,
                     type: 'GET',
-                    success: function (response) {
+                    success: function(response) {
                         $('#modalContent').html(response);
-
-                        // Event handler untuk tombol konfirmasi approve
-                        $('#btnConfirmApprove').on('click', function () {
-                            // Reset error
-                            $('#jawaban').removeClass('is-invalid');
-                            $('#jawaban_file').removeClass('is-invalid');
-                            $('#jawabanError').html('');
-                            $('#fileError').html('');
-
-                            // Ambil nilai jawaban dan file
-                            const jawaban = $('#jawaban').val().trim();
-                            const fileInput = $('#jawaban_file')[0];
-                            const file = fileInput.files[0];
+                        
+                        // Event handler untuk tombol konfirmasi
+                        $('#btnConfirmUpdate').on('click', function() {
+                            const action = $(this).data('action');
                             const wbsId = $(this).data('id');
-
-                            // Validasi: harus ada jawaban atau file
-                            if (!jawaban && !file) {
-                                $('#jawaban').addClass('is-invalid');
-                                $('#jawabanError').html('Anda harus mengisi jawaban atau mengupload file jawaban');
-                                return;
+                            
+                            if (action === 'approve') {
+                                processApproval(wbsId);
+                            } else {
+                                processDecline(wbsId);
                             }
-
-                            Swal.fire({
-                                title: 'Konfirmasi',
-                                text: 'Anda yakin sudah mereview data dan akan menyetujui review laporan ini?',
-                                icon: 'question',
-                                showCancelButton: true,
-                                confirmButtonText: 'Ya, Setujui',
-                                cancelButtonText: 'Batal',
-                                reverseButtons: true
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    // Tampilkan loading
+                        });
+                    },
+                    error: function(xhr) {
+                        $('#modalContent').html('<div class="alert alert-danger">Gagal memuat data. Silakan coba lagi.</div>');
+                    }
+                });
+            };
+            
+            // Fungsi helper untuk proses approval dengan upload file
+            function processApproval(id) {
+                // Reset error
+                $('#jawaban').removeClass('is-invalid');
+                $('#jawaban_file').removeClass('is-invalid');
+                $('#jawabanError').html('');
+                $('#fileError').html('');
+                
+                // Ambil nilai jawaban dan file
+                const jawaban = $('#jawaban').val().trim();
+                const fileInput = $('#jawaban_file')[0];
+                const file = fileInput.files[0];
+                
+                // Validasi: harus ada jawaban atau file
+                if (!jawaban && !file) {
+                    $('#jawaban').addClass('is-invalid');
+                    $('#jawabanError').html('Anda harus mengisi jawaban atau mengupload file jawaban');
+                    return;
+                }
+                
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: 'Anda yakin sudah mereview data dan akan menyetujui review whistle blowing system ini?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Setujui',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan loading
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Mohon tunggu sebentar',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        
+                        // Buat FormData untuk mengirim file
+                        const formData = new FormData();
+                        formData.append('_token', '{{ csrf_token() }}');
+                        formData.append('action', 'approve');
+                        formData.append('jawaban', jawaban);
+                        
+                        if (file) {
+                            formData.append('jawaban_file', file);
+                        }
+                        
+                        // Kirim permintaan AJAX
+                        $.ajax({
+                            url: `${baseUrl}/updateData/${id}`,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                if (response.success) {
+                                    $('#detailModal').modal('hide');
                                     Swal.fire({
-                                        title: 'Memproses...',
-                                        text: 'Mohon tunggu sebentar',
-                                        allowOutsideClick: false,
-                                        allowEscapeKey: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
+                                        title: 'Berhasil!',
+                                        text: response.message,
+                                        icon: 'success'
+                                    }).then(() => {
+                                        location.reload();
                                     });
-
-                                    // Buat FormData untuk mengirim file
-                                    const formData = new FormData();
-                                    formData.append('_token', '{{ csrf_token() }}');
-                                    formData.append('jawaban', jawaban);
-
-                                    if (file) {
-                                        formData.append('jawaban_file', file);
+                                } else {
+                                    Swal.fire({
+                                        title: 'Perhatian!',
+                                        text: response.message,
+                                        icon: 'warning'
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                let errorMessage = 'Terjadi kesalahan pada server';
+                                
+                                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                    const errors = xhr.responseJSON.errors;
+                                    if (errors.jawaban) {
+                                        $('#jawaban').addClass('is-invalid');
+                                        $('#jawabanError').html(errors.jawaban[0]);
                                     }
-
-                                    // Kirim permintaan AJAX
-                                    $.ajax({
-                                        url: '{{ url("$daftarReviewPengajuanUrl/whistle-blowing-system/setujuiPermohonan") }}/' + wbsId,
-                                        type: 'POST',
-                                        data: formData,
-                                        processData: false,
-                                        contentType: false,
-                                        success: function (response) {
-                                            if (response.success) {
-                                                $('#detailModal').modal('hide');
-                                                Swal.fire({
-                                                    title: 'Berhasil!',
-                                                    text: response.message,
-                                                    icon: 'success'
-                                                }).then(() => {
-                                                    location.reload();
-                                                });
-                                            } else {
-                                                Swal.fire({
-                                                    title: 'Perhatian!',
-                                                    text: response.message,
-                                                    icon: 'warning'
-                                                });
-                                            }
-                                        },
-                                        error: function (xhr) {
-                                            let errorMessage = 'Terjadi kesalahan pada server';
-
-                                            if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                                const errors = xhr.responseJSON.errors;
-                                                if (errors.jawaban) {
-                                                    $('#jawaban').addClass('is-invalid');
-                                                    $('#jawabanError').html(errors.jawaban[0]);
-                                                }
-                                                if (errors.jawaban_file) {
-                                                    $('#jawaban_file').addClass('is-invalid');
-                                                    $('#fileError').html(errors.jawaban_file[0]);
-                                                }
-                                                errorMessage = 'Silakan periksa input yang telah diisi';
-                                            } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                                                errorMessage = xhr.responseJSON.message;
-                                            }
-
-                                            Swal.fire({
-                                                title: 'Error!',
-                                                text: errorMessage,
-                                                icon: 'error'
-                                            });
-                                        }
-                                    });
+                                    if (errors.jawaban_file) {
+                                        $('#jawaban_file').addClass('is-invalid');
+                                        $('#fileError').html(errors.jawaban_file[0]);
+                                    }
+                                    errorMessage = 'Silakan periksa input yang telah diisi';
+                                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
                                 }
-                            });
-                        });
-                    },
-                    error: function (xhr) {
-                        $('#modalContent').html('<div class="alert alert-danger">Gagal memuat data. Silakan coba lagi.</div>');
-                    }
-                });
-            };
-
-            // Fungsi untuk menampilkan modal decline
-            window.showDeclineModal = function (id) {
-                // Reset modal content
-                $('#detailModalLabel').text('Penolakan Review Whistle Blowing System');
-                $('#modalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-2">Memuat data...</p></div>');
-
-                // Tampilkan modal
-                $('#detailModal').modal('show');
-
-                // Ambil konten modal via AJAX
-                $.ajax({
-                    url: '{{ url("$daftarReviewPengajuanUrl/whistle-blowing-system/decline-modal") }}/' + id,
-                    type: 'GET',
-                    success: function (response) {
-                        $('#modalContent').html(response);
-
-                        // Event handler untuk tombol konfirmasi decline
-                        $('#btnConfirmDecline').on('click', function () {
-                            // Reset error
-                            $('#alasan_penolakan_modal').removeClass('is-invalid');
-                            $('#alasanErrorModal').html('');
-
-                            // Ambil nilai alasan penolakan
-                            const alasanPenolakan = $('#alasan_penolakan_modal').val().trim();
-                            const wbsId = $(this).data('id');
-
-                            if (!alasanPenolakan) {
-                                $('#alasan_penolakan_modal').addClass('is-invalid');
-                                $('#alasanErrorModal').html('Alasan penolakan harus diisi untuk menolak review');
-                                return;
+                                
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: errorMessage,
+                                    icon: 'error'
+                                });
                             }
-
-                            Swal.fire({
-                                title: 'Konfirmasi',
-                                text: 'Jika anda yakin telah melakukan review dan akan menolak review laporan ini dengan alasan yang telah diisi?',
-                                icon: 'question',
-                                showCancelButton: true,
-                                confirmButtonText: 'Ya, Tolak',
-                                cancelButtonText: 'Batal',
-                                reverseButtons: true
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    // Tampilkan loading
-                                    Swal.fire({
-                                        title: 'Memproses...',
-                                        text: 'Mohon tunggu sebentar',
-                                        allowOutsideClick: false,
-                                        allowEscapeKey: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-
-                                    // Kirim permintaan AJAX
-                                    $.ajax({
-                                        url: '{{ url("$daftarReviewPengajuanUrl/whistle-blowing-system/tolakPermohonan") }}/' + wbsId,
-                                        type: 'POST',
-                                        data: {
-                                            _token: '{{ csrf_token() }}',
-                                            alasan_penolakan: alasanPenolakan
-                                        },
-                                        success: function (response) {
-                                            if (response.success) {
-                                                $('#detailModal').modal('hide');
-                                                Swal.fire({
-                                                    title: 'Berhasil!',
-                                                    text: response.message,
-                                                    icon: 'success'
-                                                }).then(() => {
-                                                    location.reload();
-                                                });
-                                            } else {
-                                                Swal.fire({
-                                                    title: 'Perhatian!',
-                                                    text: response.message,
-                                                    icon: 'warning'
-                                                });
-                                            }
-                                        },
-                                        error: function (xhr) {
-                                            Swal.fire({
-                                                title: 'Error!',
-                                                text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
-                                                icon: 'error'
-                                            });
-                                        }
-                                    });
-                                }
-                            });
                         });
-                    },
-                    error: function (xhr) {
-                        $('#modalContent').html('<div class="alert alert-danger">Gagal memuat data. Silakan coba lagi.</div>');
                     }
                 });
-            };
-
-            // Fungsi untuk tandai dibaca review dengan validasi awal
-            window.tandaiDibacaReview = function (id, status, sudahDibaca) {
-                // Validasi awal: laporan harus sudah disetujui atau ditolak
+            }
+            
+            // Fungsi helper untuk proses decline
+            function processDecline(id) {
+                // Reset error
+                $('#alasan_penolakan_modal').removeClass('is-invalid');
+                $('#alasanErrorModal').html('');
+                
+                // Ambil nilai alasan penolakan
+                const alasanPenolakan = $('#alasan_penolakan_modal').val().trim();
+                
+                if (!alasanPenolakan) {
+                    $('#alasan_penolakan_modal').addClass('is-invalid');
+                    $('#alasanErrorModal').html('Alasan penolakan harus diisi untuk menolak review');
+                    return;
+                }
+                
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: 'Jika anda yakin telah melakukan review dan akan menolak whistle blowing system ini dengan alasan yang telah diisi?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Tolak',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan loading
+                        Swal.fire({
+                            title: 'Memproses...',
+                            text: 'Mohon tunggu sebentar',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        
+                        // Kirim permintaan AJAX
+                        $.ajax({
+                            url: `${baseUrl}/updateData/${id}`,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                action: 'decline',
+                                alasan_penolakan: alasanPenolakan
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    $('#detailModal').modal('hide');
+                                    Swal.fire({
+                                        title: 'Berhasil!',
+                                        text: response.message,
+                                        icon: 'success'
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Perhatian!',
+                                        text: response.message,
+                                        icon: 'warning'
+                                    });
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
+                                    icon: 'error'
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Fungsi untuk tandai dibaca dengan validasi awal
+            window.tandaiDibacaReview = function(id, status, sudahDibaca) {
+                // Validasi awal: review harus sudah disetujui atau ditolak
                 if (status !== 'Disetujui' && status !== 'Ditolak') {
                     Swal.fire({
                         title: 'Perhatian!',
@@ -340,7 +334,7 @@
                     });
                     return;
                 }
-
+                
                 // Jika sudah dibaca, tampilkan peringatan
                 if (sudahDibaca) {
                     Swal.fire({
@@ -350,11 +344,11 @@
                     });
                     return;
                 }
-
+                
                 // Jika validasi sukses, baru tampilkan konfirmasi
                 Swal.fire({
                     title: 'Konfirmasi',
-                    text: 'Apakah anda yakin ingin menandai review Whistle Blowing System ini sebagai telah dibaca?',
+                    text: 'Apakah anda yakin ingin menandai review whistle blowing system ini sebagai telah dibaca?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'Ya, Tandai Dibaca',
@@ -372,15 +366,16 @@
                                 Swal.showLoading();
                             }
                         });
-
+                        
                         // Kirim permintaan AJAX
                         $.ajax({
-                            url: '{{ url("$daftarReviewPengajuanUrl/whistle-blowing-system/tandaiDibaca") }}/' + id,
+                            url: `${baseUrl}/updateData/${id}`,
                             type: 'POST',
                             data: {
-                                _token: '{{ csrf_token() }}'
+                                _token: '{{ csrf_token() }}',
+                                action: 'read'
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.success) {
                                     Swal.fire({
                                         title: 'Berhasil!',
@@ -397,7 +392,7 @@
                                     });
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: 'Error!',
                                     text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
@@ -408,9 +403,9 @@
                     }
                 });
             };
-
+            
             // Fungsi untuk hapus review dengan validasi awal
-            window.hapusReview = function (id, sudahDibaca) {
+            window.hapusReview = function(id, sudahDibaca) {
                 // Validasi awal: review harus sudah ditandai dibaca
                 if (!sudahDibaca) {
                     Swal.fire({
@@ -420,7 +415,7 @@
                     });
                     return;
                 }
-
+                
                 // Jika validasi sukses, baru tampilkan konfirmasi
                 Swal.fire({
                     title: 'Konfirmasi',
@@ -442,15 +437,15 @@
                                 Swal.showLoading();
                             }
                         });
-
-                        // Kirim permintaan AJAX
+                        
+                        // Kirim permintaan AJAX dengan method DELETE
                         $.ajax({
-                            url: '{{ url("$daftarReviewPengajuanUrl/whistle-blowing-system/hapusPermohonan") }}/' + id,
+                            url: `${baseUrl}/deleteData/${id}`,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.success) {
                                     Swal.fire({
                                         title: 'Berhasil!',
@@ -467,7 +462,7 @@
                                     });
                                 }
                             },
-                            error: function (xhr) {
+                            error: function(xhr) {
                                 Swal.fire({
                                     title: 'Error!',
                                     text: xhr.responseJSON ? xhr.responseJSON.message : 'Terjadi kesalahan pada server',
