@@ -19,75 +19,130 @@ class PopulateDynamicRoutingDataSeeder extends Seeder
     private function populateControllerNames(): void
     {
         $mappings = [
-            // Admin Web - Footer
+            // ============================================
+            // ADMIN WEB - FOOTER
+            // ============================================
             'kategori-footer' => 'AdminWeb\Footer\KategoriFooterController',
             'detail-footer' => 'AdminWeb\Footer\FooterController',
             
-            // Admin Web - Akses Cepat
+            // ============================================
+            // ADMIN WEB - AKSES CEPAT
+            // ============================================
             'kategori-akses-cepat' => 'AdminWeb\KategoriAkses\KategoriAksesController',
             'detail-akses-cepat' => 'AdminWeb\KategoriAkses\AksesCepatController',
-            
-            // Admin Web - Berita
-            'kategori-berita' => 'AdminWeb\Berita\BeritaDinamisController',
-            'detail-berita' => 'AdminWeb\Berita\BeritaController',
-            
-            // Admin Web - Media
-            'kategori-media' => 'AdminWeb\MediaDinamis\MediaDinamisController',
-            'detail-media' => 'AdminWeb\MediaDinamis\DetailMediaDinamisController',
-            
-            // Admin Web - LHKPN
-            'kategori-tahun-lhkpn' => 'AdminWeb\InformasiPublik\LHKPN\LhkpnController',
-            'detail-lhkpn' => 'AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController',
-            
-            // Admin Web - Pintasan Lainnya
             'kategori-pintasan-lainnya' => 'AdminWeb\KategoriAkses\PintasanLainnyaController',
             'detail-pintasan-lainnya' => 'AdminWeb\KategoriAkses\DetailPintasanLainnyaController',
             
-            // Admin Web - Regulasi
+            // ============================================
+            // ADMIN WEB - BERITA
+            // ============================================
+            'kategori-berita' => 'AdminWeb\Berita\BeritaDinamisController',
+            'detail-berita' => 'AdminWeb\Berita\BeritaController',
+            
+            // ============================================
+            // ADMIN WEB - MEDIA
+            // ============================================
+            'kategori-media' => 'AdminWeb\MediaDinamis\MediaDinamisController',
+            'detail-media' => 'AdminWeb\MediaDinamis\DetailMediaDinamisController',
+            
+            // ============================================
+            // ADMIN WEB - LHKPN
+            // ============================================
+            'kategori-tahun-lhkpn' => 'AdminWeb\InformasiPublik\LHKPN\LhkpnController',
+            'detail-lhkpn' => 'AdminWeb\InformasiPublik\LHKPN\DetailLhkpnController',
+            
+            // ============================================
+            // ADMIN WEB - REGULASI
+            // ============================================
             'regulasi-dinamis' => 'AdminWeb\InformasiPublik\Regulasi\RegulasiDinamisController',
             'detail-regulasi' => 'AdminWeb\InformasiPublik\Regulasi\RegulasiController',
             'kategori-regulasi' => 'AdminWeb\InformasiPublik\Regulasi\KategoriRegulasiController',
             
-            // Sistem Informasi - E-Form
+            // ============================================
+            // ADMIN WEB - PENGUMUMAN
+            // ============================================
+            'kategori-pengumuman' => 'AdminWeb\Pengumuman\PengumumanDinamisController',
+            'detail-pengumuman' => 'AdminWeb\Pengumuman\PengumumanController',
+            
+            // ============================================
+            // SISTEM INFORMASI - E-FORM ADMIN (CRUD untuk Admin)
+            // ============================================
             'permohonan-informasi-admin' => 'SistemInformasi\EForm\PermohonanInformasiController',
             'pernyataan-keberatan-admin' => 'SistemInformasi\EForm\PernyataanKeberatanController',
             'pengaduan-masyarakat-admin' => 'SistemInformasi\EForm\PengaduanMasyarakatController',
             'whistle-blowing-system-admin' => 'SistemInformasi\EForm\WBSController',
             'permohonan-sarana-dan-prasarana-admin' => 'SistemInformasi\EForm\PermohonanPerawatanController',
             
-            // Sistem Informasi - Timeline & Ketentuan
+            // ============================================
+            // SISTEM INFORMASI - TIMELINE & KETENTUAN
+            // ============================================
             'timeline' => 'SistemInformasi\Timeline\TimelineController',
             'ketentuan-pelaporan' => 'SistemInformasi\KetentuanPelaporan\KetentuanPelaporanController',
             'kategori-form' => 'SistemInformasi\KategoriForm\KategoriFormController',
             
-            // Admin Web - Pengumuman
-            'kategori-pengumuman' => 'AdminWeb\Pengumuman\PengumumanDinamisController',
-            'detail-pengumuman' => 'AdminWeb\Pengumuman\PengumumanController',
-            
-            // Management - User & Hak Akses
+            // ============================================
+            // MANAGEMENT - USER & HAK AKSES
+            // ============================================
             'management-level' => 'ManagePengguna\HakAksesController',
             'management-user' => 'ManagePengguna\UserController',
             
-            // Admin Web - Menu Management
+            // ============================================
+            // ADMIN WEB - MENU MANAGEMENT
+            // ============================================
+            'menu-management' => 'AdminWeb\MenuManagement\MenuManagementController',
             'management-menu-url' => 'AdminWeb\MenuManagement\WebMenuUrlController',
             'management-menu-global' => 'AdminWeb\MenuManagement\WebMenuGlobalController',
             
-            // Informasi Publik - Tabel Dinamis
+            // ============================================
+            // INFORMASI PUBLIK - TABEL DINAMIS
+            // ============================================
             'kategori-informasi-publik-dinamis-tabel' => 'AdminWeb\InformasiPublik\TabelDinamis\IpDinamisTabelController',
+            'set-informasi-publik-dinamis-tabel' => 'AdminWeb\InformasiPublik\TabelDinamis\SetIpDinamisTabelController',
+            'get-informasi-publik-informasi-berkala' => 'AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiBerkalaController',
+            'get-informasi-publik-informasi-serta-merta' => 'AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSertaMertaController',
+            'get-informasi-publik-informasi-setiap-saat' => 'AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSetiapSaatController',
             
-            // Informasi Publik - Konten Dinamis
+            // ============================================
+            // INFORMASI PUBLIK - KONTEN DINAMIS
+            // ============================================
             'dinamis-konten' => 'AdminWeb\InformasiPublik\KontenDinamis\IpDinamisKontenController',
             'upload-detail-konten' => 'AdminWeb\InformasiPublik\KontenDinamis\IpUploadKontenController',
             
-            // Admin Web - Layanan Informasi
+            // ============================================
+            // ADMIN WEB - LAYANAN INFORMASI
+            // ============================================
             'layanan-informasi-Dinamis' => 'AdminWeb\LayananInformasi\LIDinamisController',
             'layanan-informasi-upload' => 'AdminWeb\LayananInformasi\LIDUploadController',
             
-            // Admin Web - Penyelesaian Sengketa
+            // ============================================
+            // ADMIN WEB - PENYELESAIAN SENGKETA
+            // ============================================
             'penyelesaian-sengketa' => 'AdminWeb\InformasiPublik\PenyelesaianSengketa\PenyelesaianSengketaController',
             'upload-penyelesaian-sengketa' => 'AdminWeb\InformasiPublik\PenyelesaianSengketa\UploadPSController',
             
-            // WhatsApp Management
+            // ============================================
+            // SISTEM INFORMASI - VERIFIKASI PENGAJUAN (Parent + Sub)
+            // ============================================
+            'daftar-verifikasi-pengajuan' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPengajuanController',
+            'daftar-verifikasi-pengajuan-permohonan-informasi' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController',
+            'daftar-verifikasi-pengajuan-pernyataan-keberatan' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPKController',
+            'daftar-verifikasi-pengajuan-pengaduan-masyarakat' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPMController',
+            'daftar-verifikasi-pengajuan-whistle-blowing-system' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifWBSController',
+            'daftar-verifikasi-pengajuan-permohonan-perawatan' => 'SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPPController',
+            
+            // ============================================
+            // SISTEM INFORMASI - REVIEW PENGAJUAN (Parent + Sub)
+            // ============================================
+            'daftar-review-pengajuan' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPengajuanController',
+            'daftar-review-pengajuan-permohonan-informasi' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPIController',
+            'daftar-review-pengajuan-pernyataan-keberatan' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPKController',
+            'daftar-review-pengajuan-pengaduan-masyarakat' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPMController',
+            'daftar-review-pengajuan-whistle-blowing-system' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewWBSController',
+            'daftar-review-pengajuan-permohonan-perawatan' => 'SistemInformasi\DaftarPengajuan\ReviewPengajuan\ReviewPPController',
+            
+            // ============================================
+            // WHATSAPP MANAGEMENT (NON-STANDARD)
+            // ============================================
             'whatsapp-management' => 'WhatsAppController',
         ];
         
@@ -100,12 +155,18 @@ class PopulateDynamicRoutingDataSeeder extends Seeder
             
             if ($affected > 0) $updated++;
         }
+        
+        echo "\n✅ Updated controller_name for {$updated} URLs\n";
     }
     
     // Set module_type untuk semua URL (sisfo/user)
     private function populateModuleTypes(): void
     {
+        // ============================================
+        // USER MODULE URLs - Website & Form Pengajuan untuk Responden
+        // ============================================
         $userUrls = [
+            // Website Public URLs
             'beranda', 'login-ppid', 'register', 'profile-ppid', 'profile-polinema',
             'struktur-organisasi', 'berita', 'pengumuman', 'lhkpn', 'daftar-informasi-publik',
             'informasi-dikecualikan', 'informasi-setiap-saat', 'informasi-berkala',
@@ -114,16 +175,28 @@ class PopulateDynamicRoutingDataSeeder extends Seeder
             'form-permohonan-informasi', 'form-pernyataan-keberatan', 'form-whistle-blowing',
             'form-pengaduan-masyarakat', 'form-sarana-prasarana', 'permohonan-penyelesaian-sengketa',
             'content-dinamis',
+            
+            // Form Pengajuan untuk Responden (PENTING!)
+            'permohonan-informasi',              // Form permohonan informasi (user)
+            'pernyataan-keberatan',              // Form pernyataan keberatan (user)
+            'pengaduan-masyarakat',              // Form pengaduan masyarakat (user)
+            'whistle-blowing-system',            // Form WBS (user)
+            'permohonan-sarana-dan-prasarana',   // Form permohonan perawatan (user)
         ];
         
-        DB::table('web_menu_url')
+        // Set module_type = 'user'
+        $updatedUser = DB::table('web_menu_url')
             ->whereIn('wmu_nama', $userUrls)
-            ->update(['module_type' => 'user']);
+            ->update(['module_type' => 'user', 'updated_at' => now()]);
         
-        DB::table('web_menu_url')
-            ->whereNotNull('controller_name')
-            ->where('controller_name', '!=', '')
-            ->update(['module_type' => 'sisfo']);
+        echo "✅ Set module_type='user' for {$updatedUser} URLs\n";
+        
+        // Set module_type = 'sisfo' untuk sisanya
+        $updatedSisfo = DB::table('web_menu_url')
+            ->whereNotIn('wmu_nama', $userUrls)
+            ->update(['module_type' => 'sisfo', 'updated_at' => now()]);
+        
+        echo "✅ Set module_type='sisfo' for {$updatedSisfo} URLs\n";
     }
     
     // Insert sub-menu untuk Verifikasi dan Review Pengajuan
