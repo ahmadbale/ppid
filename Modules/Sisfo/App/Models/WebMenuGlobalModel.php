@@ -20,6 +20,8 @@ class WebMenuGlobalModel extends Model
     protected $fillable = [
         'fk_web_menu_url',
         'wmg_parent_id',
+        'wmg_icon',
+        'wmg_type',
         'wmg_kategori_menu',
         'wmg_urutan_menu',
         'wmg_nama_default',
