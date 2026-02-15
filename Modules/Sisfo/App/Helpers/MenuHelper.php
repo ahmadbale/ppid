@@ -17,38 +17,20 @@ class MenuHelper
         $menus = WebMenuModel::getMenusByLevelWithPermissions($hakAksesKode, $userId);
         $totalNotifikasi = WebMenuModel::getNotifikasiCount($hakAksesKode);
 
-        $menuIcons = [
-            'Dashboard' => 'fa-tachometer-alt',
-            'Profile' => 'fa-user',
-            'Notifikasi' => 'fa-bell',
-            'Hak Akses' => 'fa-key',
-            'E-Form Admin' => 'fa-folder-open',
-            'Menu Management' => 'fa-tasks',
-            'Management Pengumuman' => 'fa-bullhorn',
-            'Management Berita' => 'fa-newspaper',
-            'Management Footer' => 'fa-columns',
-            'Management LHKPN' => 'fa-file-alt',
-            'Management Akses & Pintasan Cepat' => 'fa-bolt',
-            'Management Form' => 'fa-question-circle',
-            'Management Regulasi' => 'fa-gavel',
-            'Management Pengguna' => 'fa-user-cog',
-            'Management Media' => 'fa-photo-video',
-        ];
-
         $html = '';
 
         // Dashboard dan Profil selalu ada
         $html .= self::generateMenuItem(
             url('/dashboard' . strtoupper($hakAksesKode)),
             'Dashboard',
-            $menuIcons['Dashboard'],
+            'fa-tachometer-alt',
             $activeMenu
         );
 
         $html .= self::generateMenuItem(
             url('/profile'),
             'Profile',
-            $menuIcons['Profile'],
+            'fa-user',
             $activeMenu
         );
 
@@ -63,7 +45,7 @@ class MenuHelper
             $html .= self::generateNotificationMenuItem(
                 url($notifUrl),
                 'Notifikasi',
-                $menuIcons['Notifikasi'],
+                'fa-bell',
                 $activeMenu,
                 $totalNotifikasi
             );
@@ -74,16 +56,19 @@ class MenuHelper
             // Ambil nama menu yang akan ditampilkan (bisa alias atau nama asli)
             $menuName = $menu->getDisplayName();
 
+            // Get icon dari web_menu_global, default 'fa-cog' jika NULL
+            $menuIcon = $menu->WebMenuGlobal->wmg_icon ?? 'fa-cog';
+
             if ($menu->children->isNotEmpty()) {
                 // Menu dengan submenu
-                $html .= self::generateDropdownMenu($menu, $activeMenu, $menuIcons);
+                $html .= self::generateDropdownMenu($menu, $activeMenu);
             } else {
                 // Menu tanpa submenu - Gunakan URL yang sesuai
                 $menuUrl = $menu->WebMenuUrl ? $menu->WebMenuUrl->wmu_nama : '#';
                 $html .= self::generateMenuItem(
                     url($menuUrl),
                     $menuName,
-                    $menuIcons[$menuName] ?? 'fa-tasks',
+                    $menuIcon,
                     $activeMenu
                 );
             }
@@ -94,7 +79,7 @@ class MenuHelper
             $html .= self::generateMenuItem(
                 url('/HakAkses'),
                 'Pengaturan Hak Akses',
-                $menuIcons['Hak Akses'],
+                'fa-key',
                 $activeMenu
             );
         }
@@ -132,7 +117,7 @@ class MenuHelper
         </li>";
     }
 
-    private static function generateDropdownMenu($menu, $activeMenu, $menuIcons)
+    private static function generateDropdownMenu($menu, $activeMenu)
     {
         // Ambil nama menu yang akan ditampilkan
         $menuName = $menu->getDisplayName();
@@ -140,8 +125,8 @@ class MenuHelper
         // Standardisasi format nama menu
         $menuSlug = strtolower(str_replace(' ', '', $menuName));
 
-        // Tentukan icon untuk parent menu
-        $parentIcon = isset($menuIcons[$menuName]) ? $menuIcons[$menuName] : 'fa-cog';
+        // Get icon dari web_menu_global, default 'fa-cog' jika NULL
+        $parentIcon = $menu->WebMenuGlobal->wmg_icon ?? 'fa-cog';
 
         // Periksa apakah ada submenu yang aktif
         $hasActiveSubmenu = false;
@@ -178,10 +163,13 @@ class MenuHelper
             $submenuUrl = $submenu->WebMenuUrl ? $submenu->WebMenuUrl->wmu_nama : '#';
             $isActive = ($activeMenu == $submenuSlug) ? 'active' : '';
 
+            // Get icon dari web_menu_global submenu, default 'fa-circle' jika NULL
+            $submenuIcon = $submenu->WebMenuGlobal->wmg_icon ?? 'fa-circle';
+
             $html .= "
             <li class='nav-item'>
                 <a href='" . url($submenuUrl) . "' class='nav-link {$isActive}'>
-                    <i class='far fa-circle nav-icon'></i>
+                    <i class='far {$submenuIcon} nav-icon'></i>
                     <p>{$submenuName}</p>
                 </a>
             </li>";
