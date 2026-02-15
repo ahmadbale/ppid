@@ -1410,15 +1410,21 @@ class WebMenuModel extends Model
             return collect([]);
         }
 
-        // Ambil menu berdasarkan level
+        // Ambil menu berdasarkan level DAN HANYA wmg_type = 'general'
         $menus = self::where('fk_m_hak_akses', $hakAksesId)
             ->where('wm_status_menu', 'aktif')
             ->where('isDeleted', 0)
             ->whereNull('wm_parent_id')
+            ->whereHas('WebMenuGlobal', function ($query) {
+                $query->where('wmg_type', 'general');
+            })
             ->with(['children' => function ($query) use ($hakAksesId) {
                 $query->where('fk_m_hak_akses', $hakAksesId)
                     ->where('wm_status_menu', 'aktif')
                     ->where('isDeleted', 0)
+                    ->whereHas('WebMenuGlobal', function ($subQuery) {
+                        $subQuery->where('wmg_type', 'general');
+                    })
                     ->orderBy('wm_urutan_menu');
             }, 'WebMenuGlobal.WebMenuUrl', 'Level'])
             ->orderBy('wm_urutan_menu')
