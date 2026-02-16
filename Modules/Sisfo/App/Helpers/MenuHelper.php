@@ -2,24 +2,26 @@
 
 namespace Modules\Sisfo\App\Helpers;
 
-use Modules\Sisfo\App\Models\Website\WebMenuModel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Modules\Sisfo\App\Models\HakAksesModel;
+use Modules\Sisfo\App\Models\Website\WebMenuModel;
+use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
 
 class MenuHelper
 {
     public static function renderSidebarMenus($hakAksesKode, $activeMenu)
     {
         if (empty($hakAksesKode)) {
-            return ''; // Jika kode hak akses kosong, tidak ada menu yang ditampilkan
+            return '';
         }
 
         $userId = Auth::user()->user_id;
         $menus = WebMenuModel::getMenusByLevelWithPermissions($hakAksesKode, $userId);
-        $totalNotifikasi = WebMenuModel::getNotifikasiCount($hakAksesKode);
 
         $html = '';
 
-        // Dashboard dan Profil selalu ada
         $html .= self::generateMenuItem(
             url('/dashboard' . strtoupper($hakAksesKode)),
             'Dashboard',
@@ -34,42 +36,22 @@ class MenuHelper
             $activeMenu
         );
 
-        // Notifikasi untuk level tertentu
-        if (in_array($hakAksesKode, ['ADM', 'VFR', 'MPU'])) {
-            $notifUrl = [
-                'ADM' => '/Notifikasi/NotifAdmin',
-                'VFR' => '/notifikasi',
-                'MPU' => '/notifMPU'
-            ][$hakAksesKode];
-
-            $html .= self::generateNotificationMenuItem(
-                url($notifUrl),
-                'Notifikasi',
-                'fa-bell',
-                $activeMenu,
-                $totalNotifikasi
-            );
-        }
-
         // Menu dinamis dari database
         foreach ($menus as $menu) {
-            // Ambil nama menu yang akan ditampilkan (bisa alias atau nama asli)
             $menuName = $menu->getDisplayName();
-
-            // Get icon dari web_menu_global, default 'fa-cog' jika NULL
             $menuIcon = $menu->WebMenuGlobal->wmg_icon ?? 'fa-cog';
+            $badgeCount = self::getBadgeCount($menu);
 
             if ($menu->children->isNotEmpty()) {
-                // Menu dengan submenu
                 $html .= self::generateDropdownMenu($menu, $activeMenu);
             } else {
-                // Menu tanpa submenu - Gunakan URL yang sesuai
                 $menuUrl = $menu->WebMenuUrl ? $menu->WebMenuUrl->wmu_nama : '#';
                 $html .= self::generateMenuItem(
                     url($menuUrl),
                     $menuName,
                     $menuIcon,
-                    $activeMenu
+                    $activeMenu,
+                    $badgeCount
                 );
             }
         }
@@ -87,16 +69,21 @@ class MenuHelper
         return $html;
     }
 
-    private static function generateMenuItem($url, $name, $icon, $activeMenu)
+    private static function generateMenuItem($url, $name, $icon, $activeMenu, $badgeCount = 0)
     {
-        // Standardisasi format nama menu untuk pemeriksaan active state
         $menuSlug = strtolower(str_replace(' ', '', $name));
         $isActive = ($activeMenu == $menuSlug) ? 'active' : '';
+        
+        $badge = '';
+        if ($badgeCount > 0) {
+            $badge = "<span class='badge badge-danger notification-badge'>{$badgeCount}</span>";
+        }
+        
         return "
     <li class='nav-item'>
         <a href='{$url}' class='nav-link {$isActive}'>
             <i class='nav-icon fas {$icon}'></i>
-            <p>{$name}</p>
+            <p>{$name} {$badge}</p>
         </a>
     </li>";
     }
@@ -154,23 +141,23 @@ class MenuHelper
                 <ul class='nav nav-treeview'>";
 
         foreach ($menu->children as $submenu) {
-            // Ambil nama submenu yang akan ditampilkan
             $submenuName = $submenu->getDisplayName();
-
-            // Standardisasi format submenu untuk pemeriksaan active state
             $submenuSlug = strtolower(str_replace(' ', '', $submenuName));
-
             $submenuUrl = $submenu->WebMenuUrl ? $submenu->WebMenuUrl->wmu_nama : '#';
             $isActive = ($activeMenu == $submenuSlug) ? 'active' : '';
-
-            // Get icon dari web_menu_global submenu, default 'fa-circle' jika NULL
             $submenuIcon = $submenu->WebMenuGlobal->wmg_icon ?? 'fa-circle';
+            $badgeCount = self::getBadgeCount($submenu);
+
+            $badge = '';
+            if ($badgeCount > 0) {
+                $badge = "<span class='badge badge-danger ml-auto'>{$badgeCount}</span>";
+            }
 
             $html .= "
             <li class='nav-item'>
                 <a href='" . url($submenuUrl) . "' class='nav-link {$isActive}'>
                     <i class='far {$submenuIcon} nav-icon'></i>
-                    <p>{$submenuName}</p>
+                    <p>{$submenuName} {$badge}</p>
                 </a>
             </li>";
         }
@@ -178,6 +165,113 @@ class MenuHelper
         $html .= "
             </ul>
         </li>";
+
+        return $html;
+    }
+
+    private static function getBadgeCount($menu)
+    {
+        if (!$menu->WebMenuGlobal || !$menu->WebMenuGlobal->wmg_badge_method || !$menu->WebMenuUrl || !$menu->WebMenuUrl->controller_name) {
+            return 0;
+        }
+
+        $badgeMethod = $menu->WebMenuGlobal->wmg_badge_method;
+        $controllerName = $menu->WebMenuUrl->controller_name;
+        $moduleType = $menu->WebMenuUrl->module_type ?? 'sisfo';
+
+        $moduleNamespace = $moduleType === 'sisfo' ? 'Sisfo' : 'User';
+        $controllerClass = "Modules\\{$moduleNamespace}\\App\\Http\\Controllers\\" . str_replace('/', '\\', $controllerName);
+
+        if (!class_exists($controllerClass)) {
+            return 0;
+        }
+
+        try {
+            $controller = app($controllerClass);
+            
+            if (method_exists($controller, $badgeMethod)) {
+                return $controller->{$badgeMethod}() ?? 0;
+            }
+        } catch (\Exception $e) {
+            Log::warning("Failed to get badge count for menu: " . $menu->wm_menu_nama, [
+                'controller' => $controllerClass,
+                'method' => $badgeMethod,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return 0;
+    }
+
+    public static function getSpecialMenusByLevel($hakAksesKode, $userId)
+    {
+        $level = HakAksesModel::where('hak_akses_kode', $hakAksesKode)->first();
+        if (!$level) return collect([]);
+
+        $hakAksesId = $level->hak_akses_id;
+
+        $hasLevel = DB::table('set_user_hak_akses')
+            ->where('fk_m_user', $userId)
+            ->where('fk_m_hak_akses', $hakAksesId)
+            ->where('isDeleted', 0)
+            ->exists();
+
+        if (!$hasLevel && $hakAksesKode !== 'SAR') {
+            return collect([]);
+        }
+
+        $menus = WebMenuModel::where('fk_m_hak_akses', $hakAksesId)
+            ->where('wm_status_menu', 'aktif')
+            ->where('isDeleted', 0)
+            ->whereHas('WebMenuGlobal', function ($query) {
+                $query->where('wmg_type', 'special');
+            })
+            ->with(['WebMenuGlobal.WebMenuUrl', 'Level'])
+            ->orderBy('wm_urutan_menu')
+            ->get();
+
+        $filteredMenus = $menus->filter(function ($menu) use ($userId) {
+            if ($menu->WebMenuUrl) {
+                return SetHakAksesModel::cekHakAksesMenu($userId, $menu->WebMenuUrl->wmu_nama);
+            }
+            return false;
+        });
+
+        return $filteredMenus;
+    }
+
+    public static function renderHeaderMenus($hakAksesKode, $userId)
+    {
+        $menus = self::getSpecialMenusByLevel($hakAksesKode, $userId);
+        $html = '';
+
+        foreach ($menus as $menu) {
+            $menuIcon = $menu->WebMenuGlobal->wmg_icon ?? 'fa-bell';
+            $menuUrl = $menu->WebMenuUrl ? $menu->WebMenuUrl->wmu_nama : '#';
+            $menuCategory = $menu->WebMenuGlobal->wmg_kategori_menu ?? '';
+            $badgeCount = self::getBadgeCount($menu);
+
+            $badge = '';
+            if ($badgeCount > 0) {
+                $badge = '<span class="badge badge-danger navbar-badge" style="font-size: 12px; top: 0; right: 0;">' . $badgeCount . '</span>';
+            }
+
+            if ($menuCategory === 'notifikasi') {
+                $html .= '<li class="nav-item dropdown d-flex align-items-center mr-3">
+                    <a href="' . url($menuUrl) . '" class="nav-link d-flex align-items-center" style="font-size: 1.3rem;">
+                        <i class="far ' . $menuIcon . ' nav-icon"></i>
+                        ' . $badge . '
+                    </a>
+                </li>';
+            } else {
+                $html .= '<li class="nav-item d-flex align-items-center mr-3">
+                    <a href="' . url($menuUrl) . '" class="nav-link d-flex align-items-center" style="font-size: 1.3rem;">
+                        <i class="far ' . $menuIcon . ' nav-icon"></i>
+                        ' . $badge . '
+                    </a>
+                </li>';
+            }
+        }
 
         return $html;
     }
