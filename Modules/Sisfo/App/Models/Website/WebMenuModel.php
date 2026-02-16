@@ -14,7 +14,6 @@ use Modules\Sisfo\App\Models\HakAksesModel;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\ApplicationModel;
 use Modules\Sisfo\App\Models\WebMenuGlobalModel;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\Website\WebKontenModel;
 use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
@@ -1453,20 +1452,47 @@ class WebMenuModel extends Model
         return $filteredMenus;
     }
 
-    // Method untuk mendapatkan notifikasi
-    public static function getNotifikasiCount($hakAksesKode)
+    public static function getNotifikasiCount($hakAksesKode, $userId)
     {
-        switch ($hakAksesKode) {
-            case 'ADM':
-                return NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
-            case 'VFR':
-                return NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
-            case 'MPU':
-                // Sesuaikan dengan model notifikasi MPU jika ada
-                return 0;
-            default:
-                return 0;
+        $level = HakAksesModel::where('hak_akses_kode', $hakAksesKode)->first();
+        if (!$level) return 0;
+
+        $hakAksesId = $level->hak_akses_id;
+
+        $notifMenu = self::where('fk_m_hak_akses', $hakAksesId)
+            ->where('wm_status_menu', 'aktif')
+            ->where('isDeleted', 0)
+            ->whereHas('WebMenuGlobal', function ($query) {
+                $query->where('wmg_type', 'special')
+                    ->where('wmg_kategori_menu', 'notifikasi');
+            })
+            ->with('WebMenuGlobal.WebMenuUrl')
+            ->first();
+
+        if (!$notifMenu || !$notifMenu->WebMenuUrl) {
+            return 0;
         }
+
+        $menuUrl = $notifMenu->WebMenuUrl->wmu_nama;
+        
+        if (!SetHakAksesModel::cekHakAksesMenu($userId, $menuUrl)) {
+            return 0;
+        }
+
+        $controllerName = $notifMenu->WebMenuUrl->controller_name;
+        $controllerClass = "Modules\\Sisfo\\App\\Http\\Controllers\\" . str_replace('/', '\\', $controllerName);
+
+        if (!class_exists($controllerClass)) {
+            return 0;
+        }
+
+        $controller = app($controllerClass);
+        
+        if (method_exists($controller, 'getUnreadCount')) {
+            return $controller->getUnreadCount();
+        }
+
+        return 0;
     }
     public function getDisplayName()
     {
