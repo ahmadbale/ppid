@@ -25,6 +25,7 @@ class WebMenuGlobalModel extends Model
         'wmg_kategori_menu',
         'wmg_urutan_menu',
         'wmg_nama_default',
+        'wmg_badge_method',
         'wmg_status_menu'
     ];
 

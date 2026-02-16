@@ -14,7 +14,6 @@ use Modules\Sisfo\App\Models\HakAksesModel;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\ApplicationModel;
 use Modules\Sisfo\App\Models\WebMenuGlobalModel;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\Website\WebKontenModel;
 use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
@@ -1453,21 +1452,6 @@ class WebMenuModel extends Model
         return $filteredMenus;
     }
 
-    // Method untuk mendapatkan notifikasi
-    public static function getNotifikasiCount($hakAksesKode)
-    {
-        switch ($hakAksesKode) {
-            case 'ADM':
-                return NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
-            case 'VFR':
-                return NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
-            case 'MPU':
-                // Sesuaikan dengan model notifikasi MPU jika ada
-                return 0;
-            default:
-                return 0;
-        }
-    }
     public function getDisplayName()
     {
         // Gunakan wm_menu_nama jika ada, jika tidak gunakan nama default dari WebMenuGlobal

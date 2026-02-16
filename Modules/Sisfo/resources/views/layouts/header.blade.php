@@ -1,10 +1,5 @@
-<!-- resources/views/sisfo/layouts/header.blade.php -->
 @php
-    use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-    use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
-
-    $totalNotifikasiADM = NotifAdminModel::where('sudah_dibaca_notif_admin', null)->count();
-    $totalNotifikasiVFR = NotifVerifikatorModel::where('sudah_dibaca_notif_verif', null)->count();
+    use Modules\Sisfo\App\Helpers\MenuHelper;
 @endphp
 
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -20,49 +15,12 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto align-items-center">
-        <!-- Notification -->
-        <li class="nav-item dropdown d-flex align-items-center mr-3">
-            @php
-                $currentLevel = Auth::user()->level->hak_akses_kode ?? '';
-            @endphp
+        @php
+            $currentLevel = Auth::user()->level->hak_akses_kode ?? '';
+            $userId = Auth::user()->user_id;
+        @endphp
 
-            @if ($currentLevel == 'SAR')
-                <a href="{{ url('/Notifikasi/NotifSarpras') }}" class="nav-link d-flex align-items-center "
-                    style="font-size: 1.3rem;">
-                    <i class="far fa-bell nav-icon"></i>
-                </a>
-            @elseif ($currentLevel == 'ADM')
-                <a href="{{ url('/Notifikasi/NotifAdmin') }}" class="nav-link d-flex align-items-center"
-                    style="font-size: 1.3rem;">
-                    <i class="far fa-bell nav-icon"></i>
-                    @if ($totalNotifikasiADM > 0)
-                        <span class="badge badge-danger navbar-badge" style="font-size: 12px; top: 0; right: 0;">
-                            {{ $totalNotifikasiADM }}
-                        </span>
-                    @endif
-                </a>
-            @elseif ($currentLevel == 'MPU')
-                <a href="{{ url('/Notifikasi/NotifMPU') }}" class="nav-link d-flex align-items-center"
-                    style="font-size: 1.3rem;">
-                    <i class="far fa-bell nav-icon"></i>
-                </a>
-            @elseif ($currentLevel == 'VFR')
-                <a href="{{ url('/Notifikasi/NotifVFR') }}" class="nav-link d-flex align-items-center"
-                    style="font-size: 1.3rem;">
-                    <i class="far fa-bell nav-icon"></i>
-                </a>
-            @elseif ($currentLevel == 'RPN')
-                <a href="{{ url('/Notifikasi/NotifRPN') }}" class="nav-link d-flex align-items-center"
-                    style="font-size: 1.3rem;">
-                    <i class="far fa-bell nav-icon"></i>
-                </a>
-            @else
-                <!-- Untuk level lain, tampilkan notifikasi umum atau tidak ada notifikasi -->
-                <a href="#" class="nav-link d-flex align-items-center" style="font-size: 1.3rem;">
-                    <i class="far fa-bell nav-icon text-muted"></i>
-                </a>
-            @endif
-        </li>
+        {!! MenuHelper::renderHeaderMenus($currentLevel, $userId) !!}
 
         <!-- User Profile Dropdown -->
         <li class="nav-item dropdown">
