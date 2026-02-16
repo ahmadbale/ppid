@@ -14,7 +14,6 @@ use Modules\Sisfo\App\Http\Controllers\DashboardAdminController;
 use Modules\Sisfo\App\Http\Controllers\DashboardRespondenController;
 use Modules\Sisfo\App\Http\Controllers\DashboardVerifikatorController;
 use Modules\Sisfo\App\Http\Controllers\HakAkses\SetHakAksesController;
-use Modules\Sisfo\App\Http\Controllers\Notifikasi\NotifAdminController;
 use Modules\Sisfo\App\Http\Controllers\SistemInformasi\DaftarPengajuan\VerifPengajuan\VerifPIController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiBerkalaController;
 use Modules\Sisfo\App\Http\Controllers\AdminWeb\InformasiPublik\TabelDinamis\GetIPInformasiSertaMertaController;
@@ -94,19 +93,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete_foto_ktp/{id}', [ProfileController::class, 'delete_foto_ktp']); // Tambah ini
     });
 
-    // ❌ ROUTE TIDAK STANDAR - NotifAdmin (Custom notification endpoints)
-    Route::group(['prefix' => 'Notifikasi/NotifAdmin', 'middleware' => ['authorize:ADM']], function () {
-        Route::get('/', [NotifAdminController::class, 'index']);
-        Route::get('/notifPI', [NotifAdminController::class, 'notifikasiPermohonanInformasi']);
-        Route::get('/notifPK', [NotifAdminController::class, 'notifikasiPernyataanKeberatan']);
-        Route::get('/notifPM', [NotifAdminController::class, 'notifikasiPengaduanMasyarakat']);
-        Route::get('/notifWBS', [NotifAdminController::class, 'notifikasiWBS']);
-        Route::get('/notifPP', [NotifAdminController::class, 'notifikasiPermohonanPerawatan']);
-        Route::post('/tandai-dibaca/{id}', [NotifAdminController::class, 'tandaiDibaca']);
-        Route::delete('/hapus/{id}', [NotifAdminController::class, 'hapusNotifikasi']);
-        Route::post('/tandai-semua-dibaca', [NotifAdminController::class, 'tandaiSemuaDibaca']);
-        Route::delete('/hapus-semua-dibaca', [NotifAdminController::class, 'hapusSemuaDibaca']);
-    });
+    // ✅ ROUTE DINAMIS STANDAR - NotifMasuk sudah pakai dynamic routing
+    // Route otomatis di-handle oleh PageController dengan pattern:
+    // GET    /notifikasi-masuk              → index()
+    // GET    /notifikasi-masuk/getData      → getData()
+    // GET    /notifikasi-masuk/detailData/{id} → detailData($id)
+    // POST   /notifikasi-masuk/updateData/{id} → updateData($request, $id)
+    // DELETE /notifikasi-masuk/deleteData/{id} → deleteData($request, $id)
 
     // ❌ ROUTE TIDAK STANDAR - whatsapp-management (9 standar + 8 extra functions)
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('whatsapp-management')], function () {
