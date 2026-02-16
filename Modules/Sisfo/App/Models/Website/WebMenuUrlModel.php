@@ -20,6 +20,8 @@ class WebMenuUrlModel extends Model
     protected $fillable = [
         'fk_m_application',
         'wmu_nama',
+        'controller_name',
+        'module_type',
         'wmu_keterangan'
     ];
 
