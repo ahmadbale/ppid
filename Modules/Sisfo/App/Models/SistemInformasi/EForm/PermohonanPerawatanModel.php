@@ -3,8 +3,7 @@
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
 use App\Mail\ReviewPermohonanPerawatanMail;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifPermohonanPerawatanMail;
 use App\Services\WhatsAppService;
 use Modules\Sisfo\App\Models\Log\EmailModel;
-use Modules\Sisfo\App\Models\Log\NotifMPUModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifModel;
 
 class PermohonanPerawatanModel extends Model
 {
@@ -101,10 +100,13 @@ class PermohonanPerawatanModel extends Model
             $saveData = self::create($data);
             $permohonanPerawatan = $saveData->permohonan_perawatan_id;
 
-            // Create notifications
-            $notifMessage = "{$saveData->pp_nama_tanpa_gelar} Mengajukan Permohonan Perawatan Sarana Prasarana";
-            NotifAdminModel::createData($permohonanPerawatan, $notifMessage);
-            NotifVerifikatorModel::createData($permohonanPerawatan, $notifMessage);
+            // Buat notifikasi Masuk (untuk Admin dan Verifikator)
+            $notifMessage = "{$saveData->pp_nama_pengguna} Mengajukan Permohonan Perawatan Sarana Prasarana";
+            NotifMasukModel::createData(
+                $permohonanPerawatan,
+                $notifMessage,
+                'E-Form Permohonan Perawatan Sarana Prasarana'
+            );
 
             // Mencatat log transaksi
             TransactionModel::createData(
@@ -242,11 +244,11 @@ class PermohonanPerawatanModel extends Model
         // Kirim WhatsApp notifikasi
         $this->kirimWhatsAppNotifikasi('Disetujui');
 
-        // TAMBAHAN: Buat notifikasi MPU (hanya untuk permohonan yang disetujui) - SESUAI PERMOHONAN INFORMASI
-        $pesanNotifMPU = "{$this->pp_nama_pengguna} mengajukan Permohonan Perawatan Sarana Prasarana yang telah disetujui dan memerlukan tindak lanjut.";
-        NotifMPUModel::createData(
+        // Buat notifikasi Verifikasi (untuk MPU/Reviewer)
+        $pesanNotifVerif = "{$this->pp_nama_pengguna} mengajukan Permohonan Perawatan Sarana Prasarana yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifVerifModel::createData(
             $this->permohonan_perawatan_id,
-            $pesanNotifMPU,
+            $pesanNotifVerif,
             'E-Form Permohonan Perawatan Sarana Prasarana'
         );
 
@@ -574,8 +576,8 @@ class PermohonanPerawatanModel extends Model
         $this->pp_review_tanggal_dibaca = now();
         $this->save();
 
-        // Update notifikasi MPU jika masih NULL (sesuai dengan permohonan informasi)
-        $this->updateNotifikasiMPU();
+        // Update notifikasi Verif jika masih NULL
+        $this->updateNotifikasiVerif('E-Form Permohonan Perawatan Sarana Prasarana', $this->permohonan_perawatan_id);
 
         return $this;
     }
@@ -592,31 +594,6 @@ class PermohonanPerawatanModel extends Model
         $this->save();
 
         return $this;
-    }
-
-    /**
-     * Update notifikasi MPU - SAMA SEPERTI PERMOHONAN INFORMASI
-     */
-    private function updateNotifikasiMPU()
-    {
-        try {
-            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Permohonan Perawatan Sarana Prasarana')
-                ->where('notif_mpu_form_id', $this->permohonan_perawatan_id)
-                ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_mpu')
-                ->get();
-
-            if ($notifikasiMPU->isNotEmpty()) {
-                foreach ($notifikasiMPU as $notif) {
-                    $notif->sudah_dibaca_notif_mpu = now();
-                    $notif->save();
-                }
-
-                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for Permohonan Perawatan ID: {$this->permohonan_perawatan_id}");
-            }
-        } catch (\Exception $e) {
-            Log::error("Error updating MPU notifications: " . $e->getMessage());
-        }
     }
 
     private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
