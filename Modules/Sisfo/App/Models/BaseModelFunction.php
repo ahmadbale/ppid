@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifModel;
 use Modules\Sisfo\App\Models\SistemInformasi\Timeline\TimelineModel;
 use Modules\Sisfo\App\Models\SistemInformasi\KategoriForm\KategoriFormModel;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -351,70 +351,72 @@ trait BaseModelFunction
     }
 
     /**
-     * Update notifikasi admin untuk form ini jika masih NULL
+     * Update notifikasi masuk untuk form ini (mark as read)
      * 
      * @param string $kategoriNotif Kategori notifikasi (misal: 'E-Form Permohonan Informasi')
      * @param int $formId ID form yang terkait
      */
-    protected function updateNotifikasiAdmin($kategoriNotif, $formId)
+    protected function updateNotifikasiMasuk($kategoriNotif, $formId)
     {
         try {
-            $notifikasiAdmin = NotifAdminModel::where('kategori_notif_admin', $kategoriNotif)
-                ->where('notif_admin_form_id', $formId)
+            $notifikasiMasuk = NotifMasukModel::where('notif_masuk_kategori', $kategoriNotif)
+                ->where('notif_masuk_form_id', $formId)
                 ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_admin')
+                ->whereNull('notif_masuk_dibaca_oleh')
                 ->get();
 
-            if ($notifikasiAdmin->isNotEmpty()) {
-                foreach ($notifikasiAdmin as $notif) {
-                    $notif->sudah_dibaca_notif_admin = now();
+            if ($notifikasiMasuk->isNotEmpty()) {
+                foreach ($notifikasiMasuk as $notif) {
+                    $notif->notif_masuk_dibaca_oleh = $this->getAliasWithHakAkses();
+                    $notif->notif_masuk_dibaca_tgl = now();
                     $notif->save();
                 }
                 
-                Log::info("Updated {$notifikasiAdmin->count()} admin notifications for {$kategoriNotif} ID: {$formId}");
+                Log::info("Updated {$notifikasiMasuk->count()} notif masuk for {$kategoriNotif} ID: {$formId}");
             }
         } catch (\Exception $e) {
-            Log::error("Error updating admin notifications for {$kategoriNotif}: " . $e->getMessage());
+            Log::error("Error updating notif masuk for {$kategoriNotif}: " . $e->getMessage());
         }
     }
 
     /**
-     * Update notifikasi verifikator untuk form ini jika masih NULL
+     * Update notifikasi verifikasi untuk form ini (mark as read)
      * 
      * @param string $kategoriNotif Kategori notifikasi (misal: 'E-Form Permohonan Informasi')
      * @param int $formId ID form yang terkait
      */
-    protected function updateNotifikasiVerifikator($kategoriNotif, $formId)
+    protected function updateNotifikasiVerif($kategoriNotif, $formId)
     {
         try {
-            $notifikasiVerifikator = NotifVerifikatorModel::where('kategori_notif_verif', $kategoriNotif)
-                ->where('notif_verifikator_form_id', $formId)
+            $notifikasiVerif = NotifVerifModel::where('notif_verif_kategori', $kategoriNotif)
+                ->where('notif_verif_form_id', $formId)
                 ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_verif')
+                ->whereNull('notif_verif_dibaca_oleh')
                 ->get();
 
-            if ($notifikasiVerifikator->isNotEmpty()) {
-                foreach ($notifikasiVerifikator as $notif) {
-                    $notif->sudah_dibaca_notif_verif = now();
+            if ($notifikasiVerif->isNotEmpty()) {
+                foreach ($notifikasiVerif as $notif) {
+                    $notif->notif_verif_dibaca_oleh = $this->getAliasWithHakAkses();
+                    $notif->notif_verif_dibaca_tgl = now();
                     $notif->save();
                 }
                 
-                Log::info("Updated {$notifikasiVerifikator->count()} verifikator notifications for {$kategoriNotif} ID: {$formId}");
+                Log::info("Updated {$notifikasiVerif->count()} notif verif for {$kategoriNotif} ID: {$formId}");
             }
         } catch (\Exception $e) {
-            Log::error("Error updating verifikator notifications for {$kategoriNotif}: " . $e->getMessage());
+            Log::error("Error updating notif verif for {$kategoriNotif}: " . $e->getMessage());
         }
     }
 
     /**
-     * Update notifikasi admin dan verifikator sekaligus
+     * Update notifikasi masuk dan verif sekaligus
      * 
      * @param string $kategoriNotif Kategori notifikasi
      * @param int $formId ID form yang terkait
      */
     protected function updateAllNotifikasi($kategoriNotif, $formId)
     {
-        $this->updateNotifikasiAdmin($kategoriNotif, $formId);
-        $this->updateNotifikasiVerifikator($kategoriNotif, $formId);
+        $this->updateNotifikasiMasuk($kategoriNotif, $formId);
+        $this->updateNotifikasiVerif($kategoriNotif, $formId);
     }
 }
