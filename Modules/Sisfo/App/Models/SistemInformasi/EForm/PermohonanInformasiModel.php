@@ -3,8 +3,7 @@
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
 use App\Mail\ReviewPermohonanInformasiMail;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Modules\Sisfo\App\Models\Log\NotifMPUModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifModel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifPermohonanInformasiMail;
 use App\Services\WhatsAppService;
@@ -123,9 +122,12 @@ class PermohonanInformasiModel extends Model
             $notifMessage = $child['message'];
             $permohonanId = $saveData->permohonan_informasi_id;
 
-            // Buat notifikasi
-            NotifAdminModel::createData($permohonanId, $notifMessage);
-            NotifVerifikatorModel::createData($permohonanId, $notifMessage);
+            // Buat notifikasi Masuk (untuk Admin dan Verifikator)
+            NotifMasukModel::createData(
+                $permohonanId,
+                $notifMessage,
+                'E-Form Permohonan Informasi'
+            );
 
             // Catat log transaksi
             TransactionModel::createData(
@@ -280,11 +282,11 @@ class PermohonanInformasiModel extends Model
         // Ambil nama pengaju berdasarkan kategori pemohon
         $namaPengaju = $this->getNamaPengaju();
 
-        // Buat notifikasi MPU (hanya untuk permohonan yang disetujui)
-        $pesanNotifMPU = "{$namaPengaju} mengajukan Permohonan Informasi yang telah disetujui dan memerlukan tindak lanjut.";
-        NotifMPUModel::createData(
+        // Buat notifikasi Verifikasi (untuk MPU/Reviewer)
+        $pesanNotifVerif = "{$namaPengaju} mengajukan Permohonan Informasi yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifVerifModel::createData(
             $this->permohonan_informasi_id,
-            $pesanNotifMPU,
+            $pesanNotifVerif,
             'E-Form Permohonan Informasi'
         );
 
@@ -739,8 +741,8 @@ class PermohonanInformasiModel extends Model
         $this->pi_review_tanggal_dibaca = now();
         $this->save();
 
-        // Update notifikasi MPU jika masih NULL (karena notif MPU dibuat saat verifikasi)
-        $this->updateNotifikasiMPU();
+        // Update notifikasi Verif jika masih NULL (karena notif Verif dibuat saat verifikasi)
+        $this->updateNotifikasiVerif('E-Form Permohonan Informasi', $this->permohonan_informasi_id);
 
         return $this;
     }
@@ -757,28 +759,6 @@ class PermohonanInformasiModel extends Model
         $this->save();
 
         return $this;
-    }
-
-    private function updateNotifikasiMPU()
-    {
-        try {
-            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Permohonan Informasi')
-                ->where('notif_mpu_form_id', $this->permohonan_informasi_id)
-                ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_mpu')
-                ->get();
-
-            if ($notifikasiMPU->isNotEmpty()) {
-                foreach ($notifikasiMPU as $notif) {
-                    $notif->sudah_dibaca_notif_mpu = now();
-                    $notif->save();
-                }
-
-                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for permohonan ID: {$this->permohonan_informasi_id}");
-            }
-        } catch (\Exception $e) {
-            Log::error("Error updating MPU notifications: " . $e->getMessage());
-        }
     }
 
     private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
