@@ -104,7 +104,14 @@ class RouteHelper
             return preg_quote($url, '/');
         }, $excludedUrls);
         
-        return '(?!' . implode('|', $escapedUrls) . ')[a-zA-Z0-9\-]+';
+        // ✅ FIX: Tambahkan word boundary agar hanya exact match yang di-exclude
+        // Sebelum: (?!permohonan\-informasi) → MENOLAK "permohonan-informasi-admin" ❌
+        // Sesudah: (?!permohonan\-informasi(?![a-zA-Z0-9\-])) → HANYA MENOLAK exact "permohonan-informasi" ✅
+        $patterns = array_map(function($url) {
+            return $url . '(?![a-zA-Z0-9\-])';
+        }, $escapedUrls);
+        
+        return '(?!' . implode('|', $patterns) . ')[a-zA-Z0-9\-]+';
     }
     
     // Ambil semua URL yang di-exclude dari dynamic routing (untuk debugging)
