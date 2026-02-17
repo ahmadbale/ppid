@@ -57,10 +57,13 @@ class NotifMasukModel extends Model
         return $this->belongsTo(PermohonanPerawatanModel::class, 'notif_masuk_form_id', 'permohonan_perawatan_id');
     }
 
-    public static function createData($formId, $message)
+    public static function createData($formId, $message, $kategori = null)
     {
-        $currentRoute = Route::currentRouteName() ?? Route::current()->uri();
-        $kategori = self::menentukanKategoriForm($currentRoute);
+        // Jika kategori tidak diberikan, tentukan dari route
+        if ($kategori === null) {
+            $currentRoute = Route::currentRouteName() ?? Route::current()->uri();
+            $kategori = self::menentukanKategoriForm($currentRoute);
+        }
 
         return self::create([
             'notif_masuk_kategori' => $kategori,
