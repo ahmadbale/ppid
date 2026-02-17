@@ -3,7 +3,7 @@
 namespace Modules\Sisfo\App\Http\Controllers\Notifikasi;
 
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 use Illuminate\Routing\Controller;
 
 class NotifAdminController extends Controller
@@ -32,8 +32,8 @@ class NotifAdminController extends Controller
 
     public function notifikasiPermohonanInformasi()
     {
-        $notifikasi = NotifAdminModel::with('t_permohonan_informasi')
-            ->where('kategori_notif_admin', 'E-Form Permohonan Informasi')
+        $notifikasi = NotifMasukModel::with('t_permohonan_informasi')
+            ->where('notif_masuk_kategori', 'E-Form Permohonan Informasi')
             ->where('isDeleted', 0)
             ->get();
 
@@ -58,8 +58,8 @@ class NotifAdminController extends Controller
 
     public function notifikasiPernyataanKeberatan()
     {
-        $notifikasi = NotifAdminModel::with('t_pernyataan_keberatan')
-            ->where('kategori_notif_admin', 'E-Form Pernyataan Keberatan')
+        $notifikasi = NotifMasukModel::with('t_pernyataan_keberatan')
+            ->where('notif_masuk_kategori', 'E-Form Pernyataan Keberatan')
             ->where('isDeleted', 0)
             ->get();
 
@@ -84,8 +84,8 @@ class NotifAdminController extends Controller
 
     public function notifikasiPengaduanMasyarakat()
     {
-        $notifikasi = NotifAdminModel::with('t_pengaduan_masyarakat')
-            ->where('kategori_notif_admin', 'E-Form Pengaduan Masyarakat')
+        $notifikasi = NotifMasukModel::with('t_pengaduan_masyarakat')
+            ->where('notif_masuk_kategori', 'E-Form Pengaduan Masyarakat')
             ->where('isDeleted', 0)
             ->get();
 
@@ -110,8 +110,8 @@ class NotifAdminController extends Controller
 
     public function notifikasiWBS()
     {
-        $notifikasi = NotifAdminModel::with('t_wbs')
-            ->where('kategori_notif_admin', 'E-Form Whistle Blowing System')
+        $notifikasi = NotifMasukModel::with('t_wbs')
+            ->where('notif_masuk_kategori', 'E-Form Whistle Blowing System')
             ->where('isDeleted', 0)
             ->get();
 
@@ -136,8 +136,8 @@ class NotifAdminController extends Controller
 
     public function notifikasiPermohonanPerawatan()
     {
-        $notifikasi = NotifAdminModel::with('t_permohonan_perawatan')
-            ->where('kategori_notif_admin', 'E-Form Permohonan Perawatan Sarana Prasarana')
+        $notifikasi = NotifMasukModel::with('t_permohonan_perawatan')
+            ->where('notif_masuk_kategori', 'E-Form Permohonan Perawatan Sarana Prasarana')
             ->where('isDeleted', 0)
             ->get();
 
@@ -162,25 +162,25 @@ class NotifAdminController extends Controller
 
     public function tandaiDibaca($id)
     {
-        $result = NotifAdminModel::tandaiDibaca($id);
+        $result = NotifMasukModel::tandaiDibaca($id);
         return response()->json($result);
     }
 
     public function hapusNotifikasi($id)
     {
-        $result = NotifAdminModel::hapusNotifikasi($id);
+        $result = NotifMasukModel::hapusNotifikasi($id);
         return response()->json($result);
     }
 
     public function tandaiSemuaDibaca()
     {
-        $result = NotifAdminModel::tandaiSemuaDibaca();
+        $result = NotifMasukModel::tandaiSemuaDibaca();
         return response()->json($result);
     }
 
     public function hapusSemuaDibaca()
     {
-        $result = NotifAdminModel::hapusSemuaDibaca();
+        $result = NotifMasukModel::hapusSemuaDibaca();
         return response()->json($result);
     }
 }
