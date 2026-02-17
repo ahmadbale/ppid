@@ -5,8 +5,7 @@ namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 use App\Mail\ReviewPengaduanMasyarakatMail;
 use App\Mail\VerifPengaduanMasyarakatMail;
 use App\Services\WhatsAppService;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\Log\EmailModel;
-use Modules\Sisfo\App\Models\Log\NotifMPUModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifModel;
 
 class PengaduanMasyarakatModel extends Model
 {
@@ -104,10 +103,13 @@ class PengaduanMasyarakatModel extends Model
             $saveData = self::create($data);
             $pengaduanId = $saveData->pengaduan_masyarakat_id;
 
-            // Create notifications
+            // Buat notifikasi Masuk (untuk Admin dan Verifikator)
             $notifMessage = "{$saveData->pm_nama_tanpa_gelar} Mengajukan Pengaduan Masyarakat";
-            NotifAdminModel::createData($pengaduanId, $notifMessage);
-            NotifVerifikatorModel::createData($pengaduanId, $notifMessage);
+            NotifMasukModel::createData(
+                $pengaduanId,
+                $notifMessage,
+                'E-Form Pengaduan Masyarakat'
+            );
 
             // Mencatat log transaksi
             TransactionModel::createData(
@@ -264,11 +266,11 @@ class PengaduanMasyarakatModel extends Model
         // Kirim WhatsApp notifikasi
         $this->kirimWhatsAppNotifikasi('Disetujui');
 
-        // TAMBAHAN: Buat notifikasi MPU (hanya untuk pengaduan yang disetujui) - SESUAI PERMOHONAN INFORMASI
-        $pesanNotifMPU = "{$this->pm_nama_tanpa_gelar} mengajukan Pengaduan Masyarakat yang telah disetujui dan memerlukan tindak lanjut.";
-        NotifMPUModel::createData(
+        // Buat notifikasi Verifikasi (untuk MPU/Reviewer)
+        $pesanNotifVerif = "{$this->pm_nama_tanpa_gelar} mengajukan Pengaduan Masyarakat yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifVerifModel::createData(
             $this->pengaduan_masyarakat_id,
-            $pesanNotifMPU,
+            $pesanNotifVerif,
             'E-Form Pengaduan Masyarakat'
         );
 
@@ -597,8 +599,8 @@ class PengaduanMasyarakatModel extends Model
         $this->pm_review_tanggal_dibaca = now();
         $this->save();
 
-        // Update notifikasi MPU jika masih NULL (sesuai dengan permohonan informasi)
-        $this->updateNotifikasiMPU();
+        // Update notifikasi Verif jika masih NULL
+        $this->updateNotifikasiVerif('E-Form Pengaduan Masyarakat', $this->pengaduan_masyarakat_id);
 
         return $this;
     }
@@ -615,28 +617,6 @@ class PengaduanMasyarakatModel extends Model
         $this->save();
 
         return $this;
-    }
-
-    private function updateNotifikasiMPU()
-    {
-        try {
-            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Pengaduan Masyarakat')
-                ->where('notif_mpu_form_id', $this->pengaduan_masyarakat_id)
-                ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_mpu')
-                ->get();
-
-            if ($notifikasiMPU->isNotEmpty()) {
-                foreach ($notifikasiMPU as $notif) {
-                    $notif->sudah_dibaca_notif_mpu = now();
-                    $notif->save();
-                }
-
-                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for pengaduan masyarakat ID: {$this->pengaduan_masyarakat_id}");
-            }
-        } catch (\Exception $e) {
-            Log::error("Error updating MPU notifications: " . $e->getMessage());
-        }
     }
 
     private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
