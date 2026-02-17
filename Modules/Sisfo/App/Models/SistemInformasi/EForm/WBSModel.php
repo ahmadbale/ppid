@@ -3,8 +3,7 @@
 namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
 use App\Mail\ReviewWBSMail;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifWBSMail;
 use App\Services\WhatsAppService;
 use Modules\Sisfo\App\Models\Log\EmailModel;
-use Modules\Sisfo\App\Models\Log\NotifMPUModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifModel;
 
 class WBSModel extends Model
 {
@@ -104,10 +103,13 @@ class WBSModel extends Model
             $saveData = self::create($data);
             $wbsId = $saveData->wbs_id;
 
-            // Create notifications
+            // Buat notifikasi Masuk (untuk Admin dan Verifikator)
             $notifMessage = "{$saveData->wbs_nama_tanpa_gelar} Mengajukan Whistle Blowing System";
-            NotifAdminModel::createData($wbsId, $notifMessage);
-            NotifVerifikatorModel::createData($wbsId, $notifMessage);
+            NotifMasukModel::createData(
+                $wbsId,
+                $notifMessage,
+                'E-Form Whistle Blowing System'
+            );
 
             // Mencatat log transaksi
             TransactionModel::createData(
@@ -257,11 +259,11 @@ class WBSModel extends Model
         // Kirim WhatsApp notifikasi
         $this->kirimWhatsAppNotifikasi('Disetujui');
 
-        // TAMBAHAN: Buat notifikasi MPU (hanya untuk WBS yang disetujui) - SESUAI PERMOHONAN INFORMASI
-        $pesanNotifMPU = "{$this->wbs_nama_tanpa_gelar} mengajukan Whistle Blowing System yang telah disetujui dan memerlukan tindak lanjut.";
-        NotifMPUModel::createData(
+        // Buat notifikasi Verifikasi (untuk MPU/Reviewer)
+        $pesanNotifVerif = "{$this->wbs_nama_tanpa_gelar} mengajukan Whistle Blowing System yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifVerifModel::createData(
             $this->wbs_id,
-            $pesanNotifMPU,
+            $pesanNotifVerif,
             'E-Form Whistle Blowing System'
         );
 
@@ -592,8 +594,8 @@ class WBSModel extends Model
         $this->wbs_review_tanggal_dibaca = now();
         $this->save();
 
-        // Update notifikasi MPU jika masih NULL (sesuai dengan permohonan informasi)
-        $this->updateNotifikasiMPU();
+        // Update notifikasi Verif jika masih NULL
+        $this->updateNotifikasiVerif('E-Form Whistle Blowing System', $this->wbs_id);
 
         return $this;
     }
@@ -610,31 +612,6 @@ class WBSModel extends Model
         $this->save();
 
         return $this;
-    }
-
-    /**
-     * Update notifikasi MPU - SAMA SEPERTI PERMOHONAN INFORMASI
-     */
-    private function updateNotifikasiMPU()
-    {
-        try {
-            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Whistle Blowing System')
-                ->where('notif_mpu_form_id', $this->wbs_id)
-                ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_mpu')
-                ->get();
-
-            if ($notifikasiMPU->isNotEmpty()) {
-                foreach ($notifikasiMPU as $notif) {
-                    $notif->sudah_dibaca_notif_mpu = now();
-                    $notif->save();
-                }
-
-                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for WBS ID: {$this->wbs_id}");
-            }
-        } catch (\Exception $e) {
-            Log::error("Error updating MPU notifications: " . $e->getMessage());
-        }
     }
 
     private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)

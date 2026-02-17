@@ -3,14 +3,14 @@
 @section('content')
     <?php
 
-    use Modules\Sisfo\App\Models\Log\NotifAdminModel;
+    use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 
     // Hitung jumlah notifikasi untuk kategori 'permohonan'
-    $jumlahNotifikasiPermohonanInformasi = NotifAdminModel::where('kategori_notif_admin', 'E-Form Permohonan Informasi')->whereNull('sudah_dibaca_notif_admin')->where('isDeleted', 0)->count();
-    $jumlahNotifikasiPernyataanKeberatan = NotifAdminModel::where('kategori_notif_admin', 'E-Form Pernyataan Keberatan')->whereNull('sudah_dibaca_notif_admin')->where('isDeleted', 0)->count();
-    $jumlahNotifikasiPengaduanMasyarakat = NotifAdminModel::where('kategori_notif_admin', 'E-Form Pengaduan Masyarakat')->whereNull('sudah_dibaca_notif_admin')->where('isDeleted', 0)->count();
-    $jumlahNotifikasiPermohonanPerawatan = NotifAdminModel::where('kategori_notif_admin', 'E-Form Permohonan Perawatan Sarana Prasarana')->whereNull('sudah_dibaca_notif_admin')->where('isDeleted', 0)->count();
-    $jumlahNotifikasiwbs = NotifAdminModel::where('kategori_notif_admin', 'E-Form Whistle Blowing System')->whereNull('sudah_dibaca_notif_admin')->where('isDeleted', 0)->count();
+    $jumlahNotifikasiPermohonanInformasi = NotifMasukModel::where('notif_masuk_kategori', 'E-Form Permohonan Informasi')->whereNull('notif_masuk_dibaca_tgl')->where('isDeleted', 0)->count();
+    $jumlahNotifikasiPernyataanKeberatan = NotifMasukModel::where('notif_masuk_kategori', 'E-Form Pernyataan Keberatan')->whereNull('notif_masuk_dibaca_tgl')->where('isDeleted', 0)->count();
+    $jumlahNotifikasiPengaduanMasyarakat = NotifMasukModel::where('notif_masuk_kategori', 'E-Form Pengaduan Masyarakat')->whereNull('notif_masuk_dibaca_tgl')->where('isDeleted', 0)->count();
+    $jumlahNotifikasiPermohonanPerawatan = NotifMasukModel::where('notif_masuk_kategori', 'E-Form Permohonan Perawatan Sarana Prasarana')->whereNull('notif_masuk_dibaca_tgl')->where('isDeleted', 0)->count();
+    $jumlahNotifikasiwbs = NotifMasukModel::where('notif_masuk_kategori', 'E-Form Whistle Blowing System')->whereNull('notif_masuk_dibaca_tgl')->where('isDeleted', 0)->count();
     ?>
 
     <div class="row">
