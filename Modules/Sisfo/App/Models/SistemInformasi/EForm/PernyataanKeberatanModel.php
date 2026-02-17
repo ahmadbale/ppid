@@ -4,8 +4,7 @@ namespace Modules\Sisfo\App\Models\SistemInformasi\EForm;
 
 use App\Mail\ReviewPernyataanKeberatanMail;
 use App\Services\WhatsAppService;
-use Modules\Sisfo\App\Models\Log\NotifAdminModel;
-use Modules\Sisfo\App\Models\Log\NotifVerifikatorModel;
+use Modules\Sisfo\App\Models\Log\NotifMasukModel;
 use Modules\Sisfo\App\Models\Log\TransactionModel;
 use Modules\Sisfo\App\Models\TraitsModel;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +16,7 @@ use App\Mail\VerifPernyataanKeberatanMail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Models\Log\EmailModel;
-use Modules\Sisfo\App\Models\Log\NotifMPUModel;
+use Modules\Sisfo\App\Models\Log\NotifVerifModel;
 
 class PernyataanKeberatanModel extends Model
 {
@@ -108,9 +107,12 @@ class PernyataanKeberatanModel extends Model
             $notifMessage = $child['message'];
             $pernyataanKeberatanId = $saveData->pernyataan_keberatan_id;
 
-            // Create notifications dengan pernyataan_keberatani_id
-            NotifAdminModel::createData($pernyataanKeberatanId, $notifMessage);
-            NotifVerifikatorModel::createData($pernyataanKeberatanId, $notifMessage);
+            // Buat notifikasi Masuk (untuk Admin dan Verifikator)
+            NotifMasukModel::createData(
+                $pernyataanKeberatanId,
+                $notifMessage,
+                'E-Form Pernyataan Keberatan'
+            );
 
             // Mencatat log transaksi
             TransactionModel::createData(
@@ -253,12 +255,12 @@ class PernyataanKeberatanModel extends Model
         // Ambil nama pengaju berdasarkan kategori pemohon
         $namaPengaju = $this->getNamaPengaju();
 
-        // Buat notifikasi MPU (hanya untuk permohonan yang disetujui)
-        $pesanNotifMPU = "{$namaPengaju} mengajukan Pernyataan Keberatan yang telah disetujui dan memerlukan tindak lanjut.";
-        NotifMPUModel::createData(
+        // Buat notifikasi Verifikasi (untuk MPU/Reviewer)
+        $pesanNotifVerif = "{$namaPengaju} mengajukan Pernyataan Keberatan yang telah disetujui dan memerlukan tindak lanjut.";
+        NotifVerifModel::createData(
             $this->pernyataan_keberatan_id,
-            $pesanNotifMPU,
-            'E-Form Pernyataan Keberatan',
+            $pesanNotifVerif,
+            'E-Form Pernyataan Keberatan'
         );
 
         // Buat log transaksi untuk persetujuan
@@ -690,8 +692,8 @@ class PernyataanKeberatanModel extends Model
         $this->pk_review_tanggal_dibaca = now();
         $this->save();
 
-        // Update notifikasi MPU jika masih NULL
-        $this->updateNotifikasiMPU();
+        // Update notifikasi Verif jika masih NULL
+        $this->updateNotifikasiVerif('E-Form Pernyataan Keberatan', $this->pernyataan_keberatan_id);
 
         return $this;
     }
@@ -708,28 +710,6 @@ class PernyataanKeberatanModel extends Model
         $this->save();
 
         return $this;
-    }
-
-    private function updateNotifikasiMPU()
-    {
-        try {
-            $notifikasiMPU = NotifMPUModel::where('kategori_notif_mpu', 'E-Form Pernyataan Keberatan')
-                ->where('notif_mpu_form_id', $this->pernyataan_keberatan_id)
-                ->where('isDeleted', 0)
-                ->whereNull('sudah_dibaca_notif_mpu')
-                ->get();
-
-            if ($notifikasiMPU->isNotEmpty()) {
-                foreach ($notifikasiMPU as $notif) {
-                    $notif->sudah_dibaca_notif_mpu = now();
-                    $notif->save();
-                }
-
-                Log::info("Updated {$notifikasiMPU->count()} MPU notifications for pernyataan keberatan ID: {$this->pernyataan_keberatan_id}");
-            }
-        } catch (\Exception $e) {
-            Log::error("Error updating MPU notifications: " . $e->getMessage());
-        }
     }
 
     private function kirimEmailNotifikasiReview($status, $jawaban = null, $alasanPenolakan = null)
