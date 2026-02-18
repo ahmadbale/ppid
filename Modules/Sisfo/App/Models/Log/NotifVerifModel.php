@@ -174,14 +174,15 @@ class NotifVerifModel extends Model
     public static function tandaiSemuaDibacaByKategori($kategori)
     {
         $kategoriMap = [
-            'permohonan-informasi' => 'E-Form Permohonan Informasi',
-            'pernyataan-keberatan' => 'E-Form Pernyataan Keberatan',
-            'pengaduan-masyarakat' => 'E-Form Pengaduan Masyarakat',
-            'whistle-blowing-system' => 'E-Form Whistle Blowing System',
-            'permohonan-perawatan' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
         ];
 
-        $kategoriNama = $kategoriMap[$kategori] ?? null;
+        $kategoriId = (int)$kategori;
+        $kategoriNama = $kategoriMap[$kategoriId] ?? null;
 
         if (!$kategoriNama) {
             throw new \Exception('Kategori tidak valid');
@@ -211,14 +212,15 @@ class NotifVerifModel extends Model
     public static function hapusSemuaDibacaByKategori($kategori)
     {
         $kategoriMap = [
-            'permohonan-informasi' => 'E-Form Permohonan Informasi',
-            'pernyataan-keberatan' => 'E-Form Pernyataan Keberatan',
-            'pengaduan-masyarakat' => 'E-Form Pengaduan Masyarakat',
-            'whistle-blowing-system' => 'E-Form Whistle Blowing System',
-            'permohonan-perawatan' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
         ];
 
-        $kategoriNama = $kategoriMap[$kategori] ?? null;
+        $kategoriId = (int)$kategori;
+        $kategoriNama = $kategoriMap[$kategoriId] ?? null;
 
         if (!$kategoriNama) {
             throw new \Exception('Kategori tidak valid');
