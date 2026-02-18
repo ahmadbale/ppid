@@ -15,7 +15,7 @@
     <div class="row">
         <!-- Permohonan Informasi -->
         <div class="col-md-4 col-sm-6 col-12">
-            <a href="{{ url('notifikasi-masuk/detailData/PI') }}">
+            <a href="{{ url('notifikasi-masuk/detailData/1') }}">
                 <div class="info-box" style="transition: 0.3s;">
                     <span class="info-box-icon bg-info"><i class="fas fa-envelope text-white"></i></span>
                     <div class="info-box-content">
@@ -31,7 +31,7 @@
 
         <!-- Pernyataan Keberatan -->
         <div class="col-md-4 col-sm-6 col-12">
-            <a href="{{ url('notifikasi-masuk/detailData/PK') }}">
+            <a href="{{ url('notifikasi-masuk/detailData/2') }}">
                 <div class="info-box" style="transition: 0.3s;">
                     <span class="info-box-icon bg-warning"><i class="fas fa-exclamation-triangle text-white"></i></span>
                     <div class="info-box-content">
@@ -47,7 +47,7 @@
 
         <!-- Pengaduan Masyarakat -->
         <div class="col-md-4 col-sm-6 col-12">
-            <a href="{{ url('notifikasi-masuk/detailData/PM') }}">
+            <a href="{{ url('notifikasi-masuk/detailData/3') }}">
                 <div class="info-box" style="transition: 0.3s;">
                     <span class="info-box-icon bg-danger"><i class="fas fa-comments text-white"></i></span>
                     <div class="info-box-content">
@@ -63,7 +63,7 @@
 
         <!-- WBS -->
         <div class="col-md-4 col-sm-6 col-12">
-            <a href="{{ url('notifikasi-masuk/detailData/WBS') }}">
+            <a href="{{ url('notifikasi-masuk/detailData/4') }}">
                 <div class="info-box" style="transition: 0.3s;">
                     <span class="info-box-icon bg-success"><i class="fas fa-bullhorn text-white"></i></span>
                     <div class="info-box-content">
@@ -79,7 +79,7 @@
 
         <!-- Permohonan Perawatan -->
         <div class="col-md-4 col-sm-6 col-12">
-            <a href="{{ url('notifikasi-masuk/detailData/PP') }}">
+            <a href="{{ url('notifikasi-masuk/detailData/5') }}">
                 <div class="info-box" style="transition: 0.3s;">
                     <span class="info-box-icon bg-primary"><i class="fas fa-tools text-white"></i></span>
                     <div class="info-box-content">

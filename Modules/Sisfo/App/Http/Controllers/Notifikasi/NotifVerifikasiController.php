@@ -70,30 +70,29 @@ class NotifVerifikasiController extends Controller
         ]);
     }
 
-    public function detailData($id)
+    public function detailData($kategori)
     {
         $breadcrumb = (object) [
             'title' => 'Detail Notifikasi Verifikasi',
             'list' => ['Home', 'Notifikasi Verifikasi', 'Detail']
         ];
 
+        $kategoriMap = [
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
+        ];
+
+        $kategoriId = (int)$kategori;
+        $kategoriNama = $kategoriMap[$kategoriId] ?? null;
+
         $page = (object) [
-            'title' => 'Detail Notifikasi Verifikasi'
+            'title' => 'Notifikasi ' . $kategoriNama
         ];
 
         $activeMenu = 'notifikasi-verifikasi';
-
-        $kategori = request()->query('kategori');
-        
-        $kategoriMap = [
-            'permohonan-informasi' => 'E-Form Permohonan Informasi',
-            'pernyataan-keberatan' => 'E-Form Pernyataan Keberatan',
-            'pengaduan-masyarakat' => 'E-Form Pengaduan Masyarakat',
-            'whistle-blowing-system' => 'E-Form Whistle Blowing System',
-            'permohonan-perawatan' => 'E-Form Permohonan Perawatan Sarana Prasarana',
-        ];
-
-        $kategoriNama = $kategoriMap[$kategori] ?? null;
 
         $notifikasi = NotifVerifModel::with([
             't_permohonan_informasi',
@@ -112,7 +111,7 @@ class NotifVerifikasiController extends Controller
             'page' => $page,
             'activeMenu' => $activeMenu,
             'notifikasi' => $notifikasi,
-            'kategori' => $kategori
+            'kategori' => $kategoriId
         ]);
     }
 

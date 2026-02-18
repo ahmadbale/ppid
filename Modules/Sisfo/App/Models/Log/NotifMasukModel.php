@@ -210,14 +210,15 @@ class NotifMasukModel extends Model
     public static function tandaiSemuaDibacaByKategori($kategori)
     {
         $kategoriMap = [
-            'PI' => 'E-Form Permohonan Informasi',
-            'PK' => 'E-Form Pernyataan Keberatan',
-            'PM' => 'E-Form Pengaduan Masyarakat',
-            'WBS' => 'E-Form Whistle Blowing System',
-            'PP' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
         ];
 
-        $kategoriNama = $kategoriMap[$kategori] ?? null;
+        $kategoriId = (int)$kategori;
+        $kategoriNama = $kategoriMap[$kategoriId] ?? null;
 
         if (!$kategoriNama) {
             return [
@@ -259,14 +260,15 @@ class NotifMasukModel extends Model
     public static function hapusSemuaDibacaByKategori($kategori)
     {
         $kategoriMap = [
-            'PI' => 'E-Form Permohonan Informasi',
-            'PK' => 'E-Form Pernyataan Keberatan',
-            'PM' => 'E-Form Pengaduan Masyarakat',
-            'WBS' => 'E-Form Whistle Blowing System',
-            'PP' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
         ];
 
-        $kategoriNama = $kategoriMap[$kategori] ?? null;
+        $kategoriId = (int)$kategori;
+        $kategoriNama = $kategoriMap[$kategoriId] ?? null;
 
         if (!$kategoriNama) {
             return [
