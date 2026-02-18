@@ -37,13 +37,13 @@ class NotifMasukController extends Controller
     {
         $kategori = $request->input('kategori');
         
-        // Mapping kategori ke nama kategori di database
+        // Mapping kategori ID ke nama kategori di database
         $kategoriMap = [
-            'PI' => 'E-Form Permohonan Informasi',
-            'PK' => 'E-Form Pernyataan Keberatan',
-            'PM' => 'E-Form Pengaduan Masyarakat',
-            'WBS' => 'E-Form Whistle Blowing System',
-            'PP' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
         ];
 
         $kategoriNama = $kategoriMap[$kategori] ?? null;
@@ -79,16 +79,16 @@ class NotifMasukController extends Controller
     // 3. ✅ SHOW DETAIL - Detail notifikasi by kategori
     public function detailData($id)
     {
-        // $id adalah kategori (PI, PK, PM, WBS, PP)
+        // $id adalah kategori ID (1, 2, 3, 4, 5)
         $kategoriMap = [
-            'PI' => 'E-Form Permohonan Informasi',
-            'PK' => 'E-Form Pernyataan Keberatan',
-            'PM' => 'E-Form Pengaduan Masyarakat',
-            'WBS' => 'E-Form Whistle Blowing System',
-            'PP' => 'E-Form Permohonan Perawatan Sarana Prasarana',
+            1 => 'E-Form Permohonan Informasi',
+            2 => 'E-Form Pernyataan Keberatan',
+            3 => 'E-Form Pengaduan Masyarakat',
+            4 => 'E-Form Whistle Blowing System',
+            5 => 'E-Form Permohonan Perawatan Sarana Prasarana',
         ];
 
-        $kategori = strtoupper($id);
+        $kategori = (int)$id;
         $kategoriNama = $kategoriMap[$kategori] ?? null;
 
         if (!$kategoriNama) {
