@@ -15,8 +15,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('web_menu_field_config', function (Blueprint $table) {
-            // Primary Key (gunakan integer biasa untuk konsistensi dengan web_menu_url)
-            $table->increments('wmfc_id');
+            // Primary Key (konsistensi: nama_tabel_id)
+            $table->integer('web_menu_field_config_id')
+                ->autoIncrement()
+                ->comment('Primary Key');
             
             // Foreign Key ke web_menu_url (signed integer seperti web_menu_url_id)
             $table->integer('fk_web_menu_url')
