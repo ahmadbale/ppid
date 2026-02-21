@@ -16,7 +16,7 @@ use Modules\Sisfo\App\Models\TraitsModel;
  * @author Development Team
  * @version 1.0.0
  * 
- * @property int $wmfc_id
+ * @property int $web_menu_field_config_id
  * @property int $fk_web_menu_url
  * @property string $wmfc_column_name
  * @property string $wmfc_field_label
@@ -43,7 +43,7 @@ class WebMenuFieldConfigModel extends Model
     /**
      * Primary key
      */
-    protected $primaryKey = 'wmfc_id';
+    protected $primaryKey = 'web_menu_field_config_id';
 
     /**
      * Indicates if the model should be timestamped
