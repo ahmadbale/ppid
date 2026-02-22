@@ -8,14 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('web_menu_url', function (Blueprint $table) {
-            $table->dropColumn('badge_method');
-        });
+        if (Schema::hasColumn('web_menu_url', 'badge_method')) {
+            Schema::table('web_menu_url', function (Blueprint $table) {
+                $table->dropColumn('badge_method');
+            });
+        }
 
-        Schema::table('web_menu_global', function (Blueprint $table) {
-            $table->string('wmg_badge_method', 100)->nullable()->after('wmg_nama_default')
-                ->comment('Method name in controller to get badge count (e.g., getBadgeCount)');
-        });
+        if (!Schema::hasColumn('web_menu_global', 'wmg_badge_method')) {
+            Schema::table('web_menu_global', function (Blueprint $table) {
+                $table->string('wmg_badge_method', 100)->nullable()->after('wmg_nama_default')
+                    ->comment('Method name in controller to get badge count (e.g., getBadgeCount)');
+            });
+        }
     }
 
     public function down(): void
