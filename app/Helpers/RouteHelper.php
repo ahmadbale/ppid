@@ -18,7 +18,8 @@ class RouteHelper
         // 'get-informasi-publik-informasi-setiap-saat',
         // 'daftar-verifikasi-pengajuan',  // ❌ REMOVED - Parent only route, sub-menu pakai dynamic routing
         // 'daftar-review-pengajuan',      // ❌ REMOVED - Parent only route, sub-menu pakai dynamic routing
-        'whatsapp-management',
+        'whatsapp-management',            // 9 standar + 8 custom methods
+        // 'management-menu-url',         // ✅ REMOVED - Sekarang pakai dynamic routing dengan query parameter
     ];
     
     // Ambil daftar URL User Module dari database (dengan cache 1 jam)
