@@ -117,6 +117,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset-expired-scan', [WhatsAppController::class, 'resetExpiredScan'])->middleware('permission:update');
     });
 
+    // ✅ ROUTE DINAMIS STANDAR - management-menu-url
+    // Sekarang menggunakan query parameter di addData() method
+    // GET /management-menu-url/addData?action=validateTable&table_name=xxx
+    // GET /management-menu-url/addData?action=autoGenerateFields&table_name=xxx
+    
     // Pattern 1: /{page} → index() atau store() tergantung HTTP method
     Route::match(['GET', 'POST'], '/{page}', [PageController::class, 'index'])
         ->middleware('check.dynamic.route')
