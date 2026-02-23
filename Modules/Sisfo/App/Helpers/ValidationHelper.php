@@ -138,7 +138,7 @@ class ValidationHelper
     /**
      * Build custom validation messages (Bahasa Indonesia)
      * 
-     * @param array $fields Array of field configs
+     * @param array $fields Array of field configs (bisa array of objects atau array of arrays)
      * @return array
      */
     public static function buildCustomMessages(array $fields): array
@@ -146,8 +146,19 @@ class ValidationHelper
         $messages = [];
 
         foreach ($fields as $field) {
-            $columnName = $field->wmfc_column_name;
-            $label = $field->wmfc_field_label;
+            // ✅ Support both object dan array
+            if (is_object($field)) {
+                $columnName = $field->wmfc_column_name;
+                $label = $field->wmfc_field_label;
+            } else {
+                $columnName = $field['wmfc_column_name'] ?? null;
+                $label = $field['wmfc_field_label'] ?? null;
+            }
+
+            // Skip if column name or label not found
+            if (!$columnName || !$label) {
+                continue;
+            }
 
             $messages["{$columnName}.required"] = "{$label} wajib diisi";
             $messages["{$columnName}.unique"] = "{$label} sudah digunakan";
@@ -166,7 +177,7 @@ class ValidationHelper
     /**
      * Build custom attribute names
      * 
-     * @param array $fields Array of field configs
+     * @param array $fields Array of field configs (bisa array of objects atau array of arrays)
      * @return array
      */
     public static function buildCustomAttributes(array $fields): array
@@ -174,7 +185,18 @@ class ValidationHelper
         $attributes = [];
 
         foreach ($fields as $field) {
-            $attributes[$field->wmfc_column_name] = $field->wmfc_field_label;
+            // ✅ Support both object dan array
+            if (is_object($field)) {
+                $columnName = $field->wmfc_column_name;
+                $label = $field->wmfc_field_label;
+            } else {
+                $columnName = $field['wmfc_column_name'] ?? null;
+                $label = $field['wmfc_field_label'] ?? null;
+            }
+
+            if ($columnName && $label) {
+                $attributes[$columnName] = $label;
+            }
         }
 
         return $attributes;
