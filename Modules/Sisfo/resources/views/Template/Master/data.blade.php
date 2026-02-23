@@ -16,7 +16,7 @@
                 <th width="5%">Nomor</th>
                 @foreach($fields as $field)
                     @if($field->wmfc_column_name !== $pkColumn)
-                        <th>{{ $field->wmfc_label }}</th>
+                        <th>{{ $field->wmfc_field_label }}</th>
                     @endif
                 @endforeach
                 <th width="30%">Aksi</th>
