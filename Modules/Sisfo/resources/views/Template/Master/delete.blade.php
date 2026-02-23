@@ -23,7 +23,7 @@
                 <div class="row">
                     @foreach($fields->take(5) as $field)
                         <div class="col-md-12 mb-2">
-                            <strong>{{ $field->wmfc_label }}:</strong>
+                            <strong>{{ $field->wmfc_field_label }}:</strong>
                             <span class="ml-2">
                                 @php
                                     $columnName = $field->wmfc_column_name;
@@ -68,16 +68,33 @@
     </div>
 </form>
 
-@push('scripts')
 <script>
 $(document).ready(function() {
-    // Enable delete button when checkbox checked
-    $('#confirmDelete').on('change', function() {
-        $('#btnDelete').prop('disabled', !this.checked);
+    // ==========================================
+    // CHECKBOX CONFIRM - Enable/Disable Button
+    // ==========================================
+    $(document).on('change', '#confirmDelete', function() {
+        const isChecked = $(this).is(':checked');
+        $('#btnDelete').prop('disabled', !isChecked);
     });
-    
-    // Form submission with SweetAlert confirmation
-    $('#formDelete').on('submit', function(e) {
+
+    // ==========================================
+    // MODAL SHOWN - Reset State
+    // ==========================================
+    $(document).on('shown.bs.modal', '#myModal', function() {
+        const checkbox = $('#confirmDelete');
+        const button = $('#btnDelete');
+        
+        if (checkbox.length && button.length) {
+            checkbox.prop('checked', false);
+            button.prop('disabled', true);
+        }
+    });
+
+    // ==========================================
+    // FORM DELETE - Submit Handler
+    // ==========================================
+    $(document).on('submit', '#formDelete', function(e) {
         e.preventDefault();
         
         const form = $(this);
@@ -103,16 +120,44 @@ $(document).ready(function() {
                     url: form.attr('action'),
                     method: 'POST',
                     data: form.serialize(),
+                    dataType: 'json',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     success: function(response) {
-                        $('#modalAction').modal('hide');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: response.message || 'Data berhasil dihapus',
-                            timer: 2000
-                        });
-                        if (typeof window.reloadTable === 'function') {
-                            window.reloadTable();
+                        if (response.success) {
+                            $('#myModal').modal('hide');
+                            
+                            // Force remove backdrop
+                            setTimeout(function() {
+                                $('.modal-backdrop').remove();
+                                $('body').removeClass('modal-open');
+                            }, 300);
+                            
+                            // Show success alert
+                            setTimeout(function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil Dihapus!',
+                                    text: response.message || 'Data berhasil dihapus',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#28a745'
+                                }).then((result) => {
+                                    if (typeof window.reloadTable === 'function') {
+                                        window.reloadTable();
+                                    } else {
+                                        location.reload();
+                                    }
+                                });
+                            }, 400);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: response.message || 'Terjadi kesalahan'
+                            });
                         }
                     },
                     error: function(xhr) {
@@ -120,7 +165,7 @@ $(document).ready(function() {
                         
                         Swal.fire({
                             icon: 'error',
-                            title: 'Gagal',
+                            title: 'Error!',
                             text: xhr.responseJSON?.message || 'Terjadi kesalahan saat menghapus data'
                         });
                     }
@@ -130,4 +175,3 @@ $(document).ready(function() {
     });
 });
 </script>
-@endpush

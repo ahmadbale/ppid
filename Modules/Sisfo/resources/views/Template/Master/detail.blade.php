@@ -9,11 +9,11 @@
 </div>
 
 <div class="modal-body">
-    <div class="row">
-        @foreach($fields as $field)
-            <div class="col-md-6 mb-3">
+    @foreach($fields as $field)
+        <div class="row mb-3">
+            <div class="col-12">
                 <div class="form-group">
-                    <label class="font-weight-bold">{{ $field->wmfc_label }}</label>
+                    <label class="font-weight-bold">{{ $field->wmfc_field_label }}</label>
                     <div class="form-control-plaintext border rounded p-2 bg-light">
                         @php
                             $columnName = $field->wmfc_column_name;
@@ -32,8 +32,8 @@
                     </div>
                 </div>
             </div>
-        @endforeach
-    </div>
+        </div>
+    @endforeach
     
     {{-- Audit Trail Section --}}
     @if(isset($detailData->created_at) || isset($detailData->updated_at))
