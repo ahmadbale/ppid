@@ -150,11 +150,8 @@ class WebMenuUrlModel extends Model
                         unset($fieldConfig['fk_display_cols']);
                     }
                     
-                    // Build criteria JSON
+                    // Build criteria JSON (HANYA uppercase/lowercase)
                     $criteria = [];
-                    if (!empty($fieldConfig['criteria_unique'])) {
-                        $criteria['unique'] = true;
-                    }
                     if (!empty($fieldConfig['criteria_uppercase'])) {
                         $criteria['case'] = 'uppercase';
                     } elseif (!empty($fieldConfig['criteria_lowercase'])) {
@@ -182,7 +179,7 @@ class WebMenuUrlModel extends Model
                     $fieldConfig['wmfc_validation'] = !empty($validation) ? json_encode($validation) : null;
                     
                     // Remove checkbox individual keys
-                    unset($fieldConfig['criteria_unique'], $fieldConfig['criteria_uppercase'], $fieldConfig['criteria_lowercase']);
+                    unset($fieldConfig['criteria_uppercase'], $fieldConfig['criteria_lowercase']);
                     unset($fieldConfig['validation_required'], $fieldConfig['validation_unique'], $fieldConfig['validation_email'], $fieldConfig['validation_max'], $fieldConfig['validation_min']);
                     
                     WebMenuFieldConfigModel::createData($fieldConfig);
@@ -863,12 +860,7 @@ class WebMenuUrlModel extends Model
     {
         $criteria = [];
         
-        // Check unique criteria
-        if (!empty($fieldConfig['criteria_unique'])) {
-            $criteria['unique'] = true;
-        }
-        
-        // Check case criteria (uppercase/lowercase)
+        // Check case criteria (HANYA uppercase/lowercase)
         if (!empty($fieldConfig['criteria_uppercase'])) {
             $criteria['case'] = 'uppercase';
         } elseif (!empty($fieldConfig['criteria_lowercase'])) {
