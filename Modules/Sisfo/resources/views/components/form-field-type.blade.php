@@ -15,6 +15,14 @@
     $requiredAttr = $field['is_required'] ? 'required' : '';
 @endphp
 
+<div class="form-group">
+    <label for="{{ $field['column'] }}" class="font-weight-bold">
+        {{ $field['label'] }}
+        @if($field['is_required'])
+            <span class="text-danger">*</span>
+        @endif
+    </label>
+
 @if($field['type'] === 'text')
     {{-- Text Input --}}
     <input type="text" 
@@ -166,3 +174,5 @@
 
 {{-- Error Feedback Container --}}
 <div class="invalid-feedback" id="error-{{ $field['column'] }}"></div>
+</div>
+{{-- End of form-group --}}
