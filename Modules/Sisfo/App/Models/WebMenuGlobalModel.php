@@ -262,6 +262,13 @@ class WebMenuGlobalModel extends Model
 
             $data = $request->web_menu_global;
 
+            // Handle wmg_icon: auto-prefix "fa-" jika belum ada
+            if (isset($data['wmg_icon']) && !empty($data['wmg_icon'])) {
+                $data['wmg_icon'] = str_starts_with($data['wmg_icon'], 'fa-') 
+                    ? $data['wmg_icon'] 
+                    : 'fa-' . $data['wmg_icon'];
+            }
+
             // Handle kategori menu
             if ($data['wmg_kategori_menu'] === 'Group Menu') {
                 $data['fk_web_menu_url'] = null;
@@ -304,6 +311,13 @@ class WebMenuGlobalModel extends Model
             $webMenuGlobal = self::findOrFail($id);
             $oldParentId = $webMenuGlobal->wmg_parent_id;
             $data = $request->web_menu_global;
+
+            // Handle wmg_icon: auto-prefix "fa-" jika belum ada
+            if (isset($data['wmg_icon']) && !empty($data['wmg_icon'])) {
+                $data['wmg_icon'] = str_starts_with($data['wmg_icon'], 'fa-') 
+                    ? $data['wmg_icon'] 
+                    : 'fa-' . $data['wmg_icon'];
+            }
 
             // Handle kategori menu
             if ($data['wmg_kategori_menu'] === 'Group Menu') {
@@ -407,6 +421,8 @@ class WebMenuGlobalModel extends Model
         $rules = [
             'web_menu_global.wmg_nama_default' => 'required|max:255',
             'web_menu_global.wmg_kategori_menu' => 'required|in:Menu Biasa,Group Menu,Sub Menu',
+            'web_menu_global.wmg_type' => 'required|in:general,special',
+            'wmg_badge_indicator' => 'required|in:ya,tidak',
             'web_menu_global.wmg_status_menu' => 'required|in:aktif,nonaktif',
         ];
 
@@ -415,12 +431,31 @@ class WebMenuGlobalModel extends Model
             'web_menu_global.wmg_nama_default.max' => 'Nama default menu maksimal 255 karakter',
             'web_menu_global.wmg_kategori_menu.required' => 'Kategori menu wajib dipilih',
             'web_menu_global.wmg_kategori_menu.in' => 'Kategori menu tidak valid',
+            'web_menu_global.wmg_type.required' => 'Tipe menu wajib dipilih',
+            'web_menu_global.wmg_type.in' => 'Tipe menu tidak valid',
+            'wmg_badge_indicator.required' => 'Indikator notifikasi wajib dipilih',
+            'wmg_badge_indicator.in' => 'Indikator notifikasi tidak valid',
             'web_menu_global.wmg_status_menu.required' => 'Status menu wajib dipilih',
             'web_menu_global.wmg_status_menu.in' => 'Status menu tidak valid',
         ];
 
         // Validasi khusus berdasarkan kategori
         $kategori = $request->input('web_menu_global.wmg_kategori_menu');
+
+        // Icon wajib untuk Menu Biasa dan Group Menu, opsional untuk Sub Menu
+        if (in_array($kategori, ['Menu Biasa', 'Group Menu'])) {
+            $rules['web_menu_global.wmg_icon'] = 'required|max:50|regex:/^fa-[a-zA-Z0-9\-]+$/';
+            $messages['web_menu_global.wmg_icon.required'] = 'Icon menu wajib diisi untuk ' . $kategori;
+            $messages['web_menu_global.wmg_icon.max'] = 'Icon menu maksimal 50 karakter';
+            $messages['web_menu_global.wmg_icon.regex'] = 'Icon menu harus menggunakan format Font Awesome (contoh: fa-home)';
+        } else if ($kategori === 'Sub Menu') {
+            // Icon opsional untuk Sub Menu, tapi jika diisi harus valid
+            if ($request->filled('web_menu_global.wmg_icon')) {
+                $rules['web_menu_global.wmg_icon'] = 'nullable|max:50|regex:/^fa-[a-zA-Z0-9\-]+$/';
+                $messages['web_menu_global.wmg_icon.max'] = 'Icon menu maksimal 50 karakter';
+                $messages['web_menu_global.wmg_icon.regex'] = 'Icon menu harus menggunakan format Font Awesome (contoh: fa-circle)';
+            }
+        }
 
         if ($kategori === 'Sub Menu') {
             $rules['web_menu_global.wmg_parent_id'] = 'required|exists:web_menu_global,web_menu_global_id';
