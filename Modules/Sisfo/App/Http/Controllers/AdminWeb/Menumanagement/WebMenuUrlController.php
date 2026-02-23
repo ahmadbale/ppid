@@ -139,7 +139,7 @@ class WebMenuUrlController extends Controller
 
     public function detailData($id)
     {
-        $webMenuUrl = WebMenuUrlModel::detailData($id);
+        $webMenuUrl = WebMenuUrlModel::detailDataWithConfigs($id);
         
         return view("sisfo::AdminWeb.WebMenuUrl.detail", [
             'webMenuUrl' => $webMenuUrl,
@@ -150,7 +150,7 @@ class WebMenuUrlController extends Controller
     public function deleteData(Request $request, $id)
     {
         if ($request->isMethod('get')) {
-            $webMenuUrl = WebMenuUrlModel::detailData($id);
+            $webMenuUrl = WebMenuUrlModel::detailDataWithConfigs($id);
             
             return view("sisfo::AdminWeb.WebMenuUrl.delete", [
                 'webMenuUrl' => $webMenuUrl
