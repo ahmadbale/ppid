@@ -48,6 +48,48 @@
             </td>
           </tr>
           <tr>
+            <th>Icon Menu</th>
+            <td>
+              @if($webMenuGlobal->wmg_icon)
+                <i class="fas {{ $webMenuGlobal->wmg_icon }} fa-2x mr-2"></i>
+                <code>{{ $webMenuGlobal->wmg_icon }}</code>
+              @else
+                <span class="text-muted">-</span>
+              @endif
+            </td>
+          </tr>
+          <tr>
+            <th>Tipe Menu</th>
+            <td>
+              <span class="badge badge-{{ $webMenuGlobal->wmg_type === 'general' ? 'primary' : 'warning' }}">
+                {{ ucfirst($webMenuGlobal->wmg_type) }}
+              </span>
+              <br>
+              <small class="text-muted">
+                @if($webMenuGlobal->wmg_type === 'general')
+                  Muncul di sidebar (operasional) & header (user)
+                @else
+                  Hanya muncul di header halaman dengan sidebar
+                @endif
+              </small>
+            </td>
+          </tr>
+          <tr>
+            <th>Indikator Notifikasi</th>
+            <td>
+              @if($webMenuGlobal->wmg_badge_method)
+                <span class="badge badge-success">
+                  <i class="fas fa-bell"></i> Ya
+                </span>
+                <br><small class="text-muted">Method: {{ $webMenuGlobal->wmg_badge_method }}</small>
+              @else
+                <span class="badge badge-secondary">
+                  <i class="fas fa-bell-slash"></i> Tidak
+                </span>
+              @endif
+            </td>
+          </tr>
+          <tr>
             <th>Urutan Menu</th>
             <td>{{ $webMenuGlobal->wmg_urutan_menu ?? 'Auto' }}</td>
           </tr>
