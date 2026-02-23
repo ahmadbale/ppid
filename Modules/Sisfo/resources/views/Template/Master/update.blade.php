@@ -13,24 +13,24 @@
     @method('PUT')
     
     <div class="modal-body">
-        <div class="row">
-            @foreach($formFields as $field)
-                <div class="col-md-{{ $field['type'] === 'textarea' ? '12' : '6' }}">
+        @foreach($formFields as $field)
+            <div class="row mb-2">
+                <div class="col-12">
                     @include('sisfo::components.form-field-type', [
                         'field' => $field,
                         'value' => $field['value'],
                         'mode' => 'update'
                     ])
                 </div>
-            @endforeach
-        </div>
+            </div>
+        @endforeach
     </div>
 
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
             <i class="fas fa-times mr-1"></i>Batal
         </button>
-        <button type="submit" class="btn btn-warning" id="btnUpdate">
+        <button type="button" class="btn btn-warning" id="btnUpdate">
             <i class="fas fa-save mr-1"></i>Update
         </button>
     </div>
@@ -65,71 +65,132 @@
     </div>
 </div>
 
-@push('scripts')
 <script>
 $(document).ready(function() {
-    // Form validation & submission
-    $('#formUpdate').on('submit', function(e) {
+    // ==========================================
+    // BUTTON UPDATE - Event Handler
+    // ==========================================
+    $(document).off('click', '#btnUpdate').on('click', '#btnUpdate', function(e) {
         e.preventDefault();
         
-        const form = $(this);
-        const submitBtn = $('#btnUpdate');
+        const form = $('#formUpdate');
+        const submitBtn = $(this);
         const originalText = submitBtn.html();
         
-        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Updating...');
+        if (submitBtn.prop('disabled')) {
+            return false;
+        }
+        
+        // Clear previous errors
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').html('');
+        
+        // Disable button
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Mengupdate...');
         
         $.ajax({
             url: form.attr('action'),
             method: 'POST',
             data: form.serialize(),
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             success: function(response) {
-                $('#modalAction').modal('hide');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: response.message || 'Data berhasil diupdate',
-                    timer: 2000
-                });
-                if (typeof window.reloadTable === 'function') {
-                    window.reloadTable();
+                if (response.success) {
+                    $('#myModal').modal('hide');
+                    
+                    // Force remove backdrop
+                    setTimeout(function() {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+                    }, 300);
+                    
+                    // Show success alert
+                    setTimeout(function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: response.message || 'Data berhasil diupdate',
+                            showConfirmButton: true,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#28a745'
+                        }).then((result) => {
+                            if (typeof window.reloadTable === 'function') {
+                                window.reloadTable();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    }, 400);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: response.message || 'Terjadi kesalahan'
+                    });
                 }
             },
             error: function(xhr) {
-                submitBtn.prop('disabled', false).html(originalText);
-                
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
+                    
+                    $.each(errors, function(field, messages) {
+                        const input = $('[name="' + field + '"]');
+                        input.addClass('is-invalid');
+                        $('#error-' + field).html(messages[0]);
+                    });
+                    
                     let errorMsg = '<ul class="text-left mb-0">';
                     $.each(errors, function(key, value) {
                         errorMsg += '<li>' + value[0] + '</li>';
-                        $('[name="' + key + '"]').addClass('is-invalid');
                     });
                     errorMsg += '</ul>';
                     
                     Swal.fire({
-                        icon: 'error',
+                        icon: 'warning',
                         title: 'Validasi Gagal',
                         html: errorMsg
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Gagal',
+                        title: 'Error!',
                         text: xhr.responseJSON?.message || 'Terjadi kesalahan saat mengupdate data'
                     });
                 }
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).html(originalText);
             }
         });
     });
-    
-    $('input, select, textarea').on('input change', function() {
-        $(this).removeClass('is-invalid');
+
+    // ==========================================
+    // MODAL SHOWN - Reset Button State
+    // ==========================================
+    $(document).off('shown.bs.modal', '#myModal').on('shown.bs.modal', '#myModal', function() {
+        const updateBtn = $('#btnUpdate');
+        if (updateBtn.length) {
+            updateBtn.prop('disabled', false);
+        }
     });
     
-    // FK Search functionality for edit
+    // ==========================================
+    // INPUT CHANGE - Remove Validation Error
+    // ==========================================
+    $(document).on('input change', 'input, select, textarea', function() {
+        $(this).removeClass('is-invalid');
+        $(this).siblings('.invalid-feedback').html('');
+    });
+    
+    // ==========================================
+    // FK SEARCH - Foreign Key Functionality
+    // ==========================================
     let currentFkFieldEdit = null;
     
-    $('.btn-search-fk').on('click', function() {
+    $(document).on('click', '.btn-search-fk', function() {
         const fieldName = $(this).data('field');
         const fkTable = $(this).data('fk-table');
         const displayColumns = $(this).data('display-columns').split(',');
@@ -188,4 +249,3 @@ $(document).ready(function() {
     });
 });
 </script>
-@endpush
