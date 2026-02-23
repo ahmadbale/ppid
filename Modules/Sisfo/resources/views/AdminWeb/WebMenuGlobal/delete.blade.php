@@ -24,13 +24,53 @@
           <td>{{ $webMenuGlobal->wmg_nama_default }}</td>
         </tr>
         <tr>
+          <th>Kategori Menu</th>
+          <td>
+            <span class="badge badge-{{ 
+              $webMenuGlobal->wmg_kategori_menu === 'Group Menu' ? 'success' : 
+              ($webMenuGlobal->wmg_kategori_menu === 'Sub Menu' ? 'info' : 'primary') 
+            }}">
+              {{ $webMenuGlobal->wmg_kategori_menu }}
+            </span>
+          </td>
+        </tr>
+        <tr>
           <th>URL Menu</th>
           <td>
             @if($webMenuGlobal->fk_web_menu_url)
                 <strong>Aplikasi:</strong> {{ $webMenuGlobal->WebMenuUrl->application->app_nama }}<br>
                 <strong>Nama URL:</strong> {{ $webMenuGlobal->WebMenuUrl->wmu_nama }}
             @else
-                <span class="badge badge-info">Group Menu</span>
+                <span class="badge badge-warning">Group Menu</span>
+            @endif
+          </td>
+        </tr>
+        <tr>
+          <th>Icon Menu</th>
+          <td>
+            @if($webMenuGlobal->wmg_icon)
+              <i class="fas {{ $webMenuGlobal->wmg_icon }} mr-2"></i>
+              {{ $webMenuGlobal->wmg_icon }}
+            @else
+              <span class="text-muted">-</span>
+            @endif
+          </td>
+        </tr>
+        <tr>
+          <th>Tipe Menu</th>
+          <td>
+            <span class="badge badge-{{ $webMenuGlobal->wmg_type === 'general' ? 'primary' : 'warning' }}">
+              {{ ucfirst($webMenuGlobal->wmg_type) }}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <th>Indikator Notifikasi</th>
+          <td>
+            @if($webMenuGlobal->wmg_badge_method)
+              <span class="badge badge-success">Ya ({{ $webMenuGlobal->wmg_badge_method }})</span>
+            @else
+              <span class="badge badge-secondary">Tidak</span>
             @endif
           </td>
         </tr>

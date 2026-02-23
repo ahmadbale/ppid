@@ -15,12 +15,39 @@
       @csrf
       
       <style>
-        /* ✅ Modal 80% width dengan jarak dari sidebar */
+        /* ✅ Modal responsive - Auto adjust dengan/tanpa sidebar */
         .modal-dialog {
           max-width: 80% !important;
           margin: 1.75rem auto !important;
-          margin-left: calc(250px + 4rem) !important; /* Sidebar 250px + jarak 2rem */
+        }
+        
+        /* ✅ Jika sidebar visible (body TIDAK punya class sidebar-collapse) */
+        body:not(.sidebar-collapse) .modal-dialog {
+          margin-left: calc(250px + 3.2rem) !important;
           margin-right: 2rem !important;
+        }
+        
+        /* ✅ Jika sidebar hidden (body punya class sidebar-collapse) */
+        body.sidebar-collapse .modal-dialog {
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+        
+        /* Badge PK dan FK */
+        .badge-pk {
+          background-color: #007bff;
+          color: white;
+          font-size: 0.7rem;
+          padding: 2px 6px;
+          margin-top: 2px;
+        }
+        
+        .badge-fk {
+          background-color: #28a745;
+          color: white;
+          font-size: 0.7rem;
+          padding: 2px 6px;
+          margin-top: 2px;
         }
         
         /* Style untuk disabled inputs - warna pink/merah muda */
@@ -503,6 +530,8 @@
             <td class="text-center">${index + 1}</td>
             <td>
               <strong>${field.wmfc_column_name}</strong>
+              ${isPk ? '<span class="badge badge-pk ml-1">PK</span>' : ''}
+              ${isFk ? '<span class="badge badge-fk ml-1">FK</span>' : ''}
               <br><small class="text-muted">${field.wmfc_column_type || ''}</small>
               <input type="hidden" name="field_configs[${index}][wmfc_column_name]" value="${field.wmfc_column_name}">
               <input type="hidden" name="field_configs[${index}][wmfc_column_type]" value="${field.wmfc_column_type || ''}">
@@ -526,15 +555,6 @@
             </td>
             <td>
               <div class="criteria-checkboxes">
-                <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input criteria-unique" 
-                         id="unique_${index}" value="1"
-                         name="field_configs[${index}][criteria_unique]"
-                         data-index="${index}"
-                         ${isUniqueCriteria ? 'checked' : ''}
-                         ${isPk || isPkAutoInc ? 'disabled' : ''}>
-                  <label class="custom-control-label" for="unique_${index}">Unique</label>
-                </div>
                 <div class="custom-control custom-checkbox">
                   <input type="checkbox" class="custom-control-input criteria-uppercase" 
                          id="uppercase_${index}" value="1"
@@ -571,7 +591,8 @@
                          id="validation_unique_${index}" value="1"
                          name="field_configs[${index}][validation_unique]"
                          data-index="${index}"
-                         ${isUniqueCriteria ? 'checked disabled' : ''}>
+                         ${validation.unique || isPk ? 'checked' : ''}
+                         ${isPk || isPkAutoInc ? 'disabled' : ''}>
                   <label class="custom-control-label" for="validation_unique_${index}">Unique</label>
                 </div>
                 <div class="custom-control custom-checkbox">
@@ -653,33 +674,6 @@
         }
       });
 
-      // Handle criteria unique change - auto check/uncheck validation unique
-      $(document).on('change', '.criteria-unique', function() {
-        const index = $(this).data('index');
-        const validationUnique = $(`#validation_unique_${index}`);
-        
-        if ($(this).is(':checked')) {
-          validationUnique.prop('checked', true).prop('disabled', true);
-        } else {
-          validationUnique.prop('checked', false).prop('disabled', false);
-        }
-      });
-
-      // Handle validation unique change - auto check/uncheck criteria unique (TWO-WAY SYNC)
-      $(document).on('change', '.validation-unique', function() {
-        const index = $(this).data('index');
-        const criteriaUnique = $(`#unique_${index}`);
-        
-        // Jika validation unique di-check, criteria unique juga auto-check
-        if ($(this).is(':checked')) {
-          criteriaUnique.prop('checked', true);
-          // Disable validation unique karena sudah auto-checked dari criteria
-          $(this).prop('disabled', true);
-        }
-        // Jika validation unique di-uncheck, criteria unique juga auto-uncheck
-        // (tapi ini jarang terjadi karena biasanya disabled)
-      });
-
       // Handle FK display columns checkbox change - update tooltip
       $(document).on('change', '.fk-display-checkbox', function() {
         const index = $(this).data('index');
@@ -744,8 +738,42 @@
         $('.invalid-feedback').html('');
         
         const form = $('#formCreateWebMenuUrl');
+        
+        // ✅ FIX: Handle disabled checkboxes BEFORE creating FormData
+        $('input[type="checkbox"]').each(function() {
+            const $checkbox = $(this);
+            const name = $checkbox.attr('name');
+            
+            // Only process field config checkboxes
+            if (name && (name.includes('[criteria_') || name.includes('[validation_') || name.includes('[wmfc_is_visible]'))) {
+                if ($checkbox.prop('disabled')) {
+                    // ✅ CRITICAL FIX: Preserve checked state for disabled checkboxes
+                    const value = $checkbox.is(':checked') ? '1' : '0';
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: name,
+                        value: value,
+                        class: 'temp-disabled-value'
+                    }).insertBefore($checkbox);
+                }
+                else if (!$checkbox.is(':checked')) {
+                    // Unchecked enabled checkbox → Send "0"
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: name,
+                        value: '0',
+                        class: 'temp-unchecked-value'
+                    }).insertBefore($checkbox);
+                }
+                // Checked enabled checkbox → Submit naturally
+            }
+        });
+        
         const formData = new FormData(form[0]);
         const button = $(this);
+        
+        // ✅ Remove temp hidden inputs after FormData created
+        $('.temp-unchecked-value, .temp-disabled-value').remove();
         
         // ✅ Tambahkan existing_menu_id dan is_update jika ada (untuk update case)
         const existingMenuId = form.data('existingMenuId');

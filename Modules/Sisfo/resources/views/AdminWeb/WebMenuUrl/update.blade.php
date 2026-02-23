@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\PPID-polinema\Modules\Sisfo\resources\views\AdminWeb\MenuManagement\WebMenuUrl\update.blade.php -->
 @php
   use Modules\Sisfo\App\Models\Website\WebMenuModel;
   $webMenuUrlPath = WebMenuModel::getDynamicMenuUrl('management-menu-url');
@@ -16,11 +15,22 @@
         @csrf
 
         <style>
-          /* Modal width & margin adjustment */
+          /* ✅ Modal responsive - Auto adjust dengan/tanpa sidebar */
           #myModal .modal-dialog {
             max-width: 80% !important;
-            margin-left: calc(250px + 2rem) !important;
+            margin: 1.75rem auto !important;
+          }
+          
+          /* ✅ Jika sidebar visible (body TIDAK punya class sidebar-collapse) */
+          body:not(.sidebar-collapse) #myModal .modal-dialog {
+            margin-left: calc(250px + 3.2rem) !important;
             margin-right: 2rem !important;
+          }
+          
+          /* ✅ Jika sidebar hidden (body punya class sidebar-collapse) */
+          body.sidebar-collapse #myModal .modal-dialog {
+            margin-left: auto !important;
+            margin-right: auto !important;
           }
 
           /* Field Config Table */
@@ -49,9 +59,80 @@
           }
           .badge-pk {
             background-color: #007bff;
+            color: white;
           }
           .badge-fk {
             background-color: #28a745;
+            color: white;
+          }
+          
+          /* ✅ Checkbox disabled styling - PINK/MERAH MUDA (konsisten dengan create) */
+          .custom-control-input:disabled ~ .custom-control-label {
+            color: #ff69b4 !important;
+            cursor: not-allowed !important;
+          }
+          
+          .custom-control-input:disabled ~ .custom-control-label::before {
+            background-color: #ffe6f0 !important;
+            border-color: #ff69b4 !important;
+          }
+          
+          /* ✅ FIX: Checkbox disabled CHECKED - Checkmark biru terang yang jelas */
+          .custom-control-input:disabled:checked ~ .custom-control-label::before {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+            opacity: 1 !important;
+          }
+          
+          .custom-control-input:disabled:checked ~ .custom-control-label::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z'/%3e%3c/svg%3e") !important;
+            opacity: 1 !important;
+          }
+          
+          /* ✅ Input & Select disabled styling - PINK/MERAH MUDA (konsisten dengan create) */
+          input:disabled, select:disabled, textarea:disabled {
+            background-color: #ffe6f0 !important;
+            cursor: not-allowed !important;
+            opacity: 0.8;
+          }
+          
+          /* ✅ Kategori Menu disabled (tetap abu-abu karena readonly field) */
+          #wmu_kategori_menu:disabled {
+            background-color: #e9ecef !important;
+            color: #6c757d !important;
+          }
+          
+          /* ✅ Max input disabled dengan data max */
+          .max-length-input:disabled {
+            background-color: #ffe6f0 !important;
+          }
+          
+          /* ✅ FK Display Columns Selector (konsisten dengan create) */
+          .fk-display-cols {
+            margin-top: 5px;
+            padding: 5px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+          }
+          
+          .fk-display-cols label {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.875rem;
+          }
+          
+          /* ✅ Tooltip untuk disabled elements */
+          input:disabled:hover, 
+          select:disabled:hover, 
+          textarea:disabled:hover,
+          .custom-control-input:disabled ~ .custom-control-label:hover {
+            cursor: not-allowed !important;
+          }
+          
+          /* ✅ Vertical align top untuk semua cell dalam table */
+          #tableFieldConfigs td {
+            vertical-align: top !important;
           }
         </style>
 
@@ -293,17 +374,16 @@
                         const data = response.data;
                         
                         if (data.hasChanges === false || data.hasChanges === '' || data.hasChanges === 0 || !data.hasChanges) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Struktur Tabel Sama',
-                                html: `Tabel <strong>${data.table_name}</strong> masih sama strukturnya dengan konfigurasi yang tersimpan.<br><br>Anda dapat melakukan update konfigurasi field.`,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
+                            // ✅ Show alert info - PERMANEN (tidak auto-hide)
+                            $('#alertTableInfo').removeClass('alert-warning alert-danger').addClass('alert-success').show();
+                            $('#alertTableInfoText').html(`
+                                <strong>✅ Validasi Berhasil!</strong><br>
+                                Tabel <strong>${data.table_name}</strong> masih sama strukturnya dengan konfigurasi yang tersimpan.<br>
+                                Anda dapat melakukan update konfigurasi field.
+                            `);
                             
                             renderFieldConfigs(data.fields);
                             $('#fieldConfigsSection').show();
-                            $('#alertTableInfo').hide();
                             $('#btnSubmitForm').prop('disabled', false);
                             tableValidated = true;
                             $('input[name="is_update"]').val('0');
@@ -327,56 +407,50 @@
         function showChangesWarning(data) {
             const changesHtml = buildChangesDetailHtml(data.changes);
             
-            Swal.fire({
-                icon: 'info',
-                title: 'Perubahan Struktur Tabel Terdeteksi',
-                html: `
-                    <div class="text-left">
-                        <p class="mb-2"><strong>Tabel ${data.table_name}</strong> memiliki perubahan struktur:</p>
-                        <ul class="mb-3">
-                            ${data.changes.added && data.changes.added.length > 0 ? `<li><strong>${data.changes.added.length}</strong> kolom ditambahkan</li>` : ''}
-                            ${data.changes.removed && data.changes.removed.length > 0 ? `<li><strong>${data.changes.removed.length}</strong> kolom dihapus</li>` : ''}
-                            ${data.changes.modified && data.changes.modified.length > 0 ? `<li><strong>${data.changes.modified.length}</strong> kolom dimodifikasi</li>` : ''}
-                        </ul>
-                        <div class="alert alert-warning mb-3">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            <strong>Mode UPDATE:</strong> Sistem akan melakukan <strong>TRUE UPDATE</strong> (update data existing).<br>
-                            Field config yang ditampilkan adalah struktur tabel terbaru.
-                        </div>
-                        <button type="button" class="btn btn-sm btn-info" id="btnShowChangesDetail">
-                            <i class="fas fa-info-circle mr-1"></i> Lihat Detail Perubahan
-                        </button>
-                    </div>
-                `,
-                showConfirmButton: true,
-                confirmButtonText: 'OK, Lanjutkan Update',
-                customClass: {
-                    confirmButton: 'btn btn-primary'
-                },
-                allowOutsideClick: false
-            });
-
-            // Show detail changes modal jika user klik button
-            $(document).on('click', '#btnShowChangesDetail', function() {
-                $('#changesDetailContent').html(changesHtml);
-                $('#modalChangesDetail').modal('show');
-            });
-            
             // ✅ UPDATE MODE: Render field configs dengan struktur terbaru
             renderFieldConfigs(data.fields);
             $('#fieldConfigsSection').show();
             
-            // Show alert info (WARNING, bukan DANGER)
+            // ✅ Show alert info - PERMANEN (tidak auto-hide)
             const $alert = $('#alertTableInfo');
-            $alert.removeClass('alert-info alert-danger');
+            $alert.removeClass('alert-info alert-danger alert-success');
             $alert.addClass('alert-warning');
-            $('#alertTableInfoText').html(
-                '<i class="fas fa-info-circle mr-2"></i>' +
-                '<strong>Info:</strong> Struktur tabel berubah. Sistem akan melakukan <strong>TRUE UPDATE</strong> (update existing records).'
-            );
             
-            // Show alert
+            const changesSummary = [];
+            if (data.changes.added && data.changes.added.length > 0) {
+                changesSummary.push(`<li><strong>${data.changes.added.length}</strong> kolom ditambahkan</li>`);
+            }
+            if (data.changes.removed && data.changes.removed.length > 0) {
+                changesSummary.push(`<li><strong>${data.changes.removed.length}</strong> kolom dihapus</li>`);
+            }
+            if (data.changes.modified && data.changes.modified.length > 0) {
+                changesSummary.push(`<li><strong>${data.changes.modified.length}</strong> kolom dimodifikasi</li>`);
+            }
+            
+            $('#alertTableInfoText').html(`
+                <strong>⚠️ Perubahan Struktur Terdeteksi!</strong><br>
+                Tabel <strong>${data.table_name}</strong> memiliki perubahan struktur:<br>
+                <ul class="mb-2 mt-2">
+                    ${changesSummary.join('')}
+                </ul>
+                <div class="alert alert-info mb-2" style="padding: 8px;">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <strong>Mode UPDATE:</strong> Sistem akan melakukan <strong>TRUE UPDATE</strong> (update data existing).<br>
+                    Field config yang ditampilkan adalah struktur tabel terbaru.
+                </div>
+                <button type="button" class="btn btn-sm btn-info" id="btnShowChangesDetail">
+                    <i class="fas fa-info-circle mr-1"></i> Lihat Detail Perubahan
+                </button>
+            `);
+            
+            // Show alert - PERMANEN
             $alert.show();
+            
+            // Show detail changes modal jika user klik button
+            $(document).off('click', '#btnShowChangesDetail').on('click', '#btnShowChangesDetail', function() {
+                $('#changesDetailContent').html(changesHtml);
+                $('#modalChangesDetail').modal('show');
+            });
             
             // ✅ ENABLE submit button (allow update)
             $('#btnSubmitForm').prop('disabled', false);
@@ -385,29 +459,23 @@
 
         // Function to show table not found error
         function showTableNotFoundError(errorMsg) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Tabel Tidak Ditemukan',
-                html: errorMsg + '<br><br><strong>Silakan periksa nama tabel atau buat menu baru.</strong>',
-                confirmButtonText: 'OK',
-                allowOutsideClick: false
-            });
+            // ✅ Show alert error - PERMANEN (tidak auto-hide)
+            const $alert = $('#alertTableInfo');
+            $alert.removeClass('alert-info alert-warning alert-success');
+            $alert.addClass('alert-danger');
+            
+            $('#alertTableInfoText').html(`
+                <strong>❌ Tabel Tidak Valid!</strong><br>
+                ${errorMsg}<br><br>
+                <i class="fas fa-lightbulb mr-1"></i> 
+                <strong>Solusi:</strong> Pastikan tabel sudah dibuat di database dan memiliki 7 common fields wajib.
+            `);
+            
+            // Show alert - PERMANEN
+            $alert.show();
             
             // Hide field configs section
             $('#fieldConfigsSection').hide();
-            
-            // Show alert
-            const $alert = $('#alertTableInfo');
-            $alert.removeClass('alert-info alert-warning');
-            $alert.addClass('alert-danger');
-            $('#alertTableInfoText').html(
-                '<i class="fas fa-times-circle mr-2"></i>' +
-                '<strong>Error:</strong> ' + errorMsg + 
-                ' <strong>Anda tidak dapat melakukan update.</strong>'
-            );
-            
-            // Show alert
-            $alert.show();
             
             // Disable submit button
             $('#btnSubmitForm').prop('disabled', true);
@@ -498,23 +566,17 @@
             tbody.empty();
 
             fields.forEach((field, index) => {
-                const isPk = field.wmfc_is_pk == 1;
+                const isPk = field.wmfc_is_primary_key == 1;
                 const isAutoIncrement = field.wmfc_is_auto_increment == 1;
                 const isFk = field.wmfc_fk_table ? true : false;
                 const maxLength = field.wmfc_max_length || null;
                 
                 // Determine disable states (sama seperti create)
                 const isPkAutoInc = isPk && isAutoIncrement; // PK + Auto Increment - DISABLE semua
-                
-                // Badges
-                let badges = '';
-                if (isPk) badges += '<span class="badge badge-primary ml-1">PK</span>';
-                if (isAutoIncrement) badges += '<span class="badge badge-info ml-1">Auto</span>';
-                if (isFk) badges += '<span class="badge badge-success ml-1">FK</span>';
 
                 // Parse JSON criteria & validation
-                const criteria = field.wmfc_criteria ? JSON.parse(field.wmfc_criteria) : {};
-                const validation = field.wmfc_validation ? JSON.parse(field.wmfc_validation) : {};
+                const criteria = field.wmfc_criteria ? (typeof field.wmfc_criteria === 'string' ? JSON.parse(field.wmfc_criteria) : field.wmfc_criteria) : {};
+                const validation = field.wmfc_validation ? (typeof field.wmfc_validation === 'string' ? JSON.parse(field.wmfc_validation) : field.wmfc_validation) : {};
                 
                 // Type options - sama seperti create
                 let typeOptionsHtml = '';
@@ -534,26 +596,65 @@
                 if (isFk) {
                     fieldTypeOptions = ['search']; // FK hanya boleh Search
                 } else {
-                    fieldTypeOptions = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio'];
+                    // ✅ MASALAH 2 FIX: Filter field type options berdasarkan column type
+                    const columnType = (field.wmfc_column_type || '').toLowerCase();
+                    
+                    if (columnType.includes('varchar') || columnType.includes('char') || columnType.includes('text')) {
+                        // String types - hanya text/textarea
+                        fieldTypeOptions = ['text', 'textarea'];
+                    } else if (columnType.includes('int') || columnType.includes('decimal') || columnType.includes('float') || columnType.includes('double')) {
+                        // Numeric types - hanya number
+                        fieldTypeOptions = ['number'];
+                    } else if (columnType.includes('date') || columnType.includes('time')) {
+                        // Date/time types
+                        if (columnType === 'date') {
+                            fieldTypeOptions = ['date'];
+                        } else {
+                            fieldTypeOptions = ['date', 'date2'];
+                        }
+                    } else if (columnType.includes('enum')) {
+                        // ENUM types - dropdown atau radio
+                        fieldTypeOptions = ['dropdown', 'radio'];
+                    } else {
+                        // Default - semua kecuali search
+                        fieldTypeOptions = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio'];
+                    }
                 }
                 
                 fieldTypeOptions.forEach(type => {
                     typeOptionsHtml += `<option value="${type}" ${field.wmfc_field_type === type ? 'selected' : ''}>${typeLabels[type]}</option>`;
                 });
 
-                // ✅ FIX: Criteria checkboxes - sesuai create.blade.php
-                // Check unique criteria - auto untuk PK (baik auto-inc maupun non auto-inc)
-                const isUniqueCriteria = criteria.unique === true || isPk;
-                
                 // ✅ FIX: Uppercase/Lowercase check dari criteria.case
                 const isUppercase = criteria.case === 'uppercase';
                 const isLowercase = criteria.case === 'lowercase';
                 
-                // ✅ FIX: Validation checkboxes
-                const isRequired = validation.required === true || isPk;
-                const isEmail = validation.email === true;
+                // ✅ MASALAH 1 FIX: Validation checkboxes (handle semua kemungkinan format)
+                // Check required - bisa true, 1, "1", atau PK otomatis required
+                const isRequired = isPk || 
+                                 validation.required === true || 
+                                 validation.required === 1 || 
+                                 validation.required === '1' ||
+                                 validation.required === 'true';
+                
+                // Check unique - bisa true, 1, "1", atau PK otomatis unique
+                const isUniqueValidation = isPk || 
+                                          validation.unique === true || 
+                                          validation.unique === 1 || 
+                                          validation.unique === '1' ||
+                                          validation.unique === 'true';
+                
+                // Check email
+                const isEmail = validation.email === true || 
+                              validation.email === 1 || 
+                              validation.email === '1' ||
+                              validation.email === 'true';
+                              
                 const maxValue = validation.max || '';
                 const minValue = validation.min || '';
+                
+                // ✅ Check if field type is text-based (untuk disable uppercase/lowercase)
+                const isTextType = ['text', 'textarea'].includes(field.wmfc_field_type);
 
                 // FK Display Columns
                 const fkDisplayCols = field.wmfc_fk_display_columns ? JSON.parse(field.wmfc_fk_display_columns) : [];
@@ -584,7 +685,8 @@
                         <td class="text-center">${index + 1}</td>
                         <td>
                             <strong>${field.wmfc_column_name}</strong>
-                            ${badges}
+                            ${isPk ? '<span class="badge badge-pk ml-1">PK</span>' : ''}
+                            ${isFk ? '<span class="badge badge-fk ml-1">FK</span>' : ''}
                             <br>
                             <small class="text-muted">${field.wmfc_column_type || ''}</small>
                             <input type="hidden" name="field_configs[${index}][wmfc_column_name]" value="${field.wmfc_column_name}">
@@ -624,83 +726,79 @@
                             `}
                         </td>
                         <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="hidden" name="field_configs[${index}][criteria_unique]" value="0">
-                                <input type="checkbox" class="custom-control-input criteria-unique" 
-                                       id="unique_${index}" value="1"
-                                       name="field_configs[${index}][criteria_unique]"
-                                       data-index="${index}"
-                                       ${isUniqueCriteria ? 'checked' : ''}
-                                       ${isPk || isPkAutoInc ? 'disabled' : ''}>
-                                <label class="custom-control-label" for="unique_${index}">Unique</label>
-                            </div>
-                            <div class="custom-control custom-checkbox">
-                                <input type="hidden" name="field_configs[${index}][criteria_uppercase]" value="0">
-                                <input type="checkbox" class="custom-control-input criteria-uppercase" 
-                                       id="uppercase_${index}" value="1"
-                                       name="field_configs[${index}][criteria_uppercase]"
-                                       data-index="${index}"
-                                       ${isUppercase ? 'checked' : ''}
-                                       ${isPkAutoInc ? 'disabled' : ''}>
-                                <label class="custom-control-label" for="uppercase_${index}">Uppercase</label>
-                            </div>
-                            <div class="custom-control custom-checkbox">
-                                <input type="hidden" name="field_configs[${index}][criteria_lowercase]" value="0">
-                                <input type="checkbox" class="custom-control-input criteria-lowercase" 
-                                       id="lowercase_${index}" value="1"
-                                       name="field_configs[${index}][criteria_lowercase]"
-                                       data-index="${index}"
-                                       ${isLowercase ? 'checked' : ''}
-                                       ${isPkAutoInc ? 'disabled' : ''}>
-                                <label class="custom-control-label" for="lowercase_${index}">Lowercase</label>
+                            <div class="criteria-checkboxes">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input criteria-uppercase" 
+                                           id="uppercase_${index}" value="1"
+                                           name="field_configs[${index}][criteria_uppercase]"
+                                           data-index="${index}"
+                                           ${isUppercase ? 'checked' : ''}
+                                           ${isPkAutoInc || !isTextType ? 'disabled' : ''}>
+                                    <label class="custom-control-label" for="uppercase_${index}">Uppercase</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input criteria-lowercase" 
+                                           id="lowercase_${index}" value="1"
+                                           name="field_configs[${index}][criteria_lowercase]"
+                                           data-index="${index}"
+                                           ${isLowercase ? 'checked' : ''}
+                                           ${isPkAutoInc || !isTextType ? 'disabled' : ''}>
+                                    <label class="custom-control-label" for="lowercase_${index}">Lowercase</label>
+                                </div>
                             </div>
                         </td>
                         <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input validation-required" 
-                                       id="required_${index}" value="1"
-                                       name="field_configs[${index}][validation_required]"
-                                       data-index="${index}"
-                                       ${isRequired ? 'checked' : ''}
-                                       ${isPk || isPkAutoInc ? 'disabled' : ''}>
-                                <label class="custom-control-label" for="required_${index}">Required</label>
-                            </div>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input validation-unique" 
-                                       id="validation_unique_${index}" value="1"
-                                       name="field_configs[${index}][validation_unique]"
-                                       data-index="${index}"
-                                       ${isUniqueCriteria ? 'checked disabled' : ''}>
-                                <label class="custom-control-label" for="validation_unique_${index}">Unique</label>
-                            </div>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input validation-email" 
-                                       id="email_${index}" value="1"
-                                       name="field_configs[${index}][validation_email]"
-                                       data-index="${index}"
-                                       ${isEmail ? 'checked' : ''}
-                                       ${isPkAutoInc ? 'disabled' : ''}>
-                                <label class="custom-control-label" for="email_${index}">Email</label>
-                            </div>
-                            <div class="input-group input-group-sm mt-1">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Max</span>
+                            <div class="validation-checkboxes">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input validation-required" 
+                                           id="required_${index}" value="1"
+                                           name="field_configs[${index}][validation_required]"
+                                           data-index="${index}"
+                                           ${isRequired ? 'checked' : ''}
+                                           ${isPk || isPkAutoInc ? 'disabled' : ''}>
+                                    <label class="custom-control-label" for="required_${index}">Required</label>
                                 </div>
-                                <input type="number" class="form-control max-length-input" 
-                                       name="field_configs[${index}][validation_max]"
-                                       value="${maxValue || (maxLength || '')}"
-                                       ${maxLength ? `max="${maxLength}" placeholder="${maxLength}"` : 'placeholder="No limit"'}
-                                       data-max="${maxLength || ''}"
-                                       data-index="${index}"
-                                       ${isPkAutoInc ? 'disabled' : ''}>
-                            </div>
-                            <div class="input-group input-group-sm mt-1">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Min</span>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input validation-unique" 
+                                           id="validation_unique_${index}" value="1"
+                                           name="field_configs[${index}][validation_unique]"
+                                           data-index="${index}"
+                                           ${isUniqueValidation ? 'checked' : ''}
+                                           ${isPk || isPkAutoInc ? 'disabled' : ''}>
+                                    <label class="custom-control-label" for="validation_unique_${index}">Unique</label>
                                 </div>
-                                <input type="number" class="form-control" 
-                                       name="field_configs[${index}][validation_min]" 
-                                       value="${minValue}" placeholder="Min" ${isPkAutoInc ? 'disabled' : ''}>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input validation-email" 
+                                           id="email_${index}" value="1"
+                                           name="field_configs[${index}][validation_email]"
+                                           data-index="${index}"
+                                           ${isEmail ? 'checked' : ''}
+                                           ${isPkAutoInc || !isTextType ? 'disabled' : ''}>
+                                    <label class="custom-control-label" for="email_${index}">Email</label>
+                                </div>
+                                <div class="input-group input-group-sm mt-1">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Max</span>
+                                    </div>
+                                    <input type="number" class="form-control max-length-input" 
+                                           name="field_configs[${index}][validation_max]"
+                                           value="${maxValue || (maxLength || '')}"
+                                           ${maxLength ? `max="${maxLength}" placeholder="${maxLength}"` : 'placeholder="No limit"'}
+                                           data-max="${maxLength || ''}"
+                                           data-index="${index}"
+                                           ${isPkAutoInc ? 'disabled' : ''}>
+                                </div>
+                                <div class="input-group input-group-sm mt-1">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Min</span>
+                                    </div>
+                                    <input type="number" class="form-control validation-min" 
+                                           name="field_configs[${index}][validation_min]" 
+                                           value="${minValue}" 
+                                           placeholder="1"
+                                           data-index="${index}"
+                                           ${isPkAutoInc ? 'disabled' : ''}>
+                                </div>
                             </div>
                         </td>
                         <td class="text-center">
@@ -748,40 +846,21 @@
             // Enable/disable uppercase, lowercase, email based on type
             const isTextType = ['text', 'textarea'].includes(selectedType);
             
-            $(`#uppercase_${index}`).prop('disabled', !isTextType);
-            $(`#lowercase_${index}`).prop('disabled', !isTextType);
-            $(`#email_${index}`).prop('disabled', !isTextType);
+            // ✅ Cek apakah field adalah PK Auto Increment (sudah disabled permanent)
+            const isPkAutoInc = $(`#required_${index}`).prop('disabled') && $(`#validation_unique_${index}`).prop('disabled');
             
-            // Uncheck if disabled
-            if (!isTextType) {
-                $(`#uppercase_${index}`).prop('checked', false);
-                $(`#lowercase_${index}`).prop('checked', false);
-                $(`#email_${index}`).prop('checked', false);
-            }
-        });
-
-        // Handle criteria unique change - auto check/uncheck validation unique
-        $(document).on('change', '.criteria-unique', function() {
-            const index = $(this).data('index');
-            const validationUnique = $(`#validation_unique_${index}`);
-            
-            if ($(this).is(':checked')) {
-                validationUnique.prop('checked', true).prop('disabled', true);
-            } else {
-                validationUnique.prop('checked', false).prop('disabled', false);
-            }
-        });
-
-        // Handle validation unique change - auto check/uncheck criteria unique (TWO-WAY SYNC)
-        $(document).on('change', '.validation-unique', function() {
-            const index = $(this).data('index');
-            const criteriaUnique = $(`#unique_${index}`);
-            
-            // Jika validation unique di-check, criteria unique juga auto-check
-            if ($(this).is(':checked')) {
-                criteriaUnique.prop('checked', true);
-                // Disable validation unique karena sudah auto-checked dari criteria
-                $(this).prop('disabled', true);
+            // Hanya update disable state jika BUKAN PK Auto Increment
+            if (!isPkAutoInc) {
+                $(`#uppercase_${index}`).prop('disabled', !isTextType);
+                $(`#lowercase_${index}`).prop('disabled', !isTextType);
+                $(`#email_${index}`).prop('disabled', !isTextType);
+                
+                // Uncheck if disabled
+                if (!isTextType) {
+                    $(`#uppercase_${index}`).prop('checked', false);
+                    $(`#lowercase_${index}`).prop('checked', false);
+                    $(`#email_${index}`).prop('checked', false);
+                }
             }
         });
 
@@ -792,11 +871,46 @@
                 const selectedType = $(this).val();
                 const isTextType = ['text', 'textarea'].includes(selectedType);
                 
-                $(`#uppercase_${index}`).prop('disabled', !isTextType);
-                $(`#lowercase_${index}`).prop('disabled', !isTextType);
-                $(`#email_${index}`).prop('disabled', !isTextType);
+                // ✅ Cek apakah field adalah PK Auto Increment (sudah disabled permanent)
+                const isPkAutoInc = $(`#required_${index}`).prop('disabled') && $(`#validation_unique_${index}`).prop('disabled');
+                
+                // Hanya update disable state jika BUKAN PK Auto Increment
+                if (!isPkAutoInc) {
+                    $(`#uppercase_${index}`).prop('disabled', !isTextType);
+                    $(`#lowercase_${index}`).prop('disabled', !isTextType);
+                    $(`#email_${index}`).prop('disabled', !isTextType);
+                    
+                    // Uncheck if disabled
+                    if (!isTextType) {
+                        $(`#uppercase_${index}`).prop('checked', false);
+                        $(`#lowercase_${index}`).prop('checked', false);
+                        $(`#email_${index}`).prop('checked', false);
+                    }
+                }
             });
         }
+
+        // ✅ FIX: Handle max length validation - auto clamp to column max length
+        $(document).on('input', '.max-length-input', function() {
+            const maxAllowed = parseInt($(this).data('max'));
+            const currentValue = parseInt($(this).val());
+            
+            if (maxAllowed && currentValue > maxAllowed) {
+                $(this).val(maxAllowed);
+                
+                // Show tooltip warning
+                const $input = $(this);
+                const originalTitle = $input.attr('data-original-title') || '';
+                
+                $input.attr('data-original-title', `Max length dibatasi ${maxAllowed} karakter`)
+                      .tooltip('show');
+                
+                setTimeout(function() {
+                    $input.tooltip('hide')
+                          .attr('data-original-title', originalTitle);
+                }, 2000);
+            }
+        });
 
         // Hapus error ketika input berubah
         $(document).on('input change', 'input, select, textarea', function() {
@@ -812,12 +926,15 @@
             
             const form = $('#formUpdateWebMenuUrl');
             
+            // ✅ FIX: Handle disabled checkboxes - preserve checked state
             $('input[type="checkbox"]').each(function() {
                 const $checkbox = $(this);
                 const name = $checkbox.attr('name');
                 
+                // Only process field config checkboxes
                 if (name && (name.includes('[criteria_') || name.includes('[validation_') || name.includes('[wmfc_is_visible]'))) {
                     if ($checkbox.prop('disabled')) {
+                        // ✅ CRITICAL FIX: Check if checkbox is checked
                         const value = $checkbox.is(':checked') ? '1' : '0';
                         $('<input>').attr({
                             type: 'hidden',
@@ -827,6 +944,7 @@
                         }).insertBefore($checkbox);
                     }
                     else if (!$checkbox.is(':checked')) {
+                        // Unchecked enabled checkbox → Send "0"
                         $('<input>').attr({
                             type: 'hidden',
                             name: name,
@@ -834,6 +952,7 @@
                             class: 'temp-unchecked-value'
                         }).insertBefore($checkbox);
                     }
+                    // Checked enabled checkbox → Submit naturally
                 }
             });
             
