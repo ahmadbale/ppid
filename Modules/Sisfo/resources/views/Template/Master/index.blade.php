@@ -68,6 +68,24 @@
         .pagination {
             justify-content: flex-start;
         }
+        
+        .empty-state {
+            padding: 2rem 1rem;
+        }
+        
+        .empty-state i {
+            display: block;
+            color: #6c757d !important;
+        }
+        
+        .empty-state h5 {
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+        
+        .empty-state p {
+            font-size: 0.95rem;
+        }
     </style>
 @endpush
 
