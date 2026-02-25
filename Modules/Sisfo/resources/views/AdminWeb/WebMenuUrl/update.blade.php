@@ -1,1037 +1,268 @@
-@php
-  use Modules\Sisfo\App\Models\Website\WebMenuModel;
-  $webMenuUrlPath = WebMenuModel::getDynamicMenuUrl('management-menu-url');
-@endphp
-<div class="modal-header">
-    <h5 class="modal-title">Ubah URL Menu</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+{{-- Modal Update - Web Menu URL --}}
+@include('sisfo::components.web-menu-url.modal-styles')
+@include('sisfo::components.web-menu-url.shared-scripts')
+
+<div class="modal-header bg-warning">
+    <h5 class="modal-title text-white">
+        <i class="fas fa-edit mr-2"></i>Edit URL Menu
+    </h5>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
 
-<div class="modal-body">
-    <form id="formUpdateWebMenuUrl" action="{{ url($webMenuUrlPath . '/updateData/' . $webMenuUrl->web_menu_url_id) }}"
-        method="POST">
-        @csrf
+<form id="formUpdate" action="{{ url($webMenuUrl->wmu_nama . '/updateData/' . $webMenuUrl->web_menu_url_id) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
+    <div class="modal-body">
 
-        <style>
-          /* ✅ Modal responsive - Auto adjust dengan/tanpa sidebar */
-          #myModal .modal-dialog {
-            max-width: 80% !important;
-            margin: 1.75rem auto !important;
-          }
-          
-          /* ✅ Jika sidebar visible (body TIDAK punya class sidebar-collapse) */
-          body:not(.sidebar-collapse) #myModal .modal-dialog {
-            margin-left: calc(250px + 3.2rem) !important;
-            margin-right: 2rem !important;
-          }
-          
-          /* ✅ Jika sidebar hidden (body punya class sidebar-collapse) */
-          body.sidebar-collapse #myModal .modal-dialog {
-            margin-left: auto !important;
-            margin-right: auto !important;
-          }
-
-          /* Field Config Table */
-          .field-config-table {
-            font-size: 0.85rem;
-          }
-          .field-config-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            white-space: nowrap;
-          }
-          .field-config-table td {
-            vertical-align: middle;
-          }
-          .field-config-table input,
-          .field-config-table select {
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-          }
-          .field-config-table .form-control-sm {
-            height: calc(1.5em + 0.5rem);
-          }
-          .field-config-table .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-          }
-          .badge-pk {
-            background-color: #007bff;
-            color: white;
-          }
-          .badge-fk {
-            background-color: #28a745;
-            color: white;
-          }
-          
-          /* ✅ Checkbox disabled styling - PINK/MERAH MUDA (konsisten dengan create) */
-          .custom-control-input:disabled ~ .custom-control-label {
-            color: #ff69b4 !important;
-            cursor: not-allowed !important;
-          }
-          
-          .custom-control-input:disabled ~ .custom-control-label::before {
-            background-color: #ffe6f0 !important;
-            border-color: #ff69b4 !important;
-          }
-          
-          /* ✅ FIX: Checkbox disabled CHECKED - Checkmark biru terang yang jelas */
-          .custom-control-input:disabled:checked ~ .custom-control-label::before {
-            background-color: #007bff !important;
-            border-color: #007bff !important;
-            opacity: 1 !important;
-          }
-          
-          .custom-control-input:disabled:checked ~ .custom-control-label::after {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z'/%3e%3c/svg%3e") !important;
-            opacity: 1 !important;
-          }
-          
-          /* ✅ Input & Select disabled styling - PINK/MERAH MUDA (konsisten dengan create) */
-          input:disabled, select:disabled, textarea:disabled {
-            background-color: #ffe6f0 !important;
-            cursor: not-allowed !important;
-            opacity: 0.8;
-          }
-          
-          /* ✅ Kategori Menu disabled (tetap abu-abu karena readonly field) */
-          #wmu_kategori_menu:disabled {
-            background-color: #e9ecef !important;
-            color: #6c757d !important;
-          }
-          
-          /* ✅ Max input disabled dengan data max */
-          .max-length-input:disabled {
-            background-color: #ffe6f0 !important;
-          }
-          
-          /* ✅ FK Display Columns Selector (konsisten dengan create) */
-          .fk-display-cols {
-            margin-top: 5px;
-            padding: 5px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #f8f9fa;
-          }
-          
-          .fk-display-cols label {
-            display: block;
-            margin-bottom: 3px;
-            font-size: 0.875rem;
-          }
-          
-          /* ✅ Tooltip untuk disabled elements */
-          input:disabled:hover, 
-          select:disabled:hover, 
-          textarea:disabled:hover,
-          .custom-control-input:disabled ~ .custom-control-label:hover {
-            cursor: not-allowed !important;
-          }
-          
-          /* ✅ Vertical align top untuk semua cell dalam table */
-          #tableFieldConfigs td {
-            vertical-align: top !important;
-          }
-        </style>
-
+        {{-- Aplikasi --}}
         <div class="form-group">
-          <label for="fk_m_application">Aplikasi <span class="text-danger">*</span></label>
-          <select class="form-control" id="fk_m_application" name="web_menu_url[fk_m_application]">
-            <option value="">Pilih Aplikasi</option>
-            @foreach($applications as $app)
-              <option value="{{ $app->application_id }}" {{ $webMenuUrl->fk_m_application == $app->application_id ? 'selected' : '' }}>
-                {{ $app->app_nama }}
-              </option>
-            @endforeach
-          </select>
-          <div class="invalid-feedback" id="fk_m_application_error"></div>
-        </div>
-
-        <div class="form-group">
-          <label for="wmu_kategori_menu">Kategori Menu <span class="text-danger">*</span></label>
-          <select class="form-control" id="wmu_kategori_menu" name="web_menu_url[wmu_kategori_menu]" disabled>
-            <option value="master" {{ $webMenuUrl->wmu_kategori_menu === 'master' ? 'selected' : '' }}>Master (Template CRUD Otomatis)</option>
-            <option value="pengajuan" {{ $webMenuUrl->wmu_kategori_menu === 'pengajuan' ? 'selected' : '' }}>Pengajuan (Template Approval)</option>
-            <option value="custom" {{ $webMenuUrl->wmu_kategori_menu === 'custom' ? 'selected' : '' }}>Custom (Manual Coding)</option>
-          </select>
-          <small class="text-muted">Kategori menu tidak bisa diubah setelah dibuat</small>
-          <input type="hidden" name="web_menu_url[wmu_kategori_menu]" value="{{ $webMenuUrl->wmu_kategori_menu }}">
-          <div class="invalid-feedback" id="wmu_kategori_menu_error"></div>
-        </div>
-
-        <!-- Section untuk Master -->
-        <div id="sectionMaster" style="display: {{ $webMenuUrl->wmu_kategori_menu === 'master' ? 'block' : 'none' }};">
-          <div class="form-group">
-            <label for="wmu_akses_tabel">Nama Tabel Database <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <input type="text" class="form-control" id="wmu_akses_tabel" 
-                     name="web_menu_url[wmu_akses_tabel]" 
-                     value="{{ $webMenuUrl->wmu_akses_tabel }}"
-                     placeholder="Contoh: m_kategori, m_user, t_transaksi" 
-                     maxlength="255" readonly>
-              <div class="input-group-append">
-                <button type="button" class="btn btn-primary" id="btnCheckTable">
-                  <i class="fas fa-search mr-1"></i> Re-Check Tabel
-                </button>
-              </div>
-            </div>
-            <small class="text-muted">Tabel yang akan dikelola oleh menu master ini (readonly, klik Re-Check untuk validasi ulang)</small>
-            <div class="invalid-feedback" id="wmu_akses_tabel_error"></div>
-          </div>
-
-          <!-- Alert Info -->
-          <div class="alert alert-info" id="alertTableInfo" style="display: none;">
-            <i class="fas fa-info-circle mr-2"></i>
-            <span id="alertTableInfoText"></span>
-          </div>
-
-          <!-- Field Configurations Table -->
-          <div id="fieldConfigsSection" style="display: none;">
-            <hr>
-            <h6 class="font-weight-bold mb-3">
-              <i class="fas fa-cogs mr-2"></i> Konfigurasi Field
-            </h6>
-            
-            <div class="table-responsive">
-              <table class="table table-bordered field-config-table" id="tableFieldConfigs">
-                <thead>
-                  <tr>
-                    <th width="5%">No</th>
-                    <th width="15%">Kolom Database</th>
-                    <th width="12%">Label Field</th>
-                    <th width="12%">Type Input</th>
-                    <th width="18%">Kriteria <small class="text-muted">(opsional)</small></th>
-                    <th width="18%">Validasi <small class="text-muted">(opsional)</small></th>
-                    <th width="10%">FK Config</th>
-                    <th width="10%">Visible</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyFieldConfigs">
-                  <!-- Will be populated via AJAX -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section untuk Custom -->
-        <div id="sectionCustom" style="display: {{ $webMenuUrl->wmu_kategori_menu === 'custom' ? 'block' : 'none' }};">
-          <div class="form-group">
-            <label for="module_type">Module Type <span class="text-danger">*</span></label>
-            <select class="form-control" id="module_type" name="web_menu_url[module_type]">
-              <option value="sisfo" {{ $webMenuUrl->module_type === 'sisfo' ? 'selected' : '' }}>Sisfo</option>
-              <option value="user" {{ $webMenuUrl->module_type === 'user' ? 'selected' : '' }}>User</option>
+            <label for="fk_m_application">Aplikasi <span class="text-danger">*</span></label>
+            <select class="form-control" id="fk_m_application" name="web_menu_url[fk_m_application]">
+                <option value="">Pilih Aplikasi</option>
+                @foreach($applications as $app)
+                    <option value="{{ $app->application_id }}"
+                        {{ $webMenuUrl->fk_m_application == $app->application_id ? 'selected' : '' }}>
+                        {{ $app->app_nama }}
+                    </option>
+                @endforeach
             </select>
-            <div class="invalid-feedback" id="module_type_error"></div>
-          </div>
-
-          <div class="form-group" id="groupControllerName" style="display: {{ $webMenuUrl->module_type === 'sisfo' ? 'block' : 'none' }};">
-            <label for="controller_name">Controller Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="controller_name" 
-                   name="web_menu_url[controller_name]" 
-                   value="{{ $webMenuUrl->controller_name }}"
-                   placeholder="Contoh: AdminWeb\Footer\FooterController" 
-                   maxlength="255">
-            <small class="text-muted">Namespace controller (tanpa Modules\Sisfo\App\Http\Controllers\)</small>
-            <div class="invalid-feedback" id="controller_name_error"></div>
-          </div>
-
-          <div class="form-group" id="groupParentMenu">
-            <label for="wmu_parent_id">Parent Menu</label>
-            <select class="form-control" id="wmu_parent_id" name="web_menu_url[wmu_parent_id]">
-              <option value="">-- Tidak Ada Parent (Menu Utama) --</option>
-              <!-- Will be populated via AJAX if needed -->
-            </select>
-            <small class="text-muted">Pilih parent jika menu ini adalah sub-menu</small>
-            <div class="invalid-feedback" id="wmu_parent_id_error"></div>
-          </div>
+            <div class="invalid-feedback" id="fk_m_application_error"></div>
         </div>
 
+        {{-- Nama URL Menu --}}
         <div class="form-group">
-            <label for="wmu_nama">URL Menu <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="wmu_nama" name="web_menu_url[wmu_nama]" 
-                 value="{{ $webMenuUrl->wmu_nama }}" maxlength="255">
-                 <small class="text-muted">Contoh: management-aplikasi, management-user, E-Form/permohonan-informasi</small>
-          <div class="invalid-feedback" id="wmu_nama_error"></div>
+            <label for="wmu_nama">Nama URL Menu <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="wmu_nama"
+                   name="web_menu_url[wmu_nama]" maxlength="255"
+                   value="{{ $webMenuUrl->wmu_nama }}">
+            <small class="text-muted">Gunakan huruf kecil dan tanda hubung (-). Ini akan menjadi URL halaman.</small>
+            <div class="invalid-feedback" id="wmu_nama_error"></div>
         </div>
-        
+
+        {{-- Keterangan --}}
         <div class="form-group">
-          <label for="wmu_keterangan">Deskripsi URL Menu</label>
-          <textarea class="form-control" id="wmu_keterangan" name="web_menu_url[wmu_keterangan]" rows="3">{{ $webMenuUrl->wmu_keterangan }}</textarea>
-          <div class="invalid-feedback" id="wmu_keterangan_error"></div>
+            <label for="wmu_keterangan">Keterangan</label>
+            <textarea class="form-control" id="wmu_keterangan"
+                      name="web_menu_url[wmu_keterangan]" rows="2" maxlength="1000">{{ $webMenuUrl->wmu_keterangan }}</textarea>
+            <div class="invalid-feedback" id="wmu_keterangan_error"></div>
         </div>
 
-        <!-- Hidden fields untuk Master category -->
-        <input type="hidden" name="is_update" value="0">
-        <input type="hidden" name="existing_menu_id" value="{{ $webMenuUrl->web_menu_url_id }}">
-    </form>
-</div>
+        {{-- Kategori Menu (readonly) --}}
+        <div class="form-group">
+            <label for="wmu_kategori_menu">Kategori Menu</label>
+            <input type="text" class="form-control" value="{{ ucfirst($webMenuUrl->wmu_kategori_menu) }}" readonly>
+            <input type="hidden" name="web_menu_url[wmu_kategori_menu]" value="{{ $webMenuUrl->wmu_kategori_menu }}">
+            <small class="text-muted">Kategori tidak dapat diubah setelah dibuat.</small>
+        </div>
 
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-    <button type="button" class="btn btn-primary" id="btnSubmitForm">
-        <i class="fas fa-save mr-1"></i> Simpan Perubahan
-    </button>
-</div>
+        {{-- Section berdasarkan kategori --}}
+        @include('sisfo::components.web-menu-url.section-custom', ['mode' => 'update', 'webMenuUrl' => $webMenuUrl])
+        @include('sisfo::components.web-menu-url.section-master', ['mode' => 'update', 'webMenuUrl' => $webMenuUrl])
 
-<!-- Modal for Table Changes Detail -->
-<div class="modal fade" id="modalChangesDetail" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-warning">
-        <h5 class="modal-title">
-          <i class="fas fa-exclamation-triangle mr-2"></i>Detail Perubahan Struktur Tabel
-        </h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body" id="changesDetailContent">
-        <!-- Will be populated via JS -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-      </div>
     </div>
-  </div>
-</div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i>Batal
+        </button>
+        <button type="button" class="btn btn-warning" id="btnUpdate">
+            <i class="fas fa-save mr-1"></i>Update
+        </button>
+    </div>
+</form>
 
 <script>
-    $(document).ready(function () {
-        const currentCategory = '{{ $webMenuUrl->wmu_kategori_menu }}';
-        const currentTableName = '{{ $webMenuUrl->wmu_akses_tabel }}';
+$(document).ready(function() {
+
+    // ==========================================
+    // TAMPILKAN section sesuai kategori existing
+    // ==========================================
+    const kategori = '{{ $webMenuUrl->wmu_kategori_menu }}';
+    if (kategori === 'custom')    $('#section-custom').show();
+    if (kategori === 'master')    $('#section-master').show();
+
+    // ==========================================
+    // RE-CHECK TABEL (untuk kategori master)
+    // ==========================================
+    $('#btnCheckTable').on('click', function() {
+        const tableName = $('#wmu_akses_tabel').val().trim();
         const menuUrlId = '{{ $webMenuUrl->web_menu_url_id }}';
-        
-        let existingFieldConfigs = @json($webMenuUrl->fieldConfigs ?? []);
-        let currentFkRow = null;
-        let tableValidated = false;
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Mengecek...');
 
-        if (currentCategory === 'master') {
-            const $alert = $('#alertTableInfo');
-            
-            // Update classes
-            $alert.removeClass('alert-danger alert-warning');
-            $alert.addClass('alert-info');
-            
-            // Update text
-            $('#alertTableInfoText').html('<strong>Info:</strong> Silakan klik tombol <strong>"Re-Check Tabel"</strong> untuk memvalidasi struktur tabel dan melihat konfigurasi field.');
-            
-            // Force show alert
-            $alert.show();
-            
-            // Hide field config section
-            $('#fieldConfigsSection').hide();
-            
-            // Disable submit button
-            $('#btnSubmitForm').prop('disabled', true);
-        }
+        // ✅ FIX: POST ke management-menu-url (bukan /{wmu_nama}) agar tidak kena route dinamis
+        const checkUrl = '{{ url("management-menu-url") }}';
 
-        // Module type change handler (Custom only)
-        $('#module_type').on('change', function() {
-            const moduleType = $(this).val();
-            if (moduleType === 'sisfo') {
-                $('#groupControllerName').show();
-                $('#controller_name').prop('required', true);
-            } else {
-                $('#groupControllerName').hide();
-                $('#controller_name').prop('required', false).val('');
-            }
-        });
+        $.ajax({
+            url: checkUrl,
+            method: 'POST',
+            data: { 
+                action: 'validateTable', 
+                table_name: tableName, 
+                menu_url_id: menuUrlId,
+                _token: $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
+            },
+            dataType: 'json',
+            success: function(res) {
+                if (res.success) {
+                    const hasChanges = res.hasChanges || res.data?.hasChanges || false;
 
-        // Re-Check Table Button (Master only)
-        $('#btnCheckTable').on('click', function() {
-            const tableName = $('#wmu_akses_tabel').val().trim();
-            
-            if (!tableName) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perhatian',
-                    text: 'Nama tabel tidak boleh kosong'
-                });
-                return;
-            }
-
-            const button = $(this);
-            button.html('<i class="fas fa-spinner fa-spin"></i> Checking...').prop('disabled', true);
-            
-            const ajaxUrl = '{{ url($webMenuUrlPath . "/editData/" . $webMenuUrl->web_menu_url_id) }}';
-            const ajaxData = {
-                action: 'validateTable',
-                table_name: tableName,
-                menu_url_id: menuUrlId
-            };
-            
-            $.ajax({
-                url: ajaxUrl,
-                method: 'GET',
-                data: ajaxData,
-                success: function(response) {
-                    button.html('<i class="fas fa-search mr-1"></i> Re-Check Tabel').prop('disabled', false);
-
-                    if (response.success && response.data) {
-                        const data = response.data;
-                        
-                        if (data.hasChanges === false || data.hasChanges === '' || data.hasChanges === 0 || !data.hasChanges) {
-                            // ✅ Show alert info - PERMANEN (tidak auto-hide)
-                            $('#alertTableInfo').removeClass('alert-warning alert-danger').addClass('alert-success').show();
-                            $('#alertTableInfoText').html(`
-                                <strong>✅ Validasi Berhasil!</strong><br>
-                                Tabel <strong>${data.table_name}</strong> masih sama strukturnya dengan konfigurasi yang tersimpan.<br>
-                                Anda dapat melakukan update konfigurasi field.
-                            `);
-                            
-                            renderFieldConfigs(data.fields);
-                            $('#fieldConfigsSection').show();
-                            $('#btnSubmitForm').prop('disabled', false);
-                            tableValidated = true;
-                            $('input[name="is_update"]').val('0');
-                        } 
-                        else {
-                            showChangesWarning(data);
-                        }
+                    if (hasChanges) {
+                        // Ada perubahan struktur → info + disable update
+                        const changesHtml = WebMenuUrlShared.buildChangesDetailHtml(res.changes || res.data?.changes || {});
+                        $('#alertTableInfo')
+                            .removeClass('alert-info alert-success alert-danger')
+                            .addClass('alert alert-warning')
+                            .show();
+                        $('#alertTableIcon').attr('class', 'fas fa-info-circle mr-2');
+                        $('#alertTableInfoText').html(
+                            '<strong>Terdeteksi perubahan struktur tabel!</strong>' +
+                            '<br>Perubahan tidak dapat disimpan langsung. Silakan buat menu baru untuk mendaftarkan ulang.' +
+                            changesHtml
+                        );
+                        // Sembunyikan field config, disable tombol Update
+                        $('#fieldConfigsSection').hide();
+                        $('#btnUpdate').prop('disabled', true);
                     } else {
-                        showTableNotFoundError(response.message || 'Tabel tidak ditemukan');
-                    }
-                },
-                error: function(xhr) {
-                    button.html('<i class="fas fa-search mr-1"></i> Re-Check Tabel').prop('disabled', false);
-                    const errorMsg = xhr.responseJSON?.message || 'Terjadi kesalahan saat validasi tabel';
-                    showTableNotFoundError(errorMsg);
-                }
-            });
-        });
+                        // Tidak ada perubahan → tampilkan field config, enable update
+                        $('#alertTableInfo')
+                            .removeClass('alert-warning alert-danger')
+                            .addClass('alert alert-success')
+                            .show();
+                        $('#alertTableIcon').attr('class', 'fas fa-info-circle mr-2');
+                        $('#alertTableInfoText').html(
+                            '<strong>Tabel ditemukan dan struktur tidak berubah.</strong>'
+                        );
 
-        // Function to show changes warning
-        function showChangesWarning(data) {
-            const changesHtml = buildChangesDetailHtml(data.changes);
-            
-            // ✅ UPDATE MODE: Render field configs dengan struktur terbaru
-            renderFieldConfigs(data.fields);
-            $('#fieldConfigsSection').show();
-            
-            // ✅ Show alert info - PERMANEN (tidak auto-hide)
-            const $alert = $('#alertTableInfo');
-            $alert.removeClass('alert-info alert-danger alert-success');
-            $alert.addClass('alert-warning');
-            
-            const changesSummary = [];
-            if (data.changes.added && data.changes.added.length > 0) {
-                changesSummary.push(`<li><strong>${data.changes.added.length}</strong> kolom ditambahkan</li>`);
-            }
-            if (data.changes.removed && data.changes.removed.length > 0) {
-                changesSummary.push(`<li><strong>${data.changes.removed.length}</strong> kolom dihapus</li>`);
-            }
-            if (data.changes.modified && data.changes.modified.length > 0) {
-                changesSummary.push(`<li><strong>${data.changes.modified.length}</strong> kolom dimodifikasi</li>`);
-            }
-            
-            $('#alertTableInfoText').html(`
-                <strong>⚠️ Perubahan Struktur Terdeteksi!</strong><br>
-                Tabel <strong>${data.table_name}</strong> memiliki perubahan struktur:<br>
-                <ul class="mb-2 mt-2">
-                    ${changesSummary.join('')}
-                </ul>
-                <div class="alert alert-info mb-2" style="padding: 8px;">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    <strong>Mode UPDATE:</strong> Sistem akan melakukan <strong>TRUE UPDATE</strong> (update data existing).<br>
-                    Field config yang ditampilkan adalah struktur tabel terbaru.
-                </div>
-                <button type="button" class="btn btn-sm btn-info" id="btnShowChangesDetail">
-                    <i class="fas fa-info-circle mr-1"></i> Lihat Detail Perubahan
-                </button>
-            `);
-            
-            // Show alert - PERMANEN
-            $alert.show();
-            
-            // Show detail changes modal jika user klik button
-            $(document).off('click', '#btnShowChangesDetail').on('click', '#btnShowChangesDetail', function() {
-                $('#changesDetailContent').html(changesHtml);
-                $('#modalChangesDetail').modal('show');
-            });
-            
-            // ✅ ENABLE submit button (allow update)
-            $('#btnSubmitForm').prop('disabled', false);
-            tableValidated = true;
-        }
-
-        // Function to show table not found error
-        function showTableNotFoundError(errorMsg) {
-            // ✅ Show alert error - PERMANEN (tidak auto-hide)
-            const $alert = $('#alertTableInfo');
-            $alert.removeClass('alert-info alert-warning alert-success');
-            $alert.addClass('alert-danger');
-            
-            $('#alertTableInfoText').html(`
-                <strong>❌ Tabel Tidak Valid!</strong><br>
-                ${errorMsg}<br><br>
-                <i class="fas fa-lightbulb mr-1"></i> 
-                <strong>Solusi:</strong> Pastikan tabel sudah dibuat di database dan memiliki 7 common fields wajib.
-            `);
-            
-            // Show alert - PERMANEN
-            $alert.show();
-            
-            // Hide field configs section
-            $('#fieldConfigsSection').hide();
-            
-            // Disable submit button
-            $('#btnSubmitForm').prop('disabled', true);
-            tableValidated = false;
-        }
-
-        // Build changes detail HTML (same as create.blade.php)
-        function buildChangesDetailHtml(changes) {
-            let html = '';
-            
-            if (changes.added.length > 0) {
-                html += `
-                    <div class="mb-3">
-                        <h6 class="text-success"><i class="fas fa-plus-circle mr-1"></i> Kolom Ditambahkan (${changes.added.length})</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered">
-                                <thead class="thead-light">
-                                    <tr><th>Kolom</th><th>Type</th><th>Nullable</th></tr>
-                                </thead>
-                                <tbody>
-                                    ${changes.added.map(col => `
-                                        <tr>
-                                            <td><code>${col.column}</code></td>
-                                            <td>${col.type}</td>
-                                            <td>${col.nullable ? 'YES' : 'NO'}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            if (changes.removed.length > 0) {
-                html += `
-                    <div class="mb-3">
-                        <h6 class="text-danger"><i class="fas fa-minus-circle mr-1"></i> Kolom Dihapus (${changes.removed.length})</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered">
-                                <thead class="thead-light">
-                                    <tr><th>Kolom</th><th>Label</th></tr>
-                                </thead>
-                                <tbody>
-                                    ${changes.removed.map(col => `
-                                        <tr>
-                                            <td><code>${col.column}</code></td>
-                                            <td>${col.label}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            if (changes.modified.length > 0) {
-                html += `
-                    <div class="mb-3">
-                        <h6 class="text-warning"><i class="fas fa-edit mr-1"></i> Kolom Dimodifikasi (${changes.modified.length})</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-bordered">
-                                <thead class="thead-light">
-                                    <tr><th>Kolom</th><th>Type Lama</th><th>Type Baru</th></tr>
-                                </thead>
-                                <tbody>
-                                    ${changes.modified.map(col => `
-                                        <tr>
-                                            <td><code>${col.column}</code></td>
-                                            <td>${col.old_type}</td>
-                                            <td><strong class="text-warning">${col.new_type}</strong></td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            return html;
-        }
-
-        // Render field configs table (same as create.blade.php but with existing data)
-        function renderFieldConfigs(fields) {
-            const tbody = $('#tbodyFieldConfigs');
-            tbody.empty();
-
-            fields.forEach((field, index) => {
-                const isPk = field.wmfc_is_primary_key == 1;
-                const isAutoIncrement = field.wmfc_is_auto_increment == 1;
-                const isFk = field.wmfc_fk_table ? true : false;
-                const maxLength = field.wmfc_max_length || null;
-                
-                // Determine disable states (sama seperti create)
-                const isPkAutoInc = isPk && isAutoIncrement; // PK + Auto Increment - DISABLE semua
-
-                // Parse JSON criteria & validation
-                const criteria = field.wmfc_criteria ? (typeof field.wmfc_criteria === 'string' ? JSON.parse(field.wmfc_criteria) : field.wmfc_criteria) : {};
-                const validation = field.wmfc_validation ? (typeof field.wmfc_validation === 'string' ? JSON.parse(field.wmfc_validation) : field.wmfc_validation) : {};
-                
-                // Type options - sama seperti create
-                let typeOptionsHtml = '';
-                const typeLabels = {
-                    text: 'Text',
-                    textarea: 'Textarea',
-                    number: 'Number',
-                    date: 'Date',
-                    date2: 'Date Range',
-                    dropdown: 'Dropdown',
-                    radio: 'Radio',
-                    search: 'Search (FK)'
-                };
-                
-                // ✅ FIX: Jika FK, HANYA tampilkan Search (FK) tanpa opsi lain
-                let fieldTypeOptions;
-                if (isFk) {
-                    fieldTypeOptions = ['search']; // FK hanya boleh Search
-                } else {
-                    // ✅ MASALAH 2 FIX: Filter field type options berdasarkan column type
-                    const columnType = (field.wmfc_column_type || '').toLowerCase();
-                    
-                    if (columnType.includes('varchar') || columnType.includes('char') || columnType.includes('text')) {
-                        // String types - hanya text/textarea
-                        fieldTypeOptions = ['text', 'textarea'];
-                    } else if (columnType.includes('int') || columnType.includes('decimal') || columnType.includes('float') || columnType.includes('double')) {
-                        // Numeric types - hanya number
-                        fieldTypeOptions = ['number'];
-                    } else if (columnType.includes('date') || columnType.includes('time')) {
-                        // Date/time types
-                        if (columnType === 'date') {
-                            fieldTypeOptions = ['date'];
-                        } else {
-                            fieldTypeOptions = ['date', 'date2'];
-                        }
-                    } else if (columnType.includes('enum')) {
-                        // ENUM types - dropdown atau radio
-                        fieldTypeOptions = ['dropdown', 'radio'];
-                    } else {
-                        // Default - semua kecuali search
-                        fieldTypeOptions = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio'];
-                    }
-                }
-                
-                fieldTypeOptions.forEach(type => {
-                    typeOptionsHtml += `<option value="${type}" ${field.wmfc_field_type === type ? 'selected' : ''}>${typeLabels[type]}</option>`;
-                });
-
-                // ✅ FIX: Uppercase/Lowercase check dari criteria.case
-                const isUppercase = criteria.case === 'uppercase';
-                const isLowercase = criteria.case === 'lowercase';
-                
-                // ✅ MASALAH 1 FIX: Validation checkboxes (handle semua kemungkinan format)
-                // Check required - bisa true, 1, "1", atau PK otomatis required
-                const isRequired = isPk || 
-                                 validation.required === true || 
-                                 validation.required === 1 || 
-                                 validation.required === '1' ||
-                                 validation.required === 'true';
-                
-                // Check unique - bisa true, 1, "1", atau PK otomatis unique
-                const isUniqueValidation = isPk || 
-                                          validation.unique === true || 
-                                          validation.unique === 1 || 
-                                          validation.unique === '1' ||
-                                          validation.unique === 'true';
-                
-                // Check email
-                const isEmail = validation.email === true || 
-                              validation.email === 1 || 
-                              validation.email === '1' ||
-                              validation.email === 'true';
-                              
-                const maxValue = validation.max || '';
-                const minValue = validation.min || '';
-                
-                // ✅ Check if field type is text-based (untuk disable uppercase/lowercase)
-                const isTextType = ['text', 'textarea'].includes(field.wmfc_field_type);
-
-                // FK Display Columns
-                const fkDisplayCols = field.wmfc_fk_display_columns ? JSON.parse(field.wmfc_fk_display_columns) : [];
-                const fkDisplayText = fkDisplayCols.length > 0 ? fkDisplayCols.join(', ') : '-';
-                
-                // ✅ FK Config HTML (sama seperti create)
-                let fkConfigHtml = '';
-                if (isFk && field.wmfc_fk_table) {
-                    fkConfigHtml = `
-                        <span class="badge badge-success">Ada</span>
-                        <button type="button" class="badge badge-info border-0 fk-detail-tooltip" 
-                                data-toggle="tooltip" 
-                                data-html="true"
-                                data-index="${index}"
-                                title="<strong>Tabel:</strong> ${field.wmfc_fk_table}<br><strong>Display:</strong> ${fkDisplayText}">
-                          Detail
-                        </button>
-                        <input type="hidden" name="field_configs[${index}][wmfc_fk_table]" value="${field.wmfc_fk_table || ''}">
-                        <input type="hidden" name="field_configs[${index}][wmfc_fk_pk_column]" value="${field.wmfc_fk_pk_column || ''}">
-                        <input type="hidden" name="field_configs[${index}][wmfc_fk_display_columns]" value='${field.wmfc_fk_display_columns || '[]'}'>
-                    `;
-                } else {
-                    fkConfigHtml = '<span class="badge badge-secondary">Tidak Ada</span>';
-                }
-
-                const row = `
-                    <tr data-field-index="${index}">
-                        <td class="text-center">${index + 1}</td>
-                        <td>
-                            <strong>${field.wmfc_column_name}</strong>
-                            ${isPk ? '<span class="badge badge-pk ml-1">PK</span>' : ''}
-                            ${isFk ? '<span class="badge badge-fk ml-1">FK</span>' : ''}
-                            <br>
-                            <small class="text-muted">${field.wmfc_column_type || ''}</small>
-                            <input type="hidden" name="field_configs[${index}][wmfc_column_name]" value="${field.wmfc_column_name}">
-                            <input type="hidden" name="field_configs[${index}][wmfc_column_type]" value="${field.wmfc_column_type || ''}">
-                            <input type="hidden" name="field_configs[${index}][wmfc_max_length]" value="${maxLength || ''}">
-                            <input type="hidden" name="field_configs[${index}][wmfc_is_primary_key]" value="${isPk ? 1 : 0}">
-                            <input type="hidden" name="field_configs[${index}][wmfc_is_auto_increment]" value="${isAutoIncrement ? 1 : 0}">
-                            <input type="hidden" name="field_configs[${index}][wmfc_fk_table]" value="${field.wmfc_fk_table || ''}">
-                            <input type="hidden" name="field_configs[${index}][wmfc_order]" value="${index + 1}">
-                            ${field.web_menu_field_config_id ? `<input type="hidden" name="field_configs[${index}][web_menu_field_config_id]" value="${field.web_menu_field_config_id}">` : ''}
-                        </td>
-                        <td>
-                            ${isPkAutoInc ? `
-                                <input type="text" class="form-control form-control-sm" 
-                                       value="${field.wmfc_field_label || field.wmfc_column_name}" 
-                                       disabled>
-                                <input type="hidden" name="field_configs[${index}][wmfc_field_label]" value="${field.wmfc_field_label || field.wmfc_column_name}">
-                            ` : `
-                                <input type="text" class="form-control form-control-sm" 
-                                       name="field_configs[${index}][wmfc_field_label]" 
-                                       value="${field.wmfc_field_label || field.wmfc_column_name}" 
-                                       placeholder="Label field" required>
-                            `}
-                        </td>
-                        <td>
-                            ${isPkAutoInc ? `
-                                <select class="form-control form-control-sm" disabled>
-                                    <option>-</option>
-                                </select>
-                                <input type="hidden" name="field_configs[${index}][wmfc_field_type]" value="${field.wmfc_field_type}">
-                            ` : `
-                                <select class="form-control form-control-sm field-type-select" 
-                                        name="field_configs[${index}][wmfc_field_type]" 
-                                        data-index="${index}" required>
-                                    ${typeOptionsHtml}
-                                </select>
-                            `}
-                        </td>
-                        <td>
-                            <div class="criteria-checkboxes">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input criteria-uppercase" 
-                                           id="uppercase_${index}" value="1"
-                                           name="field_configs[${index}][criteria_uppercase]"
-                                           data-index="${index}"
-                                           ${isUppercase ? 'checked' : ''}
-                                           ${isPkAutoInc || !isTextType ? 'disabled' : ''}>
-                                    <label class="custom-control-label" for="uppercase_${index}">Uppercase</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input criteria-lowercase" 
-                                           id="lowercase_${index}" value="1"
-                                           name="field_configs[${index}][criteria_lowercase]"
-                                           data-index="${index}"
-                                           ${isLowercase ? 'checked' : ''}
-                                           ${isPkAutoInc || !isTextType ? 'disabled' : ''}>
-                                    <label class="custom-control-label" for="lowercase_${index}">Lowercase</label>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="validation-checkboxes">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input validation-required" 
-                                           id="required_${index}" value="1"
-                                           name="field_configs[${index}][validation_required]"
-                                           data-index="${index}"
-                                           ${isRequired ? 'checked' : ''}
-                                           ${isPk || isPkAutoInc ? 'disabled' : ''}>
-                                    <label class="custom-control-label" for="required_${index}">Required</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input validation-unique" 
-                                           id="validation_unique_${index}" value="1"
-                                           name="field_configs[${index}][validation_unique]"
-                                           data-index="${index}"
-                                           ${isUniqueValidation ? 'checked' : ''}
-                                           ${isPk || isPkAutoInc ? 'disabled' : ''}>
-                                    <label class="custom-control-label" for="validation_unique_${index}">Unique</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input validation-email" 
-                                           id="email_${index}" value="1"
-                                           name="field_configs[${index}][validation_email]"
-                                           data-index="${index}"
-                                           ${isEmail ? 'checked' : ''}
-                                           ${isPkAutoInc || !isTextType ? 'disabled' : ''}>
-                                    <label class="custom-control-label" for="email_${index}">Email</label>
-                                </div>
-                                <div class="input-group input-group-sm mt-1">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Max</span>
-                                    </div>
-                                    <input type="number" class="form-control max-length-input" 
-                                           name="field_configs[${index}][validation_max]"
-                                           value="${maxValue || (maxLength || '')}"
-                                           ${maxLength ? `max="${maxLength}" placeholder="${maxLength}"` : 'placeholder="No limit"'}
-                                           data-max="${maxLength || ''}"
-                                           data-index="${index}"
-                                           ${isPkAutoInc ? 'disabled' : ''}>
-                                </div>
-                                <div class="input-group input-group-sm mt-1">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Min</span>
-                                    </div>
-                                    <input type="number" class="form-control validation-min" 
-                                           name="field_configs[${index}][validation_min]" 
-                                           value="${minValue}" 
-                                           placeholder="1"
-                                           data-index="${index}"
-                                           ${isPkAutoInc ? 'disabled' : ''}>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            ${fkConfigHtml}
-                        </td>
-                        <td class="text-center">
-                            ${isPkAutoInc ? `
-                                <span class="badge badge-secondary">Hidden</span>
-                                <input type="hidden" name="field_configs[${index}][wmfc_is_visible]" value="0">
-                            ` : `
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" 
-                                           id="visible_${index}"
-                                           name="field_configs[${index}][wmfc_is_visible]" 
-                                           value="1" ${field.wmfc_is_visible == 1 ? 'checked' : ''}>
-                                    <label class="custom-control-label" for="visible_${index}"></label>
-                                </div>
-                            `}
-                        </td>
-                    </tr>
-                `;
-                
-                tbody.append(row);
-            });
-
-            // Re-bind FK columns button (if needed - untuk create saja)
-            // bindFkColumnsButton();
-            
-            // Initialize Bootstrap tooltips for FK detail badges
-            $('[data-toggle="tooltip"]').tooltip({html: true});
-            
-            // Initialize field type validations (disable uppercase/lowercase/email for non-text types)
-            initializeFieldTypeValidations();
-        }
-
-        // Handle field type change - toggle uppercase/lowercase/email based on type
-        $(document).on('change', '.field-type-select', function() {
-            const index = $(this).data('index');
-            const selectedType = $(this).val();
-            const row = $(this).closest('tr');
-            
-            // Update row data attribute
-            row.attr('data-field-type', selectedType);
-            
-            // Enable/disable uppercase, lowercase, email based on type
-            const isTextType = ['text', 'textarea'].includes(selectedType);
-            
-            // ✅ Cek apakah field adalah PK Auto Increment (sudah disabled permanent)
-            const isPkAutoInc = $(`#required_${index}`).prop('disabled') && $(`#validation_unique_${index}`).prop('disabled');
-            
-            // Hanya update disable state jika BUKAN PK Auto Increment
-            if (!isPkAutoInc) {
-                $(`#uppercase_${index}`).prop('disabled', !isTextType);
-                $(`#lowercase_${index}`).prop('disabled', !isTextType);
-                $(`#email_${index}`).prop('disabled', !isTextType);
-                
-                // Uncheck if disabled
-                if (!isTextType) {
-                    $(`#uppercase_${index}`).prop('checked', false);
-                    $(`#lowercase_${index}`).prop('checked', false);
-                    $(`#email_${index}`).prop('checked', false);
-                }
-            }
-        });
-
-        // Initial check for uppercase/lowercase/email on page load or after render
-        function initializeFieldTypeValidations() {
-            $('.field-type-select').each(function() {
-                const index = $(this).data('index');
-                const selectedType = $(this).val();
-                const isTextType = ['text', 'textarea'].includes(selectedType);
-                
-                // ✅ Cek apakah field adalah PK Auto Increment (sudah disabled permanent)
-                const isPkAutoInc = $(`#required_${index}`).prop('disabled') && $(`#validation_unique_${index}`).prop('disabled');
-                
-                // Hanya update disable state jika BUKAN PK Auto Increment
-                if (!isPkAutoInc) {
-                    $(`#uppercase_${index}`).prop('disabled', !isTextType);
-                    $(`#lowercase_${index}`).prop('disabled', !isTextType);
-                    $(`#email_${index}`).prop('disabled', !isTextType);
-                    
-                    // Uncheck if disabled
-                    if (!isTextType) {
-                        $(`#uppercase_${index}`).prop('checked', false);
-                        $(`#lowercase_${index}`).prop('checked', false);
-                        $(`#email_${index}`).prop('checked', false);
-                    }
-                }
-            });
-        }
-
-        // ✅ FIX: Handle max length validation - auto clamp to column max length
-        $(document).on('input', '.max-length-input', function() {
-            const maxAllowed = parseInt($(this).data('max'));
-            const currentValue = parseInt($(this).val());
-            
-            if (maxAllowed && currentValue > maxAllowed) {
-                $(this).val(maxAllowed);
-                
-                // Show tooltip warning
-                const $input = $(this);
-                const originalTitle = $input.attr('data-original-title') || '';
-                
-                $input.attr('data-original-title', `Max length dibatasi ${maxAllowed} karakter`)
-                      .tooltip('show');
-                
-                setTimeout(function() {
-                    $input.tooltip('hide')
-                          .attr('data-original-title', originalTitle);
-                }, 2000);
-            }
-        });
-
-        // Hapus error ketika input berubah
-        $(document).on('input change', 'input, select, textarea', function() {
-            $(this).removeClass('is-invalid');
-            const errorId = `#${$(this).attr('id')}_error`;
-            $(errorId).html('');
-        });
-
-        // Handle submit form
-        $('#btnSubmitForm').on('click', function() {
-            $('.is-invalid').removeClass('is-invalid');
-            $('.invalid-feedback').html('');
-            
-            const form = $('#formUpdateWebMenuUrl');
-            
-            // ✅ FIX: Handle disabled checkboxes - preserve checked state
-            $('input[type="checkbox"]').each(function() {
-                const $checkbox = $(this);
-                const name = $checkbox.attr('name');
-                
-                // Only process field config checkboxes
-                if (name && (name.includes('[criteria_') || name.includes('[validation_') || name.includes('[wmfc_is_visible]'))) {
-                    if ($checkbox.prop('disabled')) {
-                        // ✅ CRITICAL FIX: Check if checkbox is checked
-                        const value = $checkbox.is(':checked') ? '1' : '0';
-                        $('<input>').attr({
-                            type: 'hidden',
-                            name: name,
-                            value: value,
-                            class: 'temp-disabled-value'
-                        }).insertBefore($checkbox);
-                    }
-                    else if (!$checkbox.is(':checked')) {
-                        // Unchecked enabled checkbox → Send "0"
-                        $('<input>').attr({
-                            type: 'hidden',
-                            name: name,
-                            value: '0',
-                            class: 'temp-unchecked-value'
-                        }).insertBefore($checkbox);
-                    }
-                    // Checked enabled checkbox → Submit naturally
-                }
-            });
-            
-            const formData = new FormData(form[0]);
-            const button = $(this);
-            
-            $('.temp-unchecked-value, .temp-disabled-value').remove();
-            
-            button.html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...').attr('disabled', true);
-            
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if (response.success) {
-                        $('#myModal').modal('hide');
-                        reloadTable();
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: response.message
-                        });
-                    } else {
-                        if (response.errors) {
-                            $.each(response.errors, function(key, value) {
-                                if (key.startsWith('web_menu_url.')) {
-                                    const fieldName = key.replace('web_menu_url.', '');
-                                    $(`#${fieldName}`).addClass('is-invalid');
-                                    $(`#${fieldName}_error`).html(value[0]);
-                                } else {
-                                    $(`#${key}`).addClass('is-invalid');
-                                    $(`#${key}_error`).html(value[0]);
+                        // Tampilkan field config dari data merge
+                        const fields = res.fields || res.data?.fields || [];
+                        if (fields.length > 0) {
+                            $('#tbodyFieldConfigs').empty();
+                            fields.forEach(function(field, index) {
+                                try {
+                                    const row = WebMenuUrlShared.createFieldRow(field, index);
+                                    $('#tbodyFieldConfigs').append(row);
+                                } catch (e) {
+                                    console.error('Error creating row for ' + field.wmfc_column_name, e);
                                 }
                             });
-                            
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validasi Gagal',
-                                text: 'Mohon periksa kembali input Anda'
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal',
-                                text: response.message || 'Terjadi kesalahan saat menyimpan data'
-                            });
+                            $('#fieldConfigsSection').show();
+                            WebMenuUrlShared.initializeFieldTypeValidations();
+                            $('[data-toggle="tooltip"]').tooltip({ html: true });
                         }
+
+                        // Enable tombol Update
+                        $('#btnUpdate').prop('disabled', false);
                     }
-                },
-                error: function(xhr) {
-                    let errorMsg = 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.';
-                    
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    }
-                    
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        let errorList = '<ul class="text-left mb-0">';
-                        $.each(xhr.responseJSON.errors, function(key, value) {
-                            errorList += `<li><strong>${key}:</strong> ${value[0]}</li>`;
-                        });
-                        errorList += '</ul>';
-                        errorMsg = errorList;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal (Error ' + xhr.status + ')',
-                        html: errorMsg
-                    });
-                },
-                complete: function() {
-                    button.html('<i class="fas fa-save mr-1"></i> Simpan Perubahan').attr('disabled', false);
+                } else {
+                    // Tabel tidak ditemukan atau error
+                    $('#alertTableInfo')
+                        .removeClass('alert-info alert-success alert-warning')
+                        .addClass('alert alert-danger')
+                        .show();
+                    $('#alertTableIcon').attr('class', 'fas fa-info-circle mr-2');
+                    $('#alertTableInfoText').html(res.message || 'Tabel tidak ditemukan');
+                    // Sembunyikan field config, disable update
+                    $('#fieldConfigsSection').hide();
+                    $('#btnUpdate').prop('disabled', true);
                 }
-            });
+            },
+            error: function(xhr) {
+                Swal.fire({ icon: 'error', title: 'Error', text: xhr.responseJSON?.message || 'Gagal mengecek tabel' });
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Re-Check Tabel');
+            }
         });
     });
+
+    // ==========================================
+    // BUTTON UPDATE - AJAX submit
+    // ==========================================
+    $(document).off('click', '#btnUpdate').on('click', '#btnUpdate', function(e) {
+        e.preventDefault();
+
+        const form     = $('#formUpdate');
+        const btn      = $(this);
+        const origHtml = btn.html();
+
+        if (btn.prop('disabled')) return false;
+
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').html('');
+
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Mengupdate...');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            dataType: 'json',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(res) {
+                if (res.success) {
+                    $('#myModal').modal('hide');
+                    setTimeout(function() {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+                    }, 300);
+                    setTimeout(function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: res.message || 'URL menu berhasil diperbarui',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#28a745'
+                        }).then(function() {
+                            if (typeof window.reloadTable === 'function') {
+                                window.reloadTable();
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    }, 400);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: res.message || 'Terjadi kesalahan' });
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON?.errors || {};
+                    $.each(errors, function(field, messages) {
+                        const key = field.replace('web_menu_url.', '');
+                        $('#' + key + '_error').html(messages[0]);
+                        $('[name="web_menu_url[' + key + ']"]').addClass('is-invalid');
+                    });
+                    let errorList = '<ul class="text-left mb-0">';
+                    $.each(errors, function(k, v) { errorList += '<li>' + v[0] + '</li>'; });
+                    errorList += '</ul>';
+                    Swal.fire({ icon: 'warning', title: 'Validasi Gagal', html: errorList });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error!', text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server' });
+                }
+            },
+            complete: function() {
+                btn.prop('disabled', false).html(origHtml);
+            }
+        });
+    });
+
+    // ==========================================
+    // MODAL SHOWN - Reset state
+    // ==========================================
+    $(document).off('shown.bs.modal', '#myModal').on('shown.bs.modal', '#myModal', function() {
+        $('#btnUpdate').prop('disabled', false);
+    });
+
+    // ==========================================
+    // INPUT CHANGE - Clear validation errors (hanya pada input form, bukan alert)
+    // ==========================================
+    $(document).on('input change', '#formUpdate input, #formUpdate select, #formUpdate textarea', function() {
+        $(this).removeClass('is-invalid');
+        $(this).siblings('.invalid-feedback').html('');
+    });
+
+});
 </script>
