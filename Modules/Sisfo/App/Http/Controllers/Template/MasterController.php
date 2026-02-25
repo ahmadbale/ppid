@@ -5,7 +5,9 @@ namespace Modules\Sisfo\App\Http\Controllers\Template;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Services\MasterMenuService;
@@ -152,22 +154,52 @@ class MasterController extends Controller
 
     public function addData()
     {
-        $formFields = MasterMenuService::buildFormFields(
-            $this->menuConfig->web_menu_url_id,
-            null
-        );
+        try {
+            Log::info('========================================');
+            Log::info('🟢 MasterController::addData() - START');
+            Log::info('Menu URL ID: ' . $this->menuConfig->web_menu_url_id);
+            Log::info('Table Name: ' . $this->tableName);
+            Log::info('PK Column: ' . $this->pkColumn);
+            
+            $formFields = MasterMenuService::buildFormFields(
+                $this->menuConfig->web_menu_url_id,
+                null
+            );
+            
+            Log::info('Form Fields Count: ' . count($formFields));
+            Log::info('Form Fields:', $formFields);
 
-        $data = [
-            'pageTitle' => 'Tambah ' . $this->generatePageTitle(),
-            'breadcrumb' => $this->generateBreadcrumb('Tambah'),
-            'formFields' => $formFields,
-            'menuConfig' => $this->menuConfig,
-            'tableName' => $this->tableName,
-            'pkColumn' => $this->pkColumn,
-            'action' => 'create',
-        ];
+            $data = [
+                'pageTitle' => 'Tambah ' . $this->generatePageTitle(),
+                'breadcrumb' => $this->generateBreadcrumb('Tambah'),
+                'formFields' => $formFields,
+                'menuConfig' => $this->menuConfig,
+                'tableName' => $this->tableName,
+                'pkColumn' => $this->pkColumn,
+                'action' => 'create',
+            ];
+            
+            Log::info('✅ MasterController::addData() - SUCCESS');
+            Log::info('========================================');
 
-        return view('sisfo::Template.Master.create', $data);
+            return view('sisfo::Template.Master.create', $data);
+        } catch (\Exception $e) {
+            Log::error('========================================');
+            Log::error('❌ MasterController::addData() - ERROR');
+            Log::error('Message: ' . $e->getMessage());
+            Log::error('File: ' . $e->getFile());
+            Log::error('Line: ' . $e->getLine());
+            Log::error('Trace: ' . $e->getTraceAsString());
+            Log::error('========================================');
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membuka form tambah data',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
+        }
     }
 
     public function createData(Request $request)
@@ -198,6 +230,15 @@ class MasterController extends Controller
                 ->toArray();
             
             $data = $request->only($fieldColumns);
+            
+            // Handle file uploads
+            foreach ($this->fieldConfigs as $field) {
+                if (in_array($field->wmfc_field_type, ['file', 'image']) && $request->hasFile($field->wmfc_column_name)) {
+                    $file = $request->file($field->wmfc_column_name);
+                    $path = $file->store('uploads', 'public');
+                    $data[$field->wmfc_column_name] = $path;
+                }
+            }
 
             DB::beginTransaction();
             
@@ -291,6 +332,28 @@ class MasterController extends Controller
                 ->toArray();
             
             $data = $request->only($fieldColumns);
+            
+            // Handle file uploads
+            foreach ($this->fieldConfigs as $field) {
+                if (in_array($field->wmfc_field_type, ['file', 'image']) && $request->hasFile($field->wmfc_column_name)) {
+                    // Delete old file if exists
+                    $existingData = MasterMenuService::getDetailData(
+                        $this->tableName,
+                        $id,
+                        $this->menuConfig->web_menu_url_id,
+                        $this->pkColumn
+                    );
+                    
+                    if ($existingData && !empty($existingData->{$field->wmfc_column_name})) {
+                        Storage::disk('public')->delete($existingData->{$field->wmfc_column_name});
+                    }
+                    
+                    // Upload new file
+                    $file = $request->file($field->wmfc_column_name);
+                    $path = $file->store('uploads', 'public');
+                    $data[$field->wmfc_column_name] = $path;
+                }
+            }
 
             DB::beginTransaction();
             
