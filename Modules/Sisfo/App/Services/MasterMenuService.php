@@ -41,8 +41,16 @@ class MasterMenuService
                 continue;
             }
 
+            // ✅ FIX: Ensure validation and criteria are arrays
             $validation = $field->wmfc_validation ?? [];
+            if (is_string($validation)) {
+                $validation = json_decode($validation, true) ?? [];
+            }
+            
             $criteria = $field->wmfc_criteria ?? [];
+            if (is_string($criteria)) {
+                $criteria = json_decode($criteria, true) ?? [];
+            }
 
             if (!empty($validation['required'])) {
                 $fieldRules[] = 'required';
@@ -57,6 +65,19 @@ class MasterMenuService
                 case 'date':
                 case 'date2':
                     $fieldRules[] = 'date';
+                    break;
+                case 'media':
+                case 'file':   // backward compat
+                case 'gambar': // backward compat
+                    $fieldRules[] = 'file';
+                    // Tambahkan validasi mimes jika ada format yang dikonfigurasi
+                    if (!empty($validation['mimes'])) {
+                        $fieldRules[] = 'mimes:' . $validation['mimes'];
+                    }
+                    // Tambahkan validasi ukuran max jika dikonfigurasi (dalam KB, ukuran_max dalam MB)
+                    if (!empty($field->wmfc_ukuran_max)) {
+                        $fieldRules[] = 'max:' . ($field->wmfc_ukuran_max * 1024);
+                    }
                     break;
             }
 
@@ -102,7 +123,11 @@ class MasterMenuService
                 continue;
             }
 
+            // ✅ FIX: Ensure criteria is array
             $criteria = $field->wmfc_criteria ?? [];
+            if (is_string($criteria)) {
+                $criteria = json_decode($criteria, true) ?? [];
+            }
 
             if (!empty($criteria['case'])) {
                 if ($criteria['case'] === 'uppercase') {
@@ -127,8 +152,15 @@ class MasterMenuService
             if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_table) {
                 $fkTable = $field->wmfc_fk_table;
                 $columnName = $field->wmfc_column_name;
+                
+                // ✅ FIX: Ensure $displayColumns is array (handle string JSON from DB)
                 $displayColumns = $field->wmfc_fk_display_columns ?? [];
-
+                
+                // If it's still a string (JSON), decode it
+                if (is_string($displayColumns)) {
+                    $displayColumns = json_decode($displayColumns, true) ?? [];
+                }
+                
                 if (empty($displayColumns)) {
                     continue;
                 }
@@ -172,21 +204,51 @@ class MasterMenuService
                 continue;
             }
 
+            // ✅ FIX: Ensure validation and criteria are arrays
+            $validation = $field->wmfc_validation ?? [];
+            if (is_string($validation)) {
+                $validation = json_decode($validation, true) ?? [];
+            }
+            
+            $criteria = $field->wmfc_criteria ?? [];
+            if (is_string($criteria)) {
+                $criteria = json_decode($criteria, true) ?? [];
+            }
+
             $fieldData = [
                 'column' => $field->wmfc_column_name,
                 'label' => $field->wmfc_field_label,
-                'type' => $field->wmfc_field_type,
+                // Normalisasi tipe lama 'file'/'gambar' → 'media'
+                'type' => in_array($field->wmfc_field_type, ['file', 'gambar']) ? 'media' : $field->wmfc_field_type,
                 'value' => $existingData->{$field->wmfc_column_name} ?? null,
-                'validation' => $field->wmfc_validation ?? [],
-                'criteria' => $field->wmfc_criteria ?? [],
+                'validation' => $validation,
+                'criteria' => $criteria,
                 'is_pk' => $field->wmfc_is_primary_key,
                 'is_auto_increment' => $field->wmfc_is_auto_increment,
-                'is_required' => $field->wmfc_validation['required'] ?? false,
+                'is_required' => $validation['required'] ?? false,
+                'label_keterangan' => $field->wmfc_label_keterangan ?? null,
+                'ukuran_max' => $field->wmfc_ukuran_max ?? null,
+                'mimes' => $validation['mimes'] ?? null,
             ];
 
             if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_table) {
+                // ✅ FIX: Ensure fk_display_columns is array
+                $fkDisplayColumns = $field->wmfc_fk_display_columns ?? [];
+                if (is_string($fkDisplayColumns)) {
+                    $fkDisplayColumns = json_decode($fkDisplayColumns, true) ?? [];
+                }
+                
+                // ✅ FIX: Get FK table's primary key
+                $fkPkColumn = DB::table('web_menu_field_config as wmfc')
+                    ->join('web_menu_url as wmu', 'wmfc.fk_web_menu_url', '=', 'wmu.web_menu_url_id')
+                    ->where('wmu.wmu_akses_tabel', $field->wmfc_fk_table)
+                    ->where('wmfc.wmfc_is_primary_key', 1)
+                    ->where('wmfc.isDeleted', 0)
+                    ->value('wmfc.wmfc_column_name');
+                
                 $fieldData['fk_table'] = $field->wmfc_fk_table;
-                $fieldData['fk_display_columns'] = $field->wmfc_fk_display_columns ?? [];
+                $fieldData['fk_pk'] = $fkPkColumn ?? 'id'; // Default to 'id' if not found
+                $fieldData['fk_display_columns'] = $fkDisplayColumns;
             }
 
             if ($field->wmfc_field_type === 'dropdown') {

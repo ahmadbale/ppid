@@ -64,28 +64,47 @@ class WebMenuUrlController extends Controller
 
     public function addData($id = null)
     {
-        // Handle AJAX requests dari function tambahan (validateTable, autoGenerateFields)
-        $handled = $this->handle(request());
-        if ($handled !== null) {
-            return $handled; // Return AJAX response
+        try {
+            // Handle AJAX requests dari function tambahan (validateTable, autoGenerateFields)
+            $handled = $this->handle(request());
+            if ($handled !== null) {
+                return $handled;
+            }
+
+            $applications = ApplicationModel::where('isDeleted', 0)->get();
+
+            return view("sisfo::AdminWeb.WebMenuUrl.create", [
+                'applications' => $applications,
+                'mode' => 'create',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in addData(): ' . $e->getMessage());
+            throw $e;
         }
-        
-        // Return form view (bukan AJAX)
-        $applications = ApplicationModel::where('isDeleted', 0)->get();
-        
-        return view("sisfo::AdminWeb.WebMenuUrl.create", [
-            'applications' => $applications
-        ]);
     }
 
     public function createData(Request $request)
     {
+        // ===== LOGGING: Entry point =====
+        Log::debug('WebMenuUrlController::createData() CALLED', [
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'action_param' => $request->input('action'),
+            'table_name' => $request->input('table_name'),
+            'all_inputs' => $request->all(),
+        ]);
+
         try {
             // Handle AJAX requests dari function tambahan
             $handled = $this->handle($request);
             if ($handled !== null) {
+                Log::debug('WebMenuUrlController::createData() - AJAX handled', [
+                    'action' => $request->input('action'),
+                ]);
                 return $handled;
             }
+
+            Log::debug('WebMenuUrlController::createData() - Processing normal form submission');
 
             // Process form submission
             WebMenuUrlModel::validasiData($request);
@@ -96,8 +115,15 @@ class WebMenuUrlController extends Controller
                 $result['message'] ?? 'URL menu berhasil dibuat'
             );
         } catch (ValidationException $e) {
+            Log::error('WebMenuUrlController::createData() - Validation error', [
+                'errors' => $e->errors(),
+            ]);
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
+            Log::error('WebMenuUrlController::createData() - Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return $this->jsonError($e, 'Terjadi kesalahan saat membuat URL menu');
         }
     }
@@ -107,23 +133,44 @@ class WebMenuUrlController extends Controller
         // Handle AJAX requests dari function tambahan (validateTable, autoGenerateFields)
         $handled = $this->handle(request());
         if ($handled !== null) {
-            return $handled; // Return AJAX response
+            return $handled;
         }
-        
-        // Return form view (bukan AJAX)
+
         $webMenuUrl = WebMenuUrlModel::detailDataWithConfigs($id);
         $applications = ApplicationModel::where('isDeleted', 0)->get();
 
         return view("sisfo::AdminWeb.WebMenuUrl.update", [
             'webMenuUrl' => $webMenuUrl,
-            'applications' => $applications
+            'applications' => $applications,
+            'mode' => 'update',
         ]);
     }
 
     public function updateData(Request $request, $id)
     {
+        // ===== LOGGING: Entry point =====
+        Log::debug('WebMenuUrlController::updateData() CALLED', [
+            'id' => $id,
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'action_param' => $request->input('action'),
+            'table_name' => $request->input('table_name'),
+            'all_inputs' => $request->all(),
+        ]);
+
         try {
-            WebMenuUrlModel::validasiData($request);
+            // Handle AJAX requests dari function tambahan
+            $handled = $this->handle($request);
+            if ($handled !== null) {
+                Log::debug('WebMenuUrlController::updateData() - AJAX handled', [
+                    'action' => $request->input('action'),
+                ]);
+                return $handled;
+            }
+
+            Log::debug('WebMenuUrlController::updateData() - Processing normal form submission');
+
+            WebMenuUrlModel::validasiData($request, $id);
             $result = WebMenuUrlModel::updateData($request, $id);
 
             return $this->jsonSuccess(
@@ -131,8 +178,15 @@ class WebMenuUrlController extends Controller
                 $result['message'] ?? 'URL menu berhasil diperbarui'
             );
         } catch (ValidationException $e) {
+            Log::error('WebMenuUrlController::updateData() - Validation error', [
+                'errors' => $e->errors(),
+            ]);
             return $this->jsonValidationError($e);
         } catch (\Exception $e) {
+            Log::error('WebMenuUrlController::updateData() - Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return $this->jsonError($e, 'Terjadi kesalahan saat memperbarui URL menu');
         }
     }
@@ -182,16 +236,24 @@ class WebMenuUrlController extends Controller
     {
         $action = $request->input('action');
         
+        Log::debug('WebMenuUrlController::handle() CALLED', [
+            'action_param' => $action,
+            'has_action' => !empty($action),
+        ]);
+        
         // Action: validateTable
         if ($action === 'validateTable') {
+            Log::debug('WebMenuUrlController::handle() - Routing to validateTable()');
             return $this->validateTable($request);
         }
         
         // Action: autoGenerateFields
         if ($action === 'autoGenerateFields') {
+            Log::debug('WebMenuUrlController::handle() - Routing to autoGenerateFields()');
             return $this->autoGenerateFields($request);
         }
         
+        Log::debug('WebMenuUrlController::handle() - No matching action, return null');
         return null; // Bukan AJAX request, lanjut ke normal flow
     }
 
@@ -200,16 +262,27 @@ class WebMenuUrlController extends Controller
      */
     private function validateTable(Request $request)
     {
+        Log::debug('WebMenuUrlController::validateTable() CALLED', [
+            'table_name' => $request->input('table_name'),
+            'menu_url_id' => $request->input('menu_url_id'),
+        ]);
+
         try {
             $tableName = $request->input('table_name');
             $menuUrlId = $request->input('menu_url_id');
             
             if (empty($tableName)) {
+                Log::warning('WebMenuUrlController::validateTable() - Table name empty');
                 return response()->json([
                     'success' => false,
                     'message' => 'Nama tabel tidak boleh kosong'
                 ], 422);
             }
+
+            Log::debug('WebMenuUrlController::validateTable() - Calling Model::validateTable()', [
+                'table_name' => $tableName,
+                'menu_url_id' => $menuUrlId,
+            ]);
 
             if ($menuUrlId) {
                 $result = WebMenuUrlModel::validateTable($tableName, $menuUrlId);
@@ -217,6 +290,10 @@ class WebMenuUrlController extends Controller
                 $result = WebMenuUrlModel::validateTable($tableName);
             }
             
+            Log::debug('WebMenuUrlController::validateTable() - Model result', [
+                'result' => $result,
+            ]);
+
             if ($result['success']) {
                 return response()->json([
                     'success' => true,
@@ -230,6 +307,10 @@ class WebMenuUrlController extends Controller
                 ], 422);
             }
         } catch (\Exception $e) {
+            Log::error('WebMenuUrlController::validateTable() - Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat validasi tabel: ' . $e->getMessage()
@@ -242,32 +323,56 @@ class WebMenuUrlController extends Controller
      */
     private function autoGenerateFields(Request $request)
     {
+        Log::debug('WebMenuUrlController::autoGenerateFields() CALLED', [
+            'table_name' => $request->input('table_name'),
+        ]);
+
         try {
             $tableName = $request->input('table_name');
             
             if (empty($tableName)) {
+                Log::warning('WebMenuUrlController::autoGenerateFields() - Table name empty');
                 return $this->jsonError(
                     new \Exception('Nama tabel tidak boleh kosong'),
                     'Generate field gagal'
                 );
             }
 
+            Log::debug('WebMenuUrlController::autoGenerateFields() - Validating table first');
             $validation = WebMenuUrlModel::validateTable($tableName);
             
             if (!$validation['success']) {
+                Log::warning('WebMenuUrlController::autoGenerateFields() - Table validation failed', [
+                    'message' => $validation['message'],
+                ]);
                 return $this->jsonError(
                     new \Exception($validation['message']),
                     'Tabel tidak ditemukan'
                 );
             }
 
+            Log::debug('WebMenuUrlController::autoGenerateFields() - Calling Model::autoGenerateFieldConfigs()');
             $fieldConfigs = WebMenuUrlModel::autoGenerateFieldConfigs($tableName);
             
+            Log::debug('WebMenuUrlController::autoGenerateFields() - Field configs generated', [
+                'count' => count($fieldConfigs),
+                'first_field_sample' => count($fieldConfigs) > 0 ? [
+                    'wmfc_column_name' => $fieldConfigs[0]['wmfc_column_name'],
+                    'wmfc_label_keterangan' => $fieldConfigs[0]['wmfc_label_keterangan'],
+                    'wmfc_display_list' => $fieldConfigs[0]['wmfc_display_list'],
+                    'wmfc_ukuran_max' => $fieldConfigs[0]['wmfc_ukuran_max'],
+                ] : 'No fields',
+            ]);
+
             return $this->jsonSuccess(
                 $fieldConfigs,
                 'Field configs berhasil di-generate dari tabel ' . $tableName
             );
         } catch (\Exception $e) {
+            Log::error('WebMenuUrlController::autoGenerateFields() - Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return $this->jsonError($e, 'Terjadi kesalahan saat generate field configs');
         }
     }

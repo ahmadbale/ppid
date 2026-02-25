@@ -15,7 +15,7 @@
             <tr>
                 <th width="5%">Nomor</th>
                 @foreach($fields as $field)
-                    @if($field->wmfc_column_name !== $pkColumn)
+                    @if($field->wmfc_column_name !== $pkColumn && $field->wmfc_display_list == 1)
                         <th>{{ $field->wmfc_field_label }}</th>
                     @endif
                 @endforeach
@@ -27,17 +27,15 @@
                 <tr>
                     <td>{{ ($data->currentPage() - 1) * $data->perPage() + $key + 1 }}</td>
                     @foreach($fields as $field)
-                        @if($field->wmfc_column_name !== $pkColumn)
+                        @if($field->wmfc_column_name !== $pkColumn && $field->wmfc_display_list == 1)
                             <td>
                                 @php
                                     $columnName = $field->wmfc_column_name;
                                     $value = $row->$columnName ?? '-';
                                     
-                                    // Format berdasarkan tipe field
-                                    if ($field->wmfc_field_type === 'date' && $value !== '-') {
+                                    // Format date
+                                    if (in_array($field->wmfc_field_type, ['date', 'date2']) && $value !== '-') {
                                         $value = \Carbon\Carbon::parse($value)->format('d/m/Y');
-                                    } elseif ($field->wmfc_field_type === 'date2' && $value !== '-') {
-                                        $value = \Carbon\Carbon::parse($value)->format('d/m/Y H:i');
                                     }
                                 @endphp
                                 {{ $value }}
@@ -73,12 +71,20 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ count($fields) + 1 }}" class="text-center">
-                        @if(!empty($search))
-                            Tidak ada data yang cocok dengan pencarian "{{ $search }}"
-                        @else
-                            Tidak ada data
-                        @endif
+                    @php
+                        $visibleFieldsCount = $fields->where('wmfc_display_list', 1)->where('wmfc_column_name', '!=', $pkColumn)->count();
+                    @endphp
+                    <td colspan="{{ $visibleFieldsCount + 2 }}" class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            @if(!empty($search))
+                                <h5 class="text-muted">Tidak ada data yang cocok</h5>
+                                <p class="text-muted mb-0">Pencarian "<strong>{{ $search }}</strong>" tidak ditemukan</p>
+                            @else
+                                <h5 class="text-muted">Tidak ada data</h5>
+                                <p class="text-muted mb-0">Silakan tambahkan data baru dengan klik tombol <strong>Tambah</strong></p>
+                            @endif
+                        </div>
                     </td>
                 </tr>
             @endforelse

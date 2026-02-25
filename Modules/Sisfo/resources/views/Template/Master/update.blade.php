@@ -8,7 +8,7 @@
     </button>
 </div>
 
-<form id="formUpdate" action="{{ url($menuConfig->wmu_nama . '/updateData/' . $existingData->$pkColumn) }}" method="POST">
+<form id="formUpdate" action="{{ url($menuConfig->wmu_nama . '/updateData/' . $existingData->$pkColumn) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     
@@ -183,6 +183,44 @@ $(document).ready(function() {
     $(document).on('input change', 'input, select, textarea', function() {
         $(this).removeClass('is-invalid');
         $(this).siblings('.invalid-feedback').html('');
+    });
+    
+    // ==========================================
+    // IMAGE UPLOAD - Preview
+    // ==========================================
+    $(document).on('change', '.image-upload', function() {
+        const input = this;
+        const previewId = 'preview_' + $(this).attr('name');
+        const previewContainer = $('#' + previewId);
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewContainer.html(
+                    '<img src="' + e.target.result + '" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">' +
+                    '<br><small class="form-text text-muted">Preview gambar baru</small>'
+                );
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    });
+    
+    // ==========================================
+    // CRITERIA AUTO-TRANSFORM (Uppercase/Lowercase)
+    // ==========================================
+    $(document).on('input', 'input[data-case], textarea[data-case]', function() {
+        const caseType = $(this).data('case');
+        const cursorPos = this.selectionStart;
+        const cursorEnd = this.selectionEnd;
+        
+        if (caseType === 'uppercase') {
+            $(this).val($(this).val().toUpperCase());
+        } else if (caseType === 'lowercase') {
+            $(this).val($(this).val().toLowerCase());
+        }
+        
+        // Restore cursor position
+        this.setSelectionRange(cursorPos, cursorEnd);
     });
     
     // ==========================================

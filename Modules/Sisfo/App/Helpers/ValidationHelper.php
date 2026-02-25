@@ -58,6 +58,24 @@ class ValidationHelper
             case 'textarea':
                 $rules[] = 'string';
                 break;
+                
+            case 'file':
+                $rules[] = 'file';
+                // Add max size if specified (in KB)
+                if (!empty($validation['ukuran_max'])) {
+                    $rules[] = 'max:' . $validation['ukuran_max'];
+                }
+                break;
+                
+            case 'image':
+                $rules[] = 'image';
+                // Allowed extensions
+                $rules[] = 'mimes:jpeg,png,jpg,gif,svg';
+                // Add max size if specified (in KB)
+                if (!empty($validation['ukuran_max'])) {
+                    $rules[] = 'max:' . $validation['ukuran_max'];
+                }
+                break;
         }
 
         // Max length
