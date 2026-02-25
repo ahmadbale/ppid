@@ -28,10 +28,26 @@ class WebMenuFieldConfigModel extends Model
         'wmfc_fk_pk_column',
         'wmfc_fk_display_columns',
         'wmfc_max_length',
+        'wmfc_type_value',
+        'wmfc_label_keterangan',
+        'wmfc_ukuran_max',
+        'wmfc_display_list',
         'wmfc_order',
         'wmfc_is_primary_key',
         'wmfc_is_auto_increment',
         'wmfc_is_visible',
+        'wmfc_is_foreign_key',
+    ];
+
+    protected $casts = [
+        'wmfc_validation' => 'array',
+        'wmfc_criteria' => 'array',
+        'wmfc_fk_display_columns' => 'array',
+        'wmfc_is_primary_key' => 'boolean',
+        'wmfc_is_auto_increment' => 'boolean',
+        'wmfc_is_visible' => 'boolean',
+        'wmfc_display_list' => 'boolean',
+        'wmfc_ukuran_max' => 'integer',
     ];
 
     public function __construct(array $attributes = [])
@@ -103,9 +119,14 @@ class WebMenuFieldConfigModel extends Model
         try {
             DB::beginTransaction();
 
-            $allowedTypes = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio', 'search'];
+            $allowedTypes = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio', 'search', 'file', 'gambar'];
             if (!in_array($data['wmfc_field_type'], $allowedTypes)) {
                 throw new \Exception("Tipe field '{$data['wmfc_field_type']}' tidak valid");
+            }
+            
+            // Auto-generate label keterangan jika 'auto'
+            if (isset($data['wmfc_label_keterangan']) && $data['wmfc_label_keterangan'] === 'auto') {
+                $data['wmfc_label_keterangan'] = self::generateLabelKeterangan($data);
             }
 
             $fieldConfig = new self();
@@ -124,6 +145,11 @@ class WebMenuFieldConfigModel extends Model
     {
         try {
             DB::beginTransaction();
+            
+            // Auto-generate label keterangan jika 'auto'
+            if (isset($data['wmfc_label_keterangan']) && $data['wmfc_label_keterangan'] === 'auto') {
+                $data['wmfc_label_keterangan'] = self::generateLabelKeterangan($data);
+            }
 
             $fieldConfig = self::findOrFail($id);
             $fieldConfig->fill($data);
@@ -160,23 +186,16 @@ class WebMenuFieldConfigModel extends Model
 
     public static function validasiData($request)
     {
-        Log::info('====================================');
-        Log::info('🔍 FIELD CONFIG VALIDATION - START');
-        Log::info('====================================');
-        Log::info('Field Configs Count: ' . count($request->input('field_configs', [])));
-        
-        foreach ($request->input('field_configs', []) as $index => $fieldConfig) {
-            Log::info("Field Config [{$index}]:", ['config' => $fieldConfig]);
-        }
+        $fieldConfigs = $request->input('field_configs', []);
         
         $rules = [
             'field_configs.*.wmfc_column_name' => 'required|max:100',
             'field_configs.*.wmfc_field_label' => 'required|max:255',
             'field_configs.*.wmfc_field_type' => 'required|in:text,textarea,number,date,date2,dropdown,radio,search',
-            'field_configs.*.wmfc_order' => 'required|integer|min:0',
-            'field_configs.*.wmfc_is_primary_key' => 'required|boolean',
-            'field_configs.*.wmfc_is_auto_increment' => 'required|boolean',
-            'field_configs.*.wmfc_is_visible' => 'required|boolean',
+            'field_configs.*.wmfc_order' => 'nullable|integer|min:0',
+            'field_configs.*.wmfc_is_primary_key' => 'nullable|boolean',
+            'field_configs.*.wmfc_is_auto_increment' => 'nullable|boolean',
+            'field_configs.*.wmfc_is_visible' => 'nullable|boolean',
         ];
 
         $messages = [
@@ -186,30 +205,19 @@ class WebMenuFieldConfigModel extends Model
             'field_configs.*.wmfc_field_label.max' => 'Label field maksimal 255 karakter',
             'field_configs.*.wmfc_field_type.required' => 'Tipe field wajib dipilih',
             'field_configs.*.wmfc_field_type.in' => 'Tipe field tidak valid',
-            'field_configs.*.wmfc_order.required' => 'Urutan field wajib diisi',
             'field_configs.*.wmfc_order.integer' => 'Urutan field harus berupa angka',
             'field_configs.*.wmfc_order.min' => 'Urutan field minimal 0',
-            'field_configs.*.wmfc_is_primary_key.required' => 'Status primary key wajib diisi',
             'field_configs.*.wmfc_is_primary_key.boolean' => 'Status primary key harus boolean',
-            'field_configs.*.wmfc_is_auto_increment.required' => 'Status auto increment wajib diisi',
             'field_configs.*.wmfc_is_auto_increment.boolean' => 'Status auto increment harus boolean',
-            'field_configs.*.wmfc_is_visible.required' => 'Status visible wajib diisi',
             'field_configs.*.wmfc_is_visible.boolean' => 'Status visible harus boolean',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
-            Log::error('❌ FIELD CONFIG VALIDATION FAILED');
-            Log::error('Errors:', ['errors' => $validator->errors()->toArray()]);
-            Log::error('====================================');
-            
             throw new ValidationException($validator);
         }
-
-        Log::info('✅ FIELD CONFIG VALIDATION PASSED');
-        Log::info('====================================');
-
+        
         return true;
     }
 
@@ -311,6 +319,69 @@ class WebMenuFieldConfigModel extends Model
         }
 
         return $rules;
+    }
+    
+    /**
+     * Generate auto-text untuk label keterangan (Default mode)
+     * Format: [Nama Label] + [Tipe Input] + [Kriteria] + [Validasi]
+     * 
+     * @param array $data Field config data
+     * @return string Auto-generated label keterangan text
+     */
+    private static function generateLabelKeterangan(array $data): string
+    {
+        return self::generateLabelKeteranganPublic($data);
+    }
+
+    public static function generateLabelKeteranganPublic(array $data): string
+    {
+        $text = 'tk ' . strtolower($data['wmfc_field_label'] ?? '');
+        
+        // [Tipe Input]
+        $typeMap = [
+            'text' => 'bisa semua karakter',
+            'textarea' => 'bisa semua karakter dengan format panjang',
+            'number' => 'hanya bisa input angka',
+            'date' => 'pilih tanggal dari kalender',
+            'date2' => 'pilih rentang tanggal',
+            'dropdown' => 'pilih dari daftar pilihan',
+            'radio' => 'pilih salah satu opsi',
+            'search' => 'cari dan pilih data',
+            'file' => 'upload file dokumen',
+            'gambar' => 'upload file gambar'
+        ];
+        $text .= ' ' . ($typeMap[$data['wmfc_field_type']] ?? 'bisa semua karakter');
+        
+        // [Kriteria]
+        $criteria = is_string($data['wmfc_criteria'] ?? null) 
+            ? json_decode($data['wmfc_criteria'], true) 
+            : ($data['wmfc_criteria'] ?? []);
+            
+        if (!empty($criteria['case'])) {
+            if ($criteria['case'] === 'uppercase') {
+                $text .= ' dan bersifat auto huruf besar';
+            } elseif ($criteria['case'] === 'lowercase') {
+                $text .= ' dan bersifat auto huruf kecil';
+            }
+        }
+        
+        // [Validasi]
+        $validation = is_string($data['wmfc_validation'] ?? null)
+            ? json_decode($data['wmfc_validation'], true)
+            : ($data['wmfc_validation'] ?? []);
+            
+        $validations = [];
+        if (!empty($validation['required'])) $validations[] = 'harus diisi';
+        if (!empty($validation['email'])) $validations[] = 'format email';
+        if (!empty($validation['min'])) $validations[] = 'min ' . $validation['min'];
+        if (!empty($validation['max'])) $validations[] = 'max ' . $validation['max'] . ' huruf';
+        if (!empty($validation['unique'])) $validations[] = 'harus unique';
+        
+        if (count($validations) > 0) {
+            $text .= ' dengan ' . implode(' ', $validations);
+        }
+        
+        return $text;
     }
 
     public static function applyFieldCriteria(string $columnName, $value, int $menuUrlId)
