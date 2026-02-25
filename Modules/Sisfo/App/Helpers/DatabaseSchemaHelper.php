@@ -18,7 +18,7 @@ class DatabaseSchemaHelper
      */
     const SUPPORTED_FIELD_TYPES = [
         'text', 'textarea', 'number', 'date', 'date2', 
-        'dropdown', 'radio', 'search'
+        'dropdown', 'radio', 'search', 'file', 'image'
     ];
 
     /**
