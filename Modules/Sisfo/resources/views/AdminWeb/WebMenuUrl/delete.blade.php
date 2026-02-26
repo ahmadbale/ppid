@@ -87,22 +87,67 @@
     <div class="card-header bg-warning text-dark">
       <strong><i class="fas fa-exclamation-circle mr-1"></i> Data yang Akan Terhapus</strong>
     </div>
-    <div class="card-body">
-      <p class="mb-2"><strong>{{ count($webMenuUrl->fieldConfigs) }} Field Configuration</strong> akan ikut terhapus:</p>
-      <ul class="mb-0">
-        @foreach($webMenuUrl->fieldConfigs as $field)
-        <li>
-          <strong>{{ $field->wmfc_column_name }}</strong>
-          @if($field->wmfc_is_primary_key)
-            <span class="badge badge-pk ml-1">PK</span>
-          @endif
-          @if($field->wmfc_fk_table)
-            <span class="badge badge-fk ml-1">FK</span>
-          @endif
-          <small class="text-muted">({{ $field->wmfc_field_label }})</small>
-        </li>
-        @endforeach
-      </ul>
+    <div class="card-body p-0">
+      <p class="px-3 pt-3 mb-2"><strong>{{ count($webMenuUrl->fieldConfigs) }} Field Configuration</strong> akan ikut terhapus:</p>
+      <div class="table-responsive">
+        <table class="table table-sm table-striped mb-0" style="font-size:0.82rem;">
+          <thead>
+            <tr>
+              <th class="text-center" width="35">No</th>
+              <th>Kolom</th>
+              <th>Label</th>
+              <th>Type</th>
+              <th>Validasi</th>
+              <th class="text-center">Visible</th>
+              <th class="text-center">Tampil List</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($webMenuUrl->fieldConfigs as $index => $field)
+            <tr>
+              <td class="text-center">{{ $index + 1 }}</td>
+              <td>
+                <strong>{{ $field->wmfc_column_name }}</strong>
+                @if($field->wmfc_is_primary_key)
+                  <span class="badge badge-pk ml-1">PK</span>
+                @endif
+                @if($field->wmfc_fk_table)
+                  <span class="badge badge-fk ml-1">FK</span>
+                @endif
+              </td>
+              <td>{{ $field->wmfc_field_label }}</td>
+              <td><span class="badge badge-secondary">{{ $field->wmfc_field_type }}</span></td>
+              <td>
+                @php
+                  $validation = is_string($field->wmfc_validation) ? json_decode($field->wmfc_validation, true) : $field->wmfc_validation;
+                @endphp
+                @if($validation && is_array($validation))
+                  @if(!empty($validation['required'])) <span class="badge badge-danger">Req</span> @endif
+                  @if(!empty($validation['unique'])) <span class="badge badge-warning">Uniq</span> @endif
+                  @if(isset($validation['max'])) <span class="badge badge-secondary">Max:{{ $validation['max'] }}</span> @endif
+                @else
+                  <span class="text-muted">-</span>
+                @endif
+              </td>
+              <td class="text-center">
+                @if($field->wmfc_is_visible)
+                  <i class="fas fa-check text-success"></i>
+                @else
+                  <i class="fas fa-times text-danger"></i>
+                @endif
+              </td>
+              <td class="text-center">
+                @if(isset($field->wmfc_display_list) ? $field->wmfc_display_list : true)
+                  <i class="fas fa-check text-success"></i>
+                @else
+                  <i class="fas fa-times text-danger"></i>
+                @endif
+              </td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   @endif
