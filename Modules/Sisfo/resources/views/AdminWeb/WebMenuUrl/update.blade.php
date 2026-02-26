@@ -11,7 +11,7 @@
     </button>
 </div>
 
-<form id="formUpdate" action="{{ url($webMenuUrl->wmu_nama . '/updateData/' . $webMenuUrl->web_menu_url_id) }}" method="POST" enctype="multipart/form-data">
+<form id="formUpdate" action="{{ url('management-menu-url/updateData/' . $webMenuUrl->web_menu_url_id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="modal-body">
