@@ -134,13 +134,17 @@
           <table class="table table-striped table-hover field-config-detail-table mb-0">
             <thead>
               <tr>
-                <th class="text-center" width="50">No</th>
+                <th class="text-center" width="40">No</th>
                 <th>Kolom Database</th>
                 <th>Label Field</th>
                 <th>Type Input</th>
+                <th>FK Config</th>
                 <th>Kriteria</th>
                 <th>Validasi</th>
                 <th class="text-center">Visible</th>
+                <th class="text-center">Tampil List</th>
+                <th>Label Keterangan</th>
+                <th class="text-center">Ukuran Max</th>
               </tr>
             </thead>
             <tbody>
@@ -163,13 +167,25 @@
                   <span class="badge badge-secondary">{{ $field->wmfc_field_type }}</span>
                 </td>
                 <td>
+                  @if($field->wmfc_fk_table)
+                    <small><code>{{ $field->wmfc_fk_table }}</code></small>
+                    @if($field->wmfc_fk_display_columns)
+                      @php
+                        $fkCols = is_string($field->wmfc_fk_display_columns) ? json_decode($field->wmfc_fk_display_columns, true) : $field->wmfc_fk_display_columns;
+                      @endphp
+                      @if(is_array($fkCols) && count($fkCols))
+                        <br><small class="text-muted">{{ implode(', ', $fkCols) }}</small>
+                      @endif
+                    @endif
+                  @else
+                    <span class="text-muted">-</span>
+                  @endif
+                </td>
+                <td>
                   @php
                     $criteria = is_string($field->wmfc_criteria) ? json_decode($field->wmfc_criteria, true) : $field->wmfc_criteria;
                   @endphp
                   @if($criteria && is_array($criteria) && count($criteria) > 0)
-                    @if(isset($criteria['unique']) && $criteria['unique'])
-                      <span class="badge badge-warning">Unique</span>
-                    @endif
                     @if(isset($criteria['case']) && $criteria['case'] === 'uppercase')
                       <span class="badge badge-info">Uppercase</span>
                     @endif
@@ -187,6 +203,9 @@
                   @if($validation && is_array($validation) && count($validation) > 0)
                     @if(isset($validation['required']) && $validation['required'])
                       <span class="badge badge-danger">Required</span>
+                    @endif
+                    @if(isset($validation['unique']) && $validation['unique'])
+                      <span class="badge badge-warning">Unique</span>
                     @endif
                     @if(isset($validation['max']))
                       <span class="badge badge-secondary">Max: {{ $validation['max'] }}</span>
@@ -206,6 +225,27 @@
                     <i class="fas fa-check text-success"></i>
                   @else
                     <i class="fas fa-times text-danger"></i>
+                  @endif
+                </td>
+                <td class="text-center">
+                  @if(isset($field->wmfc_display_list) ? $field->wmfc_display_list : true)
+                    <i class="fas fa-check text-success"></i>
+                  @else
+                    <i class="fas fa-times text-danger"></i>
+                  @endif
+                </td>
+                <td>
+                  @if(!empty($field->wmfc_label_keterangan))
+                    <small>{{ $field->wmfc_label_keterangan }}</small>
+                  @else
+                    <span class="text-muted">-</span>
+                  @endif
+                </td>
+                <td class="text-center">
+                  @if(!empty($field->wmfc_ukuran_max))
+                    <span class="badge badge-info">{{ $field->wmfc_ukuran_max }} MB</span>
+                  @else
+                    <span class="text-muted">-</span>
                   @endif
                 </td>
               </tr>
