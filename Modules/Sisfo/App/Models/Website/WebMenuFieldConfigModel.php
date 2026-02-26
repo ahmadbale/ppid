@@ -191,7 +191,7 @@ class WebMenuFieldConfigModel extends Model
         $rules = [
             'field_configs.*.wmfc_column_name' => 'required|max:100',
             'field_configs.*.wmfc_field_label' => 'required|max:255',
-            'field_configs.*.wmfc_field_type' => 'required|in:text,textarea,number,date,date2,dropdown,radio,search',
+            'field_configs.*.wmfc_field_type' => 'required|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar',
             'field_configs.*.wmfc_order' => 'nullable|integer|min:0',
             'field_configs.*.wmfc_is_primary_key' => 'nullable|boolean',
             'field_configs.*.wmfc_is_auto_increment' => 'nullable|boolean',
