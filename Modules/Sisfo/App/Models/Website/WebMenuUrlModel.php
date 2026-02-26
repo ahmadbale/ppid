@@ -278,8 +278,8 @@ class WebMenuUrlModel extends Model
                                 $existingField->wmfc_criteria = $fieldConfig['wmfc_criteria'];
                                 $existingField->wmfc_validation = $fieldConfig['wmfc_validation'];
                                 $existingField->wmfc_order = $fieldConfig['wmfc_order'] ?? $existingField->wmfc_order;
-                                $existingField->wmfc_is_visible = $fieldConfig['wmfc_is_visible'] ?? 1;
-                                $existingField->wmfc_display_list = isset($fieldConfig['wmfc_display_list']) ? (int)$fieldConfig['wmfc_display_list'] : 1;
+                                $existingField->wmfc_is_visible = (int)($fieldConfig['wmfc_is_visible'] ?? 0);
+                                $existingField->wmfc_display_list = (int)($fieldConfig['wmfc_display_list'] ?? 0);
                                 $existingField->wmfc_ukuran_max = !empty($fieldConfig['wmfc_ukuran_max']) ? (int)$fieldConfig['wmfc_ukuran_max'] : null;
                                 
                                 // Auto-generate label keterangan jika 'auto'
@@ -374,6 +374,7 @@ class WebMenuUrlModel extends Model
     public static function validasiData($request, $excludeId = null)
     {
         $kategoriMenu = $request->input('web_menu_url.wmu_kategori_menu', 'custom');
+        $isUpdate = ($excludeId !== null);
 
         // Base unique rule — saat update, exclude ID diri sendiri
         $uniqueRule = $excludeId
@@ -402,10 +403,21 @@ class WebMenuUrlModel extends Model
         // Conditional rules berdasarkan kategori
         if ($kategoriMenu === 'master') {
             $rules['web_menu_url.wmu_akses_tabel'] = 'required|max:100';
-            $rules['field_configs'] = 'required|array|min:1';
-            $rules['field_configs.*.wmfc_column_name'] = 'required|string|max:100';
-            $rules['field_configs.*.wmfc_field_label'] = 'required|string|max:255';
-            $rules['field_configs.*.wmfc_field_type'] = 'required|string|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar';
+
+            // Saat CREATE: field_configs wajib ada
+            // Saat UPDATE: field_configs opsional (user mungkin tidak Re-Check tabel)
+            if (!$isUpdate) {
+                $rules['field_configs'] = 'required|array|min:1';
+                $rules['field_configs.*.wmfc_column_name'] = 'required|string|max:100';
+                $rules['field_configs.*.wmfc_field_label'] = 'required|string|max:255';
+                $rules['field_configs.*.wmfc_field_type'] = 'required|string|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar';
+            } elseif ($request->has('field_configs')) {
+                // Update dengan field_configs → validasi isi-nya
+                $rules['field_configs'] = 'nullable|array';
+                $rules['field_configs.*.wmfc_column_name'] = 'required_with:field_configs|string|max:100';
+                $rules['field_configs.*.wmfc_field_label'] = 'required_with:field_configs|string|max:255';
+                $rules['field_configs.*.wmfc_field_type'] = 'required_with:field_configs|string|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar';
+            }
 
             $messages['web_menu_url.wmu_akses_tabel.required'] = 'Nama tabel wajib diisi untuk menu master';
             $messages['web_menu_url.wmu_akses_tabel.max'] = 'Nama tabel maksimal 100 karakter';
@@ -431,8 +443,8 @@ class WebMenuUrlModel extends Model
             throw new ValidationException($validator);
         }
 
-        // Validasi field configs jika kategori master
-        if ($kategoriMenu === 'master') {
+        // Validasi field configs detail hanya saat CREATE (bukan update)
+        if ($kategoriMenu === 'master' && !$isUpdate) {
             WebMenuFieldConfigModel::validasiData($request);
         }
         
@@ -1037,7 +1049,7 @@ class WebMenuUrlModel extends Model
      * @param array $fieldConfig Field config data dari request
      * @return string|null JSON string atau null jika tidak ada criteria
      */
-    private static function parseCriteriaFromRequest(array $fieldConfig): ?string
+    private static function parseCriteriaFromRequest(array $fieldConfig): ?array
     {
         $criteria = [];
         
@@ -1048,8 +1060,8 @@ class WebMenuUrlModel extends Model
             $criteria['case'] = 'lowercase';
         }
         
-        // Return JSON atau null
-        return !empty($criteria) ? json_encode($criteria) : null;
+        // Return array atau null
+        return !empty($criteria) ? $criteria : null;
     }
 
     /**
@@ -1058,7 +1070,7 @@ class WebMenuUrlModel extends Model
      * @param array $fieldConfig Field config data dari request
      * @return string|null JSON string atau null jika tidak ada validation
      */
-    private static function parseValidationFromRequest(array $fieldConfig): ?string
+    private static function parseValidationFromRequest(array $fieldConfig): ?array
     {
         $validation = [];
         
@@ -1099,8 +1111,8 @@ class WebMenuUrlModel extends Model
             $validation['mimes'] = implode(',', $selectedMimes);
         }
         
-        // Return JSON atau null
-        return !empty($validation) ? json_encode($validation) : null;
+        // Return array atau null
+        return !empty($validation) ? $validation : null;
     }
 
     /**
