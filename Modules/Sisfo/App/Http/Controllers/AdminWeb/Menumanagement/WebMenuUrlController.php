@@ -106,8 +106,11 @@ class WebMenuUrlController extends Controller
 
             Log::debug('WebMenuUrlController::createData() - Processing normal form submission');
 
+            // Jika create-ulang (is_update=1), exclude existing_menu_id dari unique check wmu_nama
+            $existingMenuId = $request->input('is_update') ? $request->input('existing_menu_id') : null;
+
             // Process form submission
-            WebMenuUrlModel::validasiData($request);
+            WebMenuUrlModel::validasiData($request, $existingMenuId);
             $result = WebMenuUrlModel::createData($request);
 
             return $this->jsonSuccess(
