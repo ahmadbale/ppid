@@ -275,6 +275,7 @@ window.WebMenuUrlShared = {
           <input type="hidden" name="field_configs[${index}][wmfc_order]" value="${field.wmfc_order}">
           <input type="hidden" name="field_configs[${index}][wmfc_is_primary_key]" value="${field.wmfc_is_primary_key}">
           <input type="hidden" name="field_configs[${index}][wmfc_is_auto_increment]" value="${field.wmfc_is_auto_increment}">
+          <input type="hidden" name="field_configs[${index}][web_menu_field_config_id]" value="${field.web_menu_field_config_id || ''}">
         </td>
         <td>
           <input type="text" class="form-control form-control-sm" 
@@ -446,6 +447,7 @@ window.WebMenuUrlShared = {
             <span class="badge badge-secondary">Hidden</span>
             <input type="hidden" name="field_configs[${index}][wmfc_display_list]" value="0">
           ` : `
+            <input type="hidden" name="field_configs[${index}][wmfc_display_list]" value="0">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" 
                      id="display_list_${index}"
@@ -474,6 +476,7 @@ window.WebMenuUrlShared = {
             <span class="badge badge-secondary">Hidden</span>
             <input type="hidden" name="field_configs[${index}][wmfc_is_visible]" value="0">
           ` : `
+            <input type="hidden" name="field_configs[${index}][wmfc_is_visible]" value="0">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" 
                      id="visible_${index}"
