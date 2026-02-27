@@ -1,7 +1,7 @@
 {{-- Modal Create Form --}}
 <div class="modal-header bg-primary">
     <h5 class="modal-title text-white">
-        <i class="fas fa-plus-circle mr-2"></i>Tambah {{ $pageTitle ?? 'Data' }}
+        <i class="fas fa-plus-circle mr-2"></i>{{ $pageTitle ?? 'Tambah Data' }}
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -137,7 +137,9 @@ $(document).ready(function() {
                     $.each(errors, function(field, messages) {
                         const input = $('[name="' + field + '"]');
                         input.addClass('is-invalid');
-                        $('#error-' + field).html(messages[0]);
+                        // Untuk search field: highlight _display input juga
+                        $('#' + field + '_display').addClass('is-invalid');
+                        $('#error-' + field).html(messages[0]).css('display', 'block');
                     });
                     
                     let errorMsg = '<ul class="text-left mb-0">';
@@ -228,9 +230,11 @@ $(document).ready(function() {
     let fkSearchData = [];
     
     $(document).on('click', '.btn-search-fk', function() {
-        const fieldName = $(this).data('field');
+        const fieldName = $(this).data('column');
         const fkTable = $(this).data('fk-table');
-        const displayColumns = $(this).data('display-columns').split(',');
+        const fkPk = $(this).data('fk-pk');
+        const rawDisplay = $(this).data('fk-display');
+        const displayColumns = Array.isArray(rawDisplay) ? rawDisplay : (typeof rawDisplay === 'string' ? JSON.parse(rawDisplay) : []);
         
         currentFkField = fieldName;
         
@@ -243,8 +247,11 @@ $(document).ready(function() {
             },
             success: function(response) {
                 fkSearchData = response.data;
-                renderFkTable(response.data, displayColumns, response.pkColumn);
+                renderFkTable(response.data, displayColumns, response.pkColumn || fkPk);
                 $('#modalFkSearch').modal('show');
+            },
+            error: function(xhr) {
+                Swal.fire({ icon: 'error', title: 'Error', text: xhr.responseJSON?.message || 'Gagal mengambil data' });
             }
         });
     });
