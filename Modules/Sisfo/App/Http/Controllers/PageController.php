@@ -136,7 +136,8 @@ class PageController extends Controller
         $methodsWithRequest = [
             'index',
             'getData',
-            'createData'
+            'createData',
+            'getFkData',
         ];
         
         // Jika method butuh Request

@@ -298,7 +298,7 @@ class WebMenuUrlModel extends Model
                                 
                                 // Update FK display columns jika ada
                                 if (!empty($fieldConfig['fk_display_cols']) && is_array($fieldConfig['fk_display_cols'])) {
-                                    $existingField->wmfc_fk_display_columns = json_encode($fieldConfig['fk_display_cols']);
+                                    $existingField->wmfc_fk_display_columns = $fieldConfig['fk_display_cols'];
                                 }
                                 
                                 $existingField->save();
@@ -877,11 +877,11 @@ class WebMenuUrlModel extends Model
                     'wmfc_label_keterangan' => null, // User will fill this manually
                     'wmfc_ukuran_max' => null, // User will fill this if field type = file/image
                     'wmfc_display_list' => 1, // Default: show in list
-                    'wmfc_criteria' => !empty($criteria) ? json_encode($criteria) : null,
-                    'wmfc_validation' => !empty($validation) ? json_encode($validation) : null,
+                    'wmfc_criteria' => !empty($criteria) ? $criteria : null,
+                    'wmfc_validation' => !empty($validation) ? $validation : null,
                     'wmfc_fk_table' => $fkTable,
                     'wmfc_fk_pk_column' => $fkPkColumn,
-                    'wmfc_fk_display_columns' => !empty($fkDisplayColumns) ? json_encode($fkDisplayColumns) : null,
+                    'wmfc_fk_display_columns' => !empty($fkDisplayColumns) ? $fkDisplayColumns : null,
                     'wmfc_order' => $order++,
                     'wmfc_is_primary_key' => ($columnName === $primaryKey) ? 1 : 0,
                     'wmfc_is_auto_increment' => ($column['extra'] === 'auto_increment') ? 1 : 0,
