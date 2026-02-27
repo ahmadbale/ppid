@@ -1,7 +1,7 @@
 {{-- Modal Delete Confirmation --}}
 <div class="modal-header bg-danger">
     <h5 class="modal-title text-white">
-        <i class="fas fa-trash-alt mr-2"></i>Hapus {{ $pageTitle ?? 'Data' }}
+        <i class="fas fa-trash-alt mr-2"></i>{{ $pageTitle ?? 'Hapus Data' }}
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span>
