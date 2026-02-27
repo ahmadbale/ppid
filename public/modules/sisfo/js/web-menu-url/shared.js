@@ -222,7 +222,12 @@ window.WebMenuUrlShared = {
     // isFileOrGambar alias untuk backward-compat dalam block validasi
     const isFileOrGambar = isMediaType;
 
-    const fkDisplayCols = field.wmfc_fk_display_columns ? JSON.parse(field.wmfc_fk_display_columns) : [];
+    const fkDisplayCols = field.wmfc_fk_display_columns 
+      ? (Array.isArray(field.wmfc_fk_display_columns) 
+          ? field.wmfc_fk_display_columns 
+          : JSON.parse(field.wmfc_fk_display_columns)) 
+      : [];
+    const fkDisplayColsJson = JSON.stringify(fkDisplayCols);
     const fkDisplayText = fkDisplayCols.length > 0 ? fkDisplayCols.join(', ') : '-';
     
     let fkConfigHtml = '';
@@ -238,7 +243,7 @@ window.WebMenuUrlShared = {
         </button>
         <input type="hidden" name="field_configs[${index}][wmfc_fk_table]" value="${field.wmfc_fk_table}">
         <input type="hidden" name="field_configs[${index}][wmfc_fk_pk_column]" value="${field.wmfc_fk_pk_column}">
-        <input type="hidden" name="field_configs[${index}][wmfc_fk_display_columns]" value='${field.wmfc_fk_display_columns}'>
+        ${fkDisplayCols.map(col => `<input type="hidden" name="field_configs[${index}][fk_display_cols][]" value="${col}">`).join('')}
       `;
     } else {
       fkConfigHtml = '<span class="badge badge-secondary">Tidak Ada</span>';
