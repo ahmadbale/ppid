@@ -1,7 +1,7 @@
 {{-- Modal Update Form --}}
 <div class="modal-header bg-warning">
     <h5 class="modal-title text-white">
-        <i class="fas fa-edit mr-2"></i>Edit {{ $pageTitle ?? 'Data' }}
+        <i class="fas fa-edit mr-2"></i>{{ $pageTitle ?? 'Edit Data' }}
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -139,7 +139,9 @@ $(document).ready(function() {
                     $.each(errors, function(field, messages) {
                         const input = $('[name="' + field + '"]');
                         input.addClass('is-invalid');
-                        $('#error-' + field).html(messages[0]);
+                        // Jika field bertipe search (ada _display input), highlight juga
+                        $('#' + field + '_display').addClass('is-invalid');
+                        $('#error-' + field).html(messages[0]).css('display', 'block');
                     });
                     
                     let errorMsg = '<ul class="text-left mb-0">';
@@ -229,9 +231,10 @@ $(document).ready(function() {
     let currentFkFieldEdit = null;
     
     $(document).on('click', '.btn-search-fk', function() {
-        const fieldName = $(this).data('field');
+        const fieldName = $(this).data('column');
         const fkTable = $(this).data('fk-table');
-        const displayColumns = $(this).data('display-columns').split(',');
+        const rawDisplay = $(this).data('fk-display');
+        const displayColumns = Array.isArray(rawDisplay) ? rawDisplay : JSON.parse(rawDisplay);
         
         currentFkFieldEdit = fieldName;
         
