@@ -279,7 +279,9 @@ class MasterMenuService
         
         if (preg_match('/^enum\((.*)\)$/', $type, $matches)) {
             $values = str_getcsv($matches[1], ',', "'");
-            return array_map('trim', $values);
+            $values = array_map('trim', $values);
+            // Return associative array: value => label (agar form mengirim string ENUM, bukan index)
+            return array_combine($values, $values);
         }
 
         return [];
