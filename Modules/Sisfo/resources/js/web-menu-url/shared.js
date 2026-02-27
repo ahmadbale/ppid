@@ -278,16 +278,28 @@ window.WebMenuUrlShared = {
           <input type="hidden" name="field_configs[${index}][web_menu_field_config_id]" value="${field.web_menu_field_config_id || ''}">
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm" 
-                 name="field_configs[${index}][wmfc_field_label]" 
-                 value="${field.wmfc_field_label}" ${isPkAutoInc ? 'disabled' : ''}>
+          ${isPkAutoInc ? `
+            <input type="hidden" name="field_configs[${index}][wmfc_field_label]" value="${field.wmfc_field_label}">
+            <input type="text" class="form-control form-control-sm" value="${field.wmfc_field_label}" disabled>
+          ` : `
+            <input type="text" class="form-control form-control-sm" 
+                   name="field_configs[${index}][wmfc_field_label]" 
+                   value="${field.wmfc_field_label}">
+          `}
         </td>
         <td>
-          <select class="form-control form-control-sm field-type-select" 
-                  name="field_configs[${index}][wmfc_field_type]" 
-                  data-index="${index}" ${isPkAutoInc ? 'disabled' : ''}>
-            ${typeOptionsHtml}
-          </select>
+          ${isPkAutoInc ? `
+            <input type="hidden" name="field_configs[${index}][wmfc_field_type]" value="${normalizedFieldType}">
+            <select class="form-control form-control-sm" disabled>
+              <option selected>${typeLabels[normalizedFieldType] || normalizedFieldType}</option>
+            </select>
+          ` : `
+            <select class="form-control form-control-sm field-type-select" 
+                    name="field_configs[${index}][wmfc_field_type]" 
+                    data-index="${index}">
+              ${typeOptionsHtml}
+            </select>
+          `}
         </td>
         <td>
           <div class="custom-control custom-checkbox">
@@ -344,7 +356,7 @@ window.WebMenuUrlShared = {
                        name="field_configs[${index}][validation_min]"
                        value="${minValue}"
                        placeholder="1"
-                       ${isPkAutoInc ? 'disabled' : ''}>
+                       ${isPkAutoInc || !['text','textarea','number'].includes(normalizedFieldType) ? 'disabled' : ''}>
               </div>
               <div class="input-group input-group-sm flex-fill">
                 <div class="input-group-prepend"><span class="input-group-text">Max</span></div>
@@ -353,7 +365,7 @@ window.WebMenuUrlShared = {
                        value="${maxValue || (maxLength || '')}"
                        ${maxLength ? `max="${maxLength}" data-max="${maxLength}" placeholder="${maxLength}"` : 'placeholder="No limit"'}
                        data-toggle="tooltip"
-                       ${isPkAutoInc ? 'disabled' : ''}>
+                       ${isPkAutoInc || !['text','textarea','number'].includes(normalizedFieldType) ? 'disabled' : ''}>
               </div>
             </div>
             <!-- Baris 3: Format Media (muncul saat tipe = media) -->
@@ -524,6 +536,17 @@ $(document).ready(function() {
       
       if (!isTextType) {
         $(`#uppercase_${index}, #lowercase_${index}, #email_${index}`).prop('checked', false);
+      }
+      
+      // Enable/disable min/max hanya untuk text, textarea, number
+      const isMinMaxType = ['text', 'textarea', 'number'].includes(selectedType);
+      const $minInput = row.find(`input[name="field_configs[${index}][validation_min]"]`);
+      const $maxInput = row.find(`input[name="field_configs[${index}][validation_max]"]`);
+      $minInput.prop('disabled', !isMinMaxType);
+      $maxInput.prop('disabled', !isMinMaxType);
+      if (!isMinMaxType) {
+        $minInput.val('');
+        $maxInput.val('');
       }
       
       // Enable/disable ukuran max hanya untuk tipe media
