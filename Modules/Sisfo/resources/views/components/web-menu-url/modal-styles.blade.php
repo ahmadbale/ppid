@@ -78,6 +78,7 @@
     opacity: 1 !important;
   }
   
+  
   /* ===== FK DISPLAY COLUMNS SELECTOR ===== */
   .fk-display-cols {
     margin-top: 5px;
@@ -91,6 +92,83 @@
     display: block;
     margin-bottom: 3px;
     font-size: 0.875rem;
+  }
+
+  /* ===== FK COL CONFIG - Per-column checkbox ===== */
+  .fk-col-container {
+    font-size: 0.78rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .fk-col-row {
+    padding: 5px 7px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #fff;
+  }
+
+  .fk-col-row:last-child {
+    border-bottom: none;
+  }
+
+  .fk-col-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  .fk-col-row .custom-control-label code {
+    color: #495057;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .fk-col-row .custom-control-input:checked ~ .custom-control-label code {
+    color: #155724;
+    font-weight: 600;
+  }
+
+  /* Alias section — indented block di bawah checkbox */
+  .fk-col-alias-section {
+    margin: 3px 0 2px 22px;
+    padding: 4px 6px;
+    background-color: #f0f8ff;
+    border-left: 3px solid #17a2b8;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .fk-col-alias-section .custom-control {
+    min-height: 1.2rem;
+  }
+
+  .fk-col-alias-section .custom-control-label {
+    font-size: 0.73rem;
+    padding-top: 2px;
+    color: #495057;
+  }
+
+  .fk-col-alias-section .custom-control-inline {
+    margin-right: 0;
+  }
+
+  .fk-alias-input {
+    font-size: 0.73rem !important;
+    padding: 2px 6px !important;
+    height: auto !important;
+    margin-top: 3px !important;
+    border-color: #17a2b8;
+  }
+
+  .fk-alias-input:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 0.15rem rgba(23,162,184,0.25);
+  }
+
+  /* Badge Detail tooltip trigger */
+  .fk-detail-badge {
+    cursor: pointer;
+  }
+  .fk-detail-badge:hover {
+    opacity: 0.85;
   }
   
   /* ===== FIELD CONFIG TABLE (khusus update) ===== */
