@@ -369,14 +369,19 @@ class DatabaseSchemaService
             if ($isForeignKey) {
                 $fk = $fkMap[$columnName];
                 $displayColumns = self::getFKDisplayableColumns($fk['referenced_table']);
+                $displayColNames = array_column($displayColumns, 'column_name');
                 
                 $config['wmfc_fk_table'] = $fk['referenced_table'];
                 $config['wmfc_fk_pk_column'] = $fk['referenced_column'];
-                $config['wmfc_fk_display_columns'] = array_column($displayColumns, 'column_name');
+                $config['wmfc_fk_display_columns'] = $displayColNames;
+                $config['wmfc_fk_available_cols'] = $displayColNames; // Semua kolom yang bisa dipilih (UI)
+                $config['wmfc_fk_label_columns'] = null; // Default: pakai nama kolom asli
             } else {
                 $config['wmfc_fk_table'] = null;
                 $config['wmfc_fk_pk_column'] = null;
                 $config['wmfc_fk_display_columns'] = null;
+                $config['wmfc_fk_available_cols'] = null;
+                $config['wmfc_fk_label_columns'] = null;
             }
 
             $configs[] = $config;
