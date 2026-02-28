@@ -234,7 +234,9 @@ $(document).ready(function() {
         const fkTable = $(this).data('fk-table');
         const fkPk = $(this).data('fk-pk');
         const rawDisplay = $(this).data('fk-display');
+        const rawLabels = $(this).data('fk-labels');
         const displayColumns = Array.isArray(rawDisplay) ? rawDisplay : (typeof rawDisplay === 'string' ? JSON.parse(rawDisplay) : []);
+        const labelColumns = Array.isArray(rawLabels) ? rawLabels : (typeof rawLabels === 'string' ? JSON.parse(rawLabels) : []);
         
         currentFkField = fieldName;
         
@@ -243,11 +245,12 @@ $(document).ready(function() {
             url: '{{ url($menuConfig->wmu_nama) }}/getFkData',
             data: { 
                 table: fkTable,
-                columns: displayColumns 
+                columns: displayColumns,
+                labels: labelColumns
             },
             success: function(response) {
                 fkSearchData = response.data;
-                renderFkTable(response.data, displayColumns, response.pkColumn || fkPk);
+                renderFkTable(response.data, displayColumns, response.headers || [], response.pkColumn || fkPk);
                 $('#modalFkSearch').modal('show');
             },
             error: function(xhr) {
@@ -256,14 +259,15 @@ $(document).ready(function() {
         });
     });
     
-    function renderFkTable(data, columns, pkColumn) {
-        // Build headers
-        let headers = '<th width="50">No</th>';
-        columns.forEach(col => {
-            headers += '<th>' + col.toUpperCase() + '</th>';
+    function renderFkTable(data, columns, headers, pkColumn) {
+        // Build headers - pakai alias jika ada, fallback ke nama kolom
+        let headerHtml = '<th width="50">No</th>';
+        columns.forEach((col, i) => {
+            const label = (headers && headers[i] && headers[i] !== 'default') ? headers[i] : col.toUpperCase();
+            headerHtml += '<th>' + label + '</th>';
         });
-        headers += '<th width="80" class="text-center">Aksi</th>';
-        $('#fkTableHeaders').html(headers);
+        headerHtml += '<th width="80" class="text-center">Aksi</th>';
+        $('#fkTableHeaders').html(headerHtml);
         
         // Build rows
         let rows = '';

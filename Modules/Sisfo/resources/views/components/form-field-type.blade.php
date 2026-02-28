@@ -156,7 +156,8 @@
                     data-column="{{ $field['column'] }}"
                     data-fk-table="{{ $field['fk_table'] }}"
                     data-fk-pk="{{ $field['fk_pk'] }}"
-                    data-fk-display="{{ json_encode($field['fk_display_columns'] ?? []) }}">
+                    data-fk-display="{{ json_encode($field['fk_display_columns'] ?? []) }}"
+                    data-fk-labels="{{ json_encode($field['fk_label_columns'] ?? []) }}">
                 <i class="fas fa-search"></i>
             </button>
             @if(!$field['is_required'])

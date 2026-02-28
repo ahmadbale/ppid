@@ -227,23 +227,101 @@ window.WebMenuUrlShared = {
           ? field.wmfc_fk_display_columns 
           : JSON.parse(field.wmfc_fk_display_columns)) 
       : [];
-    const fkDisplayColsJson = JSON.stringify(fkDisplayCols);
+    const fkLabelCols = field.wmfc_fk_label_columns
+      ? (Array.isArray(field.wmfc_fk_label_columns)
+          ? field.wmfc_fk_label_columns
+          : JSON.parse(field.wmfc_fk_label_columns))
+      : [];
     const fkDisplayText = fkDisplayCols.length > 0 ? fkDisplayCols.join(', ') : '-';
+
+    // Get all displayable columns from FK table (for checkboxes)
+    // These come from field.wmfc_fk_available_cols (injected by PHP) or fallback to fkDisplayCols
+    const fkAvailableCols = field.wmfc_fk_available_cols
+      ? (Array.isArray(field.wmfc_fk_available_cols) ? field.wmfc_fk_available_cols : JSON.parse(field.wmfc_fk_available_cols))
+      : fkDisplayCols;
     
     let fkConfigHtml = '';
     if (isFk && field.wmfc_fk_table) {
+      // Build per-column checkboxes with alias/default sub-options
+      let colCheckboxesHtml = '';
+      fkAvailableCols.forEach((col, colIdx) => {
+        const isColChecked = fkDisplayCols.includes(col);
+        const colLabelRaw = fkLabelCols[fkDisplayCols.indexOf(col)] || 'default';
+        const isAliasMode = isColChecked && colLabelRaw !== 'default' && colLabelRaw !== '';
+        const aliasValue = isAliasMode ? colLabelRaw : '';
+        
+        colCheckboxesHtml += `
+          <div class="fk-col-row" data-col="${col}" data-index="${index}" data-col-idx="${colIdx}">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input fk-col-check" 
+                     id="fk_col_${index}_${colIdx}"
+                     data-index="${index}" data-col="${col}" data-col-idx="${colIdx}"
+                     ${isColChecked ? 'checked' : ''}>
+              <label class="custom-control-label" for="fk_col_${index}_${colIdx}">
+                <code style="font-size:0.75rem;">${col}</code>
+              </label>
+            </div>
+            <div class="fk-col-alias-section" id="fk_alias_sec_${index}_${colIdx}" style="display:${isColChecked ? 'block' : 'none'};">
+              <div class="d-flex" style="gap:10px;">
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input type="radio" class="custom-control-input fk-alias-radio" 
+                         id="fk_alias_default_${index}_${colIdx}"
+                         name="fk_alias_mode_${index}_${colIdx}"
+                         value="default" data-index="${index}" data-col-idx="${colIdx}"
+                         ${!isAliasMode ? 'checked' : ''}>
+                  <label class="custom-control-label" for="fk_alias_default_${index}_${colIdx}">Default</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input type="radio" class="custom-control-input fk-alias-radio" 
+                         id="fk_alias_custom_${index}_${colIdx}"
+                         name="fk_alias_mode_${index}_${colIdx}"
+                         value="alias" data-index="${index}" data-col-idx="${colIdx}"
+                         ${isAliasMode ? 'checked' : ''}>
+                  <label class="custom-control-label" for="fk_alias_custom_${index}_${colIdx}">Alias</label>
+                </div>
+              </div>
+              <input type="text" class="form-control form-control-sm fk-alias-input"
+                     id="fk_alias_input_${index}_${colIdx}"
+                     data-index="${index}" data-col-idx="${colIdx}"
+                     placeholder="Nama alias kolom..."
+                     value="${aliasValue}"
+                     style="display:${isAliasMode ? 'block' : 'none'};"
+                     ${!isColChecked ? 'disabled' : ''}>
+            </div>
+          </div>
+        `;
+      });
+
+      // Build tooltip info: tabel + PK + kolom yang dipilih
+      const tooltipInfo = `Tabel: ${field.wmfc_fk_table} | PK: ${field.wmfc_fk_pk_column}${fkDisplayCols.length ? ' | Kolom: ' + fkDisplayCols.join(', ') : ''}`;
+
       fkConfigHtml = `
-        <span class="badge badge-success">Ada</span>
-        <button type="button" class="badge badge-info border-0 fk-detail-tooltip" 
+        <div class="d-flex align-items-center mb-1" style="gap:4px;">
+          <span class="badge badge-success">Ada</span>
+          <span class="badge badge-info fk-detail-badge" 
+                style="cursor:pointer;"
                 data-toggle="tooltip" 
+                data-placement="top" 
                 data-html="true"
-                data-index="${index}"
-                title="<strong>Tabel:</strong> ${field.wmfc_fk_table}<br><strong>PK:</strong> ${field.wmfc_fk_pk_column}<br><strong>Display:</strong> ${fkDisplayText}">
-          Detail
-        </button>
+                title="<small><b>Tabel:</b> ${field.wmfc_fk_table}<br><b>PK:</b> ${field.wmfc_fk_pk_column}</small>">
+            Detail
+          </span>
+        </div>
         <input type="hidden" name="field_configs[${index}][wmfc_fk_table]" value="${field.wmfc_fk_table}">
         <input type="hidden" name="field_configs[${index}][wmfc_fk_pk_column]" value="${field.wmfc_fk_pk_column}">
-        ${fkDisplayCols.map(col => `<input type="hidden" name="field_configs[${index}][fk_display_cols][]" value="${col}">`).join('')}
+        <div class="fk-col-container" id="fk_col_container_${index}" 
+             data-index="${index}"
+             data-fk-table="${field.wmfc_fk_table}"
+             data-fk-pk="${field.wmfc_fk_pk_column}">
+          ${colCheckboxesHtml}
+        </div>
+        <div class="fk-hidden-inputs" id="fk_hidden_${index}">
+          ${fkDisplayCols.map((col, i) => {
+            const lbl = fkLabelCols[i] || 'default';
+            return `<input type="hidden" name="field_configs[${index}][fk_display_cols][]" value="${col}">
+                    <input type="hidden" name="field_configs[${index}][fk_label_cols][]" value="${lbl}">`;
+          }).join('')}
+        </div>
       `;
     } else {
       fkConfigHtml = '<span class="badge badge-secondary">Tidak Ada</span>';
@@ -575,26 +653,88 @@ $(document).ready(function() {
     }
   });
   
-  // Handle FK display columns checkbox change - update tooltip
-  $(document).on('change', '.fk-display-checkbox', function() {
-    const index = $(this).data('index');
-    const checkedCols = [];
+  // ========================================
+  // FK CONFIG - Per-column checkbox handlers
+  // ========================================
+
+  // Init tooltip untuk badge Detail FK (delegated, karena row di-render dinamis)
+  $(document).on('mouseenter', '.fk-detail-badge', function() {
+    if (!$(this).data('bs.tooltip')) {
+      $(this).tooltip({ html: true, trigger: 'hover', placement: 'top' });
+    }
+    $(this).tooltip('show');
+  }).on('mouseleave', '.fk-detail-badge', function() {
+    $(this).tooltip('hide');
+  });
+
+  /**
+   * Saat checkbox kolom FK di-toggle:
+   * - Tampilkan/sembunyikan alias section
+   * - Update hidden inputs fk_display_cols[] dan fk_label_cols[]
+   */
+  function updateFkHiddenInputs(index) {
+    const $container = $(`#fk_col_container_${index}`);
+    const $hiddenDiv = $(`#fk_hidden_${index}`);
     
-    // Ambil semua checkbox yang tercentang untuk field ini
-    $(`.fk-display-checkbox[data-index="${index}"]:checked`).each(function() {
-      checkedCols.push($(this).val());
+    let displayInputs = '';
+    $container.find('.fk-col-check:checked').each(function() {
+      const col = $(this).data('col');
+      const colIdx = $(this).data('col-idx');
+      const aliasMode = $(`input[name="fk_alias_mode_${index}_${colIdx}"]:checked`).val() || 'default';
+      const aliasVal = aliasMode === 'alias' ? ($(`#fk_alias_input_${index}_${colIdx}`).val().trim() || 'default') : 'default';
+      displayInputs += `<input type="hidden" name="field_configs[${index}][fk_display_cols][]" value="${col}">`;
+      displayInputs += `<input type="hidden" name="field_configs[${index}][fk_label_cols][]" value="${aliasVal}">`;
     });
     
-    // Update tooltip
-    const tooltip = $(`.fk-detail-tooltip[data-index="${index}"]`);
-    const fkTable = tooltip.closest('td').find('input[name*="wmfc_fk_table"]').val();
-    const fkPkColumn = tooltip.closest('td').find('input[name*="wmfc_fk_pk_column"]').val();
-    const displayText = checkedCols.length > 0 ? checkedCols.join(', ') : '-';
+    $hiddenDiv.html(displayInputs);
+  }
+
+  // Toggle alias section saat checkbox kolom di-check/uncheck
+  $(document).on('change', '.fk-col-check', function() {
+    const index = $(this).data('index');
+    const colIdx = $(this).data('col-idx');
+    const isChecked = $(this).prop('checked');
     
-    tooltip.attr('data-original-title', `<strong>Tabel:</strong> ${fkTable}<br><strong>PK:</strong> ${fkPkColumn}<br><strong>Display:</strong> ${displayText}`);
-    tooltip.tooltip('dispose').tooltip({html: true});
+    const $aliasSection = $(`#fk_alias_sec_${index}_${colIdx}`);
+    const $aliasInput = $(`#fk_alias_input_${index}_${colIdx}`);
+    
+    if (isChecked) {
+      $aliasSection.show();
+      $aliasInput.prop('disabled', false);
+    } else {
+      $aliasSection.hide();
+      $aliasInput.prop('disabled', true);
+      // Reset ke default saat uncheck
+      $(`input[name="fk_alias_mode_${index}_${colIdx}"][value="default"]`).prop('checked', true);
+      $aliasInput.hide().val('');
+    }
+    
+    updateFkHiddenInputs(index);
   });
-  
+
+  // Toggle input alias saat radio alias/default berubah
+  $(document).on('change', '.fk-alias-radio', function() {
+    const index = $(this).data('index');
+    const colIdx = $(this).data('col-idx');
+    const mode = $(this).val();
+    
+    const $aliasInput = $(`#fk_alias_input_${index}_${colIdx}`);
+    
+    if (mode === 'alias') {
+      $aliasInput.show().prop('disabled', false).focus();
+    } else {
+      $aliasInput.hide().prop('disabled', true).val('');
+    }
+    
+    updateFkHiddenInputs(index);
+  });
+
+  // Sync alias input ke hidden inputs saat user mengetik
+  $(document).on('input', '.fk-alias-input', function() {
+    const index = $(this).data('index');
+    updateFkHiddenInputs(index);
+  });
+
   // Handle max length validation - auto clamp to column max length
   $(document).on('input', '.max-length-input', function() {
     const input = $(this);

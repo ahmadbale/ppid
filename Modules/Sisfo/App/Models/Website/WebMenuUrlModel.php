@@ -152,6 +152,17 @@ class WebMenuUrlModel extends Model
                         unset($fieldConfig['fk_display_cols']);
                     }
                     
+                    // Process FK label columns (alias nama kolom di modal)
+                    // Format: fk_label_cols[] = ["default"|"alias text"] sesuai urutan fk_display_cols
+                    if (isset($fieldConfig['fk_label_cols']) && is_array($fieldConfig['fk_label_cols'])) {
+                        $rawLabels = $fieldConfig['fk_label_cols'];
+                        // Simpan sebagai array (Eloquent cast 'array' akan handle json_encode)
+                        $fieldConfig['wmfc_fk_label_columns'] = $rawLabels;
+                        unset($fieldConfig['fk_label_cols']);
+                    } else {
+                        $fieldConfig['wmfc_fk_label_columns'] = null;
+                    }
+                    
                     // Build criteria JSON (HANYA uppercase/lowercase)
                     $criteria = [];
                     if (!empty($fieldConfig['criteria_uppercase'])) {
@@ -299,6 +310,17 @@ class WebMenuUrlModel extends Model
                                 // Update FK display columns jika ada
                                 if (!empty($fieldConfig['fk_display_cols']) && is_array($fieldConfig['fk_display_cols'])) {
                                     $existingField->wmfc_fk_display_columns = $fieldConfig['fk_display_cols'];
+                                }
+                                
+                                // Update FK label columns (alias nama kolom di modal)
+                                if (isset($fieldConfig['fk_label_cols']) && is_array($fieldConfig['fk_label_cols'])) {
+                                    $existingField->wmfc_fk_label_columns = $fieldConfig['fk_label_cols'];
+                                } else {
+                                    // Jika tidak ada fk_label_cols dikirim (bukan field FK), jangan ubah
+                                    // Hanya reset jika memang field FK tetapi tidak ada fk_display_cols
+                                    if (!empty($fieldConfig['fk_display_cols'])) {
+                                        $existingField->wmfc_fk_label_columns = null;
+                                    }
                                 }
                                 
                                 $existingField->save();
@@ -633,6 +655,9 @@ class WebMenuUrlModel extends Model
                             'wmfc_fk_table' => $existing->wmfc_fk_table ?? $generatedField['wmfc_fk_table'],
                             'wmfc_fk_pk_column' => $existing->wmfc_fk_pk_column ?? $generatedField['wmfc_fk_pk_column'],
                             'wmfc_fk_display_columns' => $existing->wmfc_fk_display_columns ?? $generatedField['wmfc_fk_display_columns'],
+                            'wmfc_fk_label_columns' => $existing->wmfc_fk_label_columns ?? null,
+                            // Available cols untuk UI checkbox: semua kolom displayable dari FK table
+                            'wmfc_fk_available_cols' => $generatedField['wmfc_fk_available_cols'] ?? ($existing->wmfc_fk_display_columns ?? null),
                             'wmfc_order' => $existing->wmfc_order,
                             'wmfc_is_primary_key' => $generatedField['wmfc_is_primary_key'],
                             'wmfc_is_auto_increment' => $generatedField['wmfc_is_auto_increment'],
@@ -641,6 +666,7 @@ class WebMenuUrlModel extends Model
                             'wmfc_label_keterangan' => $existing->wmfc_label_keterangan,
                             'wmfc_display_list' => $existing->wmfc_display_list ?? 1,
                             'wmfc_ukuran_max' => $existing->wmfc_ukuran_max,
+                            'wmfc_type_value' => $generatedField['wmfc_type_value'] ?? null,
                         ];
                     } else {
                         Log::info("Column '{$columnName}': NEW - use generated config");
@@ -855,14 +881,14 @@ class WebMenuUrlModel extends Model
                     }
                 }
                 
-                // Extract ENUM/SET values if applicable
+                // Extract ENUM/SET values if applicable - stored as JSON array
                 $typeValue = null;
                 if (in_array(strtolower($column['data_type']), ['enum', 'set'])) {
                     // Extract values dari ENUM('val1','val2') atau SET('val1','val2')
                     if (preg_match('/\((.*)\)/', $column['data_type_full'], $matches)) {
-                        // Remove quotes and convert to comma-separated
-                        $values = str_replace("'", "", $matches[1]);
-                        $typeValue = $values; // e.g., "DISETUJUI,DITOLAK,MENUNGGU"
+                        // Parse via str_getcsv untuk handle single-quotes dengan benar
+                        $values = str_getcsv($matches[1], ',', "'");
+                        $typeValue = array_map('trim', $values); // JSON array via Eloquent cast
                     }
                 }
                 
@@ -882,6 +908,9 @@ class WebMenuUrlModel extends Model
                     'wmfc_fk_table' => $fkTable,
                     'wmfc_fk_pk_column' => $fkPkColumn,
                     'wmfc_fk_display_columns' => !empty($fkDisplayColumns) ? $fkDisplayColumns : null,
+                    'wmfc_fk_label_columns' => null, // Default: pakai nama kolom asli (user isi manual)
+                    // Available cols dari FK table untuk UI checkbox (tidak disimpan ke DB)
+                    'wmfc_fk_available_cols' => !empty($fkDisplayColumns) ? $fkDisplayColumns : null,
                     'wmfc_order' => $order++,
                     'wmfc_is_primary_key' => ($columnName === $primaryKey) ? 1 : 0,
                     'wmfc_is_auto_increment' => ($column['extra'] === 'auto_increment') ? 1 : 0,

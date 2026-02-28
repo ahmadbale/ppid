@@ -238,6 +238,12 @@ class MasterMenuService
                     $fkDisplayColumns = json_decode($fkDisplayColumns, true) ?? [];
                 }
                 
+                // Ensure fk_label_columns is array (alias label untuk header modal)
+                $fkLabelColumns = $field->wmfc_fk_label_columns ?? [];
+                if (is_string($fkLabelColumns)) {
+                    $fkLabelColumns = json_decode($fkLabelColumns, true) ?? [];
+                }
+                
                 // ✅ FIX: Get FK table's primary key
                 $fkPkColumn = DB::table('web_menu_field_config as wmfc')
                     ->join('web_menu_url as wmu', 'wmfc.fk_web_menu_url', '=', 'wmu.web_menu_url_id')
@@ -249,6 +255,7 @@ class MasterMenuService
                 $fieldData['fk_table'] = $field->wmfc_fk_table;
                 $fieldData['fk_pk'] = $fkPkColumn ?? 'id'; // Default to 'id' if not found
                 $fieldData['fk_display_columns'] = $fkDisplayColumns;
+                $fieldData['fk_label_columns'] = $fkLabelColumns; // Alias label untuk header modal
             }
 
             if ($field->wmfc_field_type === 'dropdown') {
