@@ -481,6 +481,9 @@ class MasterController extends Controller
         try {
             $fkTable = $request->input('table');
             $displayColumns = $request->input('columns', []);
+            // Label columns (alias) - array parallel dengan displayColumns
+            // Nilai: "default" = gunakan nama kolom asli, string lain = alias
+            $labelColumns = $request->input('labels', []);
 
             if (!$fkTable || !is_array($displayColumns) || empty($displayColumns)) {
                 return response()->json([
@@ -515,10 +518,18 @@ class MasterController extends Controller
 
             $data = $query->get();
 
+            // Build header labels: jika label[i] === "default" atau kosong → gunakan nama kolom asli
+            $headers = [];
+            foreach ($displayColumns as $i => $col) {
+                $label = $labelColumns[$i] ?? 'default';
+                $headers[] = ($label === 'default' || trim($label) === '') ? $col : $label;
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => $data,
                 'pkColumn' => $pkColumn,
+                'headers' => $headers, // Array label header sesuai urutan displayColumns
             ]);
 
         } catch (\Exception $e) {
