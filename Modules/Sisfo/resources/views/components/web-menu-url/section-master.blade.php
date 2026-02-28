@@ -68,7 +68,7 @@
             <th width="130">Type Input</th>
             <th width="110">Kriteria</th>
             <th width="300">Validasi</th>
-            <th width="100">FK Config</th>
+            <th width="260">FK Config</th>
             <th width="190">Label Keterangan</th>
             <th width="70" class="text-center">Display List</th>
             <th width="100">Ukuran Max</th>
