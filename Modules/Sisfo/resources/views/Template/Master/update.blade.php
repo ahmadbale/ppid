@@ -234,7 +234,9 @@ $(document).ready(function() {
         const fieldName = $(this).data('column');
         const fkTable = $(this).data('fk-table');
         const rawDisplay = $(this).data('fk-display');
+        const rawLabels = $(this).data('fk-labels');
         const displayColumns = Array.isArray(rawDisplay) ? rawDisplay : JSON.parse(rawDisplay);
+        const labelColumns = Array.isArray(rawLabels) ? rawLabels : (rawLabels ? JSON.parse(rawLabels) : []);
         
         currentFkFieldEdit = fieldName;
         
@@ -242,22 +244,24 @@ $(document).ready(function() {
             url: '{{ url($menuConfig->wmu_nama) }}/getFkData',
             data: { 
                 table: fkTable,
-                columns: displayColumns 
+                columns: displayColumns,
+                labels: labelColumns
             },
             success: function(response) {
-                renderFkTableEdit(response.data, displayColumns, response.pkColumn);
+                renderFkTableEdit(response.data, displayColumns, response.headers || [], response.pkColumn);
                 $('#modalFkSearchEdit').modal('show');
             }
         });
     });
     
-    function renderFkTableEdit(data, columns, pkColumn) {
-        let headers = '<th width="50">No</th>';
-        columns.forEach(col => {
-            headers += '<th>' + col.toUpperCase() + '</th>';
+    function renderFkTableEdit(data, columns, headers, pkColumn) {
+        let headerHtml = '<th width="50">No</th>';
+        columns.forEach((col, i) => {
+            const label = (headers && headers[i] && headers[i] !== 'default') ? headers[i] : col.toUpperCase();
+            headerHtml += '<th>' + label + '</th>';
         });
-        headers += '<th width="80" class="text-center">Aksi</th>';
-        $('#fkTableHeadersEdit').html(headers);
+        headerHtml += '<th width="80" class="text-center">Aksi</th>';
+        $('#fkTableHeadersEdit').html(headerHtml);
         
         let rows = '';
         data.forEach((row, index) => {
