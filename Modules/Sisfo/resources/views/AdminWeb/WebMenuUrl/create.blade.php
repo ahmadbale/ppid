@@ -105,15 +105,20 @@ $(document).ready(function() {
 
         const baseUrl = '{{ url("management-menu-url") }}';
 
-        // Reset state
+        // Reset state - PENTING: Bersihkan semua state sebelumnya
         $('#field-configurator').hide();
         $('#fieldConfigBody').empty();
-        $('input[name="existing_menu_id"]').remove();
-        $('input[name="is_update"]').remove();
         $('#wmu_akses_tabel').removeClass('is-invalid is-valid');
-        $('#wmu_akses_tabel_error').html('').css('display', '');
+        $('#wmu_akses_tabel_error').html('').css('display', 'none'); // Explicit hide
         $('#wmu_akses_tabel_success').hide().html('').removeClass('alert alert-warning alert-success alert-danger alert-info');
         $('#btnSubmit').prop('disabled', false);
+
+        console.log('🔍 CREATE MODE - Cek Tabel:', tableName);
+        console.log('📤 Request data:', {
+            action: 'validateTable',
+            table_name: tableName,
+            menu_url_id: 'NOT SENT (CREATE MODE)'
+        });
 
         $.ajax({
             url: baseUrl,
@@ -121,11 +126,31 @@ $(document).ready(function() {
             data: { 
                 action: 'validateTable', 
                 table_name: tableName,
+                // JANGAN kirim menu_url_id di CREATE mode
                 _token: $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
             },
             dataType: 'json',
+            cache: false, // Disable AJAX cache
             success: function(res) {
-                if (!res.success && res.isDuplicate && !res.hasChanges) {
+                console.log('📥 Response received:', res);
+                console.log('isDuplicate (root):', res.isDuplicate);
+                console.log('hasChanges (root):', res.hasChanges);
+                console.log('isDuplicate (data):', res.data?.isDuplicate);
+                console.log('hasChanges (data):', res.data?.hasChanges);
+                console.log('existingMenuId:', res.existingMenuId);
+
+                // Support both root-level and nested data structure
+                const isDuplicate = res.isDuplicate || res.data?.isDuplicate || false;
+                const hasChanges = res.hasChanges || res.data?.hasChanges || false;
+                const existingMenuId = res.existingMenuId || res.data?.existingMenuId || null;
+                const existingMenuName = res.existingMenuName || res.data?.existingMenuName || null;
+
+                console.log('🎯 Final values after fallback:');
+                console.log('  isDuplicate:', isDuplicate);
+                console.log('  hasChanges:', hasChanges);
+                console.log('  existingMenuId:', existingMenuId);
+
+                if (!res.success && isDuplicate && !hasChanges) {
                     // ❌ Tabel sudah terdaftar, tanpa perubahan → BLOCK
                     $('#wmu_akses_tabel').addClass('is-invalid').removeClass('is-valid');
                     $('#wmu_akses_tabel_error').html(res.message || 'Tabel sudah terdaftar').css('display', 'block');
@@ -146,22 +171,32 @@ $(document).ready(function() {
 
                 // ✅ Tabel valid — bersihkan error
                 $('#wmu_akses_tabel').removeClass('is-invalid is-valid');
-                $('#wmu_akses_tabel_error').html('').css('display', '');
+                $('#wmu_akses_tabel_error').html('').css('display', 'none');
 
-                if (res.isDuplicate && res.hasChanges) {
-                    // ⚠️ Tabel sudah terdaftar TAPI ada perubahan → boleh daftar ulang
-                    $('#wmu_akses_tabel_success')
-                        .removeClass('alert-success alert-danger alert-info')
-                        .addClass('alert alert-warning')
-                        .html('<i class="fas fa-info-circle mr-1"></i>' + res.message)
-                        .show();
-                    // Sisipkan hidden input: existing_menu_id & is_update
-                    $('<input type="hidden" name="existing_menu_id">').val(res.existingMenuId).appendTo('#formCreate');
-                    $('<input type="hidden" name="is_update" value="1">').appendTo('#formCreate');
-                    // Render fields dari response
-                    renderFieldConfigs(res.fields || []);
+                if (isDuplicate && hasChanges) {
+                    // ⚠️ Tabel sudah terdaftar TAPI ada perubahan struktur
+                    // → Tidak bisa create ulang di sini, arahkan ke Edit
+                    console.log('🚨 KONDISI: isDuplicate + hasChanges');
+                    console.log('Existing Menu ID:', existingMenuId);
+                    console.log('Field configurator HARUS DISEMBUNYIKAN');
+                    
+                    const editUrl = '{{ url("management-menu-url/editData") }}/' + existingMenuId;
+                    $('#wmu_akses_tabel').addClass('is-invalid').removeClass('is-valid');
+                    $('#wmu_akses_tabel_error').html(
+                        'Tabel <strong>' + tableName + '</strong> sudah terdaftar sebagai menu master ' +
+                        '(<strong>' + (existingMenuName || '-') + '</strong>), namun terdeteksi perubahan struktur tabel. ' +
+                        '<br><span class="badge badge-warning mt-2 py-2 px-3" style="font-size: 13px; cursor: pointer;" onclick="modalAction(\'' + editUrl + '\')">' +
+                        '<i class="fas fa-external-link-alt mr-2"></i>Klik di sini untuk membuka halaman Edit dan memperbarui konfigurasi</span>'
+                    ).css('display', 'block');
+                    $('#wmu_akses_tabel_success').hide();
+                    $('#field-configurator').hide(); // PAKSA hide field configurator
+                    $('#fieldConfigBody').empty(); // Bersihkan isi tabel
+                    $('#btnSubmit').prop('disabled', true);
+                    btn.prop('disabled', false).html('<i class="fas fa-search"></i> Cek Tabel');
+                    return;
                 } else {
                     // ✅ Tabel baru, belum terdaftar → panggil autoGenerateFields
+                    console.log('✅ KONDISI: Tabel Baru - Generate Fields');
                     $('#wmu_akses_tabel_success')
                         .removeClass('alert-warning alert-danger alert-info')
                         .addClass('alert alert-success')
@@ -176,25 +211,32 @@ $(document).ready(function() {
                             _token: $('meta[name="csrf-token"]').attr('content') || $('input[name="_token"]').val()
                         },
                         dataType: 'json',
+                        cache: false,
                         success: function(genRes) {
+                            console.log('✅ Auto-generate fields response:', genRes);
                             if (genRes.success && genRes.data) {
                                 const fields = Array.isArray(genRes.data) ? genRes.data : Object.values(genRes.data);
+                                console.log('Rendering', fields.length, 'fields');
                                 renderFieldConfigs(fields);
                             }
                         },
                         error: function(xhr) {
+                            console.error('❌ Auto-generate error:', xhr);
                             WebMenuUrlShared.showError('Gagal Generate Field', xhr.responseJSON?.message || 'Terjadi kesalahan');
                         }
                     });
                 }
             },
             error: function(xhr) {
+                console.error('❌ Validate table error:', xhr);
                 $('#wmu_akses_tabel').addClass('is-invalid').removeClass('is-valid');
-                $('#wmu_akses_tabel_error').html(xhr.responseJSON?.message || 'Gagal mengecek tabel');
+                $('#wmu_akses_tabel_error').html(xhr.responseJSON?.message || 'Gagal mengecek tabel').css('display', 'block');
                 $('#field-configurator').hide();
+                $('#fieldConfigBody').empty();
             },
             complete: function() {
                 btn.prop('disabled', false).html('<i class="fas fa-search"></i> Cek Tabel');
+                console.log('✅ Cek Tabel completed');
             }
         });
     });
@@ -245,7 +287,7 @@ $(document).ready(function() {
             dataType: 'json',
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             success: function(res) {
-                if (res.success) {
+                if (res.success === true) {
                     $('#myModal').modal('hide');
                     setTimeout(function() {
                         $('.modal-backdrop').remove();
@@ -266,8 +308,18 @@ $(document).ready(function() {
                             }
                         });
                     }, 400);
+                } else if (res.success === false) {
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Gagal!', 
+                        text: res.message || 'Terjadi kesalahan' 
+                    });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Gagal!', text: res.message || 'Terjadi kesalahan' });
+                    Swal.fire({ 
+                        icon: 'warning', 
+                        title: 'Perhatian', 
+                        text: 'Response tidak valid dari server' 
+                    });
                 }
             },
             error: function(xhr) {
@@ -283,7 +335,11 @@ $(document).ready(function() {
                     errorList += '</ul>';
                     Swal.fire({ icon: 'warning', title: 'Validasi Gagal', html: errorList });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error!', text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server' });
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Error!', 
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server' 
+                    });
                 }
             },
             complete: function() {
