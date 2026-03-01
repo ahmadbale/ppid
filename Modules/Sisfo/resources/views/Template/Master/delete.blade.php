@@ -29,7 +29,21 @@
                                     $columnName = $field->wmfc_column_name;
                                     $value = $detailData->$columnName ?? '-';
                                     
-                                    if ($field->wmfc_field_type === 'date' && $value !== '-') {
+                                    // Untuk field FK (search), gunakan priority display column
+                                    if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_priority_display) {
+                                        $priorityCol = $field->wmfc_fk_priority_display;
+                                        $joinedKey = $columnName . '_' . $priorityCol;
+                                        if (isset($detailData->$joinedKey) && $detailData->$joinedKey !== null) {
+                                            $value = $detailData->$joinedKey;
+                                        }
+                                    }
+                                    
+                                    // Format file/media
+                                    if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $value !== '-' && !empty($value)) {
+                                        $fileName = basename($value);
+                                        $value = $fileName;
+                                    }
+                                    elseif ($field->wmfc_field_type === 'date' && $value !== '-') {
                                         $value = \Carbon\Carbon::parse($value)->format('d/m/Y');
                                     } elseif ($field->wmfc_field_type === 'date2' && $value !== '-') {
                                         $value = \Carbon\Carbon::parse($value)->format('d/m/Y H:i');
