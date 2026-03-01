@@ -157,7 +157,8 @@
                     data-fk-table="{{ $field['fk_table'] }}"
                     data-fk-pk="{{ $field['fk_pk'] }}"
                     data-fk-display="{{ json_encode($field['fk_display_columns'] ?? []) }}"
-                    data-fk-labels="{{ json_encode($field['fk_label_columns'] ?? []) }}">
+                    data-fk-labels="{{ json_encode($field['fk_label_columns'] ?? []) }}"
+                    data-fk-priority="{{ $field['fk_priority_display'] ?? '' }}">
                 <i class="fas fa-search"></i>
             </button>
             @if(!$field['is_required'])
@@ -197,52 +198,99 @@
     @endphp
 
     {{-- Media Upload (File / Gambar / Keduanya) --}}
-    <div class="custom-file">
-        <input type="file"
-               class="custom-file-input media-upload"
-               id="{{ $field['column'] }}"
-               name="{{ $field['column'] }}"
-               accept="{{ $acceptAttr }}"
-               {{ $isReadonly ? 'disabled' : '' }}
-               {{ $requiredAttr }}
-               data-column="{{ $field['column'] }}"
-               data-has-image="{{ $hasImageExt ? '1' : '0' }}"
-               data-has-file="{{ $hasFileExt ? '1' : '0' }}"
-               @if(isset($field['ukuran_max']) && $field['ukuran_max'])
-                   data-max-size="{{ $field['ukuran_max'] }}"
-               @endif>
-        <label class="custom-file-label" for="{{ $field['column'] }}">
-            {{ $acceptAttr ? 'Pilih file (' . $acceptAttr . ')' : 'Pilih file...' }}
-        </label>
-    </div>
+    <div class="media-upload-wrapper">
+        <div class="custom-file-upload-area" id="uploadArea_{{ $field['column'] }}">
+            <input type="file"
+                   class="media-upload-input"
+                   id="{{ $field['column'] }}"
+                   name="{{ $field['column'] }}"
+                   accept="{{ $acceptAttr }}"
+                   {{ $isReadonly ? 'disabled' : '' }}
+                   {{ $requiredAttr }}
+                   data-column="{{ $field['column'] }}"
+                   data-has-image="{{ $hasImageExt ? '1' : '0' }}"
+                   data-has-file="{{ $hasFileExt ? '1' : '0' }}"
+                   @if(isset($field['ukuran_max']) && $field['ukuran_max'])
+                       data-max-size="{{ $field['ukuran_max'] }}"
+                   @endif>
+            <div class="upload-placeholder" id="placeholder_{{ $field['column'] }}">
+                <div class="upload-icon">
+                    @if($isImageOnly)
+                        <i class="fas fa-image text-info"></i>
+                    @elseif(!$hasImageExt && $hasFileExt)
+                        <i class="fas fa-file-upload text-primary"></i>
+                    @else
+                        <i class="fas fa-cloud-upload-alt text-secondary"></i>
+                    @endif
+                </div>
+                <div class="upload-text">
+                    <span class="upload-main-text">Klik atau seret file ke sini</span>
+                    <span class="upload-sub-text">
+                        @if($acceptAttr)
+                            Format: {{ str_replace('.', '', $acceptAttr) }}
+                        @else
+                            Semua format file
+                        @endif
+                        @if(isset($field['ukuran_max']) && $field['ukuran_max'])
+                            &bull; Maks. {{ $field['ukuran_max'] }} MB
+                        @endif
+                    </span>
+                </div>
+            </div>
+        </div>
 
-    {{-- Preview Area --}}
-    <div class="mt-2 media-preview-area" id="preview_{{ $field['column'] }}">
-        @if($mode === 'update' && $value)
-            @php
-                $ext = strtolower(pathinfo($value, PATHINFO_EXTENSION));
-                $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']);
-            @endphp
-            @if($isImg)
-                <div class="preview-image-wrap">
-                    <img src="{{ asset('storage/' . $value) }}"
-                         alt="Preview"
-                         class="img-thumbnail"
-                         style="max-width:200px; max-height:200px;">
-                    <br><small class="text-muted">Gambar saat ini</small>
-                </div>
-            @else
-                <div class="preview-file-wrap d-flex align-items-center p-2 border rounded bg-light">
-                    <i class="fas fa-file-alt fa-2x text-secondary mr-2"></i>
-                    <div>
-                        <a href="{{ asset('storage/' . $value) }}" target="_blank" class="font-weight-bold">
-                            {{ basename($value) }}
-                        </a>
-                        <br><small class="text-muted">File saat ini</small>
+        {{-- Preview Area --}}
+        <div class="media-preview-container" id="preview_{{ $field['column'] }}">
+            @if($mode === 'update' && isset($field['existing_file']))
+                @php
+                    $existingFile = $field['existing_file'];
+                    $ext = strtolower(pathinfo($existingFile['name'], PATHINFO_EXTENSION));
+                    $isImg = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']);
+                @endphp
+                @if($isImg)
+                    <div class="preview-card preview-card-image">
+                        <div class="preview-card-thumb">
+                            <img src="{{ $existingFile['url'] }}" alt="Preview">
+                        </div>
+                        <div class="preview-card-info">
+                            <div class="preview-card-name" title="{{ $existingFile['name'] }}">{{ $existingFile['name'] }}</div>
+                            <div class="preview-card-meta">Gambar saat ini</div>
+                        </div>
+                        <div class="preview-card-actions">
+                            <a href="{{ $existingFile['url'] }}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @else
+                    @php
+                        $iconMapBlade = [
+                            'pdf' => 'fa-file-pdf text-danger',
+                            'doc' => 'fa-file-word text-primary', 'docx' => 'fa-file-word text-primary',
+                            'xls' => 'fa-file-excel text-success', 'xlsx' => 'fa-file-excel text-success',
+                            'ppt' => 'fa-file-powerpoint text-warning', 'pptx' => 'fa-file-powerpoint text-warning',
+                            'txt' => 'fa-file-alt text-secondary', 'csv' => 'fa-file-csv text-success',
+                            'zip' => 'fa-file-archive text-warning', 'rar' => 'fa-file-archive text-warning',
+                        ];
+                        $iconClass = $iconMapBlade[$ext] ?? 'fa-file text-secondary';
+                    @endphp
+                    <div class="preview-card preview-card-file">
+                        <div class="preview-card-icon">
+                            <i class="fas {{ $iconClass }} fa-2x"></i>
+                        </div>
+                        <div class="preview-card-info">
+                            <div class="preview-card-name" title="{{ $existingFile['name'] }}">{{ $existingFile['name'] }}</div>
+                            <div class="preview-card-meta">Dokumen saat ini &bull; .{{ strtoupper($ext) }}</div>
+                        </div>
+                        <div class="preview-card-actions">
+                            <a href="{{ $existingFile['url'] }}" target="_blank" class="btn btn-sm btn-outline-info" title="Buka">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endif
             @endif
-        @endif
+        </div>
     </div>
 
 @else
@@ -269,29 +317,172 @@
 {{-- End of form-group --}}
 
 @once
+@push('css')
+<style>
+/* ==========================================
+   Media Upload Styles
+   ========================================== */
+.media-upload-wrapper {
+    position: relative;
+}
+.custom-file-upload-area {
+    position: relative;
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fafbfc;
+}
+.custom-file-upload-area:hover {
+    border-color: #4299e1;
+    background: #ebf8ff;
+}
+.custom-file-upload-area.drag-over {
+    border-color: #48bb78;
+    background: #f0fff4;
+}
+.custom-file-upload-area .media-upload-input {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+.upload-icon i {
+    font-size: 28px;
+    opacity: 0.6;
+}
+.upload-main-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    display: block;
+}
+.upload-sub-text {
+    font-size: 11px;
+    color: #a0aec0;
+    display: block;
+}
+
+/* Preview Card */
+.media-preview-container {
+    margin-top: 8px;
+}
+.preview-card {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    gap: 12px;
+    margin-top: 8px;
+    transition: box-shadow 0.15s;
+}
+.preview-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.preview-card-thumb {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #f7fafc;
+}
+.preview-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.preview-card-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: #f7fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.preview-card-info {
+    flex: 1;
+    min-width: 0;
+}
+.preview-card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d3748;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.preview-card-meta {
+    font-size: 11px;
+    color: #a0aec0;
+    margin-top: 2px;
+}
+.preview-card-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 4px;
+}
+.preview-card .btn-remove-file {
+    color: #e53e3e;
+    background: none;
+    border: 1px solid #fed7d7;
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
+}
+.preview-card .btn-remove-file:hover {
+    background: #fff5f5;
+    border-color: #fc8181;
+}
+
+/* FK Search Modal Row Hover */
+.fk-row-selectable:hover, .fk-row-selectable-edit:hover {
+    background-color: #ebf8ff !important;
+}
+</style>
+@endpush
+
 @push('js')
 <script>
 /**
- * Media Upload Preview Handler
- * Menampilkan preview gambar atau info file saat user memilih file
+ * Media Upload Preview Handler — Enhanced
+ * Preview gambar + dokumen, tampilkan ukuran file (KB/MB)
  */
-$(document).on('change', '.media-upload', function() {
+$(document).on('change', '.media-upload-input', function() {
     const input = this;
     const column = $(input).data('column');
     const hasImage = $(input).data('has-image') === 1 || $(input).data('has-image') === '1';
     const hasFile = $(input).data('has-file') === 1 || $(input).data('has-file') === '1';
     const maxSizeMB = parseFloat($(input).data('max-size')) || 0;
     const $previewArea = $(`#preview_${column}`);
-    const $label = $(input).siblings('.custom-file-label');
+    const $uploadArea = $(`#uploadArea_${column}`);
 
     if (!input.files || !input.files[0]) {
         return;
     }
 
     const file = input.files[0];
-    
-    // Update label
-    $label.text(file.name);
 
     // Validasi ukuran
     if (maxSizeMB > 0) {
@@ -300,14 +491,18 @@ $(document).on('change', '.media-upload', function() {
             Swal.fire({
                 icon: 'error',
                 title: 'File Terlalu Besar',
-                text: `Ukuran file maksimal ${maxSizeMB}MB. File yang dipilih: ${fileSizeMB.toFixed(2)}MB`,
+                text: `Ukuran file maksimal ${maxSizeMB} MB. File yang dipilih: ${fileSizeMB.toFixed(2)} MB`,
             });
             input.value = '';
-            $label.text('Pilih file...');
             $previewArea.empty();
             return;
         }
     }
+
+    // Format file size
+    const sizeText = file.size >= 1024 * 1024
+        ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+        : (file.size / 1024).toFixed(1) + ' KB';
 
     const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
     const ext = file.name.split('.').pop().toLowerCase();
@@ -320,39 +515,71 @@ $(document).on('change', '.media-upload', function() {
         const reader = new FileReader();
         reader.onload = function(e) {
             $previewArea.html(`
-                <div class="preview-image-wrap mt-2">
-                    <img src="${e.target.result}" alt="Preview"
-                         class="img-thumbnail"
-                         style="max-width:200px; max-height:200px;">
-                    <br><small class="text-muted">Preview gambar baru</small>
+                <div class="preview-card preview-card-image">
+                    <div class="preview-card-thumb">
+                        <img src="${e.target.result}" alt="Preview">
+                    </div>
+                    <div class="preview-card-info">
+                        <div class="preview-card-name" title="${file.name}">${file.name}</div>
+                        <div class="preview-card-meta">${sizeText} &bull; .${ext.toUpperCase()} &bull; Gambar baru</div>
+                    </div>
+                    <div class="preview-card-actions">
+                        <button type="button" class="btn-remove-file" data-column="${column}" title="Hapus file">
+                            <i class="fas fa-times" style="font-size:12px;"></i>
+                        </button>
+                    </div>
                 </div>
             `);
         };
         reader.readAsDataURL(file);
-    } else if (!isImage && hasFile) {
-        // Preview info file/dokumen
-        const sizeText = file.size > 1024 * 1024
-            ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
-            : (file.size / 1024).toFixed(1) + ' KB';
-
+    } else {
+        // Preview dokumen
         const iconMap = {
             pdf: 'fa-file-pdf text-danger',
             doc: 'fa-file-word text-primary', docx: 'fa-file-word text-primary',
             xls: 'fa-file-excel text-success', xlsx: 'fa-file-excel text-success',
             ppt: 'fa-file-powerpoint text-warning', pptx: 'fa-file-powerpoint text-warning',
+            txt: 'fa-file-alt text-secondary', csv: 'fa-file-csv text-success',
+            zip: 'fa-file-archive text-warning', rar: 'fa-file-archive text-warning',
         };
-        const iconClass = iconMap[ext] || 'fa-file-alt text-secondary';
+        const iconClass = iconMap[ext] || 'fa-file text-secondary';
 
         $previewArea.html(`
-            <div class="preview-file-wrap d-flex align-items-center p-2 border rounded bg-light mt-2" style="max-width:300px;">
-                <i class="fas ${iconClass} fa-2x mr-2"></i>
-                <div>
-                    <div class="font-weight-bold text-truncate" style="max-width:220px;">${file.name}</div>
-                    <small class="text-muted">${sizeText}</small>
+            <div class="preview-card preview-card-file">
+                <div class="preview-card-icon">
+                    <i class="fas ${iconClass} fa-2x"></i>
+                </div>
+                <div class="preview-card-info">
+                    <div class="preview-card-name" title="${file.name}">${file.name}</div>
+                    <div class="preview-card-meta">${sizeText} &bull; .${ext.toUpperCase()} &bull; File baru</div>
+                </div>
+                <div class="preview-card-actions">
+                    <button type="button" class="btn-remove-file" data-column="${column}" title="Hapus file">
+                        <i class="fas fa-times" style="font-size:12px;"></i>
+                    </button>
                 </div>
             </div>
         `);
     }
+});
+
+// Remove file
+$(document).on('click', '.btn-remove-file', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const column = $(this).data('column');
+    const $input = $(`#${column}`);
+    $input.val('');
+    $(`#preview_${column}`).empty();
+});
+
+// Drag & Drop visual feedback
+$(document).on('dragover', '.custom-file-upload-area', function(e) {
+    e.preventDefault();
+    $(this).addClass('drag-over');
+});
+$(document).on('dragleave drop', '.custom-file-upload-area', function(e) {
+    $(this).removeClass('drag-over');
 });
 </script>
 @endpush
