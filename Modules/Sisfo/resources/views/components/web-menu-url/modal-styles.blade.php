@@ -55,6 +55,21 @@
     cursor: not-allowed !important;
     opacity: 0.8;
   }
+
+  /* ===== HIGHLIGHT ROW PERUBAHAN STRUKTUR (KUNING TERANG) ===== */
+  tr.row-changed {
+    background-color: #fffacd !important; /* Lemon Chiffon - kuning terang */
+    transition: background-color 0.3s ease;
+  }
+  tr.row-changed td {
+    background-color: #fffacd !important;
+  }
+  tr.row-changed:hover {
+    background-color: #ffeb9c !important; /* Lebih gelap saat hover */
+  }
+  tr.row-changed:hover td {
+    background-color: #ffeb9c !important;
+  }
   
   .custom-control-input:disabled ~ .custom-control-label {
     color: #ff69b4 !important;
@@ -169,6 +184,31 @@
   }
   .fk-detail-badge:hover {
     opacity: 0.85;
+  }
+
+  /* ===== FK PRIORITY SECTION ===== */
+  .fk-priority-section {
+    padding: 4px 6px;
+    background-color: #fffdf0;
+    border-radius: 0 0 3px 3px;
+  }
+
+  .fk-priority-section .fk-priority-check {
+    /* Styling khusus untuk priority checkbox */
+  }
+
+  .fk-priority-item .custom-control-label code {
+    color: #856404;
+    font-size: 0.72rem;
+  }
+
+  .fk-priority-item .custom-control-input:checked ~ .custom-control-label code {
+    color: #533f03;
+    font-weight: 700;
+  }
+
+  .fk-priority-item .custom-control-input:disabled ~ .custom-control-label code {
+    color: #6c757d;
   }
   
   /* ===== FIELD CONFIG TABLE (khusus update) ===== */

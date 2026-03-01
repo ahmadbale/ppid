@@ -37,8 +37,8 @@
 {{-- Modal FK Search --}}
 <div class="modal fade" id="modalFkSearch" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-info">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-gradient-info py-2">
                 <h5 class="modal-title text-white">
                     <i class="fas fa-search mr-2"></i>Pilih Data
                 </h5>
@@ -46,17 +46,38 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="searchFkInput" placeholder="Cari...">
+            <div class="modal-body px-3 py-3">
+                {{-- Search Input --}}
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
+                    </div>
+                    <input type="text" class="form-control" id="searchFkInput" placeholder="Ketik untuk mencari...">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-clear-search-fk" type="button" title="Hapus pencarian" style="display:none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="tableFkSearch">
-                        <thead>
+                {{-- Info Bar --}}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted" id="fkDataInfo">Menampilkan 0 data</small>
+                </div>
+                {{-- Table --}}
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-sm table-bordered table-hover table-striped mb-0" id="tableFkSearch">
+                        <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr id="fkTableHeaders"></tr>
                         </thead>
                         <tbody id="fkTableBody"></tbody>
                     </table>
+                </div>
+                {{-- Pagination --}}
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                    <small class="text-muted" id="fkPaginationInfo">Halaman 0 dari 0</small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0" id="fkPagination"></ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -86,10 +107,15 @@ $(document).ready(function() {
         // Disable button
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...');
         
+        // Use FormData for file upload support
+        const formData = new FormData(form[0]);
+        
         $.ajax({
             url: form.attr('action'),
             method: 'POST',
-            data: form.serialize(),
+            data: formData,
+            processData: false,
+            contentType: false,
             dataType: 'json',
             headers: {
                 'Accept': 'application/json',
@@ -228,6 +254,13 @@ $(document).ready(function() {
     // ==========================================
     let currentFkField = null;
     let fkSearchData = [];
+    let fkFilteredData = [];
+    let fkCurrentPage = 1;
+    const FK_PER_PAGE = 5;
+    let fkColumns = [];
+    let fkHeaders = [];
+    let fkPkColumn = '';
+    let fkPriorityCol = '';
     
     $(document).on('click', '.btn-search-fk', function() {
         const fieldName = $(this).data('column');
@@ -235,10 +268,17 @@ $(document).ready(function() {
         const fkPk = $(this).data('fk-pk');
         const rawDisplay = $(this).data('fk-display');
         const rawLabels = $(this).data('fk-labels');
+        const priorityCol = $(this).data('fk-priority') || '';
         const displayColumns = Array.isArray(rawDisplay) ? rawDisplay : (typeof rawDisplay === 'string' ? JSON.parse(rawDisplay) : []);
         const labelColumns = Array.isArray(rawLabels) ? rawLabels : (typeof rawLabels === 'string' ? JSON.parse(rawLabels) : []);
         
         currentFkField = fieldName;
+        window._currentFkPriorityCol = priorityCol;
+        
+        // Reset
+        fkCurrentPage = 1;
+        $('#searchFkInput').val('');
+        $('.btn-clear-search-fk').hide();
         
         // Load FK data
         $.ajax({
@@ -248,10 +288,22 @@ $(document).ready(function() {
                 columns: displayColumns,
                 labels: labelColumns
             },
+            beforeSend: function() {
+                $('#fkTableBody').html('<tr><td colspan="20" class="text-center py-3"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data...</td></tr>');
+                $('#fkPagination').empty();
+                $('#fkPaginationInfo').text('');
+                $('#fkDataInfo').text('Memuat...');
+                $('#modalFkSearch').modal('show');
+            },
             success: function(response) {
                 fkSearchData = response.data;
-                renderFkTable(response.data, displayColumns, response.headers || [], response.pkColumn || fkPk);
-                $('#modalFkSearch').modal('show');
+                fkFilteredData = [...fkSearchData];
+                fkColumns = displayColumns;
+                fkHeaders = response.headers || [];
+                fkPkColumn = response.pkColumn || fkPk;
+                fkPriorityCol = priorityCol;
+                fkCurrentPage = 1;
+                renderFkTablePaginated();
             },
             error: function(xhr) {
                 Swal.fire({ icon: 'error', title: 'Error', text: xhr.responseJSON?.message || 'Gagal mengambil data' });
@@ -259,47 +311,127 @@ $(document).ready(function() {
         });
     });
     
-    function renderFkTable(data, columns, headers, pkColumn) {
-        // Build headers - pakai alias jika ada, fallback ke nama kolom
-        let headerHtml = '<th width="50">No</th>';
-        columns.forEach((col, i) => {
-            const label = (headers && headers[i] && headers[i] !== 'default') ? headers[i] : col.toUpperCase();
+    function renderFkTablePaginated() {
+        // Build headers
+        let headerHtml = '<th class="text-center" style="width:45px;">No</th>';
+        fkColumns.forEach((col, i) => {
+            const label = (fkHeaders[i] && fkHeaders[i] !== 'default') ? fkHeaders[i] : col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             headerHtml += '<th>' + label + '</th>';
         });
-        headerHtml += '<th width="80" class="text-center">Aksi</th>';
+        headerHtml += '<th class="text-center" style="width:60px;">Aksi</th>';
         $('#fkTableHeaders').html(headerHtml);
+        
+        // Pagination calc
+        const totalItems = fkFilteredData.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / FK_PER_PAGE));
+        if (fkCurrentPage > totalPages) fkCurrentPage = totalPages;
+        const startIdx = (fkCurrentPage - 1) * FK_PER_PAGE;
+        const endIdx = Math.min(startIdx + FK_PER_PAGE, totalItems);
+        const pageData = fkFilteredData.slice(startIdx, endIdx);
         
         // Build rows
         let rows = '';
-        data.forEach((row, index) => {
-            rows += '<tr>';
-            rows += '<td>' + (index + 1) + '</td>';
-            columns.forEach(col => {
-                rows += '<td>' + (row[col] || '-') + '</td>';
+        if (pageData.length === 0) {
+            rows = '<tr><td colspan="' + (fkColumns.length + 2) + '" class="text-center py-4 text-muted">' +
+                   '<i class="fas fa-inbox fa-2x d-block mb-2"></i>Tidak ada data ditemukan</td></tr>';
+        } else {
+            pageData.forEach((row, index) => {
+                rows += '<tr class="fk-row-selectable" style="cursor:pointer;">';
+                rows += '<td class="text-center text-muted">' + (startIdx + index + 1) + '</td>';
+                fkColumns.forEach(col => {
+                    rows += '<td>' + (row[col] !== null && row[col] !== undefined ? row[col] : '<span class="text-muted">-</span>') + '</td>';
+                });
+                const displayVal = (fkPriorityCol && row[fkPriorityCol] !== undefined) ? row[fkPriorityCol] : (row[fkColumns[0]] || '');
+                rows += '<td class="text-center">';
+                rows += '<button type="button" class="btn btn-sm btn-success btn-select-fk rounded-circle" style="width:30px;height:30px;padding:0;" data-id="' + row[fkPkColumn] + '" data-display="' + $('<div>').text(String(displayVal)).html() + '" title="Pilih">';
+                rows += '<i class="fas fa-check" style="font-size:12px;"></i>';
+                rows += '</button></td>';
+                rows += '</tr>';
             });
-            rows += '<td class="text-center">';
-            rows += '<button type="button" class="btn btn-sm btn-success btn-select-fk" data-id="' + row[pkColumn] + '">';
-            rows += '<i class="fas fa-check"></i>';
-            rows += '</button></td>';
-            rows += '</tr>';
-        });
+        }
         $('#fkTableBody').html(rows);
+        
+        // Info text
+        if (totalItems > 0) {
+            $('#fkDataInfo').text('Menampilkan ' + (startIdx + 1) + '-' + endIdx + ' dari ' + totalItems + ' data');
+            $('#fkPaginationInfo').text('Halaman ' + fkCurrentPage + ' dari ' + totalPages);
+        } else {
+            $('#fkDataInfo').text('0 data ditemukan');
+            $('#fkPaginationInfo').text('');
+        }
+        
+        // Build pagination
+        let pagHtml = '';
+        if (totalPages > 1) {
+            pagHtml += '<li class="page-item ' + (fkCurrentPage === 1 ? 'disabled' : '') + '">';
+            pagHtml += '<a class="page-link" href="#" data-fk-page="' + (fkCurrentPage - 1) + '"><i class="fas fa-chevron-left" style="font-size:10px;"></i></a></li>';
+            
+            let startPage = Math.max(1, fkCurrentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+            
+            for (let p = startPage; p <= endPage; p++) {
+                pagHtml += '<li class="page-item ' + (p === fkCurrentPage ? 'active' : '') + '">';
+                pagHtml += '<a class="page-link" href="#" data-fk-page="' + p + '">' + p + '</a></li>';
+            }
+            
+            pagHtml += '<li class="page-item ' + (fkCurrentPage === totalPages ? 'disabled' : '') + '">';
+            pagHtml += '<a class="page-link" href="#" data-fk-page="' + (fkCurrentPage + 1) + '"><i class="fas fa-chevron-right" style="font-size:10px;"></i></a></li>';
+        }
+        $('#fkPagination').html(pagHtml);
     }
     
-    // Search FK
-    $('#searchFkInput').on('keyup', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        $('#tableFkSearch tbody tr').filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(searchTerm) > -1);
-        });
+    // Pagination click
+    $(document).on('click', '#fkPagination .page-link', function(e) {
+        e.preventDefault();
+        const page = parseInt($(this).data('fk-page'));
+        if (page && page !== fkCurrentPage) {
+            fkCurrentPage = page;
+            renderFkTablePaginated();
+        }
     });
     
-    // Select FK
-    $(document).on('click', '.btn-select-fk', function() {
+    // Search FK with debounce
+    let fkSearchTimeout = null;
+    $('#searchFkInput').on('keyup', function() {
+        const searchTerm = $(this).val().toLowerCase().trim();
+        $('.btn-clear-search-fk').toggle(searchTerm.length > 0);
+        
+        clearTimeout(fkSearchTimeout);
+        fkSearchTimeout = setTimeout(function() {
+            if (searchTerm === '') {
+                fkFilteredData = [...fkSearchData];
+            } else {
+                fkFilteredData = fkSearchData.filter(row => {
+                    return fkColumns.some(col => {
+                        const val = row[col];
+                        return val !== null && val !== undefined && String(val).toLowerCase().includes(searchTerm);
+                    });
+                });
+            }
+            fkCurrentPage = 1;
+            renderFkTablePaginated();
+        }, 200);
+    });
+    
+    // Clear search button
+    $(document).on('click', '.btn-clear-search-fk', function() {
+        $('#searchFkInput').val('').trigger('keyup').focus();
+    });
+    
+    // Select FK (click button or row)
+    $(document).on('click', '.btn-select-fk', function(e) {
+        e.stopPropagation();
         const selectedId = $(this).data('id');
+        const displayVal = $(this).data('display') || $(this).closest('tr').find('td:eq(1)').text();
         $('#' + currentFkField).val(selectedId);
-        $('#' + currentFkField + '_display').val($(this).closest('tr').find('td:eq(1)').text());
+        $('#' + currentFkField + '_display').val(displayVal);
         $('#modalFkSearch').modal('hide');
+    });
+    
+    // Click on row to select
+    $(document).on('click', '.fk-row-selectable', function() {
+        $(this).find('.btn-select-fk').click();
     });
 });
 </script>

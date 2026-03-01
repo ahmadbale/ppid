@@ -101,23 +101,9 @@ class WebMenuUrlModel extends Model
             $kategoriMenu = $request->input('web_menu_url.wmu_kategori_menu', 'custom');
             $data = $request->web_menu_url;
 
-            // ✅ CHECK: Jika ini adalah update (tabel sudah terdaftar dengan perubahan)
-            $existingMenuId = $request->input('existing_menu_id');
-            $isUpdate = $request->input('is_update', false);
-
-            if ($isUpdate && $existingMenuId) {
-                // Soft delete menu lama dan semua field configs
-                $oldMenu = self::find($existingMenuId);
-                if ($oldMenu) {
-                    $oldMenu->update(['isDeleted' => 1]);
-                    
-                    // Soft delete semua field configs
-                    WebMenuFieldConfigModel::where('fk_web_menu_url', $existingMenuId)
-                        ->update(['isDeleted' => 1]);
-                }
-            }
-
-            // Set default values berdasarkan kategori
+            // ========================================
+            // NORMAL CREATE
+            // ========================================
             if ($kategoriMenu === 'master') {
                 $data['controller_name'] = 'Template\MasterController';
                 $data['wmu_parent_id'] = null; // Master selalu parent
@@ -162,6 +148,14 @@ class WebMenuUrlModel extends Model
                     } else {
                         $fieldConfig['wmfc_fk_label_columns'] = null;
                     }
+                    
+                    // Process FK priority display column
+                    if (!empty($fieldConfig['fk_priority_display'])) {
+                        $fieldConfig['wmfc_fk_priority_display'] = $fieldConfig['fk_priority_display'];
+                    } else {
+                        $fieldConfig['wmfc_fk_priority_display'] = null;
+                    }
+                    unset($fieldConfig['fk_priority_display']);
                     
                     // Build criteria JSON (HANYA uppercase/lowercase)
                     $criteria = [];
@@ -222,20 +216,15 @@ class WebMenuUrlModel extends Model
             }
 
             // Log transaction
-            $transactionType = $isUpdate ? 'UPDATED' : 'CREATED';
             TransactionModel::createData(
-                $transactionType,
+                'CREATED',
                 $webMenuUrl->web_menu_url_id,
                 $webMenuUrl->wmu_nama
             );
 
             DB::commit();
 
-            $message = $isUpdate 
-                ? 'Konfigurasi menu berhasil diperbarui (menu lama telah di-archive)' 
-                : 'URL menu berhasil dibuat';
-
-            return self::responFormatSukses($webMenuUrl, $message);
+            return self::responFormatSukses($webMenuUrl, 'URL menu berhasil dibuat');
         } catch (\Exception $e) {
             DB::rollBack();
             return self::responFormatError($e, 'Gagal membuat URL menu');
@@ -323,6 +312,14 @@ class WebMenuUrlModel extends Model
                                     }
                                 }
                                 
+                                // Update FK priority display column
+                                if (!empty($fieldConfig['fk_priority_display'])) {
+                                    $existingField->wmfc_fk_priority_display = $fieldConfig['fk_priority_display'];
+                                } elseif (isset($fieldConfig['fk_priority_display'])) {
+                                    // Key ada tapi kosong → reset null
+                                    $existingField->wmfc_fk_priority_display = null;
+                                }
+                                
                                 $existingField->save();
                             }
                         } else {
@@ -332,6 +329,16 @@ class WebMenuUrlModel extends Model
                             $fieldConfig['wmfc_ukuran_max'] = !empty($fieldConfig['wmfc_ukuran_max']) ? (int)$fieldConfig['wmfc_ukuran_max'] : null;
                             WebMenuFieldConfigModel::createData($fieldConfig);
                         }
+                    }
+
+                    // ✅ Soft-delete field configs untuk kolom yang sudah dihapus dari tabel
+                    // Kumpulkan nama kolom yang ada di form submission
+                    $submittedColumns = array_filter(array_column($fieldsConfig, 'wmfc_column_name'));
+                    if (!empty($submittedColumns)) {
+                        WebMenuFieldConfigModel::where('fk_web_menu_url', $webMenuUrl->web_menu_url_id)
+                            ->where('isDeleted', 0)
+                            ->whereNotIn('wmfc_column_name', $submittedColumns)
+                            ->update(['isDeleted' => 1]);
                     }
                 }
             }
@@ -656,6 +663,7 @@ class WebMenuUrlModel extends Model
                             'wmfc_fk_pk_column' => $existing->wmfc_fk_pk_column ?? $generatedField['wmfc_fk_pk_column'],
                             'wmfc_fk_display_columns' => $existing->wmfc_fk_display_columns ?? $generatedField['wmfc_fk_display_columns'],
                             'wmfc_fk_label_columns' => $existing->wmfc_fk_label_columns ?? null,
+                            'wmfc_fk_priority_display' => $existing->wmfc_fk_priority_display ?? null,
                             // Available cols untuk UI checkbox: semua kolom displayable dari FK table
                             'wmfc_fk_available_cols' => $generatedField['wmfc_fk_available_cols'] ?? ($existing->wmfc_fk_display_columns ?? null),
                             'wmfc_order' => $existing->wmfc_order,
@@ -666,7 +674,6 @@ class WebMenuUrlModel extends Model
                             'wmfc_label_keterangan' => $existing->wmfc_label_keterangan,
                             'wmfc_display_list' => $existing->wmfc_display_list ?? 1,
                             'wmfc_ukuran_max' => $existing->wmfc_ukuran_max,
-                            'wmfc_type_value' => $generatedField['wmfc_type_value'] ?? null,
                         ];
                     } else {
                         Log::info("Column '{$columnName}': NEW - use generated config");
@@ -742,18 +749,14 @@ class WebMenuUrlModel extends Model
                 $hasChanges = !empty($changes['added']) || !empty($changes['removed']) || !empty($changes['modified']);
 
                 if ($hasChanges) {
-                    // Ada perubahan struktur tabel → boleh daftar ulang (delete+create)
-                    $generatedFields = self::autoGenerateFieldConfigs($tableName);
+                    // Ada perubahan struktur tabel → arahkan ke Edit
                     return [
                         'success' => true,
                         'isDuplicate' => true,
                         'hasChanges' => true,
                         'existingMenuId' => $existingMenu->web_menu_url_id,
                         'existingMenuName' => $existingMenu->wmu_nama,
-                        'changes' => $changes,
-                        'fields' => $generatedFields,
-                        'message' => "Tabel '<strong>{$tableName}</strong>' sudah terdaftar sebagai menu master (<strong>{$existingMenu->wmu_nama}</strong>), namun terdeteksi <strong>perubahan struktur tabel</strong>. Anda dapat mendaftarkan ulang (data lama akan di-archive).",
-                        'tableStructure' => $tableStructure
+                        'message' => "Tabel '{$tableName}' sudah terdaftar sebagai menu master ({$existingMenu->wmu_nama}), namun terdeteksi perubahan struktur tabel. Silakan perbarui melalui halaman Edit.",
                     ];
                 } else {
                     // Tidak ada perubahan → informasikan, tidak perlu daftar ulang
@@ -872,43 +875,29 @@ class WebMenuUrlModel extends Model
                     }, $fkDisplayColumnsObjects);
                 }
 
-                // Determine length display untuk UI (e.g., VARCHAR(200), INT(11))
-                $lengthDisplay = '';
-                if (!empty($column['data_type_full'])) {
-                    // Extract length dari tipe data untuk display
-                    if (preg_match('/\(([0-9,]+)\)/', $column['data_type_full'], $matches)) {
-                        $lengthDisplay = "({$matches[1]})";
-                    }
-                }
-                
-                // Extract ENUM/SET values if applicable - stored as JSON array
-                $typeValue = null;
-                if (in_array(strtolower($column['data_type']), ['enum', 'set'])) {
-                    // Extract values dari ENUM('val1','val2') atau SET('val1','val2')
-                    if (preg_match('/\((.*)\)/', $column['data_type_full'], $matches)) {
-                        // Parse via str_getcsv untuk handle single-quotes dengan benar
-                        $values = str_getcsv($matches[1], ',', "'");
-                        $typeValue = array_map('trim', $values); // JSON array via Eloquent cast
-                    }
-                }
+                // Determine wmfc_column_type: gunakan data_type_full langsung (uppercase)
+                // Contoh: VARCHAR(200), INT, ENUM('Disetujui','Ditolak'), TEXT
+                $columnTypeDisplay = !empty($column['data_type_full'])
+                    ? strtoupper($column['data_type_full'])
+                    : strtoupper($column['data_type']);
                 
                 $fieldConfigs[] = [
                     'wmfc_column_name' => $columnName,
-                    'wmfc_column_type' => strtoupper($column['data_type']) . $lengthDisplay,
+                    'wmfc_column_type' => $columnTypeDisplay,
                     'wmfc_field_label' => $fieldLabel,
                     'wmfc_field_type' => $fieldType,
                     'wmfc_field_type_options' => self::getFieldTypeOptions($column['data_type'], (bool)$fkInfo),
                     'wmfc_max_length' => $maxLength,
-                    'wmfc_type_value' => $typeValue,
-                    'wmfc_label_keterangan' => null, // User will fill this manually
-                    'wmfc_ukuran_max' => null, // User will fill this if field type = file/image
-                    'wmfc_display_list' => 1, // Default: show in list
+                    'wmfc_label_keterangan' => null,
+                    'wmfc_ukuran_max' => null,
+                    'wmfc_display_list' => 1,
                     'wmfc_criteria' => !empty($criteria) ? $criteria : null,
                     'wmfc_validation' => !empty($validation) ? $validation : null,
                     'wmfc_fk_table' => $fkTable,
                     'wmfc_fk_pk_column' => $fkPkColumn,
                     'wmfc_fk_display_columns' => !empty($fkDisplayColumns) ? $fkDisplayColumns : null,
-                    'wmfc_fk_label_columns' => null, // Default: pakai nama kolom asli (user isi manual)
+                    'wmfc_fk_label_columns' => null,
+                    'wmfc_fk_priority_display' => !empty($fkDisplayColumns) ? $fkDisplayColumns[0] : null,
                     // Available cols dari FK table untuk UI checkbox (tidak disimpan ke DB)
                     'wmfc_fk_available_cols' => !empty($fkDisplayColumns) ? $fkDisplayColumns : null,
                     'wmfc_order' => $order++,

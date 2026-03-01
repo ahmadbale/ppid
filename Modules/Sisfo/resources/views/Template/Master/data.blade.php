@@ -33,12 +33,26 @@
                                     $columnName = $field->wmfc_column_name;
                                     $value = $row->$columnName ?? '-';
                                     
+                                    // Untuk field FK (search), gunakan priority display column
+                                    if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_priority_display) {
+                                        $priorityCol = $field->wmfc_fk_priority_display;
+                                        $joinedKey = $columnName . '_' . $priorityCol;
+                                        if (isset($row->$joinedKey) && $row->$joinedKey !== null) {
+                                            $value = $row->$joinedKey;
+                                        }
+                                    }
+                                    
+                                    // Format file/media - tampilkan nama file saja
+                                    if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $value !== '-' && !empty($value)) {
+                                        $fileName = basename($value);
+                                        $value = '<i class="fas fa-file mr-1"></i>' . $fileName;
+                                    }
                                     // Format date
-                                    if (in_array($field->wmfc_field_type, ['date', 'date2']) && $value !== '-') {
+                                    elseif (in_array($field->wmfc_field_type, ['date', 'date2']) && $value !== '-') {
                                         $value = \Carbon\Carbon::parse($value)->format('d/m/Y');
                                     }
                                 @endphp
-                                {{ $value }}
+                                {!! $value !!}
                             </td>
                         @endif
                     @endforeach

@@ -168,9 +168,13 @@ class ValidationHelper
             if (is_object($field)) {
                 $columnName = $field->wmfc_column_name;
                 $label = $field->wmfc_field_label;
+                $fieldType = $field->wmfc_field_type ?? null;
+                $ukuranMax = $field->wmfc_ukuran_max ?? null;
             } else {
                 $columnName = $field['wmfc_column_name'] ?? null;
                 $label = $field['wmfc_field_label'] ?? null;
+                $fieldType = $field['wmfc_field_type'] ?? null;
+                $ukuranMax = $field['wmfc_ukuran_max'] ?? null;
             }
 
             // Skip if column name or label not found
@@ -180,7 +184,14 @@ class ValidationHelper
 
             $messages["{$columnName}.required"] = "{$label} wajib diisi";
             $messages["{$columnName}.unique"] = "{$label} sudah digunakan";
-            $messages["{$columnName}.max"] = "{$label} maksimal :max karakter";
+            
+            // Custom message untuk file upload (media/file/gambar)
+            if (in_array($fieldType, ['media', 'file', 'gambar']) && $ukuranMax) {
+                $messages["{$columnName}.max"] = "{$label} maksimal {$ukuranMax} MB";
+            } else {
+                $messages["{$columnName}.max"] = "{$label} maksimal :max karakter";
+            }
+            
             $messages["{$columnName}.min"] = "{$label} minimal :min karakter";
             $messages["{$columnName}.email"] = "{$label} harus berupa email yang valid";
             $messages["{$columnName}.numeric"] = "{$label} harus berupa angka";

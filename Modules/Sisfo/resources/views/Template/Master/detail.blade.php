@@ -19,8 +19,37 @@
                             $columnName = $field->wmfc_column_name;
                             $value = $detailData->$columnName ?? '-';
                             
+                            // Untuk field FK (search), gunakan priority display column
+                            if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_priority_display) {
+                                $priorityCol = $field->wmfc_fk_priority_display;
+                                $joinedKey = $columnName . '_' . $priorityCol;
+                                if (isset($detailData->$joinedKey) && $detailData->$joinedKey !== null) {
+                                    $value = $detailData->$joinedKey;
+                                }
+                            }
+                            
                             // Format berdasarkan tipe field
-                            if ($field->wmfc_field_type === 'date' && $value !== '-') {
+                            if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $value !== '-' && !empty($value)) {
+                                $fileUrl = asset('storage/' . $value);
+                                $fileName = basename($value);
+                                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']);
+                                
+                                if ($isImage) {
+                                    $value = '<div class="mb-2">
+                                        <img src="' . $fileUrl . '" alt="' . $fileName . '" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">
+                                    </div>
+                                    <a href="' . $fileUrl . '" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="fas fa-download mr-1"></i>Download
+                                    </a>
+                                    <small class="d-block mt-1 text-muted">' . $fileName . '</small>';
+                                } else {
+                                    $value = '<a href="' . $fileUrl . '" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="fas fa-download mr-1"></i>Download File
+                                    </a>
+                                    <small class="d-block mt-1 text-muted">' . $fileName . '</small>';
+                                }
+                            } elseif ($field->wmfc_field_type === 'date' && $value !== '-') {
                                 $value = \Carbon\Carbon::parse($value)->format('d/m/Y');
                             } elseif ($field->wmfc_field_type === 'date2' && $value !== '-') {
                                 $value = \Carbon\Carbon::parse($value)->format('d/m/Y H:i');

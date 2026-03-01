@@ -28,8 +28,8 @@ class WebMenuFieldConfigModel extends Model
         'wmfc_fk_pk_column',
         'wmfc_fk_display_columns',
         'wmfc_fk_label_columns',
+        'wmfc_fk_priority_display',
         'wmfc_max_length',
-        'wmfc_type_value',
         'wmfc_label_keterangan',
         'wmfc_ukuran_max',
         'wmfc_display_list',
@@ -45,7 +45,6 @@ class WebMenuFieldConfigModel extends Model
         'wmfc_criteria' => 'array',
         'wmfc_fk_display_columns' => 'array',
         'wmfc_fk_label_columns' => 'array',
-        'wmfc_type_value' => 'array',
         'wmfc_is_primary_key' => 'boolean',
         'wmfc_is_auto_increment' => 'boolean',
         'wmfc_is_visible' => 'boolean',
@@ -122,9 +121,10 @@ class WebMenuFieldConfigModel extends Model
         try {
             DB::beginTransaction();
 
-            $allowedTypes = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio', 'search', 'file', 'gambar'];
+            // ✅ FIX: Tambahkan 'media' ke allowed types (konsisten dengan validasiData di line 196)
+            $allowedTypes = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio', 'search', 'media', 'file', 'gambar'];
             if (!in_array($data['wmfc_field_type'], $allowedTypes)) {
-                throw new \Exception("Tipe field '{$data['wmfc_field_type']}' tidak valid");
+                throw new \Exception("Tipe field '{$data['wmfc_field_type']}' tidak valid. Allowed: " . implode(', ', $allowedTypes));
             }
             
             // Auto-generate label keterangan jika 'auto'
@@ -340,6 +340,40 @@ class WebMenuFieldConfigModel extends Model
     {
         $text = 'tk ' . strtolower($data['wmfc_field_label'] ?? '');
         
+        // Get field type
+        $fieldType = $data['wmfc_field_type'] ?? 'text';
+        
+        // Parse validation data
+        $validation = is_string($data['wmfc_validation'] ?? null)
+            ? json_decode($data['wmfc_validation'], true)
+            : ($data['wmfc_validation'] ?? []);
+        
+        // Special handling for media/file/gambar fields
+        if (in_array($fieldType, ['media', 'file', 'gambar'])) {
+            // Required status
+            if (!empty($validation['required'])) {
+                $text .= ' wajib diisi';
+            }
+            
+            // Format/MIME types
+            if (!empty($validation['mimes'])) {
+                $text .= ' dengan format ' . $validation['mimes'];
+            } else {
+                $text .= ' bisa untuk semua type';
+            }
+            
+            // File size
+            $ukuranMax = $data['wmfc_ukuran_max'] ?? null;
+            if ($ukuranMax) {
+                $text .= ' dengan max ' . $ukuranMax . ' mb';
+            } else {
+                $text .= ' tanpa batas ukuran';
+            }
+            
+            return $text;
+        }
+        
+        // Default behavior for non-media fields
         // [Tipe Input]
         $typeMap = [
             'text' => 'bisa semua karakter',
@@ -349,11 +383,9 @@ class WebMenuFieldConfigModel extends Model
             'date2' => 'pilih rentang tanggal',
             'dropdown' => 'pilih dari daftar pilihan',
             'radio' => 'pilih salah satu opsi',
-            'search' => 'cari dan pilih data',
-            'file' => 'upload file dokumen',
-            'gambar' => 'upload file gambar'
+            'search' => 'cari dan pilih data'
         ];
-        $text .= ' ' . ($typeMap[$data['wmfc_field_type']] ?? 'bisa semua karakter');
+        $text .= ' ' . ($typeMap[$fieldType] ?? 'bisa semua karakter');
         
         // [Kriteria]
         $criteria = is_string($data['wmfc_criteria'] ?? null) 
@@ -369,10 +401,6 @@ class WebMenuFieldConfigModel extends Model
         }
         
         // [Validasi]
-        $validation = is_string($data['wmfc_validation'] ?? null)
-            ? json_decode($data['wmfc_validation'], true)
-            : ($data['wmfc_validation'] ?? []);
-            
         $validations = [];
         if (!empty($validation['required'])) $validations[] = 'harus diisi';
         if (!empty($validation['email'])) $validations[] = 'format email';

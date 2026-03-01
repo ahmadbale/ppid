@@ -24,17 +24,17 @@ window.WebMenuUrlShared = {
   buildChangesDetailHtml: function(changes) {
     let html = '<div style="text-align: left;">';
     
-    // Added columns
+    // Kolom baru ditambahkan
     if (changes.added && changes.added.length > 0) {
       html += '<h6 class="text-success"><i class="fas fa-plus-circle"></i> Kolom Baru Ditambahkan (' + changes.added.length + '):</h6>';
       html += '<ul>';
       changes.added.forEach(col => {
-        html += '<li><strong>' + col.column_name + '</strong> (' + col.column_type + ')</li>';
+        html += '<li><strong>' + col.column_name + '</strong> (' + (col.data_type || col.column_type || '-') + ')</li>';
       });
       html += '</ul><hr>';
     }
     
-    // Modified columns
+    // Kolom yang tipe datanya berubah
     if (changes.modified && changes.modified.length > 0) {
       html += '<h6 class="text-warning"><i class="fas fa-edit"></i> Kolom yang Berubah (' + changes.modified.length + '):</h6>';
       html += '<ul>';
@@ -44,12 +44,12 @@ window.WebMenuUrlShared = {
       html += '</ul><hr>';
     }
     
-    // Removed columns
+    // Kolom yang dihapus dari tabel
     if (changes.removed && changes.removed.length > 0) {
       html += '<h6 class="text-danger"><i class="fas fa-minus-circle"></i> Kolom yang Dihapus (' + changes.removed.length + '):</h6>';
       html += '<ul>';
       changes.removed.forEach(col => {
-        html += '<li><strong>' + col.column_name + '</strong> (' + col.column_type + ')</li>';
+        html += '<li><strong>' + col.column_name + '</strong> (' + (col.data_type || col.column_type || '-') + ')</li>';
       });
       html += '</ul>';
     }
@@ -292,8 +292,28 @@ window.WebMenuUrlShared = {
         `;
       });
 
-      // Build tooltip info: tabel + PK + kolom yang dipilih
-      const tooltipInfo = `Tabel: ${field.wmfc_fk_table} | PK: ${field.wmfc_fk_pk_column}${fkDisplayCols.length ? ' | Kolom: ' + fkDisplayCols.join(', ') : ''}`;
+      // Priority display section
+      const currentPriority = field.wmfc_fk_priority_display || (fkDisplayCols.length > 0 ? fkDisplayCols[0] : (fkAvailableCols[0] || ''));
+      let priorityCheckboxesHtml = '';
+      // Will be populated dynamically, but render initial state for currently checked cols
+      const checkedCols = fkDisplayCols.length > 0 ? fkDisplayCols : fkAvailableCols;
+      checkedCols.forEach((col, i) => {
+        const isPriority = col === currentPriority;
+        const isSingleChecked = checkedCols.length === 1;
+        priorityCheckboxesHtml += `
+          <div class="custom-control custom-checkbox custom-control-inline fk-priority-item" data-col="${col}">
+            <input type="checkbox" class="custom-control-input fk-priority-check"
+                   id="fk_priority_${index}_${i}"
+                   name="fk_priority_${index}"
+                   data-index="${index}" data-col="${col}"
+                   ${isPriority ? 'checked' : ''}
+                   ${isSingleChecked ? 'disabled' : ''}>
+            <label class="custom-control-label" for="fk_priority_${index}_${i}">
+              <code style="font-size:0.72rem;">${col}</code>
+            </label>
+          </div>
+        `;
+      });
 
       fkConfigHtml = `
         <div class="d-flex align-items-center mb-1" style="gap:4px;">
@@ -322,6 +342,13 @@ window.WebMenuUrlShared = {
                     <input type="hidden" name="field_configs[${index}][fk_label_cols][]" value="${lbl}">`;
           }).join('')}
         </div>
+        <div class="fk-priority-section mt-1 p-1" id="fk_priority_section_${index}" style="border-top: 1px dashed #adb5bd;">
+          <small class="text-muted d-block mb-1" style="font-size:0.7rem;"><i class="fas fa-star text-warning" style="font-size:0.65rem;"></i> Tampilkan sebagai:</small>
+          <div class="fk-priority-checkboxes" id="fk_priority_checks_${index}">
+            ${priorityCheckboxesHtml}
+          </div>
+        </div>
+        <input type="hidden" name="field_configs[${index}][fk_priority_display]" id="fk_priority_hidden_${index}" value="${currentPriority}">
       `;
     } else {
       fkConfigHtml = '<span class="badge badge-secondary">Tidak Ada</span>';
@@ -689,11 +716,81 @@ $(document).ready(function() {
     $hiddenDiv.html(displayInputs);
   }
 
+  /**
+   * Re-render priority checkboxes berdasarkan kolom yang saat ini tercentang
+   */
+  function updateFkPrioritySection(index) {
+    const $container = $(`#fk_col_container_${index}`);
+    const $priorityChecks = $(`#fk_priority_checks_${index}`);
+    const $priorityHidden = $(`#fk_priority_hidden_${index}`);
+    
+    // Kumpulkan kolom yang tercentang
+    const checkedCols = [];
+    $container.find('.fk-col-check:checked').each(function() {
+      checkedCols.push($(this).data('col'));
+    });
+    
+    // Dapatkan priority yang sedang aktif
+    const currentPriority = $priorityHidden.val() || '';
+    
+    // Render ulang priority checkboxes
+    let html = '';
+    const isSingle = checkedCols.length === 1;
+    checkedCols.forEach((col, i) => {
+      const isPriority = (col === currentPriority) || (i === 0 && !checkedCols.includes(currentPriority));
+      html += `
+        <div class="custom-control custom-checkbox custom-control-inline fk-priority-item" data-col="${col}">
+          <input type="checkbox" class="custom-control-input fk-priority-check"
+                 id="fk_priority_${index}_${i}"
+                 name="fk_priority_${index}"
+                 data-index="${index}" data-col="${col}"
+                 ${isPriority ? 'checked' : ''}
+                 ${isSingle ? 'disabled' : ''}>
+          <label class="custom-control-label" for="fk_priority_${index}_${i}">
+            <code style="font-size:0.72rem;">${col}</code>
+          </label>
+        </div>
+      `;
+    });
+    
+    $priorityChecks.html(html);
+    
+    // Update hidden value: pilih yang tercentang, atau fallback ke col pertama
+    const checkedPriority = checkedCols.find(col => col === currentPriority) || checkedCols[0] || '';
+    $priorityHidden.val(checkedPriority);
+  }
+
   // Toggle alias section saat checkbox kolom di-check/uncheck
   $(document).on('change', '.fk-col-check', function() {
     const index = $(this).data('index');
     const colIdx = $(this).data('col-idx');
+    const col = $(this).data('col');
     const isChecked = $(this).prop('checked');
+    const $container = $(`#fk_col_container_${index}`);
+    
+    // ===== Poin 2: Minimal 1 checkbox harus tercentang =====
+    if (!isChecked) {
+      const checkedCount = $container.find('.fk-col-check:checked').length;
+      if (checkedCount === 0) {
+        // Batalkan uncheck, kembalikan ke checked
+        $(this).prop('checked', true);
+        
+        // Tampilkan tooltip peringatan
+        const $label = $(this).closest('.custom-control').find('label');
+        const colName = $label.find('code').text() || col;
+        
+        // Gunakan Bootstrap tooltip sementara
+        $(this).attr('data-toggle', 'tooltip')
+               .attr('data-placement', 'right')
+               .attr('title', `Kolom ${colName} tidak bisa diuncentang karena harus ada minimal 1 kolom yang dipilih`);
+        if (!$(this).data('bs.tooltip')) {
+          $(this).tooltip({ trigger: 'manual', placement: 'right' });
+        }
+        $(this).tooltip('show');
+        setTimeout(() => $(this).tooltip('hide'), 2500);
+        return; // Stop processing
+      }
+    }
     
     const $aliasSection = $(`#fk_alias_sec_${index}_${colIdx}`);
     const $aliasInput = $(`#fk_alias_input_${index}_${colIdx}`);
@@ -710,6 +807,7 @@ $(document).ready(function() {
     }
     
     updateFkHiddenInputs(index);
+    updateFkPrioritySection(index);
   });
 
   // Toggle input alias saat radio alias/default berubah
@@ -733,6 +831,36 @@ $(document).ready(function() {
   $(document).on('input', '.fk-alias-input', function() {
     const index = $(this).data('index');
     updateFkHiddenInputs(index);
+  });
+
+  // ===== Poin 3: Priority display checkbox handler =====
+  $(document).on('change', '.fk-priority-check', function() {
+    const index = $(this).data('index');
+    const col = $(this).data('col');
+    const isChecked = $(this).prop('checked');
+    const $priorityChecks = $(`#fk_priority_checks_${index}`);
+    const $priorityHidden = $(`#fk_priority_hidden_${index}`);
+    
+    if (isChecked) {
+      // Uncheck semua yang lain (hanya 1 yang boleh tercentang)
+      $priorityChecks.find('.fk-priority-check').not(this).prop('checked', false);
+      $priorityHidden.val(col);
+    } else {
+      // Tidak boleh uncheck jika hanya 1 yang tercentang
+      const checkedCount = $priorityChecks.find('.fk-priority-check:checked').length;
+      if (checkedCount === 0) {
+        $(this).prop('checked', true); // Kembalikan
+        
+        $(this).attr('data-toggle', 'tooltip')
+               .attr('data-placement', 'right')
+               .attr('title', 'Harus ada 1 kolom priority yang dipilih');
+        if (!$(this).data('bs.tooltip')) {
+          $(this).tooltip({ trigger: 'manual', placement: 'right' });
+        }
+        $(this).tooltip('show');
+        setTimeout(() => $(this).tooltip('hide'), 2000);
+      }
+    }
   });
 
   // Handle max length validation - auto clamp to column max length

@@ -108,30 +108,67 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.success) {
                     const hasChanges = res.hasChanges || res.data?.hasChanges || false;
+                    const changes = res.changes || res.data?.changes || {};
 
                     if (hasChanges) {
-                        // Ada perubahan struktur → info + disable update
-                        const changesHtml = WebMenuUrlShared.buildChangesDetailHtml(res.changes || res.data?.changes || {});
+                        // ⚠️ Ada perubahan struktur → tampilkan info + render field configs baru dengan highlight
+                        const changesHtml = WebMenuUrlShared.buildChangesDetailHtml(changes);
                         $('#alertTableInfo')
                             .removeClass('alert-info alert-success alert-danger')
                             .addClass('alert alert-warning')
-                            .show();
-                        $('#alertTableIcon').attr('class', 'fas fa-info-circle mr-2');
+                            .css('display', 'block');
+                        $('#alertTableIcon').attr('class', 'fas fa-exclamation-triangle mr-2');
                         $('#alertTableInfoText').html(
                             '<strong>Terdeteksi perubahan struktur tabel!</strong>' +
-                            '<br>Perubahan tidak dapat disimpan langsung. Silakan buat menu baru untuk mendaftarkan ulang.' +
+                            '<br>Silakan periksa dan sesuaikan konfigurasi field di bawah, lalu klik Update untuk menyimpan.' +
                             changesHtml
                         );
-                        // Sembunyikan field config, disable tombol Update
-                        $('#fieldConfigsSection').hide();
-                        $('#btnUpdate').prop('disabled', true);
+
+                        // Kumpulkan nama kolom yang berubah (added, modified)
+                        const changedColumns = [];
+                        if (changes.added) changes.added.forEach(c => changedColumns.push(c.column_name));
+                        if (changes.modified) changes.modified.forEach(c => changedColumns.push(c.column_name));
+                        
+                        console.log('Changed columns for highlight:', changedColumns);
+
+                        // Render field configs dari data merge (existing + baru)
+                        const fields = res.fields || res.data?.fields || [];
+                        if (fields.length > 0) {
+                            $('#tbodyFieldConfigs').empty();
+                            fields.forEach(function(field, index) {
+                                try {
+                                    const rowHtml = WebMenuUrlShared.createFieldRow(field, index);
+                                    // 🟡 createFieldRow returns HTML STRING, bukan jQuery object
+                                    // Jadi kita perlu convert ke jQuery dulu sebelum addClass
+                                    const $row = $(rowHtml);
+                                    
+                                    // Highlight baris yang berubah (added/modified) dengan background kuning terang
+                                    if (changedColumns.includes(field.wmfc_column_name)) {
+                                        $row.addClass('row-changed');
+                                        console.log('✅ Highlighting row:', field.wmfc_column_name);
+                                    } else {
+                                        console.log('⚪ Not highlighting:', field.wmfc_column_name);
+                                    }
+                                    
+                                    $('#tbodyFieldConfigs').append($row);
+                                } catch (e) {
+                                    console.error('Error creating row for ' + field.wmfc_column_name, e);
+                                }
+                            });
+                            $('#fieldConfigsSection').show();
+                            WebMenuUrlShared.initializeFieldTypeValidations();
+                            $('[data-toggle="tooltip"]').tooltip({ html: true });
+                        }
+
+                        // Enable tombol Update agar user bisa simpan perubahan
+                        $('#btnUpdate').prop('disabled', false);
                     } else {
                         // Tidak ada perubahan → tampilkan field config, enable update
                         $('#alertTableInfo')
                             .removeClass('alert-warning alert-danger')
                             .addClass('alert alert-success')
-                            .show();
-                        $('#alertTableIcon').attr('class', 'fas fa-info-circle mr-2');
+                            .css('display', 'block');
+                        $('#alertTableIcon').attr('class', 'fas fa-check-circle mr-2');
                         $('#alertTableInfoText').html(
                             '<strong>Tabel ditemukan dan struktur tidak berubah.</strong>'
                         );
@@ -161,8 +198,8 @@ $(document).ready(function() {
                     $('#alertTableInfo')
                         .removeClass('alert-info alert-success alert-warning')
                         .addClass('alert alert-danger')
-                        .show();
-                    $('#alertTableIcon').attr('class', 'fas fa-info-circle mr-2');
+                        .css('display', 'block');
+                    $('#alertTableIcon').attr('class', 'fas fa-exclamation-circle mr-2');
                     $('#alertTableInfoText').html(res.message || 'Tabel tidak ditemukan');
                     // Sembunyikan field config, disable update
                     $('#fieldConfigsSection').hide();
@@ -202,7 +239,7 @@ $(document).ready(function() {
             dataType: 'json',
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             success: function(res) {
-                if (res.success) {
+                if (res.success === true) {
                     $('#myModal').modal('hide');
                     setTimeout(function() {
                         $('.modal-backdrop').remove();
@@ -223,8 +260,18 @@ $(document).ready(function() {
                             }
                         });
                     }, 400);
+                } else if (res.success === false) {
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Gagal!', 
+                        text: res.message || 'Terjadi kesalahan' 
+                    });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Gagal!', text: res.message || 'Terjadi kesalahan' });
+                    Swal.fire({ 
+                        icon: 'warning', 
+                        title: 'Perhatian', 
+                        text: 'Response tidak valid dari server' 
+                    });
                 }
             },
             error: function(xhr) {
@@ -240,7 +287,11 @@ $(document).ready(function() {
                     errorList += '</ul>';
                     Swal.fire({ icon: 'warning', title: 'Validasi Gagal', html: errorList });
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error!', text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server' });
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Error!', 
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan pada server' 
+                    });
                 }
             },
             complete: function() {
@@ -250,14 +301,18 @@ $(document).ready(function() {
     });
 
     // ==========================================
-    // MODAL SHOWN - Reset state
+    // MODAL SHOWN - Reset state (JANGAN re-enable btnUpdate jika hasChanges)
     // ==========================================
     $(document).off('shown.bs.modal', '#myModal').on('shown.bs.modal', '#myModal', function() {
-        $('#btnUpdate').prop('disabled', false);
+        // Hanya re-enable btnUpdate jika alert TIDAK dalam status warning (hasChanges)
+        if (!$('#alertTableInfo').is(':visible') || !$('#alertTableInfo').hasClass('alert-warning')) {
+            $('#btnUpdate').prop('disabled', false);
+        }
     });
 
     // ==========================================
     // INPUT CHANGE - Clear validation errors (hanya pada input form, bukan alert)
+    // Alert #alertTableInfo TIDAK boleh dihilangkan oleh event ini
     // ==========================================
     $(document).on('input change', '#formUpdate input, #formUpdate select, #formUpdate textarea', function() {
         $(this).removeClass('is-invalid');
