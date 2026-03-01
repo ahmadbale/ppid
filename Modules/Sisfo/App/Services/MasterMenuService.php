@@ -72,7 +72,40 @@ class MasterMenuService
                     $fieldRules[] = 'file';
                     // Tambahkan validasi mimes jika ada format yang dikonfigurasi
                     if (!empty($validation['mimes'])) {
-                        $fieldRules[] = 'mimes:' . $validation['mimes'];
+                        $mimes = $validation['mimes'];
+                        
+                        // Map extensions ke MIME types untuk better compatibility
+                        $mimeMap = [
+                            'pdf' => 'application/pdf,application/x-pdf,application/octet-stream',
+                            'doc' => 'application/msword,application/octet-stream',
+                            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/octet-stream',
+                            'xls' => 'application/vnd.ms-excel,application/octet-stream',
+                            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/octet-stream',
+                            'ppt' => 'application/vnd.ms-powerpoint,application/octet-stream',
+                            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation,application/octet-stream',
+                            'jpg' => 'image/jpeg',
+                            'jpeg' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'gif' => 'image/gif',
+                            'webp' => 'image/webp',
+                            'svg' => 'image/svg+xml',
+                        ];
+                        
+                        // Parse extensions
+                        $exts = array_map('trim', explode(',', $mimes));
+                        $mimeTypes = [];
+                        
+                        foreach ($exts as $ext) {
+                            if (isset($mimeMap[$ext])) {
+                                $mimeTypes[] = $mimeMap[$ext];
+                            }
+                        }
+                        
+                        // HANYA gunakan mimetypes untuk validasi (lebih reliable di Windows)
+                        // Rule 'mimes' di Laravel tetap cek MIME type, bukan cuma extension
+                        if (!empty($mimeTypes)) {
+                            $fieldRules[] = 'mimetypes:' . implode(',', $mimeTypes);
+                        }
                     }
                     // Tambahkan validasi ukuran max jika dikonfigurasi (dalam KB, ukuran_max dalam MB)
                     if (!empty($field->wmfc_ukuran_max)) {
@@ -165,12 +198,13 @@ class MasterMenuService
                     continue;
                 }
 
-                $fkPkColumn = DB::table('web_menu_field_config as wmfc')
-                    ->join('web_menu_url as wmu', 'wmfc.fk_web_menu_url', '=', 'wmu.web_menu_url_id')
-                    ->where('wmu.wmu_akses_tabel', $fkTable)
-                    ->where('wmfc.wmfc_is_primary_key', 1)
-                    ->where('wmfc.isDeleted', 0)
-                    ->value('wmfc.wmfc_column_name');
+                // Gunakan wmfc_fk_pk_column yang sudah tersimpan di field config
+                $fkPkColumn = $field->wmfc_fk_pk_column ?? null;
+
+                // Fallback: cari PK dari DatabaseSchemaService jika wmfc_fk_pk_column kosong
+                if (!$fkPkColumn) {
+                    $fkPkColumn = \Modules\Sisfo\App\Services\DatabaseSchemaService::getPrimaryKey($fkTable);
+                }
 
                 if (!$fkPkColumn) {
                     continue;
@@ -185,6 +219,12 @@ class MasterMenuService
 
                 foreach ($displayColumns as $displayCol) {
                     $selectColumns[] = "{$fkTable}.{$displayCol} as {$columnName}_{$displayCol}";
+                }
+                
+                // Jika priority display column tidak ada di displayColumns, tambahkan ke SELECT
+                $priorityCol = $field->wmfc_fk_priority_display ?? null;
+                if ($priorityCol && !in_array($priorityCol, $displayColumns)) {
+                    $selectColumns[] = "{$fkTable}.{$priorityCol} as {$columnName}_{$priorityCol}";
                 }
             }
         }
@@ -230,6 +270,18 @@ class MasterMenuService
                 'ukuran_max' => $field->wmfc_ukuran_max ?? null,
                 'mimes' => $validation['mimes'] ?? null,
             ];
+            
+            // Handle media/file type - tambahkan file info untuk existing data
+            if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $existingData) {
+                $filePath = $existingData->{$field->wmfc_column_name} ?? null;
+                if (!empty($filePath)) {
+                    $fieldData['existing_file'] = [
+                        'path' => $filePath,
+                        'url' => asset('storage/' . $filePath),
+                        'name' => basename($filePath),
+                    ];
+                }
+            }
 
             if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_table) {
                 // ✅ FIX: Ensure fk_display_columns is array
@@ -244,18 +296,39 @@ class MasterMenuService
                     $fkLabelColumns = json_decode($fkLabelColumns, true) ?? [];
                 }
                 
-                // ✅ FIX: Get FK table's primary key
-                $fkPkColumn = DB::table('web_menu_field_config as wmfc')
-                    ->join('web_menu_url as wmu', 'wmfc.fk_web_menu_url', '=', 'wmu.web_menu_url_id')
-                    ->where('wmu.wmu_akses_tabel', $field->wmfc_fk_table)
-                    ->where('wmfc.wmfc_is_primary_key', 1)
-                    ->where('wmfc.isDeleted', 0)
-                    ->value('wmfc.wmfc_column_name');
+                // ✅ FIX: Get FK table's primary key from stored wmfc_fk_pk_column
+                $fkPkColumn = $field->wmfc_fk_pk_column ?? null;
+                
+                // Fallback: cari PK dari DatabaseSchemaService jika wmfc_fk_pk_column kosong
+                if (!$fkPkColumn) {
+                    $fkPkColumn = \Modules\Sisfo\App\Services\DatabaseSchemaService::getPrimaryKey($field->wmfc_fk_table);
+                }
                 
                 $fieldData['fk_table'] = $field->wmfc_fk_table;
                 $fieldData['fk_pk'] = $fkPkColumn ?? 'id'; // Default to 'id' if not found
                 $fieldData['fk_display_columns'] = $fkDisplayColumns;
                 $fieldData['fk_label_columns'] = $fkLabelColumns; // Alias label untuk header modal
+                $fieldData['fk_priority_display'] = $field->wmfc_fk_priority_display ?? ($fkDisplayColumns[0] ?? null);
+                
+                // Build display_value untuk edit form (tampilkan nilai kolom priority, bukan ID)
+                $priorityCol = $field->wmfc_fk_priority_display ?? ($fkDisplayColumns[0] ?? null);
+                if ($existingData && $priorityCol) {
+                    $fkTable = $field->wmfc_fk_table;
+                    $fkId = $existingData->{$field->wmfc_column_name} ?? null;
+                    
+                    if ($fkId !== null && $fkId !== '' && $fkTable) {
+                        // Cek apakah data sudah di-join (key: columnName_priorityCol)
+                        $joinedKey = $field->wmfc_column_name . '_' . $priorityCol;
+                        if (isset($existingData->$joinedKey) && $existingData->$joinedKey !== null) {
+                            $fieldData['display_value'] = $existingData->$joinedKey;
+                        } else {
+                            // Fallback: query langsung
+                            $fkPkCol = $fkPkColumn ?? 'id';
+                            $fkRow = DB::table($fkTable)->where($fkPkCol, $fkId)->first();
+                            $fieldData['display_value'] = $fkRow ? ($fkRow->$priorityCol ?? $fkId) : $fkId;
+                        }
+                    }
+                }
             }
 
             if ($field->wmfc_field_type === 'dropdown') {
