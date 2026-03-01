@@ -5,13 +5,13 @@ namespace Modules\Sisfo\App\Http\Controllers\Template;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Sisfo\App\Services\MasterMenuService;
 use Modules\Sisfo\App\Services\DatabaseSchemaService;
+use Modules\Sisfo\App\Services\MediaStorageService;
 use Modules\Sisfo\App\Models\Website\WebMenuFieldConfigModel;
 use Modules\Sisfo\App\Helpers\ValidationHelper;
 use Modules\Sisfo\App\Http\Controllers\TraitsController;
@@ -155,19 +155,10 @@ class MasterController extends Controller
     public function addData()
     {
         try {
-            Log::info('========================================');
-            Log::info('🟢 MasterController::addData() - START');
-            Log::info('Menu URL ID: ' . $this->menuConfig->web_menu_url_id);
-            Log::info('Table Name: ' . $this->tableName);
-            Log::info('PK Column: ' . $this->pkColumn);
-            
             $formFields = MasterMenuService::buildFormFields(
                 $this->menuConfig->web_menu_url_id,
                 null
             );
-            
-            Log::info('Form Fields Count: ' . count($formFields));
-            Log::info('Form Fields:', $formFields);
 
             $data = [
                 'pageTitle' => 'Tambah ' . $this->generatePageTitle(),
@@ -178,20 +169,9 @@ class MasterController extends Controller
                 'pkColumn' => $this->pkColumn,
                 'action' => 'create',
             ];
-            
-            Log::info('✅ MasterController::addData() - SUCCESS');
-            Log::info('========================================');
 
             return view('sisfo::Template.Master.create', $data);
         } catch (\Exception $e) {
-            Log::error('========================================');
-            Log::error('❌ MasterController::addData() - ERROR');
-            Log::error('Message: ' . $e->getMessage());
-            Log::error('File: ' . $e->getFile());
-            Log::error('Line: ' . $e->getLine());
-            Log::error('Trace: ' . $e->getTraceAsString());
-            Log::error('========================================');
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat membuka form tambah data',
@@ -231,12 +211,12 @@ class MasterController extends Controller
             
             $data = $request->only($fieldColumns);
             
-            // Handle file uploads
+            // Handle file uploads dengan hash dan folder per tabel
             foreach ($this->fieldConfigs as $field) {
-                if (in_array($field->wmfc_field_type, ['file', 'image']) && $request->hasFile($field->wmfc_column_name)) {
+                if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $request->hasFile($field->wmfc_column_name)) {
                     $file = $request->file($field->wmfc_column_name);
-                    $path = $file->store('uploads', 'public');
-                    $data[$field->wmfc_column_name] = $path;
+                    $hashedPath = MediaStorageService::uploadFile($file, $this->tableName);
+                    $data[$field->wmfc_column_name] = $hashedPath;
                 }
             }
 
@@ -333,10 +313,10 @@ class MasterController extends Controller
             
             $data = $request->only($fieldColumns);
             
-            // Handle file uploads
+            // Handle file uploads dengan hash dan folder per tabel
             foreach ($this->fieldConfigs as $field) {
-                if (in_array($field->wmfc_field_type, ['file', 'image']) && $request->hasFile($field->wmfc_column_name)) {
-                    // Delete old file if exists
+                if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $request->hasFile($field->wmfc_column_name)) {
+                    // Hapus file lama jika ada
                     $existingData = MasterMenuService::getDetailData(
                         $this->tableName,
                         $id,
@@ -345,13 +325,13 @@ class MasterController extends Controller
                     );
                     
                     if ($existingData && !empty($existingData->{$field->wmfc_column_name})) {
-                        Storage::disk('public')->delete($existingData->{$field->wmfc_column_name});
+                        MediaStorageService::deleteFile($existingData->{$field->wmfc_column_name});
                     }
                     
-                    // Upload new file
+                    // Upload file baru dengan hash
                     $file = $request->file($field->wmfc_column_name);
-                    $path = $file->store('uploads', 'public');
-                    $data[$field->wmfc_column_name] = $path;
+                    $hashedPath = MediaStorageService::uploadFile($file, $this->tableName);
+                    $data[$field->wmfc_column_name] = $hashedPath;
                 }
             }
 
@@ -452,6 +432,24 @@ class MasterController extends Controller
 
         try {
             DB::beginTransaction();
+            
+            // Hapus file terkait sebelum soft delete
+            $existingData = MasterMenuService::getDetailData(
+                $this->tableName,
+                $id,
+                $this->menuConfig->web_menu_url_id,
+                $this->pkColumn
+            );
+            
+            if ($existingData) {
+                foreach ($this->fieldConfigs as $field) {
+                    if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar'])) {
+                        if (!empty($existingData->{$field->wmfc_column_name})) {
+                            MediaStorageService::deleteFile($existingData->{$field->wmfc_column_name});
+                        }
+                    }
+                }
+            }
             
             $deleted = MasterMenuService::deleteData(
                 $this->tableName,
