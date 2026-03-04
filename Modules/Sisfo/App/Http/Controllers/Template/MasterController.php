@@ -211,9 +211,21 @@ class MasterController extends Controller
             
             $data = $request->only($fieldColumns);
             
+            // Encode type rentang (*2) → JSON sebelum simpan ke database
+            foreach ($this->fieldConfigs as $field) {
+                if (in_array($field->wmfc_field_type, ['date2', 'datetime2', 'time2', 'year2'])) {
+                    $col = $field->wmfc_column_name;
+                    $start = $request->input($col . '_start');
+                    $end   = $request->input($col . '_end');
+                    if ($start !== null || $end !== null) {
+                        $data[$col] = json_encode(['start' => $start, 'end' => $end]);
+                    }
+                }
+            }
+            
             // Handle file uploads dengan hash dan folder per tabel
             foreach ($this->fieldConfigs as $field) {
-                if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $request->hasFile($field->wmfc_column_name)) {
+                if ($field->wmfc_field_type === 'media' && $request->hasFile($field->wmfc_column_name)) {
                     $file = $request->file($field->wmfc_column_name);
                     $hashedPath = MediaStorageService::uploadFile($file, $this->tableName);
                     $data[$field->wmfc_column_name] = $hashedPath;
@@ -313,9 +325,21 @@ class MasterController extends Controller
             
             $data = $request->only($fieldColumns);
             
+            // Encode type rentang (*2) → JSON sebelum simpan ke database
+            foreach ($this->fieldConfigs as $field) {
+                if (in_array($field->wmfc_field_type, ['date2', 'datetime2', 'time2', 'year2'])) {
+                    $col = $field->wmfc_column_name;
+                    $start = $request->input($col . '_start');
+                    $end   = $request->input($col . '_end');
+                    if ($start !== null || $end !== null) {
+                        $data[$col] = json_encode(['start' => $start, 'end' => $end]);
+                    }
+                }
+            }
+            
             // Handle file uploads dengan hash dan folder per tabel
             foreach ($this->fieldConfigs as $field) {
-                if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $request->hasFile($field->wmfc_column_name)) {
+                if ($field->wmfc_field_type === 'media' && $request->hasFile($field->wmfc_column_name)) {
                     // Hapus file lama jika ada
                     $existingData = MasterMenuService::getDetailData(
                         $this->tableName,
@@ -443,7 +467,7 @@ class MasterController extends Controller
             
             if ($existingData) {
                 foreach ($this->fieldConfigs as $field) {
-                    if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar'])) {
+                    if ($field->wmfc_field_type === 'media') {
                         if (!empty($existingData->{$field->wmfc_column_name})) {
                             MediaStorageService::deleteFile($existingData->{$field->wmfc_column_name});
                         }
