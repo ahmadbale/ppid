@@ -162,6 +162,13 @@ window.MenuMasterShared = {
         $(document).on('input change', 'input, select, textarea', function () {
             $(this).removeClass('is-invalid');
             $(this).siblings('.invalid-feedback').html('');
+
+            // Untuk input range (_start/_end), bersihkan juga error di induk
+            const name = $(this).attr('name') || '';
+            if (name.endsWith('_start') || name.endsWith('_end')) {
+                const baseField = name.replace(/_start$/, '').replace(/_end$/, '');
+                $('#error-' + baseField).html('').hide();
+            }
         });
     },
 
@@ -476,7 +483,22 @@ window.MenuMasterShared = {
                             const $input = $('[name="' + field + '"]');
                             $input.addClass('is-invalid');
                             $('#' + field + '_display').addClass('is-invalid');
-                            $('#error-' + field).html(messages[0]).css('display', 'block');
+
+                            // Untuk _start/_end: tampilkan error di elemen induk (kolom asli)
+                            let errorElemId = field;
+                            if (field.endsWith('_start') || field.endsWith('_end')) {
+                                const baseField = field.replace(/_start$/, '').replace(/_end$/, '');
+                                errorElemId = baseField;
+                                $('[name="' + baseField + '_start"]').addClass('is-invalid');
+                                $('[name="' + baseField + '_end"]').addClass('is-invalid');
+                            }
+                            const $errElem = $('#error-' + errorElemId);
+                            const existing = $errElem.html();
+                            if (existing) {
+                                $errElem.append('<br>' + messages[0]).css('display', 'block');
+                            } else {
+                                $errElem.html(messages[0]).css('display', 'block');
+                            }
                         });
 
                         let errorMsg = '<ul class="text-left mb-0">';
@@ -511,6 +533,25 @@ window.MenuMasterShared = {
     },
 
     // ==================================================
+    // TIME / DATE INPUT — Klik ikon kanan membuka picker
+    // ==================================================
+    initTimeInputs: function () {
+        // Klik pada addon ikon di kanan → focus & showPicker pada input
+        $(document).on('click', '.time-icon-addon', function () {
+            const $input = $(this).closest('.input-group').find('.time-input-field');
+            if ($input.length) {
+                $input.focus();
+                try {
+                    $input[0].showPicker();
+                } catch (_) {
+                    // fallback untuk browser lama
+                    $input[0].click();
+                }
+            }
+        });
+    },
+
+    // ==================================================
     // INISIALISASI SEMUA FITUR SEKALIGUS
     // mode: 'create' atau 'update'
     // menuUrl: slug URL menu (contoh: 'm-testing')
@@ -519,6 +560,7 @@ window.MenuMasterShared = {
         this.initMediaUpload();
         this.initCriteriaTransform();
         this.initValidationErrorRemover();
+        this.initTimeInputs();
         this.initFkSearch(mode, menuUrl);
         this.initFormSubmit(mode);
     },
