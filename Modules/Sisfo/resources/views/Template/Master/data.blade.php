@@ -43,7 +43,7 @@
                                     }
                                     
                                     // Format file/media - tampilkan nama file saja
-                                    if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $value !== '-' && !empty($value)) {
+                                    if ($field->wmfc_field_type === 'media' && $value !== '-' && !empty($value)) {
                                         $fileName = basename($value);
                                         $value = '<i class="fas fa-file mr-1"></i>' . $fileName;
                                     }
