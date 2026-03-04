@@ -17,7 +17,9 @@ return new class extends Migration
         // Kolom tambahan
         $table->enum('testing_lolos', ['Disetujui', 'Ditolak'])->nullable();
         $table->string('testing_bukti', 100)->nullable();
-        $table->timestamp('testing_pelakanaan')->nullable();
+        $table->json('testing_pelakanaan')->nullable();
+        $table->time('testing_jam')->nullable();
+        $table->year('testing_tahun')->nullable();
         $table->timestamp('testing_fix')->nullable();
 
         $table->tinyInteger('isDeleted')->default(0);

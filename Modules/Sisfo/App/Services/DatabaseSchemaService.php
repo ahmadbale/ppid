@@ -193,9 +193,17 @@ class DatabaseSchemaService
                 return 'number';
 
             case 'date':
+                return 'date';
+
             case 'datetime':
             case 'timestamp':
-                return 'date';
+                return 'datetime';
+
+            case 'time':
+                return 'time';
+
+            case 'year':
+                return 'year';
 
             case 'enum':
                 return 'dropdown';
@@ -204,6 +212,9 @@ class DatabaseSchemaService
             case 'mediumtext':
             case 'longtext':
                 return 'textarea';
+
+            case 'json':
+                return 'date2'; // default rentang, user bisa ganti ke datetime2/time2/year2
 
             case 'varchar':
             case 'char':

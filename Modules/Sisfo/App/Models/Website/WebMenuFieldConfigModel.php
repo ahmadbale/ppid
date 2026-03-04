@@ -122,7 +122,7 @@ class WebMenuFieldConfigModel extends Model
             DB::beginTransaction();
 
             // ✅ FIX: Tambahkan 'media' ke allowed types (konsisten dengan validasiData di line 196)
-            $allowedTypes = ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio', 'search', 'media', 'file', 'gambar'];
+            $allowedTypes = ['text', 'textarea', 'number', 'date', 'datetime', 'time', 'year', 'date2', 'datetime2', 'time2', 'year2', 'dropdown', 'radio', 'search', 'media'];
             if (!in_array($data['wmfc_field_type'], $allowedTypes)) {
                 throw new \Exception("Tipe field '{$data['wmfc_field_type']}' tidak valid. Allowed: " . implode(', ', $allowedTypes));
             }
@@ -194,7 +194,7 @@ class WebMenuFieldConfigModel extends Model
         $rules = [
             'field_configs.*.wmfc_column_name' => 'required|max:100',
             'field_configs.*.wmfc_field_label' => 'required|max:255',
-            'field_configs.*.wmfc_field_type' => 'required|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar',
+            'field_configs.*.wmfc_field_type' => 'required|in:text,textarea,number,date,datetime,time,year,date2,datetime2,time2,year2,dropdown,radio,search,media',
             'field_configs.*.wmfc_order' => 'nullable|integer|min:0',
             'field_configs.*.wmfc_is_primary_key' => 'nullable|boolean',
             'field_configs.*.wmfc_is_auto_increment' => 'nullable|boolean',
@@ -348,8 +348,8 @@ class WebMenuFieldConfigModel extends Model
             ? json_decode($data['wmfc_validation'], true)
             : ($data['wmfc_validation'] ?? []);
         
-        // Special handling for media/file/gambar fields
-        if (in_array($fieldType, ['media', 'file', 'gambar'])) {
+        // Special handling for media fields
+        if (in_array($fieldType, ['media'])) {
             // Required status
             if (!empty($validation['required'])) {
                 $text .= ' wajib diisi';
@@ -376,14 +376,20 @@ class WebMenuFieldConfigModel extends Model
         // Default behavior for non-media fields
         // [Tipe Input]
         $typeMap = [
-            'text' => 'bisa semua karakter',
-            'textarea' => 'bisa semua karakter dengan format panjang',
-            'number' => 'hanya bisa input angka',
-            'date' => 'pilih tanggal dari kalender',
-            'date2' => 'pilih rentang tanggal',
-            'dropdown' => 'pilih dari daftar pilihan',
-            'radio' => 'pilih salah satu opsi',
-            'search' => 'cari dan pilih data'
+            'text'      => 'bisa semua karakter',
+            'textarea'  => 'bisa semua karakter dengan format panjang',
+            'number'    => 'hanya bisa input angka',
+            'date'      => 'pilih tanggal dari kalender',
+            'datetime'  => 'pilih tanggal dan waktu dari kalender',
+            'time'      => 'pilih waktu (jam:menit)',
+            'year'      => 'input tahun (4 digit)',
+            'date2'     => 'pilih rentang tanggal',
+            'datetime2' => 'pilih rentang tanggal dan waktu',
+            'time2'     => 'pilih rentang waktu',
+            'year2'     => 'pilih rentang tahun',
+            'dropdown'  => 'pilih dari daftar pilihan',
+            'radio'     => 'pilih salah satu opsi',
+            'search'    => 'cari dan pilih data'
         ];
         $text .= ' ' . ($typeMap[$fieldType] ?? 'bisa semua karakter');
         

@@ -446,4 +446,77 @@
 .fk-row-selectable-edit:hover {
     background-color: #ebf8ff !important;
 }
+
+/* ==========================================================
+   TIME / DATE INPUT WRAPPER (single & range)
+   ========================================================== */
+/* Input group dengan ikon di sebelah kanan */
+.time-input-group {
+    flex-wrap: nowrap;
+}
+.time-input-group .time-input-field {
+    cursor: pointer;
+    border-right: none;         /* hilangkan border kanan agar menyatu dengan addon */
+    border-radius: 4px 0 0 4px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.time-input-group .time-input-field:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    z-index: 3;
+}
+/* Addon ikon di kanan — pointer agar terasa klikable */
+.time-icon-addon {
+    background: #f8f9fa;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0 10px;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+.time-input-group:focus-within .time-icon-addon {
+    border-color: #80bdff;
+    background: #e8f4ff;
+    color: #0069d9;
+}
+
+/* Range container — susun "Dari" dan "s/d" secara vertikal dengan pemisah */
+.range-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.range-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.range-input-label-col {
+    flex: 0 0 36px;
+    text-align: right;
+}
+.range-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #495057;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 2px 6px;
+    white-space: nowrap;
+}
+.range-input-col {
+    flex: 1;
+}
+/* Pemisah panah bawah antar baris range */
+.range-input-divider {
+    text-align: center;
+    padding: 0 0 0 44px;
+    font-size: 11px;
+    color: #adb5bd;
+    line-height: 1;
+}
 </style>

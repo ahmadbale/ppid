@@ -59,18 +59,8 @@ class ValidationHelper
                 $rules[] = 'string';
                 break;
                 
-            case 'file':
+            case 'media':
                 $rules[] = 'file';
-                // Add max size if specified (in KB)
-                if (!empty($validation['ukuran_max'])) {
-                    $rules[] = 'max:' . $validation['ukuran_max'];
-                }
-                break;
-                
-            case 'image':
-                $rules[] = 'image';
-                // Allowed extensions
-                $rules[] = 'mimes:jpeg,png,jpg,gif,svg';
                 // Add max size if specified (in KB)
                 if (!empty($validation['ukuran_max'])) {
                     $rules[] = 'max:' . $validation['ukuran_max'];
@@ -182,11 +172,31 @@ class ValidationHelper
                 continue;
             }
 
+            // Tipe rentang (*2) — validasi pada _start dan _end
+            $rangeTypes = ['date2', 'datetime2', 'time2', 'year2'];
+            if (in_array($fieldType, $rangeTypes)) {
+                $messages["{$columnName}_start.required"]         = "{$label} (Dari) wajib diisi";
+                $messages["{$columnName}_start.date"]             = "{$label} (Dari) harus berupa tanggal yang valid";
+                $messages["{$columnName}_start.integer"]          = "{$label} (Dari) harus berupa angka";
+                $messages["{$columnName}_start.min"]              = "{$label} (Dari) minimal :min";
+                $messages["{$columnName}_start.max"]              = "{$label} (Dari) maksimal :max";
+                $messages["{$columnName}_start.regex"]            = "{$label} (Dari) format waktu tidak valid";
+                $messages["{$columnName}_end.required"]           = "{$label} (s/d) wajib diisi";
+                $messages["{$columnName}_end.date"]               = "{$label} (s/d) harus berupa tanggal yang valid";
+                $messages["{$columnName}_end.integer"]            = "{$label} (s/d) harus berupa angka";
+                $messages["{$columnName}_end.min"]                = "{$label} (s/d) minimal :min";
+                $messages["{$columnName}_end.max"]                = "{$label} (s/d) maksimal :max";
+                $messages["{$columnName}_end.regex"]              = "{$label} (s/d) format waktu tidak valid";
+                $messages["{$columnName}_end.after_or_equal"]     = "{$label} (s/d) tidak boleh sebelum tanggal awal";
+                $messages["{$columnName}_end.gte"]                = "{$label} (s/d) tidak boleh kurang dari nilai awal";
+                continue;
+            }
+
             $messages["{$columnName}.required"] = "{$label} wajib diisi";
             $messages["{$columnName}.unique"] = "{$label} sudah digunakan";
             
-            // Custom message untuk file upload (media/file/gambar)
-            if (in_array($fieldType, ['media', 'file', 'gambar']) && $ukuranMax) {
+            // Custom message untuk file upload (media)
+            if ($fieldType === 'media' && $ukuranMax) {
                 $messages["{$columnName}.max"] = "{$label} maksimal {$ukuranMax} MB";
             } else {
                 $messages["{$columnName}.max"] = "{$label} maksimal :max karakter";

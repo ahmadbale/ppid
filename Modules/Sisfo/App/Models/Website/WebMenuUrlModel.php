@@ -439,13 +439,13 @@ class WebMenuUrlModel extends Model
                 $rules['field_configs'] = 'required|array|min:1';
                 $rules['field_configs.*.wmfc_column_name'] = 'required|string|max:100';
                 $rules['field_configs.*.wmfc_field_label'] = 'required|string|max:255';
-                $rules['field_configs.*.wmfc_field_type'] = 'required|string|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar';
+                $rules['field_configs.*.wmfc_field_type'] = 'required|string|in:text,textarea,number,date,datetime,time,year,date2,datetime2,time2,year2,dropdown,radio,search,media';
             } elseif ($request->has('field_configs')) {
                 // Update dengan field_configs → validasi isi-nya
                 $rules['field_configs'] = 'nullable|array';
                 $rules['field_configs.*.wmfc_column_name'] = 'required_with:field_configs|string|max:100';
                 $rules['field_configs.*.wmfc_field_label'] = 'required_with:field_configs|string|max:255';
-                $rules['field_configs.*.wmfc_field_type'] = 'required_with:field_configs|string|in:text,textarea,number,date,date2,dropdown,radio,search,media,file,gambar';
+                $rules['field_configs.*.wmfc_field_type'] = 'required_with:field_configs|string|in:text,textarea,number,date,datetime,time,year,date2,datetime2,time2,year2,dropdown,radio,search,media';
             }
 
             $messages['web_menu_url.wmu_akses_tabel.required'] = 'Nama tabel wajib diisi untuk menu master';

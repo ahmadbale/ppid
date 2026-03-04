@@ -17,8 +17,9 @@ class DatabaseSchemaHelper
      * Field types yang didukung oleh Template Master
      */
     const SUPPORTED_FIELD_TYPES = [
-        'text', 'textarea', 'number', 'date', 'date2', 
-        'dropdown', 'radio', 'search', 'file', 'image'
+        'text', 'textarea', 'number', 'date', 'datetime', 'time', 'year',
+        'date2', 'datetime2', 'time2', 'year2',
+        'dropdown', 'radio', 'search', 'media'
     ];
 
     /**

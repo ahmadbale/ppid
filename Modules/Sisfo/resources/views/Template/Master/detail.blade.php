@@ -29,7 +29,7 @@
                             }
                             
                             // Format berdasarkan tipe field
-                            if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $value !== '-' && !empty($value)) {
+                            if ($field->wmfc_field_type === 'media' && $value !== '-' && !empty($value)) {
                                 $fileUrl = asset('storage/' . $value);
                                 $fileName = basename($value);
                                 $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));

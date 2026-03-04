@@ -153,25 +153,45 @@ User Request → Laravel Router → CheckDynamicRoute (middleware)
 
 | Tipe Data MySQL | Opsi Field Type | Keterangan |
 |----------------|----------------|-----------|
-| `varchar`, `char`, `tinytext` | `text`, `textarea`, `media` | String pendek |
+| `varchar`, `char` | `text`, `textarea`, `date2`, `datetime2`, `time2`, `year2`, `media` | String / rentang waktu berbagai jenis |
 | `text`, `mediumtext`, `longtext` | `textarea` | String panjang |
 | `int`, `bigint`, `decimal`, `float`, `double` | `number` | Angka |
-| `date`, `datetime`, `timestamp` | `date`, `date2` | Tanggal / rentang tanggal |
+| `date` | `date` | Hanya tanggal tunggal |
+| `datetime`, `timestamp` | `datetime` | Tanggal + waktu tunggal |
+| `time` | `time` | Waktu (jam:menit) tunggal |
+| `year` | `year` | Tahun 4-digit tunggal |
+| `json` | `date2` *(default, bisa diganti ke datetime2/time2/year2)* | Rentang waktu disimpan JSON |
 | `enum` | `dropdown`, `radio` | Pilihan tetap dari ENUM values |
-| Kolom FK (terdeteksi constraint) | `search`, `dropdown`, `radio` | Pencarian data dari tabel referensi |
+| Kolom FK (terdeteksi constraint) | `search` | Pencarian data dari tabel referensi |
 
-### Tipe Field Khusus
-| Tipe | Keterangan |
-|------|-----------|
-| `text` | Input teks satu baris |
-| `textarea` | Input teks multi-baris |
-| `number` | Input angka |
-| `date` | Date picker tunggal |
-| `date2` | Date range picker (rentang tanggal) |
-| `dropdown` | Select dropdown (untuk ENUM atau FK) |
-| `radio` | Radio button (untuk ENUM atau FK) |
-| `search` | Modal pencarian FK dengan tabel data |
-| `media` / `file` / `gambar` | Upload file (diperlakukan sama sebagai tipe `media`) |
+### Tipe Field Lengkap
+| Tipe | Input HTML | DB Column | Keterangan |
+|------|-----------|-----------|-----------|
+| `text` | `<input type="text">` | varchar | Input teks satu baris |
+| `textarea` | `<textarea>` | text/varchar | Input teks multi-baris |
+| `number` | `<input type="number">` | int/decimal/dll | Input angka |
+| `date` | `<input type="date">` | DATE | Date picker tunggal |
+| `datetime` | `<input type="datetime-local">` | DATETIME/TIMESTAMP | Tanggal + waktu tunggal |
+| `time` | `<input type="time">` | TIME | Waktu (jam:menit) tunggal |
+| `year` | `<input type="number" min="1901" max="2155">` | YEAR | Tahun 4-digit |
+| `date2` | 2x `<input type="date">` (_start/_end) | VARCHAR/JSON | Rentang tanggal → disimpan JSON `{"start":"...","end":"..."}` |
+| `datetime2` | 2x `<input type="datetime-local">` (_start/_end) | VARCHAR/JSON | Rentang tanggal+waktu → JSON |
+| `time2` | 2x `<input type="time">` (_start/_end) | VARCHAR/JSON | Rentang waktu → JSON |
+| `year2` | 2x `<input type="number">` (_start/_end) | VARCHAR/JSON | Rentang tahun → JSON |
+| `dropdown` | `<select>` | enum/FK | Pilihan dropdown |
+| `radio` | `<input type="radio">` | enum/FK | Radio button |
+| `search` | Modal table | FK integer | Modal pencarian FK |
+| `media` | `<input type="file">` | varchar | Upload file/gambar |
+
+### Penyimpanan Tipe Rentang (*2)
+Tipe `date2`, `datetime2`, `time2`, `year2` menyimpan data sebagai JSON di kolom varchar/json:
+```json
+{"start": "2024-01-01", "end": "2024-12-31"}
+```
+- **Encode**: Controller (`MasterController`) encode `_start`+`_end` → JSON sebelum simpan ke `$data`
+- **Decode**: `buildFormFields()` di `MasterMenuService` decode JSON → `value_start`/`value_end` untuk form edit
+- **Validasi backend**: Rule `string` (karena sudah JSON-encoded)
+- **Input suffix**: `{column_name}_start` dan `{column_name}_end`
 
 ---
 
