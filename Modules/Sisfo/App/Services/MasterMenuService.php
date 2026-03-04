@@ -63,12 +63,47 @@ class MasterMenuService
                     $fieldRules[] = 'numeric';
                     break;
                 case 'date':
-                case 'date2':
                     $fieldRules[] = 'date';
                     break;
+                case 'datetime':
+                    $fieldRules[] = 'date';
+                    break;
+                case 'time':
+                    // HH:MM atau HH:MM:SS
+                    $fieldRules[] = 'regex:/^\d{1,2}:\d{2}(:\d{2})?$/';
+                    break;
+                case 'year':
+                    $fieldRules[] = 'integer';
+                    $fieldRules[] = 'min:1901';
+                    $fieldRules[] = 'max:2155';
+                    break;
+                case 'date2':
+                case 'datetime2':
+                case 'time2':
+                case 'year2':
+                    // Validasi pada _start dan _end secara terpisah (form mengirim 2 field)
+                    // Encode JSON dilakukan di controller SETELAH validasi, jadi validasi harus
+                    // dilakukan pada {col}_start dan {col}_end — bukan kolom aslinya
+                    $isRequired = !empty($validation['required']);
+                    $baseRule   = $isRequired ? ['required'] : ['nullable'];
+
+                    if (in_array($field->wmfc_field_type, ['year2'])) {
+                        $rules[$columnName . '_start'] = array_merge($baseRule, ['integer', 'min:1901', 'max:2155']);
+                        $rules[$columnName . '_end']   = array_merge($baseRule, ['integer', 'min:1901', 'max:2155', "gte:{$columnName}_start"]);
+                    } elseif (in_array($field->wmfc_field_type, ['date2'])) {
+                        $rules[$columnName . '_start'] = array_merge($baseRule, ['date']);
+                        $rules[$columnName . '_end']   = array_merge($baseRule, ['date', "after_or_equal:{$columnName}_start"]);
+                    } elseif (in_array($field->wmfc_field_type, ['datetime2'])) {
+                        $rules[$columnName . '_start'] = array_merge($baseRule, ['date']);
+                        $rules[$columnName . '_end']   = array_merge($baseRule, ['date', "after_or_equal:{$columnName}_start"]);
+                    } else {
+                        // time2
+                        $rules[$columnName . '_start'] = array_merge($baseRule, ['regex:/^\d{1,2}:\d{2}(:\d{2})?$/']);
+                        $rules[$columnName . '_end']   = array_merge($baseRule, ['regex:/^\d{1,2}:\d{2}(:\d{2})?$/', "after_or_equal:{$columnName}_start"]);
+                    }
+                    // Skip menambahkan rule ke $rules[$columnName] (tidak ada di request)
+                    continue 2;
                 case 'media':
-                case 'file':   // backward compat
-                case 'gambar': // backward compat
                     $fieldRules[] = 'file';
                     // Tambahkan validasi mimes jika ada format yang dikonfigurasi
                     if (!empty($validation['mimes'])) {
@@ -258,7 +293,7 @@ class MasterMenuService
             $fieldData = [
                 'column' => $field->wmfc_column_name,
                 'label' => $field->wmfc_field_label,
-                // Normalisasi tipe lama 'file'/'gambar' → 'media'
+                // Normalisasi tipe lama 'file'/'gambar' → 'media' (backward compat DB lama)
                 'type' => in_array($field->wmfc_field_type, ['file', 'gambar']) ? 'media' : $field->wmfc_field_type,
                 'value' => $existingData->{$field->wmfc_column_name} ?? null,
                 'validation' => $validation,
@@ -270,9 +305,22 @@ class MasterMenuService
                 'ukuran_max' => $field->wmfc_ukuran_max ?? null,
                 'mimes' => $validation['mimes'] ?? null,
             ];
+
+            // Decode nilai JSON untuk type rentang (*2) saat mode update
+            $rangeTypes = ['date2', 'datetime2', 'time2', 'year2'];
+            if (in_array($field->wmfc_field_type, $rangeTypes) && $existingData) {
+                $rawValue = $existingData->{$field->wmfc_column_name} ?? null;
+                if ($rawValue) {
+                    $decoded = is_string($rawValue) ? json_decode($rawValue, true) : $rawValue;
+                    if (is_array($decoded) && isset($decoded['start'], $decoded['end'])) {
+                        $fieldData['value_start'] = $decoded['start'];
+                        $fieldData['value_end']   = $decoded['end'];
+                    }
+                }
+            }
             
-            // Handle media/file type - tambahkan file info untuk existing data
-            if (in_array($field->wmfc_field_type, ['media', 'file', 'gambar']) && $existingData) {
+            // Handle media type - tambahkan file info untuk existing data
+            if ($field->wmfc_field_type === 'media' && $existingData) {
                 $filePath = $existingData->{$field->wmfc_column_name} ?? null;
                 if (!empty($filePath)) {
                     $fieldData['existing_file'] = [
