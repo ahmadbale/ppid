@@ -128,16 +128,21 @@ window.WebMenuUrlShared = {
     
     // [Tipe Input]
     const typeMap = {
-      'text': 'bisa semua karakter',
-      'textarea': 'bisa semua karakter dengan format panjang',
-      'number': 'hanya bisa input angka',
-      'date': 'pilih tanggal dari kalender',
-      'date2': 'pilih rentang tanggal',
-      'dropdown': 'pilih dari daftar pilihan',
-      'radio': 'pilih salah satu opsi',
-      'search': 'cari dan pilih data',
-      'file': 'upload file dokumen',
-      'gambar': 'upload file gambar'
+      'text':      'bisa semua karakter',
+      'textarea':  'bisa semua karakter dengan format panjang',
+      'number':    'hanya bisa input angka',
+      'date':      'pilih tanggal dari kalender',
+      'datetime':  'pilih tanggal dan waktu dari kalender',
+      'time':      'pilih waktu (jam:menit)',
+      'year':      'input tahun (4 digit)',
+      'date2':     'pilih rentang tanggal',
+      'datetime2': 'pilih rentang tanggal dan waktu',
+      'time2':     'pilih rentang waktu',
+      'year2':     'pilih rentang tahun',
+      'dropdown':  'pilih dari daftar pilihan',
+      'radio':     'pilih salah satu opsi',
+      'search':    'cari dan pilih data',
+      'media':     'upload file atau gambar'
     };
     text += ` ${typeMap[fieldData.type] || 'bisa semua karakter'}`;
     
@@ -181,23 +186,54 @@ window.WebMenuUrlShared = {
     
     let typeOptionsHtml = '';
     const typeLabels = {
-      text: 'Text',
-      textarea: 'Textarea',
-      number: 'Number',
-      date: 'Date',
-      date2: 'Date Range',
-      dropdown: 'Dropdown',
-      radio: 'Radio',
-      search: 'Search (FK)',
-      media: 'Media'
+      text:      'Text',
+      textarea:  'Textarea',
+      number:    'Number',
+      date:      'Date',
+      datetime:  'DateTime',
+      time:      'Time',
+      year:      'Year',
+      date2:     'Date Range',
+      datetime2: 'DateTime Range',
+      time2:     'Time Range',
+      year2:     'Year Range',
+      dropdown:  'Dropdown',
+      radio:     'Radio',
+      search:    'Search (FK)',
+      media:     'Media'
     };
     
-    // Tambahkan 'media' untuk VARCHAR (menggantikan 'file' dan 'gambar')
-    let fieldTypeOptions = isFk ? ['search'] : (field.wmfc_field_type_options || ['text', 'textarea', 'number', 'date', 'date2', 'dropdown', 'radio']);
-    if (field.wmfc_column_type && field.wmfc_column_type.toLowerCase().includes('varchar')) {
-      // Migrasi nilai lama 'file'/'gambar' → 'media'
-      fieldTypeOptions = fieldTypeOptions.filter(t => t !== 'file' && t !== 'gambar');
-      if (!fieldTypeOptions.includes('media')) fieldTypeOptions.push('media');
+    // Tentukan opsi berdasarkan tipe kolom DB
+    let fieldTypeOptions;
+    if (isFk) {
+      fieldTypeOptions = ['search'];
+    } else {
+      const colType = (field.wmfc_column_type || '').toLowerCase().replace(/\(.*\)/, '').trim();
+
+      if (colType === 'date') {
+        fieldTypeOptions = ['date'];
+      } else if (colType === 'datetime' || colType === 'timestamp') {
+        fieldTypeOptions = ['datetime'];
+      } else if (colType === 'time') {
+        fieldTypeOptions = ['time'];
+      } else if (colType === 'year') {
+        fieldTypeOptions = ['year'];
+      } else if (colType === 'json') {
+        // JSON: khusus untuk rentang waktu semua jenis
+        fieldTypeOptions = ['date2', 'datetime2', 'time2', 'year2'];
+      } else if (colType === 'varchar' || colType === 'char' || colType === 'tinytext') {
+        // VARCHAR: hanya teks dan media, TIDAK ada type rentang
+        fieldTypeOptions = ['text', 'textarea', 'media'];
+      } else if (['int', 'bigint', 'smallint', 'mediumint', 'tinyint', 'decimal', 'float', 'double'].includes(colType)) {
+        fieldTypeOptions = ['number'];
+      } else if (['text', 'mediumtext', 'longtext'].includes(colType)) {
+        fieldTypeOptions = ['textarea'];
+      } else if (colType === 'enum') {
+        fieldTypeOptions = ['dropdown', 'radio'];
+      } else {
+        // fallback: gunakan field_type_options dari server atau default umum
+        fieldTypeOptions = field.wmfc_field_type_options || ['text', 'textarea', 'number', 'date', 'datetime', 'time', 'year', 'dropdown', 'radio'];
+      }
     }
     
     // Normalisasi wmfc_field_type lama ('file'/'gambar') → 'media' untuk UI
@@ -219,8 +255,9 @@ window.WebMenuUrlShared = {
     
     const isTextType = ['text', 'textarea'].includes(normalizedFieldType);
     const isMediaType = normalizedFieldType === 'media';
-    // isFileOrGambar alias untuk backward-compat dalam block validasi
-    const isFileOrGambar = isMediaType;
+    const isFileOrGambar = isMediaType; // backward-compat alias
+    // Type-type yang support min/max karakter
+    const isMinMaxTextType = ['text', 'textarea', 'number'].includes(normalizedFieldType);
 
     const fkDisplayCols = field.wmfc_fk_display_columns 
       ? (Array.isArray(field.wmfc_fk_display_columns) 
