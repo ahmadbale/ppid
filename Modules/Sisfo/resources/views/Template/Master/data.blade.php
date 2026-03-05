@@ -2,6 +2,78 @@
     use Modules\Sisfo\App\Models\Website\WebMenuModel;
     use Modules\Sisfo\App\Models\HakAkses\SetHakAksesModel;
     $menuUrl = $menuConfig->wmu_nama;
+
+    /**
+     * Format nilai range (*2) menjadi "v1 s/d v2 [durasi]" untuk tabel index
+     */
+    function formatRangeIndex(string $type, mixed $raw): string {
+        if (empty($raw) || $raw === '-') return '-';
+
+        $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
+        if (!is_array($decoded) || !isset($decoded['start'], $decoded['end'])) {
+            return is_string($raw) ? e($raw) : '-';
+        }
+
+        $start = $decoded['start'];
+        $end   = $decoded['end'];
+
+        if ($type === 'date2') {
+            $s = \Carbon\Carbon::parse($start);
+            $e = \Carbon\Carbon::parse($end);
+            $diff = (int) $s->diffInDays($e);
+            return $s->format('Y-m-d') . ' s/d ' . $e->format('Y-m-d')
+                 . ' <span class="badge badge-info">' . $diff . ' hari</span>';
+        }
+
+        if ($type === 'datetime2') {
+            $s = \Carbon\Carbon::parse($start);
+            $e = \Carbon\Carbon::parse($end);
+            $totalMin = (int) $s->diffInMinutes($e);
+            $hours    = (int) floor($totalMin / 60);
+            $remMin   = $totalMin % 60;
+            if ($hours >= 24) {
+                $days    = (int) floor($hours / 24);
+                $remHour = $hours % 24;
+                $badge   = "{$days} hari"
+                         . ($remHour ? " {$remHour} jam" : "")
+                         . " {$remMin} menit";
+            } elseif ($hours > 0) {
+                $badge = "{$hours} jam {$remMin} menit";
+            } else {
+                $badge = "{$totalMin} menit";
+            }
+            return $s->format('Y-m-d H:i:s') . ' s/d ' . $e->format('Y-m-d H:i:s')
+                 . ' <span class="badge badge-info">' . $badge . '</span>';
+        }
+
+        if ($type === 'time2') {
+            $parseTime = function(string $t): array {
+                $parts = explode(':', $t);
+                return [(int)($parts[0] ?? 0), (int)($parts[1] ?? 0), (int)($parts[2] ?? 0)];
+            };
+            [$sh, $sm, $ss] = $parseTime($start);
+            [$eh, $em, $es] = $parseTime($end);
+            $diffSec = abs(($eh * 3600 + $em * 60 + $es) - ($sh * 3600 + $sm * 60 + $ss));
+            $diffMin = (int) floor($diffSec / 60);
+            $hours   = (int) floor($diffMin / 60);
+            $remMin  = $diffMin % 60;
+            $badge   = $hours > 0
+                     ? "{$hours} jam" . ($remMin ? " {$remMin} menit" : "")
+                     : "{$diffMin} menit";
+            return substr($start, 0, 5) . ' s/d ' . substr($end, 0, 5)
+                 . ' <span class="badge badge-info">' . $badge . '</span>';
+        }
+
+        if ($type === 'year2') {
+            $s    = (int) $start;
+            $e    = (int) $end;
+            $diff = abs($e - $s);
+            return $s . ' s/d ' . $e
+                 . ' <span class="badge badge-info">' . $diff . ' tahun</span>';
+        }
+
+        return e(is_string($raw) ? $raw : json_encode($raw));
+    }
 @endphp
 <div class="d-flex justify-content-between align-items-center mb-2">
     <div class="showing-text">
@@ -31,25 +103,59 @@
                             <td>
                                 @php
                                     $columnName = $field->wmfc_column_name;
-                                    $value = $row->$columnName ?? '-';
-                                    
-                                    // Untuk field FK (search), gunakan priority display column
+                                    $rawValue   = $row->$columnName ?? null;
+                                    $value      = $rawValue ?? '-';
+
+                                    // FK (search) — tampilkan priority display column
                                     if ($field->wmfc_field_type === 'search' && $field->wmfc_fk_priority_display) {
                                         $priorityCol = $field->wmfc_fk_priority_display;
-                                        $joinedKey = $columnName . '_' . $priorityCol;
-                                        if (isset($row->$joinedKey) && $row->$joinedKey !== null) {
-                                            $value = $row->$joinedKey;
+                                        $joinedKey   = $columnName . '_' . $priorityCol;
+                                        $value = (isset($row->$joinedKey) && $row->$joinedKey !== null)
+                                            ? e((string) $row->$joinedKey)
+                                            : ($rawValue !== null ? e((string) $rawValue) : '-');
+                                    }
+
+                                    // Media — tampilkan ikon + nama file
+                                    elseif ($field->wmfc_field_type === 'media' && !empty($rawValue)) {
+                                        $fileName = basename($rawValue);
+                                        $value = '<i class="fas fa-file mr-1"></i>' . e($fileName);
+                                    }
+
+                                    // Range types — decode JSON dan format dengan badge durasi
+                                    elseif (in_array($field->wmfc_field_type, ['date2','datetime2','time2','year2']) && !empty($rawValue)) {
+                                        $value = formatRangeIndex($field->wmfc_field_type, $rawValue);
+                                    }
+
+                                    // Date single
+                                    elseif ($field->wmfc_field_type === 'date' && !empty($rawValue)) {
+                                        $value = \Carbon\Carbon::parse($rawValue)->format('d/m/Y');
+                                    }
+
+                                    // Datetime single
+                                    elseif ($field->wmfc_field_type === 'datetime' && !empty($rawValue)) {
+                                        $value = \Carbon\Carbon::parse($rawValue)->format('d/m/Y H:i');
+                                    }
+
+                                    // Time single
+                                    elseif ($field->wmfc_field_type === 'time' && !empty($rawValue)) {
+                                        $value = substr((string) $rawValue, 0, 5);
+                                    }
+
+                                    // Year single
+                                    elseif ($field->wmfc_field_type === 'year' && !empty($rawValue)) {
+                                        $value = (string) $rawValue;
+                                    }
+
+                                    // Textarea — strip newlines untuk tabel
+                                    elseif ($field->wmfc_field_type === 'textarea' && !empty($rawValue)) {
+                                        $value = e(Str::limit(strip_tags($rawValue), 80));
+                                    }
+
+                                    // Default text — escape
+                                    else {
+                                        if ($value !== '-') {
+                                            $value = e((string) $value);
                                         }
-                                    }
-                                    
-                                    // Format file/media - tampilkan nama file saja
-                                    if ($field->wmfc_field_type === 'media' && $value !== '-' && !empty($value)) {
-                                        $fileName = basename($value);
-                                        $value = '<i class="fas fa-file mr-1"></i>' . $fileName;
-                                    }
-                                    // Format date
-                                    elseif (in_array($field->wmfc_field_type, ['date', 'date2']) && $value !== '-') {
-                                        $value = \Carbon\Carbon::parse($value)->format('d/m/Y');
                                     }
                                 @endphp
                                 {!! $value !!}
