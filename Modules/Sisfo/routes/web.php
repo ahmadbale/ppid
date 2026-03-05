@@ -93,14 +93,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/delete_foto_ktp/{id}', [ProfileController::class, 'delete_foto_ktp']); // Tambah ini
     });
 
-    // ✅ ROUTE DINAMIS STANDAR - NotifMasuk sudah pakai dynamic routing
-    // Route otomatis di-handle oleh PageController dengan pattern:
-    // GET    /notifikasi-masuk              → index()
-    // GET    /notifikasi-masuk/getData      → getData()
-    // GET    /notifikasi-masuk/detailData/{id} → detailData($id)
-    // POST   /notifikasi-masuk/updateData/{id} → updateData($request, $id)
-    // DELETE /notifikasi-masuk/deleteData/{id} → deleteData($request, $id)
-
     // ❌ ROUTE TIDAK STANDAR - whatsapp-management (9 standar + 8 extra functions)
     Route::group(['prefix' => WebMenuModel::getDynamicMenuUrl('whatsapp-management')], function () {
         Route::get('/', [WhatsAppController::class, 'index'])->middleware('permission:view');
@@ -116,11 +108,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/confirm-scan-log', [WhatsAppController::class, 'confirmScanLog'])->middleware('permission:create');
         Route::post('/reset-expired-scan', [WhatsAppController::class, 'resetExpiredScan'])->middleware('permission:update');
     });
-
-    // ✅ ROUTE DINAMIS STANDAR - management-menu-url
-    // Sekarang menggunakan query parameter di addData() method
-    // GET /management-menu-url/addData?action=validateTable&table_name=xxx
-    // GET /management-menu-url/addData?action=autoGenerateFields&table_name=xxx
     
     // Pattern 1: /{page} → index() atau store() tergantung HTTP method
     Route::match(['GET', 'POST'], '/{page}', [PageController::class, 'index'])

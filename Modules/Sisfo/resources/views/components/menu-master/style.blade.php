@@ -448,75 +448,158 @@
 }
 
 /* ==========================================================
-   TIME / DATE INPUT WRAPPER (single & range)
+   HIDE NATIVE BROWSER PICKER INDICATOR (hilangkan duplikasi ikon)
+   Gunakan opacity:0 + posisi absolute agar HIT AREA tetap aktif
+   tapi ikon bawaan browser tidak terlihat (diganti .time-input-ico)
    ========================================================== */
-/* Input group dengan ikon di sebelah kanan */
-.time-input-group {
-    flex-wrap: nowrap;
-}
-.time-input-group .time-input-field {
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="week"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     cursor: pointer;
-    border-right: none;         /* hilangkan border kanan agar menyatu dengan addon */
-    border-radius: 4px 0 0 4px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-.time-input-group .time-input-field:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-    z-index: 3;
-}
-/* Addon ikon di kanan — pointer agar terasa klikable */
-.time-icon-addon {
-    background: #f8f9fa;
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    color: #6c757d;
-    cursor: pointer;
-    padding: 0 10px;
-    font-size: 14px;
-    transition: background 0.15s, color 0.15s;
-    user-select: none;
-}
-.time-input-group:focus-within .time-icon-addon {
-    border-color: #80bdff;
-    background: #e8f4ff;
-    color: #0069d9;
 }
 
-/* Range container — susun "Dari" dan "s/d" secara vertikal dengan pemisah */
+/* ==========================================================
+   TIME / DATE INPUT WRAPPER — SINGLE
+   Ikon dekoratif di kanan, pointer-events: none agar klik
+   langsung masuk ke <input> dan membuka picker native.
+   ========================================================== */
+.time-input-wrap {
+    position: relative;
+    display: block;
+}
+.time-input-wrap .form-control {
+    padding-right: 38px;
+    cursor: pointer;
+}
+.time-input-wrap .form-control:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+}
+.time-input-ico {
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 14px;
+    pointer-events: none;   /* klik tembus ke input */
+    z-index: 4;
+    line-height: 1;
+}
+.time-input-wrap:focus-within .time-input-ico {
+    color: #2563eb;
+}
+
+
+/* ==========================================================
+   TIME / DATE INPUT WRAPPER — RANGE (date2, datetime2, time2, year2)
+   ========================================================== */
 .range-input-container {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0;
+    background: #fff;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
+.range-input-container:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Baris Dari / s/d */
 .range-input-row {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: stretch;
+    gap: 0;
 }
+.range-input-row:first-child {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Label badge Dari / s/d — FIXED WIDTH agar simetris */
 .range-input-label-col {
-    flex: 0 0 36px;
-    text-align: right;
+    flex: 0 0 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    background: #f9fafb;
+    border-right: 1.5px solid #e5e7eb;
 }
 .range-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #495057;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     white-space: nowrap;
+    text-align: center;
 }
+
+/* Input col dalam range */
 .range-input-col {
     flex: 1;
+    min-width: 0;
 }
-/* Pemisah panah bawah antar baris range */
-.range-input-divider {
-    text-align: center;
-    padding: 0 0 0 44px;
-    font-size: 11px;
-    color: #adb5bd;
-    line-height: 1;
+
+/* form-control & time-input-wrap di dalam range: hilangkan border & radius double */
+.range-input-col .form-control,
+.range-input-col .time-input-wrap .form-control {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent;
+    height: 100%;
 }
+.range-input-col .form-control:focus,
+.range-input-col .time-input-wrap .form-control:focus {
+    box-shadow: none !important;
+    border: none !important;
+}
+.range-input-col .time-input-wrap {
+    border-radius: 0;
+}
+.range-input-col .time-input-ico {
+    color: #9ca3af;
+}
+.range-input-container:focus-within .range-input-col .time-input-ico {
+    color: #2563eb;
+}
+
+/* Hilangkan spinner number input */
+input[type="number"].form-control::-webkit-outer-spin-button,
+input[type="number"].form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"].form-control {
+    -moz-appearance: textfield;
+}
+
+/* Year input — tampilan tambahan */
+.year-input {
+    letter-spacing: 2px;
+    font-weight: 600;
+    font-size: 15px;
+}
+.year-input::placeholder {
+    letter-spacing: normal;
+    font-weight: normal;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
 </style>
+
+

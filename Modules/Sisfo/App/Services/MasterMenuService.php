@@ -28,7 +28,8 @@ class MasterMenuService
     public static function buildValidationRules(
         int $menuUrlId, 
         string $tableName,
-        ?int $excludeId = null
+        ?int $excludeId = null,
+        ?object $existingData = null
     ): array {
         $fields = self::getFieldConfigs($menuUrlId, true);
         $rules = [];
@@ -53,7 +54,20 @@ class MasterMenuService
             }
 
             if (!empty($validation['required'])) {
-                $fieldRules[] = 'required';
+                // Field media pada mode update: jika sudah ada file existing,
+                // tidak wajib upload ulang (cukup "sometimes|nullable")
+                if ($field->wmfc_field_type === 'media' && $existingData !== null) {
+                    $colName = $field->wmfc_column_name;
+                    $hasExisting = !empty($existingData->$colName);
+                    if ($hasExisting) {
+                        $fieldRules[] = 'sometimes';
+                        $fieldRules[] = 'nullable';
+                    } else {
+                        $fieldRules[] = 'required';
+                    }
+                } else {
+                    $fieldRules[] = 'required';
+                }
             } else {
                 $fieldRules[] = 'nullable';
             }
@@ -313,8 +327,22 @@ class MasterMenuService
                 if ($rawValue) {
                     $decoded = is_string($rawValue) ? json_decode($rawValue, true) : $rawValue;
                     if (is_array($decoded) && isset($decoded['start'], $decoded['end'])) {
-                        $fieldData['value_start'] = $decoded['start'];
-                        $fieldData['value_end']   = $decoded['end'];
+                        $start = $decoded['start'];
+                        $end   = $decoded['end'];
+
+                        // Konversi ke format yang dibutuhkan <input> HTML saat edit
+                        if ($field->wmfc_field_type === 'datetime2') {
+                            // Disimpan "YYYY-MM-DD HH:MM:SS" → input datetime-local butuh "YYYY-MM-DDTHH:MM"
+                            $start = $start ? \Carbon\Carbon::parse($start)->format('Y-m-d\TH:i') : '';
+                            $end   = $end   ? \Carbon\Carbon::parse($end)->format('Y-m-d\TH:i')   : '';
+                        } elseif ($field->wmfc_field_type === 'date2') {
+                            // Disimpan "YYYY-MM-DD" → input date butuh "YYYY-MM-DD" (sudah benar)
+                            $start = $start ? \Carbon\Carbon::parse($start)->format('Y-m-d') : '';
+                            $end   = $end   ? \Carbon\Carbon::parse($end)->format('Y-m-d')   : '';
+                        }
+
+                        $fieldData['value_start'] = $start;
+                        $fieldData['value_end']   = $end;
                     }
                 }
             }
@@ -379,7 +407,7 @@ class MasterMenuService
                 }
             }
 
-            if ($field->wmfc_field_type === 'dropdown') {
+            if ($field->wmfc_field_type === 'dropdown' || $field->wmfc_field_type === 'radio') {
                 $fieldData['options'] = self::getEnumOptions($field->wmfc_column_name, $menuUrlId);
             }
 

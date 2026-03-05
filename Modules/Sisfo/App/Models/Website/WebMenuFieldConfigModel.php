@@ -338,7 +338,7 @@ class WebMenuFieldConfigModel extends Model
 
     public static function generateLabelKeteranganPublic(array $data): string
     {
-        $text = 'tk ' . strtolower($data['wmfc_field_label'] ?? '');
+        $text = strtolower($data['wmfc_field_label'] ?? '');
         
         // Get field type
         $fieldType = $data['wmfc_field_type'] ?? 'text';

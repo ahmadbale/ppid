@@ -214,15 +214,25 @@ class MasterController extends Controller
             // Encode type rentang (*2) → JSON sebelum simpan ke database
             foreach ($this->fieldConfigs as $field) {
                 if (in_array($field->wmfc_field_type, ['date2', 'datetime2', 'time2', 'year2'])) {
-                    $col = $field->wmfc_column_name;
+                    $col   = $field->wmfc_column_name;
                     $start = $request->input($col . '_start');
                     $end   = $request->input($col . '_end');
                     if ($start !== null || $end !== null) {
+                        // Normalisasi format sesuai tipe sebelum encode JSON
+                        if ($field->wmfc_field_type === 'datetime2') {
+                            // Input datetime-local: "YYYY-MM-DDTHH:MM" → simpan "YYYY-MM-DD HH:MM:SS"
+                            $start = $start ? \Carbon\Carbon::parse($start)->format('Y-m-d H:i:s') : null;
+                            $end   = $end   ? \Carbon\Carbon::parse($end)->format('Y-m-d H:i:s')   : null;
+                        } elseif ($field->wmfc_field_type === 'date2') {
+                            // Input date: "YYYY-MM-DD" → pastikan format bersih
+                            $start = $start ? \Carbon\Carbon::parse($start)->format('Y-m-d') : null;
+                            $end   = $end   ? \Carbon\Carbon::parse($end)->format('Y-m-d')   : null;
+                        }
                         $data[$col] = json_encode(['start' => $start, 'end' => $end]);
                     }
                 }
             }
-            
+
             // Handle file uploads dengan hash dan folder per tabel
             foreach ($this->fieldConfigs as $field) {
                 if ($field->wmfc_field_type === 'media' && $request->hasFile($field->wmfc_column_name)) {
@@ -233,7 +243,7 @@ class MasterController extends Controller
             }
 
             DB::beginTransaction();
-            
+
             $insertedId = MasterMenuService::insertData(
                 $this->tableName,
                 $data,
@@ -297,10 +307,18 @@ class MasterController extends Controller
     public function updateData(Request $request, $id)
     {
         try {
+            // Ambil data existing dulu agar buildValidationRules bisa tahu
+            // apakah field media sudah punya file (tidak wajib upload ulang)
+            $existingData = DB::table($this->tableName)
+                ->where($this->pkColumn, $id)
+                ->where('isDeleted', 0)
+                ->first();
+
             $rules = MasterMenuService::buildValidationRules(
                 $this->menuConfig->web_menu_url_id,
                 $this->tableName,
-                $id
+                $id,
+                $existingData
             );
 
             $messages = ValidationHelper::buildCustomMessages(
@@ -328,26 +346,27 @@ class MasterController extends Controller
             // Encode type rentang (*2) → JSON sebelum simpan ke database
             foreach ($this->fieldConfigs as $field) {
                 if (in_array($field->wmfc_field_type, ['date2', 'datetime2', 'time2', 'year2'])) {
-                    $col = $field->wmfc_column_name;
+                    $col   = $field->wmfc_column_name;
                     $start = $request->input($col . '_start');
                     $end   = $request->input($col . '_end');
                     if ($start !== null || $end !== null) {
+                        // Normalisasi format sesuai tipe sebelum encode JSON
+                        if ($field->wmfc_field_type === 'datetime2') {
+                            // Input datetime-local: "YYYY-MM-DDTHH:MM" → simpan "YYYY-MM-DD HH:MM:SS"
+                            $start = $start ? \Carbon\Carbon::parse($start)->format('Y-m-d H:i:s') : null;
+                            $end   = $end   ? \Carbon\Carbon::parse($end)->format('Y-m-d H:i:s')   : null;
+                        } elseif ($field->wmfc_field_type === 'date2') {
+                            // Input date: "YYYY-MM-DD" → pastikan format bersih
+                            $start = $start ? \Carbon\Carbon::parse($start)->format('Y-m-d') : null;
+                            $end   = $end   ? \Carbon\Carbon::parse($end)->format('Y-m-d')   : null;
+                        }
                         $data[$col] = json_encode(['start' => $start, 'end' => $end]);
                     }
                 }
             }
-            
-            // Handle file uploads dengan hash dan folder per tabel
             foreach ($this->fieldConfigs as $field) {
                 if ($field->wmfc_field_type === 'media' && $request->hasFile($field->wmfc_column_name)) {
-                    // Hapus file lama jika ada
-                    $existingData = MasterMenuService::getDetailData(
-                        $this->tableName,
-                        $id,
-                        $this->menuConfig->web_menu_url_id,
-                        $this->pkColumn
-                    );
-                    
+                    // Hapus file lama jika ada (gunakan $existingData yang sudah diambil di atas)
                     if ($existingData && !empty($existingData->{$field->wmfc_column_name})) {
                         MediaStorageService::deleteFile($existingData->{$field->wmfc_column_name});
                     }

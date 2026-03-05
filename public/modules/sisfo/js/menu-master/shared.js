@@ -534,21 +534,28 @@ window.MenuMasterShared = {
     },
 
     // ==================================================
-    // TIME / DATE INPUT — Klik ikon kanan membuka picker
+    // YEAR INPUT — Batasi tepat 4 digit (1000–9999)
     // ==================================================
-    initTimeInputs: function () {
-        // Klik pada addon ikon di kanan → focus & showPicker pada input
-        $(document).on('click', '.time-icon-addon', function () {
-            const $input = $(this).closest('.input-group').find('.time-input-field');
-            if ($input.length) {
-                $input.focus();
-                try {
-                    $input[0].showPicker();
-                } catch (_) {
-                    // fallback untuk browser lama
-                    $input[0].click();
-                }
+    initYearInput: function () {
+        $(document).on('input', '.year-input', function () {
+            var raw = $(this).val();
+            if (raw.length > 4) {
+                $(this).val(raw.slice(0, 4));
             }
+        });
+
+        $(document).on('keydown', '.year-input', function (e) {
+            var allowed = [
+                'Backspace','Delete','Tab','ArrowLeft','ArrowRight',
+                'ArrowUp','ArrowDown','Home','End'
+            ];
+            if (allowed.includes(e.key)) return;
+            if (!/^\d$/.test(e.key)) { e.preventDefault(); return; }
+            var val = $(this).val();
+            var selStart = this.selectionStart;
+            var selEnd   = this.selectionEnd;
+            var willReplace = selEnd - selStart;
+            if (val.length - willReplace >= 4) { e.preventDefault(); }
         });
     },
 
@@ -561,7 +568,7 @@ window.MenuMasterShared = {
         this.initMediaUpload();
         this.initCriteriaTransform();
         this.initValidationErrorRemover();
-        this.initTimeInputs();
+        this.initYearInput();
         this.initFkSearch(mode, menuUrl);
         this.initFormSubmit(mode);
     },

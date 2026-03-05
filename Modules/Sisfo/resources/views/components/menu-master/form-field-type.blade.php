@@ -73,62 +73,51 @@
            {{ $requiredAttr }}>
 
 @elseif($field['type'] === 'date')
-    {{-- Date Picker (hanya untuk kolom DATE) --}}
-    <div class="input-group time-input-group">
+    {{-- Date Picker --}}
+    <div class="time-input-wrap">
         <input type="date" 
-               class="form-control time-input-field" 
+               class="form-control" 
                id="{{ $field['column'] }}" 
                name="{{ $field['column'] }}" 
                value="{{ $value }}"
                {{ $requiredAttr }}>
-        <div class="input-group-append">
-            <span class="input-group-text time-icon-addon"><i class="far fa-calendar-alt"></i></span>
-        </div>
+        <span class="time-input-ico"><i class="far fa-calendar-alt"></i></span>
     </div>
 
 @elseif($field['type'] === 'datetime')
-    {{-- DateTime Picker (untuk kolom DATETIME / TIMESTAMP) --}}
-    <div class="input-group time-input-group">
+    {{-- DateTime Picker --}}
+    <div class="time-input-wrap">
         <input type="datetime-local" 
-               class="form-control time-input-field" 
+               class="form-control" 
                id="{{ $field['column'] }}" 
                name="{{ $field['column'] }}" 
                value="{{ $value ? \Carbon\Carbon::parse($value)->format('Y-m-d\TH:i') : '' }}"
                {{ $requiredAttr }}>
-        <div class="input-group-append">
-            <span class="input-group-text time-icon-addon"><i class="far fa-calendar-check"></i></span>
-        </div>
+        <span class="time-input-ico"><i class="far fa-calendar-check"></i></span>
     </div>
 
 @elseif($field['type'] === 'time')
-    {{-- Time Picker (untuk kolom TIME) --}}
-    <div class="input-group time-input-group">
+    {{-- Time Picker --}}
+    <div class="time-input-wrap">
         <input type="time" 
-               class="form-control time-input-field" 
+               class="form-control" 
                id="{{ $field['column'] }}" 
                name="{{ $field['column'] }}" 
                value="{{ $value }}"
                {{ $requiredAttr }}>
-        <div class="input-group-append">
-            <span class="input-group-text time-icon-addon"><i class="far fa-clock"></i></span>
-        </div>
+        <span class="time-input-ico"><i class="far fa-clock"></i></span>
     </div>
 
 @elseif($field['type'] === 'year')
-    {{-- Year Input (untuk kolom YEAR) --}}
-    <div class="input-group time-input-group">
-        <input type="number" 
-               class="form-control time-input-field" 
-               id="{{ $field['column'] }}" 
-               name="{{ $field['column'] }}" 
-               placeholder="YYYY"
-               min="1901" max="2155"
-               value="{{ $value }}"
-               {{ $requiredAttr }}>
-        <div class="input-group-append">
-            <span class="input-group-text time-icon-addon"><i class="far fa-calendar"></i></span>
-        </div>
-    </div>
+    {{-- Year — input number biasa, min 4 digit (1000), max 4 digit (9999) --}}
+    <input type="number" 
+           class="form-control year-input" 
+           id="{{ $field['column'] }}" 
+           name="{{ $field['column'] }}" 
+           placeholder="contoh: 2026"
+           min="1000" max="9999"
+           value="{{ $value }}"
+           {{ $requiredAttr }}>
 
 @elseif($field['type'] === 'date2')
     {{-- Date Range --}}
@@ -138,35 +127,30 @@
                 <span class="range-label">Dari</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
+                <div class="time-input-wrap">
                     <input type="date" 
-                           class="form-control time-input-field" 
+                           class="form-control" 
                            id="{{ $field['column'] }}_start" 
                            name="{{ $field['column'] }}_start" 
                            value="{{ $field['value_start'] ?? '' }}"
                            {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-calendar-alt"></i></span>
-                    </div>
+                    <span class="time-input-ico"><i class="far fa-calendar-alt"></i></span>
                 </div>
             </div>
         </div>
-        <div class="range-input-divider"><i class="fas fa-arrow-down"></i></div>
         <div class="range-input-row">
             <div class="range-input-label-col">
                 <span class="range-label">s/d</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
+                <div class="time-input-wrap">
                     <input type="date" 
-                           class="form-control time-input-field" 
+                           class="form-control" 
                            id="{{ $field['column'] }}_end" 
                            name="{{ $field['column'] }}_end" 
                            value="{{ $field['value_end'] ?? '' }}"
                            {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-calendar-alt"></i></span>
-                    </div>
+                    <span class="time-input-ico"><i class="far fa-calendar-alt"></i></span>
                 </div>
             </div>
         </div>
@@ -180,35 +164,30 @@
                 <span class="range-label">Dari</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
+                <div class="time-input-wrap">
                     <input type="datetime-local" 
-                           class="form-control time-input-field" 
+                           class="form-control" 
                            id="{{ $field['column'] }}_start" 
                            name="{{ $field['column'] }}_start" 
                            value="{{ $field['value_start'] ?? '' }}"
                            {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-calendar-check"></i></span>
-                    </div>
+                    <span class="time-input-ico"><i class="far fa-calendar-check"></i></span>
                 </div>
             </div>
         </div>
-        <div class="range-input-divider"><i class="fas fa-arrow-down"></i></div>
         <div class="range-input-row">
             <div class="range-input-label-col">
                 <span class="range-label">s/d</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
+                <div class="time-input-wrap">
                     <input type="datetime-local" 
-                           class="form-control time-input-field" 
+                           class="form-control" 
                            id="{{ $field['column'] }}_end" 
                            name="{{ $field['column'] }}_end" 
                            value="{{ $field['value_end'] ?? '' }}"
                            {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-calendar-check"></i></span>
-                    </div>
+                    <span class="time-input-ico"><i class="far fa-calendar-check"></i></span>
                 </div>
             </div>
         </div>
@@ -222,35 +201,30 @@
                 <span class="range-label">Dari</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
+                <div class="time-input-wrap">
                     <input type="time" 
-                           class="form-control time-input-field" 
+                           class="form-control" 
                            id="{{ $field['column'] }}_start" 
                            name="{{ $field['column'] }}_start" 
                            value="{{ $field['value_start'] ?? '' }}"
                            {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-clock"></i></span>
-                    </div>
+                    <span class="time-input-ico"><i class="far fa-clock"></i></span>
                 </div>
             </div>
         </div>
-        <div class="range-input-divider"><i class="fas fa-arrow-down"></i></div>
         <div class="range-input-row">
             <div class="range-input-label-col">
                 <span class="range-label">s/d</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
+                <div class="time-input-wrap">
                     <input type="time" 
-                           class="form-control time-input-field" 
+                           class="form-control" 
                            id="{{ $field['column'] }}_end" 
                            name="{{ $field['column'] }}_end" 
                            value="{{ $field['value_end'] ?? '' }}"
                            {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-clock"></i></span>
-                    </div>
+                    <span class="time-input-ico"><i class="far fa-clock"></i></span>
                 </div>
             </div>
         </div>
@@ -264,40 +238,29 @@
                 <span class="range-label">Dari</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
-                    <input type="number" 
-                           class="form-control time-input-field" 
-                           id="{{ $field['column'] }}_start" 
-                           name="{{ $field['column'] }}_start" 
-                           placeholder="YYYY"
-                           min="1901" max="2155"
-                           value="{{ $field['value_start'] ?? '' }}"
-                           {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-calendar"></i></span>
-                    </div>
-                </div>
+                <input type="number" 
+                       class="form-control year-input" 
+                       id="{{ $field['column'] }}_start" 
+                       name="{{ $field['column'] }}_start" 
+                       placeholder="contoh: 2026"
+                       min="1000" max="9999"
+                       value="{{ $field['value_start'] ?? '' }}"
+                       {{ $requiredAttr }}>
             </div>
         </div>
-        <div class="range-input-divider"><i class="fas fa-arrow-down"></i></div>
         <div class="range-input-row">
             <div class="range-input-label-col">
                 <span class="range-label">s/d</span>
             </div>
             <div class="range-input-col">
-                <div class="input-group time-input-group">
-                    <input type="number" 
-                           class="form-control time-input-field" 
-                           id="{{ $field['column'] }}_end" 
-                           name="{{ $field['column'] }}_end" 
-                           placeholder="YYYY"
-                           min="1901" max="2155"
-                           value="{{ $field['value_end'] ?? '' }}"
-                           {{ $requiredAttr }}>
-                    <div class="input-group-append">
-                        <span class="input-group-text time-icon-addon"><i class="far fa-calendar"></i></span>
-                    </div>
-                </div>
+                <input type="number" 
+                       class="form-control year-input" 
+                       id="{{ $field['column'] }}_end" 
+                       name="{{ $field['column'] }}_end" 
+                       placeholder="contoh: 2026"
+                       min="1000" max="9999"
+                       value="{{ $field['value_end'] ?? '' }}"
+                       {{ $requiredAttr }}>
             </div>
         </div>
     </div>
