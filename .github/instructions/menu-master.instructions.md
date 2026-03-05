@@ -14,7 +14,7 @@
 ### 3 Kategori Menu URL
 | Kategori | Keterangan |
 |----------|-----------|
-| **master** | CRUD otomatis dari tabel, tanpa coding |
+| **master** | CRUD otomatis dari tabel, tanpa codin## 🖥️ 15. UI & TAMPILAN FORM## 🔧 16. TROUBLESHOOTING|
 | **pengajuan** | Template approval workflow (belum diimplementasi) |
 | **custom** | Menu manual dengan controller sendiri |
 
@@ -188,10 +188,34 @@ Tipe `date2`, `datetime2`, `time2`, `year2` menyimpan data sebagai JSON di kolom
 ```json
 {"start": "2024-01-01", "end": "2024-12-31"}
 ```
+- **Urutan kunci JSON**: selalu `start` dulu baru `end`
 - **Encode**: Controller (`MasterController`) encode `_start`+`_end` → JSON sebelum simpan ke `$data`
 - **Decode**: `buildFormFields()` di `MasterMenuService` decode JSON → `value_start`/`value_end` untuk form edit
 - **Validasi backend**: Rule `string` (karena sudah JSON-encoded)
 - **Input suffix**: `{column_name}_start` dan `{column_name}_end`
+
+### Format Normalisasi Sebelum Simpan
+- `datetime2`: browser kirim `YYYY-MM-DDTHH:MM` → dinormalisasi ke `YYYY-MM-DD HH:MM:SS` sebelum encode JSON
+- `date2`: browser kirim `YYYY-MM-DD` → dinormalisasi ke `YYYY-MM-DD` (diparse ulang via Carbon untuk konsistensi)
+- `time2` dan `year2`: tidak memerlukan normalisasi khusus
+- Konversi balik saat edit form: `YYYY-MM-DD HH:MM:SS` → `YYYY-MM-DDTHH:MM` (format yang dibutuhkan input `datetime-local`)
+
+### Format Tampil Tipe Rentang di Index & Detail
+Semua tipe rentang ditampilkan dengan format **tahun-bulan-tanggal** (ISO) bukan format Indonesia:
+
+| Tipe | Format Tampil | Contoh |
+|------|--------------|--------|
+| `date2` | `YYYY-MM-DD s/d YYYY-MM-DD` + badge hari | `2026-03-04 s/d 2026-03-31 [27 hari]` |
+| `datetime2` | `YYYY-MM-DD HH:MM:SS s/d YYYY-MM-DD HH:MM:SS` + badge durasi | `2026-03-04 06:52:00 s/d 2026-03-31 06:52:00 [27 hari 0 menit]` |
+| `time2` | `HH:MM s/d HH:MM` + badge durasi | `08:00 s/d 17:00 [9 jam 0 menit]` |
+| `year2` | `YYYY s/d YYYY` + badge tahun | `2020 s/d 2026 [6 tahun]` |
+
+### Aturan Badge Durasi
+- `datetime2`: badge **selalu tampilkan menit**, termasuk ketika 0 menit → `"27 hari 0 menit"` (bukan `"27 hari"`)
+- `time2`: badge **selalu tampilkan menit**, termasuk ketika 0 menit
+- `date2`: badge hanya tampilkan hari → `"27 hari"`
+- `year2`: badge hanya tampilkan tahun → `"6 tahun"`
+- Di modal **delete**: format sama tapi tanpa HTML badge — pakai tanda kurung biasa, contoh `(27 hari 0 menit)`
 
 ---
 
@@ -258,6 +282,12 @@ Setiap kolom FK memiliki 5 pengaturan tambahan:
   - Validasi `max` menggunakan `wmfc_ukuran_max` (dalam MB, dikonversi ke KB saat proses: `ukuran_max * 1024`)
   - Pesan error menampilkan satuan MB (bukan karakter), contoh: "Testing Bukti maksimal 1 MB"
 
+### Validasi Media saat Update (Edit)
+- Jika field media sudah punya file existing di database → upload baru **tidak wajib** saat edit
+- Sistem otomatis detect: jika `$existingData->{kolom}` tidak kosong → rule berubah dari `required` menjadi `sometimes|nullable`
+- File existing tetap dipertahankan jika user tidak upload file baru
+- Jika user upload file baru → file lama otomatis dihapus, diganti file baru
+
 ---
 
 ## 🔤 7. KRITERIA FIELD
@@ -286,11 +316,11 @@ Setiap kolom FK memiliki 5 pengaturan tambahan:
 ### Label Keterangan (`wmfc_label_keterangan`)
 - Teks bantuan yang muncul di bawah input form
 - Auto-generate berdasarkan konfigurasi field: tipe, kriteria, dan validasi
-- Untuk field non-media: format `"tk [label] [deskripsi tipe] [kriteria] [validasi]"`
-- Untuk field media/file/gambar: format `"tk [label] [required] [format mimes] [ukuran max]"`
-  - Contoh: `"tk testing bukti wajib diisi dengan format pdf dengan max 1 mb"`
-  - Contoh tanpa mimes: `"tk testing bukti wajib diisi bisa untuk semua type tanpa batas ukuran"`
+- Format generate: `"[label] [deskripsi tipe] [kriteria] [validasi]"` — **tanpa prefix apapun**
+- Untuk field non-media: contoh `"testing nama bisa semua karakter dengan harus diisi"`
+- Untuk field media: contoh `"testing bukti wajib diisi dengan format png,jpg,jpeg,pdf tanpa batas ukuran"`
 - Bisa di-override dengan teks custom
+- Label lama yang sudah tersimpan di DB (mungkin masih ada prefix lama) dapat di-regenerate via Management Menu URL → Edit → Simpan
 
 ### Visible (`wmfc_is_visible`)
 - Menentukan apakah kolom ditampilkan di form (create/edit)
@@ -428,7 +458,7 @@ storage/app/public/
 | **addData** | Build form fields dari field config → tampilkan form create |
 | **createData** | Validasi → apply criteria → upload file (jika media) → INSERT → redirect |
 | **editData** | Query data by ID → build form fields + isi nilai → tampilkan form edit |
-| **updateData** | Validasi → apply criteria → hapus file lama + upload baru (jika media berubah) → UPDATE → redirect |
+| **updateData** | Ambil existing data → validasi (media opsional jika sudah ada file) → apply criteria → hapus file lama + upload baru (jika media berubah) → UPDATE → redirect |
 | **detailData** | Query data by ID dengan JOIN FK → tampilkan detail (file ditampilkan sebagai link/preview) |
 | **deleteData** | GET: tampilkan konfirmasi. DELETE: hapus file terkait → soft delete (isDeleted = 1) |
 | **getFkData** | Query tabel FK → return data untuk modal pencarian |
@@ -457,9 +487,9 @@ storage/app/public/
 ### Detail Kegunaan Setiap Service & Helper
 
 **`MasterMenuService`** — Otak logika bisnis menu master:
-- `buildValidationRules()`: Baca field configs → generate Laravel validation rules. Untuk media: mapping extension ke MIME types (hanya pakai `mimetypes`, bukan `mimes` — karena Windows issue)
+- `buildValidationRules($menuUrlId, $tableName, $excludeId, $existingData)`: Baca field configs → generate Laravel validation rules. Untuk media: mapping extension ke MIME types (hanya pakai `mimetypes`, bukan `mimes` — karena Windows issue). Parameter `$existingData` digunakan untuk deteksi apakah field media sudah punya file (sehingga upload ulang tidak diwajibkan saat update)
 - `buildSelectQuery()`: Build query SELECT dinamis dengan LEFT JOIN untuk FK, menggunakan priority display sebagai alias
-- `buildFormFields()`: Susun array field untuk render di view, termasuk enum options dan FK display values
+- `buildFormFields()`: Susun array field untuk render di view, termasuk enum options dan FK display values. Saat mode edit, nilai JSON range (`datetime2`, `date2`) dikonversi balik ke format HTML input
 - `applyFieldCriteria()`: Terapkan uppercase/lowercase sebelum simpan
 - `insertData()` / `updateData()` / `deleteData()`: Operasi CRUD universal
 
@@ -610,7 +640,36 @@ storage/app/public/
 
 ---
 
-## 🔧 15. TROUBLESHOOTING
+## �️ 15. UI & TAMPILAN FORM
+
+### Native Date/Time Picker
+- Input `date`, `datetime-local`, `time` menggunakan native browser picker (bawaan browser)
+- Setiap input dibungkus `.time-input-wrap` (position: relative) + ikon dekoratif `.time-input-ico` (position: absolute, pointer-events: none)
+- Ikon bawaan browser disembunyikan via CSS `opacity: 0` + `width: 100%` + `height: 100%` sehingga **hit area tetap aktif di seluruh input**
+- Klik di mana saja pada input → picker terbuka (bukan hanya area ikon)
+- **Jangan** gunakan `display: none` pada `::-webkit-calendar-picker-indicator` karena akan menghilangkan hit area dan picker tidak bisa dibuka klik
+
+### Form Field: Tipe Media (File Upload)
+- Mode **create**: jika field wajib (`required`) → user harus upload file
+- Mode **update/edit**: jika field wajib tapi sudah ada file existing di database → upload ulang **tidak diwajibkan**
+  - File existing tetap dipertahankan jika user tidak upload file baru
+  - Jika user upload file baru → file lama otomatis dihapus, diganti file baru
+- Input file pada form edit menampilkan preview file existing (nama file + ikon/thumbnail)
+
+### Modal Delete — Menampilkan Data Lengkap
+- Modal konfirmasi hapus menampilkan **semua field** data yang akan dihapus (bukan hanya sebagian)
+- Format tampil field di delete sama dengan detail, termasuk:
+  - FK (search) → tampilkan nilai priority display (bukan ID)
+  - Media → tampilkan nama file saja (tanpa link)
+  - Range (`date2`, `datetime2`, `time2`, `year2`) → format ISO + durasi dalam tanda kurung, contoh: `2026-03-04 06:52:00 s/d 2026-03-31 06:52:00 (27 hari 0 menit)`
+  - Date single → format `YYYY-MM-DD`
+  - Datetime single → format `YYYY-MM-DD HH:MM:SS`
+  - Time single → format `HH:MM`
+- User wajib centang checkbox konfirmasi sebelum tombol Hapus aktif
+
+---
+
+## �🔧 16. TROUBLESHOOTING
 
 | Masalah | Solusi |
 |---------|--------|
@@ -630,10 +689,17 @@ storage/app/public/
 | Pesan validasi file menunjukkan "karakter" | Cek `wmfc_field_type` = media/file/gambar di field config |
 | Baris kuning tidak muncul saat Re-Check | Cek response `changes.added` dan `changes.modified` dari backend |
 | Label keterangan tidak otomatis | Pastikan `wmfc_label_keterangan` = 'auto' saat simpan, atau generate via `generateLabelKeteranganPublic()` |
+| Label keterangan masih ada prefix "tk" | Data lama di DB belum di-regenerate — buka Management Menu URL → Edit → Simpan ulang |
+| Edit form media dipaksa upload ulang | Bug lama — seharusnya tidak terjadi. `buildValidationRules()` kini terima `$existingData` dan ubah rule ke `sometimes\|nullable` jika sudah ada file |
+| Picker date/time tidak bisa dibuka klik | Pastikan CSS `:-webkit-calendar-picker-indicator` pakai `opacity: 0` + `width: 100%` + `height: 100%` — BUKAN `display: none` |
+| Format JSON range terbalik (end dulu, start belakang) | Data lama di DB — lakukan edit + save ulang untuk normalisasi urutan ke `{"start":...,"end":...}` |
+| Tampilan range di index/detail format d/m/Y | Format lama — seharusnya sudah `YYYY-MM-DD`. Cek fungsi `formatRangeIndex()` dan `formatRangeValue()` di blade |
+| Badge datetime2 tidak tampilkan menit | Pastikan fungsi format range menggunakan `" {$remMin} menit"` (tanpa kondisi — selalu tampil) |
+| Modal delete hanya tampil beberapa field | Bug lama — `delete.blade.php` kini loop semua `$fields` tanpa `->take(5)` |
 
 ---
 
-## 📌 16. KEUNGGULAN SISTEM
+## 📌 17. KEUNGGULAN SISTEM
 
 - **Zero Code** — Tidak perlu coding controller, model, atau view
 - **Database-Driven** — 100% konfigurasi dari database schema
@@ -650,4 +716,4 @@ storage/app/public/
 
 ---
 
-**© PPID Polinema - Menu Master System v3.0**
+**© PPID Polinema - Menu Master System v3.1**
