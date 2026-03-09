@@ -31,11 +31,6 @@ return new class extends Migration
 
             $table->index('fk_m_application', 'fk_web_menu_url_m_application1_idx');
             $table->index('isDeleted', 'web_menu_url_isDeleted');
-            $table->index('wmu_parent_id', 'idx_wmu_parent_id');
-            $table->index('controller_name', 'idx_controller_name');
-            $table->index('module_type', 'idx_module_type');
-            $table->index('wmu_kategori_menu', 'idx_wmu_kategori_menu');
-            $table->index('wmu_akses_tabel', 'idx_wmu_akses_tabel');
 
             $table->foreign('fk_m_application', 'fk_web_menu_url_m_application1')
                 ->references('application_id')->on('m_application')
