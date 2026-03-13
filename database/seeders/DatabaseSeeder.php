@@ -12,11 +12,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Panggil seeders yang dibuat dengan penamaan sesuai kode migration
+        $this->call([
+            \Database\Seeders\Seeder000001MHakAkses::class,
+            \Database\Seeders\Seeder000002MUser::class,
+            \Database\Seeders\Seeder000006SetHakAkses::class,
+            \Database\Seeders\Seeder000007SetUserHakAkses::class,
+        ]);
     }
 }
