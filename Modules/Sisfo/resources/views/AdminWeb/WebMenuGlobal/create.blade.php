@@ -28,6 +28,12 @@
     transition: border-color .15s, box-shadow .15s;
     user-select: none;
 }
+/* Saat ada nilai terpilih (multi-baris) — sejajarkan ke atas */
+.ss-trigger.has-value {
+    align-items: flex-start;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
 .ss-trigger:hover  { border-color: #adb5bd; }
 .ss-trigger.open   { border-color: #80bdff; box-shadow: 0 0 0 .2rem rgba(0,123,255,.25); }
 .ss-trigger.is-invalid { border-color: #dc3545; }
@@ -36,17 +42,26 @@
 .ss-display {
     flex: 1;
     overflow: hidden;
+    /* default: nowrap untuk placeholder agar tidak wrap */
     white-space: nowrap;
     text-overflow: ellipsis;
     font-size: .875rem;
 }
 .ss-display.placeholder { color: #6c757d; }
+/* Override saat ada nilai terpilih — izinkan multi-baris */
+.ss-display.ss-display-selected {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+}
 
 .ss-display-selected .ss-sel-app  { font-size: .7rem; color: #6c757d; line-height: 1.2; }
 .ss-display-selected .ss-sel-name { font-size: .85rem; font-weight: 600; color: #343a40; line-height: 1.3; }
 .ss-display-selected .ss-sel-desc { font-size: .72rem; color: #868e96; line-height: 1.2; }
 
 .ss-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+/* Sejajarkan actions ke atas saat trigger.has-value */
+.ss-trigger.has-value .ss-actions { margin-top: 2px; }
 .ss-clear-btn {
     display: none;
     background: none; border: none; padding: 0 2px;
@@ -369,12 +384,12 @@ $(document).ready(function () {
         const $errorDiv   = $(cfg.errorDiv);
 
         let focusedIndex  = -1;
-        let currentValue  = cfg.selectedValue || '';
+        let currentValue  = String(cfg.selectedValue || '');
         const totalCount  = cfg.data.length;
 
         /* ── Escape untuk highlight ─────────── */
         function esc(str) {
-            return str.replace(/[&<>"']/g, m =>
+            return String(str).replace(/[&<>"']/g, m =>
                 ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
         }
         function highlight(text, query) {
@@ -405,7 +420,8 @@ $(document).ready(function () {
                     html += `<div class="ss-group-header">${esc(item.app)}</div>`;
                 }
 
-                const isSelected = item.value === currentValue;
+                // Gunakan String() agar perbandingan id int vs string aman
+                const isSelected = String(item.value) === currentValue;
                 const badgeHtml  = item.isNew ? '<span class="ss-badge-new">BARU</span>' : '';
 
                 html += `
@@ -448,10 +464,11 @@ $(document).ready(function () {
         function updateDisplay(value) {
             if (!value) {
                 $display.html('Pilih Menu URL').addClass('placeholder').removeClass('ss-display-selected');
+                $trigger.removeClass('has-value');
                 $clearBtn.hide();
                 return;
             }
-            const item = cfg.data.find(d => d.value === value);
+            const item = cfg.data.find(d => String(d.value) === String(value));
             if (!item) return;
             $display.html(`
                 <div class="ss-display-selected">
@@ -460,6 +477,7 @@ $(document).ready(function () {
                     ${item.desc ? `<div class="ss-sel-desc">${esc(item.desc)}</div>` : ''}
                 </div>
             `).removeClass('placeholder').addClass('ss-display-selected');
+            $trigger.addClass('has-value');
             $clearBtn.show();
         }
 
@@ -496,7 +514,7 @@ $(document).ready(function () {
 
         /* ── Select an item ─────────────────── */
         function selectItem(value) {
-            currentValue = value;
+            currentValue = String(value);
             $hidden.val(value);
             updateDisplay(value);
             // clear error
@@ -533,14 +551,16 @@ $(document).ready(function () {
             else if (e.key === 'Enter') {
                 e.preventDefault();
                 const $focused = getVisibleItems().filter('.focused');
-                if ($focused.length) selectItem($focused.data('value'));
+                // Gunakan attr() bukan data() — jQuery auto-cast int menyebabkan strict === gagal
+                if ($focused.length) selectItem($focused.attr('data-value'));
             }
             else if (e.key === 'Escape') closeDropdown();
         });
 
         // Click option
         $optList.on('click', '.ss-option-item', function() {
-            selectItem($(this).data('value'));
+            // Gunakan attr() bukan data() — jQuery auto-cast int menyebabkan strict === gagal
+            selectItem($(this).attr('data-value'));
         });
 
         // Clear button

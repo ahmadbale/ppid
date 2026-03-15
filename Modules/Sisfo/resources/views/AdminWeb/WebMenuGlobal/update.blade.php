@@ -25,6 +25,11 @@
     transition: border-color .15s, box-shadow .15s;
     user-select: none;
 }
+.ss-trigger.has-value {
+    align-items: flex-start;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
 .ss-trigger:hover  { border-color: #adb5bd; }
 .ss-trigger.open   { border-color: #80bdff; box-shadow: 0 0 0 .2rem rgba(0,123,255,.25); }
 .ss-trigger.is-invalid { border-color: #dc3545; }
@@ -38,12 +43,18 @@
     font-size: .875rem;
 }
 .ss-display.placeholder { color: #6c757d; }
+.ss-display.ss-display-selected {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+}
 
 .ss-display-selected .ss-sel-app  { font-size: .7rem; color: #6c757d; line-height: 1.2; }
 .ss-display-selected .ss-sel-name { font-size: .85rem; font-weight: 600; color: #343a40; line-height: 1.3; }
 .ss-display-selected .ss-sel-desc { font-size: .72rem; color: #868e96; line-height: 1.2; }
 
 .ss-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.ss-trigger.has-value .ss-actions { margin-top: 2px; }
 .ss-clear-btn {
     display: none;
     background: none; border: none; padding: 0 2px;
@@ -211,9 +222,6 @@
                      aria-haspopup="listbox" aria-expanded="false">
                     <div class="ss-display placeholder" id="ssDisplayUpdate">Pilih Menu URL</div>
                     <div class="ss-actions">
-                        <button type="button" class="ss-clear-btn" id="ssClearUpdate" title="Hapus pilihan">
-                            <i class="fas fa-times"></i>
-                        </button>
                         <i class="fas fa-chevron-down ss-arrow"></i>
                     </div>
                 </div>
@@ -342,7 +350,6 @@ $(document).ready(function () {
         const $hidden   = $(cfg.hiddenInput);
         const $trigger  = $(cfg.trigger);
         const $display  = $(cfg.display);
-        const $clearBtn = $(cfg.clearBtn);
         const $dropdown = $(cfg.dropdown);
         const $search   = $(cfg.searchInput);
         const $stats    = $(cfg.stats);
@@ -350,7 +357,7 @@ $(document).ready(function () {
         const $errorDiv = $(cfg.errorDiv);
 
         let focusedIndex = -1;
-        let currentValue = cfg.selectedValue || '';
+        let currentValue = String(cfg.selectedValue || '');
         const totalCount = cfg.data.length;
 
         function esc(str) {
@@ -383,7 +390,8 @@ $(document).ready(function () {
                     html += `<div class="ss-group-header">${esc(item.app)}</div>`;
                 }
 
-                const isSelected = item.value === currentValue;
+                // Gunakan String() agar perbandingan id int vs string aman
+                const isSelected = String(item.value) === currentValue;
                 const badgeHtml  = item.isNew ? '<span class="ss-badge-new">BARU</span>' : '';
 
                 html += `
@@ -423,10 +431,11 @@ $(document).ready(function () {
         function updateDisplay(value) {
             if (!value) {
                 $display.html('Pilih Menu URL').addClass('placeholder').removeClass('ss-display-selected');
-                $clearBtn.hide();
+                $trigger.removeClass('has-value');
                 return;
             }
-            const item = cfg.data.find(d => d.value === value);
+            // Gunakan String() agar perbandingan id int vs string aman
+            const item = cfg.data.find(d => String(d.value) === String(value));
             if (!item) return;
             $display.html(`
                 <div class="ss-display-selected">
@@ -435,7 +444,7 @@ $(document).ready(function () {
                     ${item.desc ? `<div class="ss-sel-desc">${esc(item.desc)}</div>` : ''}
                 </div>
             `).removeClass('placeholder').addClass('ss-display-selected');
-            $clearBtn.show();
+            $trigger.addClass('has-value');
         }
 
         function getVisibleItems() { return $optList.find('.ss-option-item'); }
@@ -465,7 +474,7 @@ $(document).ready(function () {
         }
 
         function selectItem(value) {
-            currentValue = value;
+            currentValue = String(value);
             $hidden.val(value);
             updateDisplay(value);
             $trigger.removeClass('is-invalid');
@@ -474,7 +483,6 @@ $(document).ready(function () {
         }
 
         $trigger.on('click', function(e) {
-            if ($(e.target).closest('.ss-clear-btn').length) return;
             $dropdown.hasClass('open') ? closeDropdown() : openDropdown();
         });
         $trigger.on('keydown', function(e) {
@@ -489,18 +497,14 @@ $(document).ready(function () {
             else if (e.key === 'Enter') {
                 e.preventDefault();
                 const $f = getVisibleItems().filter('.focused');
-                if ($f.length) selectItem($f.data('value'));
+                // Gunakan attr() bukan data() — jQuery auto-cast int menyebabkan === gagal
+                if ($f.length) selectItem($f.attr('data-value'));
             }
             else if (e.key === 'Escape') closeDropdown();
         });
         $optList.on('click', '.ss-option-item', function() {
-            selectItem($(this).data('value'));
-        });
-        $clearBtn.on('click', function(e) {
-            e.stopPropagation();
-            currentValue = '';
-            $hidden.val('');
-            updateDisplay('');
+            // Gunakan attr() bukan data() — jQuery auto-cast int menyebabkan === gagal
+            selectItem($(this).attr('data-value'));
         });
         $(document).on('click.ss_update_url', function(e) {
             if (!$(e.target).closest(cfg.trigger).length &&
@@ -522,7 +526,6 @@ $(document).ready(function () {
         hiddenInput:   '#fk_web_menu_url',
         trigger:       '#ssTriggerUpdate',
         display:       '#ssDisplayUpdate',
-        clearBtn:      '#ssClearUpdate',
         dropdown:      '#ssDropdownUpdate',
         searchInput:   '#ssSearchUpdate',
         stats:         '#ssStatsUpdate',
