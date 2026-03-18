@@ -5,11 +5,13 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class Seeder000002MUser extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();
         $data = [
             // Super Admin User
             [
@@ -25,7 +27,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:11:03',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -45,7 +47,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:43:48',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -65,7 +67,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:45:50',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -85,7 +87,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:48:16',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -105,7 +107,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:50:09',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -125,7 +127,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-10 04:32:09',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -145,7 +147,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-20 21:06:21',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -165,7 +167,7 @@ class Seeder000002MUser extends Seeder
                 'foto_profil' => null,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-23 10:29:43',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
