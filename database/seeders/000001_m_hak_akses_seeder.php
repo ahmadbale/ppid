@@ -4,11 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class Seeder000001MHakAkses extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();
         $data = [
             // Super Administrator - Full Access
             [
@@ -17,7 +19,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Super Administrator',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:06:18',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -30,7 +32,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Administrator',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:06:18',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -43,7 +45,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Manajemen dan Pimpinan Unit',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:08:30',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -56,7 +58,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Verifikator',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:08:30',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -69,7 +71,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Responden',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:08:30',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -82,11 +84,11 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Operator Senior',
                 'isDeleted' => 1,
                 'created_by' => 'System',
-                'created_at' => '2025-04-28 21:35:04',
+                'created_at' => $now,
                 'updated_by' => 'Gelby F.',
-                'updated_at' => '2025-04-28 21:35:54',
+                'updated_at' => $now,
                 'deleted_by' => 'Gelby F.',
-                'deleted_at' => '2025-04-28 21:35:54',
+                'deleted_at' => $now,
             ],
             // Assessor Access
             [
@@ -95,7 +97,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Acessor',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-05-14 06:49:36',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,

@@ -4,11 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class Seeder000006SetHakAkses extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();
         $data = [
             // Super Admin - Management Menu Global (id:74)
             [
@@ -22,7 +24,7 @@ class Seeder000006SetHakAkses extends Seeder
                 'ha_delete' => 1,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-02 03:05:25',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -40,7 +42,7 @@ class Seeder000006SetHakAkses extends Seeder
                 'ha_delete' => 1,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-02 03:05:25',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -58,7 +60,7 @@ class Seeder000006SetHakAkses extends Seeder
                 'ha_delete' => 1,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-02 03:05:25',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -76,7 +78,7 @@ class Seeder000006SetHakAkses extends Seeder
                 'ha_delete' => 1,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-02 03:05:25',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -94,7 +96,7 @@ class Seeder000006SetHakAkses extends Seeder
                 'ha_delete' => 1,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-02 03:05:25',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -112,7 +114,7 @@ class Seeder000006SetHakAkses extends Seeder
                 'ha_delete' => 1,
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-06-02 03:05:25',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
