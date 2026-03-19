@@ -64,18 +64,22 @@ Setiap row data harus memiliki audit fields berikut:
 
 | Field | Value | Aturan |
 |-------|-------|--------|
-| `created_by` | `'System'` or `'Seeder'` | Selalu `'System'` untuk data seeder pertama kali |
-| `created_at` | Timestamp | Format: `'YYYY-MM-DD HH:MM:SS'` atau `now()` saat seeding |
-| `updated_by` | `null` | Hanya ada value jika ada update setelah create |
-| `updated_at` | `null` | Hanya ada value jika ada update setelah create |
-| `deleted_by` | `null` atau nama user | Hanya ada value jika `isDeleted = 1` sesuai DDL |
-| `deleted_at` | `null` atau timestamp | Hanya ada value jika `isDeleted = 1` sesuai DDL |
+| `created_by` | `'System'` | **SELALU `'System'` untuk seeder** |
+| `created_at` | `$now` (Carbon) | **WAJIB menggunakan `Carbon::now()`** |
+| `updated_by` | `null` | **SELALU `null` saat create (tidak perlu diubah)** |
+| `updated_at` | `null` | **SELALU `null` saat create (tidak perlu diubah)** |
+| `deleted_by` | `null` | **SELALU `null` (tidak boleh ada record dengan isDeleted = 1)** |
+| `deleted_at` | `null` | **SELALU `null` (tidak boleh ada record dengan isDeleted = 1)** |
 
 **Rule Penting:**
-- `created_by` → `'System'` (konsisten untuk seeder)
-- `created_at` → Use actual datetime seeder dibuat
-- Jika `isDeleted = 0` → `updated_by`, `updated_at`, `deleted_by`, `deleted_at` = `null`
-- Jika `isDeleted = 1` → `deleted_by` dan `deleted_at` harus memiliki value sesuai DDL
+- `created_by` → **SELALU `'System'`** (tidak boleh nilai lain)
+- `created_at` → **WAJIB `$now`** (menggunakan `Carbon::now()`)
+- `updated_by`, `updated_at` → **SELALU `null`** (jangan ada nilai)
+- `deleted_by`, `deleted_at` → **SELALU `null`** (jangan ada nilai)
+- **TIDAK BOLEH** menulis record dengan `isDeleted = 1` ke dalam seeder
+  - Jika ada record dengan `isDeleted = 1` di SQL, SKIP ID tersebut
+  - Contoh: ID 50 ada, ID 51 `isDeleted = 1` (skip), langsung lanjut ke ID 52
+- Soft delete (update record menjadi `isDeleted = 1`) dilakukan **SETELAH data aktif di production**, bukan pada seeder awal
 
 ### 3.2 Password/Hash Fields
 
@@ -113,8 +117,11 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;  // Jika ada password hashing
+use Illuminate\Support\Facades\Hash;     // Jika ada password hashing
+use Carbon\Carbon;                        // WAJIB untuk created_at dinamis
 ```
+
+**CATATAN:** Import `Carbon\Carbon` adalah **MANDATORY** untuk semua seeder agar bisa menggunakan `$now = Carbon::now()`
 
 ## 5. Method: insertOrIgnore()
 
@@ -148,11 +155,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class Seeder000002MUser extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();  // Capture waktu eksekusi seeder
+
         $data = [
             [
                 'user_id' => 1,
@@ -161,7 +171,7 @@ class Seeder000002MUser extends Seeder
                 'password' => Hash::make('password123'),
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:11:03',
+                'created_at' => $now,  // ✅ Dynamic timestamp
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -174,6 +184,11 @@ class Seeder000002MUser extends Seeder
     }
 }
 ```
+
+**PENTING:** 
+- Gunakan `$now = Carbon::now();` sekali di awal method `run()`
+- Semua records dalam batch akan punya timestamp yang sama
+- Ini memastikan akurasi audit trail
 
 ## 7. Catatan Penting
 
@@ -214,10 +229,14 @@ $data = [
 ### Seeder tanpa FK (Master Data)
 ```php
 // 000001_m_hak_akses_seeder.php
+use Carbon\Carbon;
+
 class Seeder000001MHakAkses extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();
+
         $data = [
             [
                 'hak_akses_id' => 1,
@@ -225,7 +244,7 @@ class Seeder000001MHakAkses extends Seeder
                 'hak_akses_nama' => 'Super Administrator',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:06:18',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -241,10 +260,15 @@ class Seeder000001MHakAkses extends Seeder
 ### Seeder dengan Password Hashing
 ```php
 // 000002_m_user_seeder.php
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+
 class Seeder000002MUser extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();
+
         $data = [
             [
                 'user_id' => 1,
@@ -253,7 +277,7 @@ class Seeder000002MUser extends Seeder
                 'email_pengguna' => 'gelby@example.com',
                 'isDeleted' => 0,
                 'created_by' => 'System',
-                'created_at' => '2025-03-02 13:11:03',
+                'created_at' => $now,
                 'updated_by' => null,
                 'updated_at' => null,
                 'deleted_by' => null,
@@ -267,22 +291,51 @@ class Seeder000002MUser extends Seeder
 ```
 
 ### Seeder dengan Soft Delete (isDeleted = 1)
+**⛔ PERHATIAN:** Jangan tulis record dengan `isDeleted = 1` di seeder!
+
+Seeder hanya untuk data aktif (`isDeleted = 0`). Record dengan `isDeleted = 1` adalah hasil **update** di production setelah data digunakan.
+
+**Jika SQL export memiliki record dengan isDeleted = 1:**
+- SKIP ID tersebut
+- Lanjut ke ID berikutnya
+- Nomor ID akan ada gap (mis: 50, 52, 53 - ID 51 skipped)
+
+**Contoh SALAH ❌:**
 ```php
-// 000001_m_hak_akses_seeder.php
-$data = [
-    [
-        'hak_akses_id' => 6,
-        'hak_akses_kode' => 'OPT',
-        'hak_akses_nama' => 'Operator Senior',
-        'isDeleted' => 1,  // Soft deleted
-        'created_by' => 'System',
-        'created_at' => '2025-04-28 21:35:04',
-        'updated_by' => 'Gelby F.',
-        'updated_at' => '2025-04-28 21:35:54',
-        'deleted_by' => 'Gelby F.',  // ✅ Must have value when isDeleted = 1
-        'deleted_at' => '2025-04-28 21:35:54',  // ✅ Must have value when isDeleted = 1
-    ],
-];
+[
+    'web_menu_url_id' => 51,
+    'wmu_nama' => 'suiii',
+    'isDeleted' => 1,  // ❌ JANGAN TULIS INI
+    'created_by' => 'Gelby F.',  // ❌ Harus 'System'
+    'deleted_by' => 'Gelby F.',  // ❌ Harus null
+    'deleted_at' => $now,  // ❌ Harus null
+],
+```
+
+**Contoh BENAR ✅ (Skip ID 51, langsung ke 52):**
+```php
+[
+    'web_menu_url_id' => 50,
+    'wmu_nama' => 'management-menu-url',
+    'isDeleted' => 0,  // ✅ Active record
+    'created_by' => 'System',  // ✅ Selalu System
+    'created_at' => $now,
+    'updated_by' => null,  // ✅ Selalu null
+    'updated_at' => null,  // ✅ Selalu null
+    'deleted_by' => null,  // ✅ Selalu null
+    'deleted_at' => null,  // ✅ Selalu null
+],
+[
+    'web_menu_url_id' => 52,  // ✅ Skip 51
+    'wmu_nama' => 'management-menu-global',
+    'isDeleted' => 0,
+    'created_by' => 'System',
+    'created_at' => $now,
+    'updated_by' => null,
+    'updated_at' => null,
+    'deleted_by' => null,
+    'deleted_at' => null,
+],
 ```
 
 ## 9. Validation Checklist
@@ -294,15 +347,17 @@ Sebelum commit seeder, pastikan:
 - [ ] Class name format `Seeder{Nomor}{TableName}`
 - [ ] Namespace correct: `Database\Seeders`
 - [ ] Menggunakan `insertOrIgnore()` bukan `insert()`
-- [ ] `created_by` = `'System'`
+- [ ] `created_by` = `'System'` (SELALU)
+- [ ] `created_at` = `$now` (menggunakan Carbon::now())
+- [ ] `updated_by` = `null` (SELALU)
+- [ ] `updated_at` = `null` (SELALU)
+- [ ] `deleted_by` = `null` (SELALU)
+- [ ] `deleted_at` = `null` (SELALU)
+- [ ] **Tidak ada record dengan `isDeleted = 1`** (SKIP jika ada di SQL)
 - [ ] Password/hash fields menggunakan `Hash::make()` atau `bcrypt()`
-- [ ] Audit fields lengkap: `created_at`, `updated_by`, `updated_at`, `deleted_by`, `deleted_at`
-- [ ] Jika `isDeleted = 1`, pastikan `deleted_by` dan `deleted_at` memiliki value
-- [ ] Jika `isDeleted = 0`, pastikan `deleted_by` dan `deleted_at` = `null`
 - [ ] FK values valid dan exist di parent table
-- [ ] Timestamp format konsisten: `'YYYY-MM-DD HH:MM:SS'`
+- [ ] Jika ada gap di ID (skip), tandai dengan comment
 - [ ] Comment penting atau special meaning
-- [ ] No plain text password atau sensitive data tanpa hashing
 
 ---
 

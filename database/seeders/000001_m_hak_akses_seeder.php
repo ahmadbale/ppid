@@ -77,19 +77,6 @@ class Seeder000001MHakAkses extends Seeder
                 'deleted_by' => null,
                 'deleted_at' => null,
             ],
-            // Senior Operator - DELETED (soft delete: isDeleted = 1)
-            [
-                'hak_akses_id' => 6,
-                'hak_akses_kode' => 'OPT',
-                'hak_akses_nama' => 'Operator Senior',
-                'isDeleted' => 1,
-                'created_by' => 'System',
-                'created_at' => $now,
-                'updated_by' => 'Gelby F.',
-                'updated_at' => $now,
-                'deleted_by' => 'Gelby F.',
-                'deleted_at' => $now,
-            ],
             // Assessor Access
             [
                 'hak_akses_id' => 7,
