@@ -27,7 +27,7 @@
         </div>
         
         <div class="card-body">
-            <div class="info-message alert-info mb-4">
+            <div class="info-message mb-4">
                 <div class="row">
                     <div class="col-md-8">
                         <h6><i class="fas fa-info-circle mr-2"></i>Panduan Pengaturan Menu</h6>
@@ -82,7 +82,7 @@
         </div>
     </div>
 
-    <form id="setMenuForm" method="POST" action="{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/createData') }}">
+    <form id="setMenuForm" method="POST" action="{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management') . '/createData') }}" class="menu-management-form">
         @csrf
         <input type="hidden" name="hak_akses_id" value="{{ $level->hak_akses_id }}">
         
@@ -429,16 +429,26 @@
             @endif
         @endforeach
         
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
-                <button type="submit" class="btn btn-primary btn-lg px-5">
+        <div class="floating-action-spacer" aria-hidden="true"></div>
+
+        <div class="floating-action-bar" role="region" aria-label="Aksi formulir menu">
+            <div class="floating-action-inner">
+                <button type="button" id="toggleActionBarBtn" class="btn btn-light btn-sm floating-hide-btn" title="Sembunyikan panel aksi" aria-label="Sembunyikan panel aksi">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+
+                <button type="submit" id="saveMenuBtn" class="btn btn-save btn-sm px-4 py-2" data-toggle="tooltip" data-placement="top" title="">
                     <i class="fas fa-save mr-2"></i> Simpan Semua Menu
                 </button>
-                <a href="{{ url('/' . WebMenuModel::getDynamicMenuUrl('menu-management')) }}" 
-                   class="btn btn-secondary btn-lg px-5 ml-2">
-                    <i class="fas fa-times mr-2"></i> Batal
-                </a>
+                <button type="button" id="resetMenuConfigBtn" class="btn btn-reset btn-sm px-4 py-2">
+                    <i class="fas fa-undo-alt mr-2"></i> Reset Konfigurasi Menu
+                </button>
             </div>
+
+            <button type="button" id="showActionBarBtn" class="floating-mini-fab" title="Tampilkan panel aksi" aria-label="Tampilkan panel aksi" style="display: none;">
+                <i class="fas fa-angle-left"></i>
+                <span class="mini-badge" id="hiddenDirtyBadge" style="display: none;">!</span>
+            </button>
         </div>
     </form>
 </div>
@@ -446,6 +456,7 @@
 
 @push('css')
 <style>
+    .menu-management-form {position: relative;}
     .status-toggle {min-width: 100px; transition: all 0.3s ease;}
     .status-toggle:hover {transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
     .badge-lg {font-size: 0.9rem; padding: 0.5rem 0.75rem;}
@@ -458,17 +469,167 @@
     .table th {border-top: none; font-weight: 600; color: #495057;}
     .table-hover tbody tr:hover {background-color: rgba(0,123,255,0.05);}
     .bg-gradient-secondary {background: linear-gradient(135deg, #6c757d 0%, #495057 100%);}
-    .menu-statistics {background: rgba(255,255,255,0.8); border-radius: 0.5rem; padding: 1rem; border: 1px solid rgba(0,123,255,0.2);}
+    .menu-statistics {background: #ffffff; border-radius: 0.5rem; padding: 1rem; border: 1px solid #d6e7ff; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);}
     .stat-card {transition: all 0.3s ease; cursor: default; border: 1px solid rgba(255,255,255,0.2);}
     .stat-card:hover {transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15);}
     .stat-number {font-size: 1.5rem; font-weight: bold; line-height: 1;}
     .stat-label {font-size: 0.75rem; opacity: 0.9; display: block; margin-top: 0.25rem;}
     .progress-sm {height: 0.5rem; margin-top: 0.5rem;}
     .progress-bar {transition: width 0.6s ease;}
-    .info-message {background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 1px solid #90caf9; border-radius: 0.5rem; padding: 1.25rem;}
+    .info-message {
+        background: linear-gradient(135deg, #0f3d75 0%, #1d4f91 45%, #2d67ad 100%);
+        border: 1px solid #0e3a70;
+        border-radius: 0.65rem;
+        padding: 1.25rem;
+        box-shadow: 0 10px 20px rgba(15, 61, 117, 0.22);
+        color: #f8fbff;
+    }
+    .info-message h6,
+    .info-message li,
+    .info-message small,
+    .info-message .text-muted,
+    .info-message strong,
+    .info-message i {
+        color: #f8fbff !important;
+    }
+    .floating-action-spacer {
+        height: 110px;
+    }
+    .floating-action-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1040;
+        pointer-events: none;
+        padding: 0 1rem 1rem;
+    }
+    .floating-action-inner {
+        margin-left: 250px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 0.75rem;
+        box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.14);
+        padding: 0.85rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        pointer-events: auto;
+        width: fit-content;
+        max-width: calc(100vw - 280px);
+        margin-right: 1rem;
+        margin-left: auto;
+    }
+    .floating-action-inner .btn {
+        min-height: 38px;
+    }
+    .floating-action-inner .btn-save,
+    .floating-action-inner .btn-reset {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    .btn-save {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #fff;
+        border: 1px solid #0f6d33;
+        box-shadow: 0 6px 14px rgba(21, 128, 61, 0.3);
+    }
+    .btn-save:hover,
+    .btn-save:focus {
+        background: linear-gradient(135deg, #15803d, #166534);
+        color: #fff;
+    }
+    .btn-reset {
+        background: linear-gradient(135deg, #facc15, #eab308);
+        color: #4a3300;
+        border: 1px solid #d4a106;
+        box-shadow: 0 6px 14px rgba(234, 179, 8, 0.28);
+    }
+    .btn-reset:hover,
+    .btn-reset:focus {
+        background: linear-gradient(135deg, #eab308, #ca8a04);
+        color: #3b2a00;
+    }
+    .floating-hide-btn {
+        width: 34px;
+        min-width: 34px;
+        padding: 0;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(29, 78, 216, 0.25);
+        color: #1d4ed8;
+        background: #eff6ff;
+    }
+    .floating-mini-fab {
+        position: absolute;
+        right: 1rem;
+        bottom: 1rem;
+        border: 0;
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        color: #fff;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        justify-content: center;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.38);
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        pointer-events: auto;
+    }
+    .floating-mini-fab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.45);
+    }
+    .floating-mini-fab .mini-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        line-height: 18px;
+        border-radius: 999px;
+        background: #ef4444;
+        color: #fff;
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .floating-action-bar.is-hidden .floating-action-inner {
+        display: none;
+    }
     @media (max-width: 768px) {
         .menu-statistics {margin-top: 1rem;}
         .stat-number {font-size: 1.25rem;}
+        .floating-action-spacer {
+            height: 130px;
+        }
+        .floating-action-bar {
+            padding: 0 0.75rem 0.75rem;
+        }
+        .floating-action-inner {
+            margin-left: 0;
+            flex-direction: column;
+            align-items: stretch;
+            width: calc(100% - 0.5rem);
+            max-width: none;
+            margin-right: 0;
+        }
+        .floating-action-inner .btn {
+            min-width: 0;
+            width: 100%;
+            margin-left: 0 !important;
+        }
+        .floating-hide-btn {
+            width: 100%;
+        }
+        .floating-mini-fab {
+            right: 0.75rem;
+            bottom: 0.75rem;
+        }
     }
 </style>
 @endpush
@@ -477,6 +638,91 @@
 <script>
 $(document).ready(function() {
     let changeNotificationShown = false;
+    let isDirty = false;
+
+    if ($.fn.tooltip) {
+        $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' });
+    }
+
+    function normalizeInputValue($el) {
+        const type = ($el.attr('type') || '').toLowerCase();
+        if (type === 'checkbox' || type === 'radio') {
+            return $el.prop('checked') ? '1' : '0';
+        }
+        return $el.val();
+    }
+
+    function setStatusButtonState($btn, status) {
+        if (status === 'aktif') {
+            $btn.removeClass('btn-danger').addClass('btn-success');
+            $btn.html('<i class="fas fa-check mr-1"></i>Aktif');
+        } else {
+            $btn.removeClass('btn-success').addClass('btn-danger');
+            $btn.html('<i class="fas fa-times mr-1"></i>Nonaktif');
+        }
+    }
+
+    function snapshotInitialState() {
+        $('.track-change').each(function() {
+            const $el = $(this);
+            $el.attr('data-initial-value', normalizeInputValue($el));
+        });
+
+        $('.status-toggle').each(function() {
+            const $btn = $(this);
+            const menuId = $btn.data('menu-id');
+            const statusVal = $('input[name="menus[' + menuId + '][status]"]').val() || ($btn.hasClass('btn-success') ? 'aktif' : 'nonaktif');
+            $btn.attr('data-initial-status', statusVal);
+        });
+
+        $('.menu-modified').each(function() {
+            $(this).attr('data-initial-modified', $(this).val() || '0');
+        });
+
+        refreshDirtyState();
+    }
+
+    function refreshDirtyState() {
+        let dirtyFound = false;
+
+        $('.track-change').each(function() {
+            const $el = $(this);
+            const current = normalizeInputValue($el);
+            const initial = $el.attr('data-initial-value');
+            if (current !== initial) {
+                dirtyFound = true;
+                return false;
+            }
+        });
+
+        if (!dirtyFound) {
+            $('.status-toggle').each(function() {
+                const $btn = $(this);
+                const menuId = $btn.data('menu-id');
+                const currentStatus = $('input[name="menus[' + menuId + '][status]"]').val() || ($btn.hasClass('btn-success') ? 'aktif' : 'nonaktif');
+                const initialStatus = $btn.attr('data-initial-status') || 'nonaktif';
+                if (currentStatus !== initialStatus) {
+                    dirtyFound = true;
+                    return false;
+                }
+            });
+        }
+
+        isDirty = dirtyFound;
+
+        const $statusIndicator = $('#floatingStatusIndicator');
+        const $hiddenBadge = $('#hiddenDirtyBadge');
+        const $saveBtn = $('#saveMenuBtn');
+
+        if (isDirty) {
+            $saveBtn.attr('title', 'Ada perubahan belum disimpan').tooltip('fixTitle');
+            $hiddenBadge.show();
+        } else {
+            $saveBtn.attr('title', '').tooltip('fixTitle');
+            $saveBtn.tooltip('hide');
+            $hiddenBadge.hide();
+        }
+    }
     
     $('.track-change').on('change', function() {
         var menuId = $(this).data('menu-id');
@@ -488,6 +734,8 @@ $(document).ready(function() {
             changeNotificationShown = true;
             setTimeout(() => { changeNotificationShown = false; }, 3000);
         }
+
+        refreshDirtyState();
     });
     
     $('.status-toggle').on('click', function() {
@@ -511,6 +759,7 @@ $(document).ready(function() {
             $('input[name="menus[' + menuId + '][modified]"]').val('1');
             $btn.closest('.card').addClass('border-warning');
             $btn.prop('disabled', false);
+            refreshDirtyState();
         }, 200);
     });
     
@@ -545,6 +794,7 @@ $(document).ready(function() {
             $('.permission-checkbox[data-menu-id="' + menuId + '"]').on('change.hierarchy', function() {
                 $(this).trigger('change');
             });
+            refreshDirtyState();
         }, 100);
     });
     
@@ -631,6 +881,7 @@ $(document).ready(function() {
         setTimeout(() => {
             $btn.prop('disabled', false).html('<i class="fas fa-check-square"></i> Pilih Semua');
             $checkboxes.on('change.hierarchy', function() { $(this).trigger('change'); });
+            refreshDirtyState();
         }, 500);
     });
     
@@ -651,8 +902,57 @@ $(document).ready(function() {
         setTimeout(() => {
             $btn.prop('disabled', false).html('<i class="fas fa-square"></i> Bersihkan');
             $checkboxes.on('change.hierarchy', function() { $(this).trigger('change'); });
+            refreshDirtyState();
         }, 500);
     });
+
+    $('#resetMenuConfigBtn').on('click', function() {
+        if (!confirm('Reset semua konfigurasi ke kondisi awal saat halaman dibuka?')) {
+            return;
+        }
+
+        $('.track-change').each(function() {
+            const $el = $(this);
+            const initialValue = $el.attr('data-initial-value');
+            const type = ($el.attr('type') || '').toLowerCase();
+
+            if (type === 'checkbox' || type === 'radio') {
+                $el.prop('checked', initialValue === '1');
+            } else {
+                $el.val(initialValue);
+            }
+        });
+
+        $('.status-toggle').each(function() {
+            const $btn = $(this);
+            const menuId = $btn.data('menu-id');
+            const initialStatus = $btn.attr('data-initial-status') || 'nonaktif';
+
+            setStatusButtonState($btn, initialStatus);
+            $('input[name="menus[' + menuId + '][status]"]').val(initialStatus);
+        });
+
+        $('.menu-modified').each(function() {
+            const initialModified = $(this).attr('data-initial-modified') || '0';
+            $(this).val(initialModified);
+        });
+
+        $('.border-warning').removeClass('border-warning');
+        toastr.info('Konfigurasi menu berhasil dikembalikan ke kondisi awal', 'Reset Berhasil');
+        refreshDirtyState();
+    });
+
+    $('#toggleActionBarBtn').on('click', function() {
+        $('.floating-action-bar').addClass('is-hidden');
+        $('#showActionBarBtn').show();
+    });
+
+    $('#showActionBarBtn').on('click', function() {
+        $('.floating-action-bar').removeClass('is-hidden');
+        $(this).hide();
+    });
+
+    snapshotInitialState();
 });
 </script>
 @endpush
