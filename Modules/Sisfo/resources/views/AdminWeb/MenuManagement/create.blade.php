@@ -437,7 +437,7 @@
                     <i class="fas fa-angle-right"></i>
                 </button>
 
-                <button type="submit" id="saveMenuBtn" class="btn btn-save btn-sm px-4 py-2" data-toggle="tooltip" data-placement="top" title="">
+                <button type="submit" id="saveMenuBtn" class="btn btn-save btn-sm px-4 py-2">
                     <i class="fas fa-save mr-2"></i> Simpan Semua Menu
                 </button>
                 <button type="button" id="resetMenuConfigBtn" class="btn btn-reset btn-sm px-4 py-2">
@@ -449,6 +449,11 @@
                 <i class="fas fa-angle-left"></i>
                 <span class="mini-badge" id="hiddenDirtyBadge" style="display: none;">!</span>
             </button>
+
+            <div id="customDirtyTooltip" class="custom-dirty-tooltip" style="display: none;" role="status" aria-live="polite">
+                Ada perubahan belum disimpan
+                <span class="custom-dirty-tooltip-arrow"></span>
+            </div>
         </div>
     </form>
 </div>
@@ -556,9 +561,15 @@
         min-width: 34px;
         padding: 0;
         border-radius: 0.5rem;
-        border: 1px solid rgba(29, 78, 216, 0.25);
-        color: #1d4ed8;
-        background: #eff6ff;
+        border: 1px solid #1d4ed8;
+        color: #ffffff;
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+    }
+    .floating-hide-btn:hover,
+    .floating-hide-btn:focus {
+        color: #ffffff;
+        background: linear-gradient(135deg, #1e40af, #1d4ed8);
     }
     .floating-mini-fab {
         position: absolute;
@@ -597,6 +608,33 @@
         text-align: center;
         font-size: 0.72rem;
         font-weight: 700;
+    }
+    .custom-dirty-tooltip {
+        position: fixed;
+        z-index: 1060;
+        background: linear-gradient(135deg, #fff7d6, #ffe9a8);
+        color: #7a4b00;
+        border: 1px solid #f3c350;
+        border-radius: 999px;
+        padding: 0.45rem 0.8rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 10px 22px rgba(122, 75, 0, 0.2);
+        pointer-events: none;
+    }
+    .custom-dirty-tooltip-arrow {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -6px;
+        width: 10px;
+        height: 10px;
+        background: #ffd975;
+        border-right: 1px solid #f3c350;
+        border-bottom: 1px solid #f3c350;
+        transform-origin: center;
+        rotate: 45deg;
     }
     .floating-action-bar.is-hidden .floating-action-inner {
         display: none;
@@ -640,10 +678,6 @@ $(document).ready(function() {
     let changeNotificationShown = false;
     let isDirty = false;
 
-    if ($.fn.tooltip) {
-        $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' });
-    }
-
     function normalizeInputValue($el) {
         const type = ($el.attr('type') || '').toLowerCase();
         if (type === 'checkbox' || type === 'radio') {
@@ -682,6 +716,47 @@ $(document).ready(function() {
         refreshDirtyState();
     }
 
+    function getActiveTooltipTarget() {
+        const isHiddenMode = $('.floating-action-bar').hasClass('is-hidden');
+        return isHiddenMode ? $('#showActionBarBtn') : $('#saveMenuBtn');
+    }
+
+    function updateCustomDirtyTooltipPosition() {
+        const $tooltip = $('#customDirtyTooltip');
+
+        if (!isDirty) {
+            $tooltip.hide();
+            return;
+        }
+
+        const $target = getActiveTooltipTarget();
+        if ($target.length === 0 || !$target.is(':visible')) {
+            $tooltip.hide();
+            return;
+        }
+
+        $tooltip.show();
+
+        const targetRect = $target[0].getBoundingClientRect();
+        const tooltipEl = $tooltip[0];
+        const tooltipWidth = tooltipEl.offsetWidth;
+        const tooltipHeight = tooltipEl.offsetHeight;
+        const margin = 12;
+
+        let left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
+        left = Math.max(margin, Math.min(left, window.innerWidth - tooltipWidth - margin));
+
+        let top = targetRect.top - tooltipHeight - 10;
+        if (top < margin) {
+            top = margin;
+        }
+
+        $tooltip.css({
+            left: `${left}px`,
+            top: `${top}px`
+        });
+    }
+
     function refreshDirtyState() {
         let dirtyFound = false;
 
@@ -710,18 +785,15 @@ $(document).ready(function() {
 
         isDirty = dirtyFound;
 
-        const $statusIndicator = $('#floatingStatusIndicator');
         const $hiddenBadge = $('#hiddenDirtyBadge');
-        const $saveBtn = $('#saveMenuBtn');
 
         if (isDirty) {
-            $saveBtn.attr('title', 'Ada perubahan belum disimpan').tooltip('fixTitle');
             $hiddenBadge.show();
         } else {
-            $saveBtn.attr('title', '').tooltip('fixTitle');
-            $saveBtn.tooltip('hide');
             $hiddenBadge.hide();
         }
+
+        updateCustomDirtyTooltipPosition();
     }
     
     $('.track-change').on('change', function() {
@@ -945,11 +1017,17 @@ $(document).ready(function() {
     $('#toggleActionBarBtn').on('click', function() {
         $('.floating-action-bar').addClass('is-hidden');
         $('#showActionBarBtn').show();
+        updateCustomDirtyTooltipPosition();
     });
 
     $('#showActionBarBtn').on('click', function() {
         $('.floating-action-bar').removeClass('is-hidden');
         $(this).hide();
+        updateCustomDirtyTooltipPosition();
+    });
+
+    $(window).on('resize scroll', function() {
+        updateCustomDirtyTooltipPosition();
     });
 
     snapshotInitialState();
