@@ -7,7 +7,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="card card-outline card-primary shadow-sm">
+    <div class="card card-outline card-primary shadow-sm menu-page-hero">
         <div class="card-header bg-primary text-white">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -91,7 +91,7 @@
         @foreach($menuGlobal as $menu)
             @if(is_null($menu->wmg_parent_id))
                 @if(is_null($menu->fk_web_menu_url))
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4 menu-group-card">
                         <div class="card-header bg-gradient-secondary text-white">
                             <div class="row align-items-center">
                                 <div class="col-md-1">
@@ -264,8 +264,8 @@
                                                             <button type="button" class="btn btn-outline-success btn-sm quick-select-all" data-menu-id="{{ $subMenu->web_menu_global_id }}">
                                                                 <i class="fas fa-check-square"></i> Pilih Semua
                                                             </button>
-                                                            <button type="button" class="btn btn-outline-warning btn-sm quick-clear-all" data-menu-id="{{ $subMenu->web_menu_global_id }}">
-                                                                <i class="fas fa-square"></i> Bersihkan
+                                                            <button type="button" class="btn btn-outline-danger btn-sm quick-clear-all" data-menu-id="{{ $subMenu->web_menu_global_id }}">
+                                                                <i class="fas fa-times"></i> Bersihkan
                                                             </button>
                                                         </div>
                                                     </td>
@@ -295,7 +295,7 @@
                         $singleDefaultStatus = $existingMenus[$menu->web_menu_global_id]['status'] ?? $menu->wmg_status_menu;
                         $permissions = $existingMenus[$menu->web_menu_global_id]['permissions'] ?? [];
                     @endphp
-                    <div class="card shadow-sm mb-3">
+                    <div class="card shadow-sm mb-3 menu-single-card">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-1 text-center">
@@ -408,8 +408,8 @@
                                         <button type="button" class="btn btn-outline-success btn-sm quick-select-all" data-menu-id="{{ $menu->web_menu_global_id }}">
                                             <i class="fas fa-check-square"></i> Pilih Semua
                                         </button>
-                                        <button type="button" class="btn btn-outline-warning btn-sm quick-clear-all" data-menu-id="{{ $menu->web_menu_global_id }}">
-                                            <i class="fas fa-square"></i> Bersihkan
+                                        <button type="button" class="btn btn-outline-danger btn-sm quick-clear-all" data-menu-id="{{ $menu->web_menu_global_id }}">
+                                            <i class="fas fa-times"></i> Bersihkan
                                         </button>
                                     </div>
                                 </div>
@@ -451,7 +451,10 @@
             </button>
 
             <div id="customDirtyTooltip" class="custom-dirty-tooltip" style="display: none;" role="status" aria-live="polite">
-                Ada perubahan belum disimpan
+                <span class="tooltip-text">Ada perubahan belum disimpan</span>
+                <button type="button" id="closeDirtyTooltipBtn" class="tooltip-close-btn" aria-label="Sembunyikan tooltip perubahan">
+                    <i class="fas fa-times"></i>
+                </button>
                 <span class="custom-dirty-tooltip-arrow"></span>
             </div>
         </div>
@@ -462,6 +465,25 @@
 @push('css')
 <style>
     .menu-management-form {position: relative;}
+    .menu-page-hero {
+        border: 1px solid #bfdbfe;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 10px 22px rgba(30, 64, 175, 0.12);
+        background: #f8fbff;
+    }
+    .menu-page-hero .card-header.bg-primary {
+        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+    .menu-page-hero .card-header .btn-light {
+        border: 1px solid #bfdbfe;
+        color: #1e3a8a;
+        font-weight: 600;
+    }
+    .menu-page-hero .card-body {
+        background: linear-gradient(180deg, #eef5ff 0%, #ffffff 70%);
+    }
     .status-toggle {min-width: 100px; transition: all 0.3s ease;}
     .status-toggle:hover {transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
     .badge-lg {font-size: 0.9rem; padding: 0.5rem 0.75rem;}
@@ -469,12 +491,12 @@
     .permission-group .col {padding: 0.25rem;}
     .custom-control-label::before {border-radius: 0.25rem;}
     .custom-control-input:checked ~ .custom-control-label::before {background-color: #007bff; border-color: #007bff;}
-    .card {transition: all 0.3s ease;}
-    .card:hover {transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+    .card {transition: all 0.25s ease;}
+    .card:hover {transform: translateY(-1px); box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);}
     .table th {border-top: none; font-weight: 600; color: #495057;}
-    .table-hover tbody tr:hover {background-color: rgba(0,123,255,0.05);}
+    .table-hover tbody tr:hover {background-color: rgba(30, 64, 175, 0.06);}
     .bg-gradient-secondary {background: linear-gradient(135deg, #6c757d 0%, #495057 100%);}
-    .menu-statistics {background: #ffffff; border-radius: 0.5rem; padding: 1rem; border: 1px solid #d6e7ff; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);}
+    .menu-statistics {background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%); border-radius: 0.65rem; padding: 1rem; border: 1px solid #bfdbfe; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.1);}
     .stat-card {transition: all 0.3s ease; cursor: default; border: 1px solid rgba(255,255,255,0.2);}
     .stat-card:hover {transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15);}
     .stat-number {font-size: 1.5rem; font-weight: bold; line-height: 1;}
@@ -482,11 +504,11 @@
     .progress-sm {height: 0.5rem; margin-top: 0.5rem;}
     .progress-bar {transition: width 0.6s ease;}
     .info-message {
-        background: linear-gradient(135deg, #0f3d75 0%, #1d4f91 45%, #2d67ad 100%);
-        border: 1px solid #0e3a70;
+        background: linear-gradient(135deg, #123e7a 0%, #1d4f91 50%, #2364ba 100%);
+        border: 1px solid #1d4f91;
         border-radius: 0.65rem;
         padding: 1.25rem;
-        box-shadow: 0 10px 20px rgba(15, 61, 117, 0.22);
+        box-shadow: 0 10px 22px rgba(18, 62, 122, 0.28);
         color: #f8fbff;
     }
     .info-message h6,
@@ -497,8 +519,56 @@
     .info-message i {
         color: #f8fbff !important;
     }
+    .menu-group-card,
+    .menu-single-card {
+        border: 1px solid #dbeafe;
+        border-radius: 0.7rem;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
+    .menu-group-card .card-header.bg-gradient-secondary {
+        background: linear-gradient(135deg, #475569 0%, #64748b 45%, #7b8ba0 100%) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .menu-single-card {
+        border-left: 4px solid #2563eb;
+        background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+    .menu-single-card .card-body {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    .menu-group-card + .menu-single-card,
+    .menu-single-card + .menu-group-card,
+    .menu-single-card + .menu-single-card,
+    .menu-group-card + .menu-group-card {
+        margin-top: 1.1rem;
+    }
+    .menu-group-card .table,
+    .menu-single-card .table {
+        border-color: #dbe5f1;
+    }
+    .menu-group-card .table thead th,
+    .menu-single-card .table thead th {
+        background: #edf4ff;
+        color: #1f3b6f;
+        border-bottom: 1px solid #cddcf5;
+    }
+    .quick-clear-all.btn-outline-danger {
+        color: #dc2626;
+        border-color: #fca5a5;
+        background: #fff5f5;
+    }
+    .quick-clear-all.btn-outline-danger:hover,
+    .quick-clear-all.btn-outline-danger:focus {
+        color: #ffffff;
+        border-color: #dc2626;
+        background: #dc2626;
+        box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+    }
     .floating-action-spacer {
-        height: 110px;
+        height: 98px;
     }
     .floating-action-bar {
         position: fixed;
@@ -515,11 +585,11 @@
         border: 1px solid rgba(0, 0, 0, 0.08);
         border-radius: 0.75rem;
         box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.14);
-        padding: 0.85rem 1rem;
+        padding: 0.62rem 0.72rem;
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 0.5rem;
+        gap: 0.42rem;
         pointer-events: auto;
         width: fit-content;
         max-width: calc(100vw - 280px);
@@ -527,11 +597,11 @@
         margin-left: auto;
     }
     .floating-action-inner .btn {
-        min-height: 38px;
+        min-height: 34px;
     }
     .floating-action-inner .btn-save,
     .floating-action-inner .btn-reset {
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         font-weight: 600;
     }
     .btn-save {
@@ -545,6 +615,22 @@
         background: linear-gradient(135deg, #15803d, #166534);
         color: #fff;
     }
+    #saveMenuBtn {
+        position: relative;
+        overflow: visible;
+    }
+    #saveMenuBtn.has-dirty-indicator::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45);
+    }
     .btn-reset {
         background: linear-gradient(135deg, #facc15, #eab308);
         color: #4a3300;
@@ -557,8 +643,9 @@
         color: #3b2a00;
     }
     .floating-hide-btn {
-        width: 34px;
-        min-width: 34px;
+        width: 30px;
+        min-width: 30px;
+        min-height: 34px;
         padding: 0;
         border-radius: 0.5rem;
         border: 1px solid #1d4ed8;
@@ -579,14 +666,14 @@
         background: linear-gradient(135deg, #1d4ed8, #2563eb);
         color: #fff;
         border-radius: 50%;
-        width: 56px;
-        height: 56px;
+        width: 50px;
+        height: 50px;
         display: inline-flex;
         align-items: center;
         gap: 0.45rem;
         justify-content: center;
         box-shadow: 0 10px 24px rgba(37, 99, 235, 0.38);
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         pointer-events: auto;
@@ -597,42 +684,70 @@
     }
     .floating-mini-fab .mini-badge {
         position: absolute;
-        top: -4px;
-        right: -4px;
-        min-width: 18px;
-        height: 18px;
-        line-height: 18px;
+        top: -6px;
+        right: -6px;
+        min-width: 22px;
+        height: 22px;
+        line-height: 22px;
         border-radius: 999px;
         background: #ef4444;
         color: #fff;
         text-align: center;
-        font-size: 0.72rem;
+        font-size: 0.78rem;
         font-weight: 700;
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.45);
     }
     .custom-dirty-tooltip {
         position: fixed;
         z-index: 1060;
-        background: linear-gradient(135deg, #fff7d6, #ffe9a8);
-        color: #7a4b00;
-        border: 1px solid #f3c350;
-        border-radius: 999px;
-        padding: 0.45rem 0.8rem;
-        font-size: 0.78rem;
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #14532d;
+        border: 1px solid #86efac;
+        border-radius: 0.65rem;
+        padding: 0.4rem 0.62rem 0.4rem 0.72rem;
+        font-size: 0.82rem;
         font-weight: 700;
         white-space: nowrap;
-        box-shadow: 0 10px 22px rgba(122, 75, 0, 0.2);
-        pointer-events: none;
+        box-shadow: 0 10px 20px rgba(22, 163, 74, 0.22);
+        pointer-events: auto;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+    .tooltip-text {
+        line-height: 1;
+    }
+    .tooltip-close-btn {
+        border: 0;
+        background: rgba(20, 83, 45, 0.12);
+        color: #14532d;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.62rem;
+        cursor: pointer;
+    }
+    .tooltip-close-btn:hover,
+    .tooltip-close-btn:focus {
+        background: rgba(20, 83, 45, 0.2);
+        color: #0f3b22;
+        outline: none;
     }
     .custom-dirty-tooltip-arrow {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-        bottom: -6px;
+        bottom: -10px;
         width: 10px;
         height: 10px;
-        background: #ffd975;
-        border-right: 1px solid #f3c350;
-        border-bottom: 1px solid #f3c350;
+        background: #bbf7d0;
+        border-right: 1px solid #86efac;
+        border-bottom: 1px solid #86efac;
         transform-origin: center;
         rotate: 45deg;
     }
@@ -643,7 +758,7 @@
         .menu-statistics {margin-top: 1rem;}
         .stat-number {font-size: 1.25rem;}
         .floating-action-spacer {
-            height: 130px;
+            height: 118px;
         }
         .floating-action-bar {
             padding: 0 0.75rem 0.75rem;
@@ -677,6 +792,7 @@
 $(document).ready(function() {
     let changeNotificationShown = false;
     let isDirty = false;
+    let tooltipDismissed = false;
 
     function normalizeInputValue($el) {
         const type = ($el.attr('type') || '').toLowerCase();
@@ -716,20 +832,17 @@ $(document).ready(function() {
         refreshDirtyState();
     }
 
-    function getActiveTooltipTarget() {
-        const isHiddenMode = $('.floating-action-bar').hasClass('is-hidden');
-        return isHiddenMode ? $('#showActionBarBtn') : $('#saveMenuBtn');
-    }
-
     function updateCustomDirtyTooltipPosition() {
         const $tooltip = $('#customDirtyTooltip');
+        const isHiddenMode = $('.floating-action-bar').hasClass('is-hidden');
 
-        if (!isDirty) {
+        // Saat hidden mode: tooltip disembunyikan agar clean, cukup badge merah saja.
+        if (!isDirty || isHiddenMode || tooltipDismissed) {
             $tooltip.hide();
             return;
         }
 
-        const $target = getActiveTooltipTarget();
+        const $target = $('#saveMenuBtn');
         if ($target.length === 0 || !$target.is(':visible')) {
             $tooltip.hide();
             return;
@@ -743,10 +856,12 @@ $(document).ready(function() {
         const tooltipHeight = tooltipEl.offsetHeight;
         const margin = 12;
 
+        // Tooltip diposisikan tepat di tengah tombol simpan
         let left = targetRect.left + (targetRect.width / 2) - (tooltipWidth / 2);
         left = Math.max(margin, Math.min(left, window.innerWidth - tooltipWidth - margin));
 
-        let top = targetRect.top - tooltipHeight - 10;
+        // Naikkan tooltip agar panah tidak terlalu mepet tombol
+        let top = targetRect.top - tooltipHeight - 12;
         if (top < margin) {
             top = margin;
         }
@@ -786,11 +901,15 @@ $(document).ready(function() {
         isDirty = dirtyFound;
 
         const $hiddenBadge = $('#hiddenDirtyBadge');
+        const $saveBtn = $('#saveMenuBtn');
 
         if (isDirty) {
             $hiddenBadge.show();
+            $saveBtn.addClass('has-dirty-indicator');
         } else {
             $hiddenBadge.hide();
+            $saveBtn.removeClass('has-dirty-indicator');
+            tooltipDismissed = false;
         }
 
         updateCustomDirtyTooltipPosition();
@@ -972,7 +1091,7 @@ $(document).ready(function() {
         toastr.info('Semua hak akses untuk menu ini telah dibersihkan', 'Bersihkan');
         
         setTimeout(() => {
-            $btn.prop('disabled', false).html('<i class="fas fa-square"></i> Bersihkan');
+            $btn.prop('disabled', false).html('<i class="fas fa-times"></i> Bersihkan');
             $checkboxes.on('change.hierarchy', function() { $(this).trigger('change'); });
             refreshDirtyState();
         }, 500);
@@ -1024,6 +1143,12 @@ $(document).ready(function() {
         $('.floating-action-bar').removeClass('is-hidden');
         $(this).hide();
         updateCustomDirtyTooltipPosition();
+    });
+
+    $('#closeDirtyTooltipBtn').on('click', function(e) {
+        e.preventDefault();
+        tooltipDismissed = true;
+        $('#customDirtyTooltip').hide();
     });
 
     $(window).on('resize scroll', function() {
