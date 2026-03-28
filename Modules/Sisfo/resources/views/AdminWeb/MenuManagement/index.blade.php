@@ -39,11 +39,10 @@
                     menyesuaikan.
                 </div>
             </div>
-            <div class="form-group mb-4 col-md-6">
+            <div class="form-group mb-4 col-md-6 col-lg-5">
                 <label for="filterKategori"><strong>Pilih Kategori Menu:</strong></label>
                 <select class="form-control" id="filterKategori">
-                    <option value="">-- Pilih Kategori --</option>
-                    <option value="all">Semua</option>
+                    <option value="all" selected>Semua</option>
                     @foreach($jenisMenuList as $kode => $nama)
                         <option value="{{ $kode }}">{{ $nama }}</option>
                     @endforeach
@@ -125,7 +124,136 @@
         .card-body.menu .dd-list,
         .card-body.menu .dd-item,
         .card-body.menu .dd-handle {
-            width: 960px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        .card-body.menu {
+            overflow-x: hidden;
+        }
+
+        .dd-item {
+            position: relative;
+        }
+
+        /* Override marker collapse bawaan Nestable: dari '-' menjadi ikon bintang */
+        .dd-item > button {
+            position: absolute;
+            left: 14px;
+            top: 19px;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            border: 1px solid #fcd34d;
+            border-radius: 4px;
+            background: #fff4d6;
+            color: transparent;
+            font-size: 0;
+            line-height: 1;
+            padding: 0;
+            margin: 0;
+            text-indent: -9999px;
+            overflow: hidden;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        .dd-item > button:before {
+            content: '\f005';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 10px;
+            color: #d97706;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-indent: 0;
+        }
+
+        .dd-item > button[data-action='expand']:before,
+        .dd-item > button[data-action='collapse']:before {
+            content: '\f005';
+        }
+
+        #menuKategoriWrapper,
+        #menuKategoriRows,
+        .menu-kategori-item,
+        .menu-kategori-item .card {
+            width: 100%;
+        }
+
+        .menu-kategori-item .card {
+            border: 1px solid #dbe7ff;
+            border-radius: 0.65rem;
+            box-shadow: 0 6px 14px rgba(30, 64, 175, 0.08);
+            overflow: hidden;
+        }
+
+        .menu-kategori-item .card-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .dd-handle {
+            white-space: normal;
+            word-break: break-word;
+            min-height: 38px;
+            padding: 6px 10px 6px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            line-height: 1.2;
+        }
+
+        .menu-label-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .menu-kind-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff4d6;
+            color: #d97706;
+            border: 1px solid #fcd34d;
+            flex-shrink: 0;
+            font-size: 10px;
+        }
+
+        .menu-text {
+            display: inline-block;
+            color: #1f2937;
+            line-height: 1.25;
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        .menu-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .dd-handle {
+                align-items: flex-start;
+            }
+
+            .menu-actions {
+                justify-content: flex-end;
+                max-width: 45%;
+            }
         }
 
         .is-invalid {
@@ -261,7 +389,7 @@ $(function () {
     // Handler untuk filter kategori
     $('#filterKategori').on('change', function () {
         var kode = $(this).val();
-        if (kode && kode !== 'all') {
+        if (kode !== 'all') {
             $('#menuKategoriWrapper').show();
             $('.menu-kategori-item').hide();
             $('.menu-kategori-item[data-kode="' + kode + '"]').show();
@@ -286,14 +414,11 @@ $(function () {
             setTimeout(function() {
                 initializeNestable();
             }, 100);
-        } else {
-            $('#menuKategoriWrapper').hide();
-            $('#saveOrderBtn').hide();
         }
     });
 
-    // Trigger change untuk menginisialisasi tampilan awal
-    $('#filterKategori').trigger('change');
+    // Default tampilan awal: Semua kategori langsung tampil
+    $('#filterKategori').val('all').trigger('change');
 
     // Fungsi untuk mengumpulkan data dari semua container
     function collectAllMenuData() {
