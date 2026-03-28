@@ -27,6 +27,14 @@
 
         // Tampilkan nama menu yang tepat berdasarkan hirarki data
         $displayName = $menu->getDisplayName();
+        $trimmedDisplayName = trim((string) $displayName);
+        $isGroupMenuLabel = preg_match('/^[-–—]+\s*/u', $trimmedDisplayName) === 1 || $trimmedDisplayName === '-';
+        $cleanDisplayName = preg_replace('/^\s*[-–—]+\s*/u', '', $displayName);
+
+        // Fallback agar item group yang awalnya hanya berisi '-' tetap punya label jelas
+        if ($isGroupMenuLabel && trim($cleanDisplayName) === '') {
+            $cleanDisplayName = 'Group Menu';
+        }
 
         $updateHakAkses = SetHakAksesModel::cekHakAkses(
             Auth::user()->user_id,
@@ -47,9 +55,16 @@
     <li class="dd-item" data-id="{{ $menu->web_menu_id }}" data-level="{{ $menu->fk_m_hak_akses }}"
         data-jenis="{{ $hakAksesKode }}">
         <div class="dd-handle">
-            <!-- Gunakan variabel displayName yang sudah kita buat -->
-            <span class="menu-text">{{ $displayName }}</span>
-            <span class="float-right">
+            <div class="menu-label-wrap">
+                @if($isGroupMenuLabel)
+                    <span class="menu-kind-icon" title="Group Menu">
+                        <i class="fas fa-star"></i>
+                    </span>
+                @endif
+                <span class="menu-text">{{ $cleanDisplayName }}</span>
+            </div>
+
+            <div class="menu-actions">
                 <span class="badge {{ $menu->wm_status_menu == 'aktif' ? 'badge-success' : 'badge-danger' }}">
                     {{ $menu->wm_status_menu }}
                 </span>
@@ -82,7 +97,7 @@
                         <i class="fas fa-trash"></i>
                     </button>
                 @endif
-            </span>
+            </div>
         </div>
         
         @if ($menu->children->count() > 0)
